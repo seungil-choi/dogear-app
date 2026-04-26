@@ -162,7 +162,7 @@ const initialState = DEV_PREVIEW_SEED
       hasCompletedOnboarding: true,
       isAuthLoading: false,
       consent: null,
-      currentLocation: { lat: 37.5443, lng: 127.0376, accuracy_m: 10 },
+      currentLocation: { latitude: 37.5443, longitude: 127.0376, accuracy: 10 },
       spots: mockSpots,
       checkins: mockCheckins,
       savedSpots: mockSavedSpots,

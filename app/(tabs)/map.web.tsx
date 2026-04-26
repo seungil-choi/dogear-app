@@ -549,7 +549,7 @@ export default function ExploreWebScreen() {
       >
         {/* 핸들 + 헤더 — 접힌 상태에서만 드래그 가능 (펼침 상태에서는 SearchAndFilters 터치 보호) */}
         <View
-          style={[s.sheetHeader, sheetExpanded && { paddingTop: Math.max(insets.top, Spacing[32]) + Spacing[20] }]}
+          style={[s.sheetHeader, sheetExpanded && { paddingTop: insets.top > 0 ? insets.top + Spacing[12] : Spacing[16] }]}
           {...(!sheetExpanded ? panResponder.panHandlers : {})}
         >
           {!sheetExpanded && <View style={s.sheetHandle} />}
