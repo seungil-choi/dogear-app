@@ -247,19 +247,21 @@ const s = StyleSheet.create({
     borderRadius: 8,
   },
   segmentActive: {
-    backgroundColor: Colors.text.primary,
+    backgroundColor: Colors.surface.default,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
   },
   segmentText:       { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '500' },
-  segmentTextActive: { color: '#FFFFFF', fontWeight: '700' },
+  segmentTextActive: { color: Colors.brand.accent, fontWeight: '700' },
   segCount: {
     minWidth: 17, height: 17, borderRadius: 8.5,
     backgroundColor: Colors.border.default,
     alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  segCountActive:     { backgroundColor: 'rgba(255,255,255,0.22)' },
+  segCountActive:     { backgroundColor: Colors.brand.primaryLight },
   segCountText:       { ...Typography.label.s, fontSize: 10, color: Colors.text.tertiary },
-  segCountTextActive: { color: '#FFFFFF', fontWeight: '700' },
+  segCountTextActive: { color: Colors.brand.accent, fontWeight: '700' },
 
   sortBar: {
     flexDirection: 'row',
