@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────
 export type DogSize = 'small' | 'medium' | 'large';
 export type DogAgeGroup = 'puppy' | 'adult' | 'senior';
-export type SpotCategory = 'park' | 'trail' | 'riverside' | 'rest_spot';
+export type SpotCategory = 'park' | 'trail' | 'riverside' | 'rest_spot' | 'pet_cafe' | 'beach';
 export type SpotStatus = 'active' | 'hidden' | 'archived';
 export type VisibilityLevel = 'private' | 'spot_only' | 'familiar_layer';
 export type RegularStatus = 'none' | 'candidate' | 'regular';
@@ -35,6 +35,8 @@ export interface Dog {
   user_id: string;
   name: string;
   avatar_url?: string;
+  breed?: string;         // 품종 (e.g., '말티즈', '푸들')
+  weight_kg?: number;     // 체중
   size: DogSize;
   age_group: DogAgeGroup;
   temperament_tags: string[];
@@ -52,6 +54,9 @@ export interface Spot {
   address_text?: string;
   neighborhood?: string;
   cover_image_url?: string;
+  opening_hours?: string;   // 운영 시간 (e.g., '연중무휴 · 24시간 개방')
+  features?: string[];      // 특징 태그 (e.g., ['나무 그늘 많아요', '평지에요'])
+  caution?: string;         // 주의사항
   status: SpotStatus;
   created_source: 'seed' | 'admin' | 'user_suggested';
   created_at: string;
@@ -124,6 +129,12 @@ export interface HomeSpotCardViewModel {
   has_visited: boolean;
   is_regular: boolean;
   cover_image_url?: string;
+  /** 방문 기록이 있을 때만 존재 */
+  visit_count?: number;
+  /** 마지막 방문 상대 시각 텍스트 (예: "어제", "3일 전") */
+  last_visit_text?: string;
+  /** 마지막 방문 ISO 타임스탬프 – 최신순 정렬용 */
+  last_visit_at?: string;
 }
 
 export interface MapPinViewModel {
@@ -159,6 +170,7 @@ export interface FamiliarDogCardViewModel {
   name: string;
   avatar_url?: string;
   size_label: string;
+  breed_age_text: string;   // e.g., '푸들 · 성견' 또는 '소형견 · 퍼피'
   temperament_preview: string[];
   last_seen_text: string;
 }
@@ -169,6 +181,7 @@ export interface TraceListItemViewModel {
   primary_tag_label: string;
   secondary_text?: string;
   has_photo: boolean;
+  photo_count?: number;
 }
 
 export interface SpotDetailViewModel {
@@ -181,10 +194,36 @@ export interface SpotDetailViewModel {
   atmosphere_summary: string;
   atmosphere_state: AtmosphereState;
   recent_trace_count: number;
+  unique_visitor_count: number;
   dominant_tags: string[];
   user_relation?: UserRelation;
   familiar_dogs: FamiliarDogCardViewModel[];
   recent_traces: TraceListItemViewModel[];
+  // 장소 정보
+  address_text?: string;
+  opening_hours?: string;
+  features?: string[];
+  caution?: string;
+}
+
+/** Edge Function spots-nearby 응답 뷰모델 */
+export interface SpotCardViewModel {
+  spotId: string;
+  name: string;
+  category: SpotCategory;
+  latitude: number;
+  longitude: number;
+  addressText: string | null;
+  neighborhood: string | null;
+  coverImageUrl: string | null;
+  distanceM: number;
+  checkinCount: number;
+  topFeelingTags: FeelingTag[];
+  atmosphereState: AtmosphereState;
+  userVisitCount: number;
+  lastVisitAt: string | null;
+  regularStatus: RegularStatus;
+  savedType: SavedType | null;
 }
 
 export interface RegularSpotCardViewModel {
@@ -253,4 +292,80 @@ export interface SpotAggregate {
   recent_unique_dog_count: number;
   dominant_feeling_tags: FeelingTag[];
   atmosphere_state: AtmosphereState;
+}
+
+// ─────────────────────────────────────────
+// 장소 제안
+// ─────────────────────────────────────────
+export type SpotProposalStatus = 'proposed' | 'temp_reflected' | 'approved' | 'rejected';
+
+export interface SuggestedSpot {
+  suggestion_id: string;
+  name: string;
+  description: string;
+  category: SpotCategory;
+  additional_tags: string[];
+  latitude: number;
+  longitude: number;
+  suggested_by_dog_id: string;
+  status: SpotProposalStatus;
+  suggested_at: string;
+}
+
+export interface NearbyDuplicate {
+  spot_id: string;
+  name: string;
+  category: SpotCategory;
+  category_label: string;
+  distance_m: number;
+  /** 10m 이내 + 동일 이름 + 동일 카테고리 → 제안 불가 */
+  is_hard_block: boolean;
+}
+
+// ─────────────────────────────────────────
+// UGC 모더레이션 (App Store 1.2 / Play UGC 정책 대응)
+// ─────────────────────────────────────────
+export type ReportTargetType = 'spot' | 'checkin' | 'dog' | 'user';
+export type ReportReason =
+  | 'inappropriate_content'   // 부적절한 콘텐츠 (음란·폭력 등)
+  | 'harassment'              // 괴롭힘·혐오표현
+  | 'spam'                    // 스팸·광고
+  | 'misinformation'          // 잘못된 정보 (장소 정보 오류)
+  | 'animal_abuse'            // 동물 학대
+  | 'privacy_violation'       // 개인정보 침해
+  | 'other';                  // 기타
+export type ReportStatus = 'pending' | 'reviewing' | 'resolved' | 'rejected';
+
+export interface Report {
+  report_id: string;
+  reporter_user_id: string;
+  target_type: ReportTargetType;
+  target_id: string;
+  reason: ReportReason;
+  detail?: string;
+  status: ReportStatus;
+  created_at: string;
+}
+
+export interface BlockedUser {
+  block_id: string;
+  blocker_user_id: string;
+  blocked_user_id: string;
+  blocked_dog_id?: string;     // 강아지 단위로도 차단 가능
+  blocked_at: string;
+}
+
+// ─────────────────────────────────────────
+// 약관 동의 (개인정보보호법 / 위치정보법 대응)
+// ─────────────────────────────────────────
+export interface ConsentRecord {
+  /** 서비스 이용약관 — 필수 */
+  terms_of_service: boolean;
+  /** 개인정보 수집·이용 — 필수 */
+  privacy_policy: boolean;
+  /** 위치기반서비스 이용약관 — 필수 */
+  location_terms: boolean;
+  /** 마케팅 수신 — 선택 */
+  marketing_optin?: boolean;
+  agreed_at: string;
 }

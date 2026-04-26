@@ -1,0 +1,92 @@
+/**
+ * usePawCheckin — 발도장 저장 훅
+ *
+ * paw-checkin Edge Function을 호출한다.
+ * PawFlowStore의 상태를 읽어 요청을 구성한다.
+ */
+
+import { useState, useCallback } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAppStore } from '@/store/useAppStore';
+import type { VisibilityLevel } from '@/types';
+
+interface PawCheckinResult {
+  checkinId: string;
+  spotName: string;
+  checkedInAt: string;
+  visitSummary: {
+    visitCount: number;
+    lastVisitAt: string;
+    regularStatus: string;
+  } | null;
+}
+
+interface UsePawCheckinReturn {
+  submit: () => Promise<PawCheckinResult>;
+  isSubmitting: boolean;
+  error: string | null;
+}
+
+export function usePawCheckin(): UsePawCheckinReturn {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const activeDog = useAppStore(s => s.activeDog);
+  const pawFlow = useAppStore(s => s.pawFlow);
+  const selectedSpotId = pawFlow.selectedSpot?.spot_id;
+  const selectedFeelingTags = pawFlow.selectedTags;
+  const note = pawFlow.note;
+  const visibilityLevel = pawFlow.visibility;
+
+  const submit = useCallback(async (): Promise<PawCheckinResult> => {
+    if (!activeDog?.dog_id) {
+      throw new Error('강아지 정보가 없어요');
+    }
+    if (!selectedSpotId) {
+      throw new Error('스팟을 선택해 주세요');
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('paw-checkin', {
+        body: {
+          dogId: activeDog.dog_id,
+          spotId: selectedSpotId,
+          feelingTags: selectedFeelingTags,
+          note: note || undefined,
+          visibilityLevel: visibilityLevel as VisibilityLevel,
+          sourceType: 'global_cta',
+        },
+      });
+
+      if (fnError) {
+        // 중복 체크인 처리
+        if (fnError.message?.includes('409') || fnError.context?.status === 409) {
+          throw new Error('최근 1시간 내에 이미 발도장을 남겼어요');
+        }
+        throw fnError;
+      }
+
+      return {
+        checkinId: data.checkin_id,
+        spotName: data.spot_name,
+        checkedInAt: data.checked_in_at,
+        visitSummary: data.visit_summary ? {
+          visitCount: data.visit_summary.visit_count,
+          lastVisitAt: data.visit_summary.last_visit_at,
+          regularStatus: data.visit_summary.regular_status,
+        } : null,
+      };
+    } catch (err: any) {
+      const message = err.message ?? '발도장 저장에 실패했어요';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [activeDog, selectedSpotId, selectedFeelingTags, note, visibilityLevel]);
+
+  return { submit, isSubmitting, error };
+}

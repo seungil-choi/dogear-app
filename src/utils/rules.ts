@@ -3,7 +3,7 @@ import type {
   AtmosphereState, FeelingTag, RegularStatus, PinVariant, HomeSpotCardViewModel,
   MapPinViewModel, Spot, Dog,
 } from '../types';
-import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels } from './labels';
+import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel } from './labels';
 import type { FamiliarDogCardViewModel, TraceListItemViewModel, SpotAggregate } from '../types';
 
 const HOURS_72 = 72 * 60 * 60 * 1000;
@@ -105,6 +105,9 @@ export function buildHomeSpotCard(
     has_visited: !!summary,
     is_regular: regular_status === 'regular',
     cover_image_url: spot.cover_image_url,
+    visit_count: summary?.visit_count,
+    last_visit_text: summary ? relativeTime(summary.last_visit_at) : undefined,
+    last_visit_at: summary?.last_visit_at,
   };
 }
 
@@ -124,7 +127,7 @@ export function computePinVariant(
 export function buildFamiliarDogCards(
   spotId: string,
   signals: FamiliarDogSignal[],
-  dogs: Pick<Dog, 'dog_id' | 'name' | 'size' | 'temperament_tags' | 'avatar_url'>[],
+  dogs: Pick<Dog, 'dog_id' | 'name' | 'size' | 'age_group' | 'breed' | 'temperament_tags' | 'avatar_url'>[],
   currentDogId: string,
   privacySettings: Map<string, PrivacySetting>,
   allCheckins: PawCheckin[],
@@ -150,13 +153,17 @@ export function buildFamiliarDogCards(
 
   return eligible.map(s => {
     const dog = dogs.find(d => d.dog_id === s.visible_dog_id);
+    const breedAgeText = dog
+      ? (dog.breed ? `${dog.breed} · ${ageGroupLabel[dog.age_group]}` : `${sizeLabel[dog.size]} · ${ageGroupLabel[dog.age_group]}`)
+      : '';
     return {
       dog_id: s.visible_dog_id,
       name: dog?.name ?? '강아지',
       avatar_url: dog?.avatar_url,
       size_label: dog ? sizeLabel[dog.size] : '',
+      breed_age_text: breedAgeText,
       temperament_preview: (dog?.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),
-      last_seen_text: '최근 자주 보였어요',
+      last_seen_text: relativeTime(s.recent_last_seen_at),
     };
   });
 }
@@ -176,6 +183,7 @@ export function buildTraceList(
       primary_tag_label: c.feeling_tags[0] ? feelingTagLabel[c.feeling_tags[0]] : '',
       secondary_text: c.note ?? (c.feeling_tags[1] ? feelingTagLabel[c.feeling_tags[1]] : undefined),
       has_photo: !!c.photo_url,
+      photo_count: c.photo_url ? 1 : 0,
     }));
 }
 

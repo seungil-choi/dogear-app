@@ -38,19 +38,21 @@ export const categoryLabel: Record<SpotCategory, string> = {
   trail: '산책로',
   riverside: '하천/강변',
   rest_spot: '쉼터',
+  pet_cafe: '애견 카페',
+  beach: '해변',
 };
 
 // ─── 공개 범위 라벨 ─────────────────────────────
 export const visibilityLabel: Record<VisibilityLevel, string> = {
   private: '나만 보기',
-  spot_only: '장소 분위기에만 반영',
-  familiar_layer: '익숙한 강아지 레이어에 반영',
+  spot_only: '장소 분위기 반영',
+  familiar_layer: '산책 친구 찾기',
 };
 
 export const visibilityDescription: Record<VisibilityLevel, string> = {
   private: '기록은 저장되지만 다른 곳에는 반영되지 않아요',
-  spot_only: '장소 분위기 집계에만 반영되고, 개별 강아지로는 보이지 않아요',
-  familiar_layer: '조건을 충족하면 익숙한 강아지 레이어에 최소 정보로 노출될 수 있어요',
+  spot_only: '장소 분위기 집계에만 반영되고, 우리 아이 정보는 보이지 않아요',
+  familiar_layer: '안전 조건을 충족한 경우에만 자주 만나는 강아지에게 최소한의 정보로 소개돼요',
 };
 
 // ─── 단골 상태 라벨 ─────────────────────────────
@@ -99,9 +101,11 @@ export function relativeTime(isoString: string): string {
 
 // ─── 방문 날짜 텍스트 ─────────────────────────────
 export function visitDateText(isoString: string): string {
-  return new Date(isoString).toLocaleDateString('ko-KR', {
-    year: 'numeric', month: 'long', day: 'numeric',
-  });
+  const d = new Date(isoString);
+  const y = String(d.getFullYear()).slice(2);
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}.${m}.${day}`;
 }
 
 // ─── 거리 텍스트 (mock) ─────────────────────────────

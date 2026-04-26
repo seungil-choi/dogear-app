@@ -1,0 +1,295 @@
+/**
+ * 내장소 탭
+ *
+ * 역할: 우리 아이와 관계가 생긴 장소와 저장한 장소를 관리/회고
+ * 핵심 질문: "우리는 어디를 다녔고, 어디를 다시 가고 싶지?"
+ *
+ * 구조:
+ *   Tab 1. 발도장 남긴 곳 — 방문횟수 + 최근방문일 + 단골 상태 라벨
+ *   Tab 2. 저장한 곳      — 가보고 싶은 곳 / 다시 가고 싶은 곳
+ */
+
+import React, { useState, useMemo } from 'react';
+import {
+  View, Text, ScrollView, TouchableOpacity,
+  StyleSheet, SafeAreaView,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
+import { useAppStore } from '../../src/store/useAppStore';
+import { ListSpotCard } from '../../src/components/spot/SpotCard';
+import { EmptyState } from '../../src/components/common/EmptyState';
+import { Icon } from '../../src/components/common/Icon';
+import { relativeTime, categoryLabel as catLabel } from '../../src/utils/labels';
+import { computeRegularStatus } from '../../src/utils/rules';
+
+type Tab = 'visited' | 'saved';
+type SortKey = 'recent' | 'regular';
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'visited', label: '발도장 남긴 곳' },
+  { key: 'saved',   label: '저장한 곳' },
+];
+
+const REGULAR_LABEL: Record<string, string> = {
+  regular: '단골 스팟',
+  almost:  '거의 단골',
+  active:  '활발히 방문 중',
+  fading:  '관계가 옅어지는 중',
+  none:    '',
+};
+
+export default function MySpotsScreen() {
+  const router  = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>('visited');
+  const [sortKey,   setSortKey]   = useState<SortKey>('recent');
+
+  const dog            = useAppStore(s => s.dog);
+  const spots          = useAppStore(s => s.spots);
+  const visitSummaries = useAppStore(s => s.visitSummaries);
+  const savedSpots     = useAppStore(s => s.savedSpots);
+  const isSaved        = useAppStore(s => s.isSaved);
+  const getHomeCards   = useAppStore(s => s.getHomeCards);
+
+  const homeCards = useMemo(() => getHomeCards(), [getHomeCards]);
+
+  // ── 발도장 남긴 곳 ────────────────────────────────────────────
+  const visitedSpots = useMemo(() => {
+    const base = visitSummaries
+      .filter(sv => sv.dog_id === dog?.dog_id)
+      .map(sv => ({
+        ...sv,
+        regularStatus: computeRegularStatus(sv),
+        spot: spots.find(sp => sp.spot_id === sv.spot_id),
+      }))
+      .filter(sv => sv.spot);
+
+    if (sortKey === 'recent') {
+      return [...base].sort(
+        (a, b) => new Date(b.last_visit_at).getTime() - new Date(a.last_visit_at).getTime()
+      );
+    }
+    // 단골 장소 우선
+    return [...base].sort((a, b) => {
+      const aReg = a.regularStatus !== 'none' ? 1 : 0;
+      const bReg = b.regularStatus !== 'none' ? 1 : 0;
+      if (bReg !== aReg) return bReg - aReg;
+      return b.visit_count - a.visit_count;
+    });
+  }, [visitSummaries, spots, dog, sortKey]);
+
+  // ── 저장한 곳 ────────────────────────────────────────────────
+  const mySavedSpots = useMemo(() =>
+    savedSpots
+      .filter(sv => sv.dog_id === dog?.dog_id)
+      .map(saved => {
+        const spot = spots.find(sp => sp.spot_id === saved.spot_id);
+        const card = homeCards.find(c => c.spot_id === saved.spot_id);
+        return spot ? { saved, spot, card } : null;
+      })
+      .filter(Boolean) as { saved: typeof savedSpots[0]; spot: typeof spots[0]; card: typeof homeCards[0] | undefined }[],
+  [savedSpots, spots, homeCards, dog]);
+
+  const counts: Record<Tab, number> = {
+    visited: visitedSpots.length,
+    saved:   mySavedSpots.length,
+  };
+
+  return (
+    <SafeAreaView style={s.safe}>
+      {/* 헤더 */}
+      <View style={s.header}>
+        {/* 세그먼트 컨트롤 */}
+        <View style={s.segmentedControl}>
+          {TABS.map(tab => {
+            const active = activeTab === tab.key;
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                style={[s.segment, active && s.segmentActive]}
+                onPress={() => setActiveTab(tab.key)}
+                activeOpacity={0.8}
+              >
+                <Text style={[s.segmentText, active && s.segmentTextActive]}>
+                  {tab.label}
+                </Text>
+                {counts[tab.key] > 0 && (
+                  <View style={[s.segCount, active && s.segCountActive]}>
+                    <Text style={[s.segCountText, active && s.segCountTextActive]}>
+                      {counts[tab.key]}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      {/* 정렬 바 — 발도장 남긴 곳 탭에서만 */}
+      {activeTab === 'visited' && visitedSpots.length > 0 && (
+        <View style={s.sortBar}>
+          <TouchableOpacity
+            style={[s.sortBtn, sortKey === 'recent' && s.sortBtnActive]}
+            onPress={() => setSortKey('recent')}
+          >
+            <Text style={[s.sortBtnText, sortKey === 'recent' && s.sortBtnTextActive]}>최근 방문순</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[s.sortBtn, sortKey === 'regular' && s.sortBtnActive]}
+            onPress={() => setSortKey('regular')}
+          >
+            <Icon name="star" size={12} color={sortKey === 'regular' ? Colors.brand.primary : Colors.text.tertiary} />
+            <Text style={[s.sortBtnText, sortKey === 'regular' && s.sortBtnTextActive]}>단골 장소</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <ScrollView
+        style={s.scroll}
+        contentContainerStyle={s.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* ── 발도장 남긴 곳 ── */}
+        {activeTab === 'visited' && (
+          visitedSpots.length === 0 ? (
+            <EmptyState
+              headline="아직 발도장이 없어요"
+              description="산책하고 발도장을 찍으면 여기에 하나씩 기록돼요."
+              ctaLabel="첫 발도장 찍으러 가기"
+              onCta={() => router.push('/paw-checkin')}
+            />
+          ) : (
+            <>
+              {visitedSpots.map(sv => {
+                if (!sv.spot) return null;
+                const regularLabel = REGULAR_LABEL[sv.regularStatus] || undefined;
+                return (
+                  <ListSpotCard
+                    key={sv.summary_id}
+                    name={sv.spot.name}
+                    categoryLabel={catLabel[sv.spot.category]}
+                    distanceText={`총 ${sv.visit_count}회 방문`}
+                    atmosphereSummary={`마지막 방문 ${relativeTime(sv.last_visit_at)}`}
+                    relationSummary={regularLabel}
+                    isSaved={isSaved(sv.spot_id)}
+                    coverImageUrl={sv.spot.cover_image_url}
+                    onPress={() => router.push(`/spot/${sv.spot_id}`)}
+                  />
+                );
+              })}
+            </>
+          )
+        )}
+
+        {/* ── 저장한 곳 ── */}
+        {activeTab === 'saved' && (
+          mySavedSpots.length === 0 ? (
+            <EmptyState
+              headline="저장한 장소가 없어요"
+              description="마음에 드는 장소를 저장해두면 여기에 모여요."
+              ctaLabel="장소 탐색하러 가기"
+              onCta={() => router.push('/(tabs)/map')}
+            />
+          ) : (
+            <>
+              {mySavedSpots.map(({ saved, spot, card }) => (
+                <ListSpotCard
+                  key={saved.saved_spot_id}
+                  name={spot.name}
+                  categoryLabel={catLabel[spot.category]}
+                  distanceText={card?.distance_text ?? '—'}
+                  atmosphereSummary={card?.atmosphere_badges.join(' · ')}
+                  isSaved={true}
+                  coverImageUrl={spot.cover_image_url}
+                  onPress={() => router.push(`/spot/${spot.spot_id}`)}
+                />
+              ))}
+            </>
+          )
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: Colors.bg.primary },
+
+  header: {
+    paddingHorizontal: Spacing[16],
+    paddingTop: Spacing[20],
+    paddingBottom: Spacing[12],
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border.default,
+    backgroundColor: Colors.bg.primary,
+    gap: Spacing[14],
+  },
+  screenTitle: { ...Typography.display.s, color: Colors.text.primary },
+
+  // ── 세그먼트 컨트롤 ──────────────────────────────────────
+  segmentedControl: {
+    flexDirection: 'row',
+    backgroundColor: Colors.bg.secondary,
+    borderRadius: Radius.m,
+    padding: 3,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+  },
+  segment: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[6],
+    paddingVertical: Spacing[9],
+    paddingHorizontal: Spacing[8],
+    borderRadius: 8,
+  },
+  segmentActive: {
+    backgroundColor: Colors.text.primary,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  segmentText:       { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '500' },
+  segmentTextActive: { color: '#FFFFFF', fontWeight: '700' },
+  segCount: {
+    minWidth: 17, height: 17, borderRadius: 8.5,
+    backgroundColor: Colors.border.default,
+    alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  segCountActive:     { backgroundColor: 'rgba(255,255,255,0.22)' },
+  segCountText:       { ...Typography.label.s, fontSize: 10, color: Colors.text.tertiary },
+  segCountTextActive: { color: '#FFFFFF', fontWeight: '700' },
+
+  sortBar: {
+    flexDirection: 'row',
+    paddingHorizontal: Spacing[16],
+    paddingVertical: Spacing[10],
+    gap: Spacing[8],
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border.default,
+    backgroundColor: Colors.bg.primary,
+  },
+  sortBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[4],
+    paddingHorizontal: Spacing[12],
+    paddingVertical: Spacing[6],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.bg.secondary,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+  },
+  sortBtnActive:     { backgroundColor: Colors.surface.selected, borderColor: Colors.border.brand },
+  sortBtnText:       { ...Typography.label.s, color: Colors.text.tertiary },
+  sortBtnTextActive: { color: Colors.brand.accent, fontWeight: '600' },
+
+  scroll:        { flex: 1 },
+  scrollContent: { paddingBottom: 24 },
+});

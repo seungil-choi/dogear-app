@@ -2,33 +2,76 @@ import { create } from 'zustand';
 import type {
   User, Dog, Spot, PawCheckin, SavedSpot, SpotVisitSummary,
   FamiliarDogSignal, PrivacySetting, VisibilityLevel, FeelingTag,
-  HomeSpotCardViewModel,
+  HomeSpotCardViewModel, SuggestedSpot, NearbyDuplicate, SpotCategory,
+  Report, BlockedUser, ConsentRecord, ReportTargetType, ReportReason,
 } from '../types';
-import {
-  mockUser, mockDog, mockSpots, mockCheckins, mockSavedSpots,
-  mockVisitSummaries, mockFamiliarDogSignals, mockPrivacySetting, mockOtherDogs,
-} from '../data/mockData';
+
+// ─── Haversine 거리 계산 (미터) ───────────────────────────────
+function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 import {
   computeSpotAggregate, buildHomeSpotCard, computeRegularStatus,
-  buildFamiliarDogCards, buildTraceList, computePinVariant, computeDogMapPinVariant,
+  buildFamiliarDogCards, buildTraceList, computeDogMapPinVariant,
 } from '../utils/rules';
 import { categoryLabel, atmosphereLabel, regularStatusLabel, visitDateText, relativeTime } from '../utils/labels';
 import type { SpotDetailViewModel, DogMapSpotViewModel } from '../types';
+import {
+  mockUser, mockDog, mockDogs, mockSpots, mockCheckins, mockSavedSpots,
+  mockVisitSummaries, mockFamiliarDogSignals, mockPrivacySetting,
+} from '../data/mockData';
+
+// 🔧 DEV ONLY — 미리보기/스크린샷용 시드. 출시 전 false로 되돌릴 것.
+const DEV_PREVIEW_SEED = true;
+
+// ─── 기본 개인정보 설정 (강아지 신규 가입 시 사용) ─────────────────
+const defaultPrivacySetting: PrivacySetting = {
+  privacy_setting_id: 'ps_default',
+  dog_id: '',
+  default_visibility_level: 'spot_only',
+  allow_familiar_layer_exposure: false,
+  allow_future_reactions: false,
+  updated_at: new Date().toISOString(),
+};
 
 interface AppState {
   // Auth
   user: User | null;
-  dog: Dog | null;
+  dog: Dog | null;         // legacy alias → activeDog
+  activeDog: Dog | null;   // 현재 활성 강아지
   privacySetting: PrivacySetting;
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
+  isAuthLoading: boolean;
 
-  // Data
+  // 약관 동의 (앱스토어/법규 대응)
+  consent: ConsentRecord | null;
+
+  // Location
+  currentLocation: { latitude: number; longitude: number; accuracy?: number } | null;
+
+  // Dogs
+  dogs: Dog[];
+
+  // Data — Supabase 연동 전까지는 빈 배열로 시작 (mock 데이터 출시 빌드 차단)
   spots: Spot[];
   checkins: PawCheckin[];
   savedSpots: SavedSpot[];
   visitSummaries: SpotVisitSummary[];
   familiarSignals: FamiliarDogSignal[];
+  suggestedSpots: SuggestedSpot[];
+
+  // UGC 모더레이션
+  reports: Report[];
+  blockedUsers: BlockedUser[];
 
   // UI State
   selectedSpotId: string | null;
@@ -59,6 +102,47 @@ interface AppState {
   resetPawFlow: () => void;
   updatePrivacySetting: (updates: Partial<PrivacySetting>) => void;
 
+  // 발도장 삭제 (개인정보 자기결정권)
+  deleteCheckin: (checkinId: string) => void;
+
+  // 약관 동의
+  setConsent: (consent: ConsentRecord) => void;
+
+  // 회원 탈퇴 (App Store 5.1.1(v) 필수)
+  // 실제 백엔드 연동 시 Supabase RPC + auth.users 삭제 필요
+  deleteAccount: (reason?: string) => Promise<void>;
+
+  // UGC 모더레이션 (App Store 1.2 필수)
+  reportContent: (target_type: ReportTargetType, target_id: string, reason: ReportReason, detail?: string) => void;
+  blockUser: (blocked_user_id: string, blocked_dog_id?: string) => void;
+  unblockUser: (block_id: string) => void;
+  isUserBlocked: (user_id: string) => boolean;
+
+  // Supabase 연동 actions
+  setUser: (user: User | null) => void;
+  setActiveDog: (dog: Dog | null) => void;
+  setDogs: (dogs: Dog[]) => void;
+  setAuthLoading: (loading: boolean) => void;
+  setCurrentLocation: (loc: { latitude: number; longitude: number; accuracy?: number } | null) => void;
+
+  // 데이터 주입 (Supabase 페치 결과 반영용)
+  setSpots: (spots: Spot[]) => void;
+  setCheckins: (checkins: PawCheckin[]) => void;
+  setSavedSpots: (savedSpots: SavedSpot[]) => void;
+  setVisitSummaries: (visitSummaries: SpotVisitSummary[]) => void;
+  setFamiliarSignals: (signals: FamiliarDogSignal[]) => void;
+
+  // Spot 제안 actions
+  suggestSpot: (data: {
+    name: string;
+    description: string;
+    category: SpotCategory;
+    additional_tags: string[];
+    latitude: number;
+    longitude: number;
+  }) => void;
+  getNearbyDuplicates: (lat: number, lng: number, name: string, category: SpotCategory) => NearbyDuplicate[];
+
   // Computed helpers
   getSpotDetail: (spotId: string) => SpotDetailViewModel | null;
   getHomeCards: () => HomeSpotCardViewModel[];
@@ -66,21 +150,54 @@ interface AppState {
   isSaved: (spotId: string) => boolean;
 }
 
+// ─── 초기 빈 상태 (logout/회원탈퇴 시 reset 용) ───────────────
+const initialState = DEV_PREVIEW_SEED
+  ? {
+      user: mockUser,
+      dog: mockDog,
+      activeDog: mockDog,
+      dogs: mockDogs,
+      privacySetting: mockPrivacySetting,
+      isAuthenticated: true,
+      hasCompletedOnboarding: true,
+      isAuthLoading: false,
+      consent: null,
+      currentLocation: { lat: 37.5443, lng: 127.0376, accuracy_m: 10 },
+      spots: mockSpots,
+      checkins: mockCheckins,
+      savedSpots: mockSavedSpots,
+      visitSummaries: mockVisitSummaries,
+      familiarSignals: mockFamiliarDogSignals,
+      suggestedSpots: [],
+      reports: [],
+      blockedUsers: [],
+      selectedSpotId: null,
+    }
+  : {
+      user: null,
+      dog: null,
+      activeDog: null,
+      dogs: [],
+      privacySetting: defaultPrivacySetting,
+      isAuthenticated: false,
+      hasCompletedOnboarding: false,
+      isAuthLoading: true,
+      consent: null,
+      currentLocation: null,
+      spots: [],
+      checkins: [],
+      savedSpots: [],
+      visitSummaries: [],
+      familiarSignals: [],
+      suggestedSpots: [],
+      reports: [],
+      blockedUsers: [],
+      selectedSpotId: null,
+    };
+
 export const useAppStore = create<AppState>((set, get) => ({
-  // ─── Initial State ───────────────────────────────────
-  user: mockUser,
-  dog: mockDog,
-  privacySetting: mockPrivacySetting,
-  isAuthenticated: false,
-  hasCompletedOnboarding: false,
-
-  spots: mockSpots,
-  checkins: mockCheckins,
-  savedSpots: mockSavedSpots,
-  visitSummaries: mockVisitSummaries,
-  familiarSignals: mockFamiliarDogSignals,
-
-  selectedSpotId: null,
+  // ─── Initial State (mock 제거 — Supabase 페치로 채워짐) ─────────
+  ...initialState,
 
   pawFlow: {
     step: 1,
@@ -92,7 +209,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   // ─── Actions ───────────────────────────────────
   completeOnboarding: () => set({ hasCompletedOnboarding: true }),
   login: () => set({ isAuthenticated: true }),
-  logout: () => set({ isAuthenticated: false }),
+  // 로그아웃: 모든 사용자 데이터 초기화 (다음 로그인 시 데이터 오염 방지)
+  logout: () => set({
+    ...initialState,
+    isAuthLoading: false,
+    hasCompletedOnboarding: get().hasCompletedOnboarding, // 온보딩 완료 상태는 유지
+  }),
 
   selectSpot: (spotId) => set({ selectedSpotId: spotId }),
 
@@ -187,54 +309,196 @@ export const useAppStore = create<AppState>((set, get) => ({
   updatePrivacySetting: (updates) =>
     set(s => ({ privacySetting: { ...s.privacySetting, ...updates, updated_at: new Date().toISOString() } })),
 
+  // 발도장 삭제 — 본인 발도장만 삭제 가능
+  deleteCheckin: (checkinId) => {
+    const { checkins, dog } = get();
+    if (!dog) return;
+    set({ checkins: checkins.filter(c => !(c.checkin_id === checkinId && c.dog_id === dog.dog_id)) });
+  },
+
+  setConsent: (consent) => set({ consent }),
+
+  // 회원탈퇴 — 모든 사용자 데이터 영구 삭제
+  // TODO(P0): Supabase RPC `delete_user_account` 호출 — auth.users + cascade delete
+  deleteAccount: async (_reason) => {
+    // 백엔드 연동 전: 클라이언트 상태만 초기화
+    set({ ...initialState, isAuthLoading: false, hasCompletedOnboarding: false });
+  },
+
+  // UGC 신고
+  reportContent: (target_type, target_id, reason, detail) => {
+    const { reports, user } = get();
+    const newReport: Report = {
+      report_id: `rpt_${Date.now()}`,
+      reporter_user_id: user?.user_id ?? 'anonymous',
+      target_type,
+      target_id,
+      reason,
+      detail,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+    };
+    // TODO(P0): Supabase reports 테이블 insert + 운영자 알림
+    set({ reports: [...reports, newReport] });
+  },
+
+  blockUser: (blocked_user_id, blocked_dog_id) => {
+    const { blockedUsers, user } = get();
+    if (!user) return;
+    if (blockedUsers.some(b => b.blocked_user_id === blocked_user_id)) return;
+    const newBlock: BlockedUser = {
+      block_id: `blk_${Date.now()}`,
+      blocker_user_id: user.user_id,
+      blocked_user_id,
+      blocked_dog_id,
+      blocked_at: new Date().toISOString(),
+    };
+    set({ blockedUsers: [...blockedUsers, newBlock] });
+  },
+
+  unblockUser: (block_id) => {
+    const { blockedUsers } = get();
+    set({ blockedUsers: blockedUsers.filter(b => b.block_id !== block_id) });
+  },
+
+  isUserBlocked: (user_id) => {
+    return get().blockedUsers.some(b => b.blocked_user_id === user_id);
+  },
+
+  // Supabase 연동
+  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  setActiveDog: (dog) => set({ activeDog: dog, dog }),
+  setDogs: (dogs) => set({ dogs }),
+  setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
+  setCurrentLocation: (currentLocation) => set({ currentLocation }),
+
+  setSpots: (spots) => set({ spots }),
+  setCheckins: (checkins) => set({ checkins }),
+  setSavedSpots: (savedSpots) => set({ savedSpots }),
+  setVisitSummaries: (visitSummaries) => set({ visitSummaries }),
+  setFamiliarSignals: (familiarSignals) => set({ familiarSignals }),
+
   isSaved: (spotId) => {
     const { savedSpots, dog } = get();
     if (!dog) return false;
     return savedSpots.some(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
   },
 
+  // ─── 장소 제안 ────────────────────────────────────────────────
+  suggestSpot: ({ name, description, category, additional_tags, latitude, longitude }) => {
+    const { dog, suggestedSpots } = get();
+    if (!dog) return;
+    const newSuggestion: SuggestedSpot = {
+      suggestion_id: `sug_${Date.now()}`,
+      name,
+      description,
+      category,
+      additional_tags,
+      latitude,
+      longitude,
+      suggested_by_dog_id: dog.dog_id,
+      status: 'proposed',
+      suggested_at: new Date().toISOString(),
+    };
+    set({ suggestedSpots: [...suggestedSpots, newSuggestion] });
+  },
+
+  getNearbyDuplicates: (lat, lng, name, category) => {
+    const { spots } = get();
+    const normalize = (s: string) => s.trim().toLowerCase();
+    return spots
+      .filter(s => s.status === 'active')
+      .map(s => ({ spot: s, dist: haversineDistance(lat, lng, s.latitude, s.longitude) }))
+      .filter(({ dist }) => dist <= 15)
+      .map(({ spot, dist }) => ({
+        spot_id: spot.spot_id,
+        name: spot.name,
+        category: spot.category,
+        category_label: categoryLabel[spot.category],
+        distance_m: Math.round(dist),
+        is_hard_block:
+          dist <= 10 &&
+          normalize(spot.name) === normalize(name) &&
+          spot.category === category,
+      }));
+  },
+
   // ─── Computed: Home Cards ───────────────────────────────────
+  // 거리는 currentLocation 기반으로 실제 계산 (mock random 제거)
   getHomeCards: () => {
-    const { spots, checkins, visitSummaries, dog } = get();
+    const { spots, checkins, visitSummaries, dog, currentLocation, blockedUsers } = get();
     if (!dog) return [];
+
+    // 차단한 사용자/강아지의 발도장 제외
+    const blockedDogIds = new Set(blockedUsers.map(b => b.blocked_dog_id).filter(Boolean) as string[]);
+    const filteredCheckins = checkins.filter(c => !blockedDogIds.has(c.dog_id));
 
     return spots
       .filter(s => s.status === 'active')
       .map(spot => {
-        const agg = computeSpotAggregate(spot.spot_id, checkins);
+        const agg = computeSpotAggregate(spot.spot_id, filteredCheckins);
         const summary = visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spot.spot_id);
-        const distanceMeters = Math.random() * 2000 + 100; // mock 거리
+        // currentLocation이 있으면 실제 거리, 없으면 0 (UI에서 "거리 정보 없음" 처리)
+        const distanceMeters = currentLocation
+          ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
+          : 0;
         return buildHomeSpotCard(spot, agg, summary, distanceMeters);
       });
   },
 
   // ─── Computed: Spot Detail ───────────────────────────────────
   getSpotDetail: (spotId) => {
-    const { spots, checkins, visitSummaries, familiarSignals, dog, savedSpots, privacySetting } = get();
+    const {
+      spots, checkins, visitSummaries, familiarSignals, dog,
+      savedSpots, privacySetting, currentLocation, blockedUsers, dogs,
+    } = get();
     const spot = spots.find(s => s.spot_id === spotId);
     if (!spot || !dog) return null;
 
-    const agg = computeSpotAggregate(spotId, checkins);
+    // 차단 적용
+    const blockedDogIds = new Set(blockedUsers.map(b => b.blocked_dog_id).filter(Boolean) as string[]);
+    const filteredCheckins = checkins.filter(c => !blockedDogIds.has(c.dog_id));
+
+    const agg = computeSpotAggregate(spotId, filteredCheckins);
     const summary = visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spotId);
     const isSaved = savedSpots.some(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
 
     const psMap = new Map([[dog.dog_id, privacySetting]]);
-    const familiarDogs = buildFamiliarDogCards(spotId, familiarSignals, mockOtherDogs, dog.dog_id, psMap, checkins);
-    const traces = buildTraceList(spotId, checkins);
+    // 익숙한 강아지 후보: 등록된 dogs 풀에서만 (mockOtherDogs 의존성 제거)
+    const familiarDogs = buildFamiliarDogCards(spotId, familiarSignals, dogs, dog.dog_id, psMap, filteredCheckins);
+    const traces = buildTraceList(spotId, filteredCheckins);
 
     const regularStatus = summary ? computeRegularStatus(summary) : 'none';
+
+    // 거리: currentLocation 기반 — 없으면 표시 생략
+    const distanceMeters = currentLocation
+      ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
+      : null;
+    const distanceText =
+      distanceMeters == null
+        ? '거리 정보 없음'
+        : distanceMeters < 100
+        ? '바로 근처'
+        : distanceMeters < 1000
+        ? `${Math.round(distanceMeters / 10) * 10}m`
+        : `${(distanceMeters / 1000).toFixed(1)}km`;
 
     return {
       spot_id: spotId,
       name: spot.name,
       category_label: categoryLabel[spot.category],
-      distance_text: '도보 8분',
+      distance_text: distanceText,
       cover_image_url: spot.cover_image_url,
       is_saved: isSaved,
       atmosphere_summary: atmosphereLabel[agg.atmosphere_state],
       atmosphere_state: agg.atmosphere_state,
       recent_trace_count: agg.recent_trace_count,
+      unique_visitor_count: agg.recent_unique_dog_count,
       dominant_tags: agg.dominant_feeling_tags,
+      address_text: spot.address_text,
+      opening_hours: spot.opening_hours,
+      features: spot.features,
+      caution: spot.caution,
       user_relation: summary
         ? {
             first_visit_text: visitDateText(summary.first_visit_at),
@@ -271,3 +535,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       .filter(Boolean) as DogMapSpotViewModel[];
   },
 }));
+
+// ─── DEV ONLY: window에 store 노출 (preview/디버깅용) ────────────
+// 프로덕션 빌드에서는 __DEV__가 false로 트리쉐이킹됨
+if (typeof window !== 'undefined') {
+  (window as any).__store = useAppStore;
+}

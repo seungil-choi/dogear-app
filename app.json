@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "dogear-app",
+    "name": "DogEar",
     "slug": "dogear-app",
     "version": "1.0.0",
+    "scheme": "dogear",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -10,21 +11,64 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#F5F3EF"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.9factorial.dogear",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "주변 산책 장소를 찾고 발도장에 위치 정보를 기록하기 위해 위치 정보가 필요해요. 권한을 거부해도 앱의 다른 기능은 사용할 수 있어요.",
+        "NSCameraUsageDescription": "발도장 기록에 직접 촬영한 사진을 추가하려면 카메라 접근이 필요해요. 사진은 발도장 메모에만 사용되며 외부로 공유되지 않아요.",
+        "NSPhotoLibraryUsageDescription": "발도장 기록과 강아지 프로필에 사진을 추가하려면 사진 라이브러리 접근이 필요해요. 선택한 사진만 앱이 사용해요.",
+        "NSPhotoLibraryAddUsageDescription": "발도장 사진을 사진 라이브러리에 저장하려면 권한이 필요해요.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#F5F3EF"
       },
+      "package": "com.factorial9.dogear",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA"
+      ],
+      "blockedPermissions": [
+        "ACCESS_BACKGROUND_LOCATION",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
+      "bundler": "metro",
+      "output": "static",
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "주변 산책 장소를 찾고 발도장에 위치 정보를 기록하기 위해 위치 정보가 필요해요."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "발도장 기록과 강아지 프로필에 사진을 추가하려면 사진 라이브러리 접근이 필요해요.",
+          "cameraPermission": "발도장 기록에 직접 촬영한 사진을 추가하려면 카메라 접근이 필요해요."
+        }
+      ],
+      "expo-apple-authentication",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
     }
   }
 }

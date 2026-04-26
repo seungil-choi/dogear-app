@@ -1,0 +1,722 @@
+/**
+ * 발도장 플로우
+ *
+ * 역할: 짧고 가볍게 흔적을 남기는 핵심 행동
+ *
+ * 핵심 원칙:
+ *   - 발도장은 하나의 행동으로 단순해야 한다
+ *   - 긴 텍스트 입력 없음, 메타정보 기여 입력 없음
+ *
+ * 4단계:
+ *   Step 1. 장소 확인    (P1)
+ *   Step 2. 느낌/태그    (P2)
+ *   Step 3. 공개 범위    (P1)
+ *   Step 4. 완료 확인
+ */
+
+import React, { useCallback, useState, useMemo } from 'react';
+import {
+  View, Text, TouchableOpacity, ScrollView,
+  StyleSheet, SafeAreaView, Image,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
+import { useAppStore } from '../src/store/useAppStore';
+import { Button } from '../src/components/common/Button';
+import { Icon } from '../src/components/common/Icon';
+import { EmptyState } from '../src/components/common/EmptyState';
+import type { FeelingTag, VisibilityLevel } from '../src/types';
+import { feelingTagLabel, visibilityLabel } from '../src/utils/labels';
+
+
+
+const FEELING_TAGS: FeelingTag[] = [
+  'quiet', 'good', 'many_dogs', 'come_back_again', 'noisy', 'good_for_short_rest',
+];
+
+// ─── 공개 범위 상세 설명 ─────────────────────────────────────
+const VISIBILITY_OPTIONS: {
+  level: VisibilityLevel;
+  icon: string;
+  title: string;
+  desc: string;
+}[] = [
+  {
+    level: 'private',
+    icon:  'lock',
+    title: '나만 보기',
+    desc:  '나만 볼 수 있는 기록이에요. 통계에도 반영되지 않아요.',
+  },
+  {
+    level: 'spot_only',
+    icon:  'map',
+    title: '장소 분위기에만',
+    desc:  '장소 분위기 통계에만 더해져요. 우리 아이 정보는 나오지 않아요.',
+  },
+  {
+    level: 'familiar_layer',
+    icon:  'paw',
+    title: '산책 친구 찾기',
+    desc:  '안전 조건을 모두 충족한 강아지에게만 최소한의 정보로 소개돼요.',
+  },
+];
+
+export default function PawCheckinModal() {
+  const router = useRouter();
+  const pawFlow        = useAppStore(s => s.pawFlow);
+  const getHomeCards   = useAppStore(s => s.getHomeCards);
+  const setPawStep     = useAppStore(s => s.setPawStep);
+  const setPawSpot     = useAppStore(s => s.setPawSpot);
+  const setPawTags     = useAppStore(s => s.setPawTags);
+  const setPawVisibility = useAppStore(s => s.setPawVisibility);
+  const submitPawCheckin = useAppStore(s => s.submitPawCheckin);
+  const resetPawFlow   = useAppStore(s => s.resetPawFlow);
+  const visitSummaries = useAppStore(s => s.visitSummaries);
+  const dog            = useAppStore(s => s.dog);
+
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const { step, selectedSpot, selectedTags, visibility } = pawFlow;
+  const cards = getHomeCards();
+
+  const handleClose = useCallback(() => {
+    resetPawFlow();
+    router.back();
+  }, [resetPawFlow, router]);
+
+  const handleNext = useCallback(() => setPawStep(step + 1), [step, setPawStep]);
+  const handleBack = useCallback(() => {
+    if (step === 1) handleClose();
+    else setPawStep(step - 1);
+  }, [step, setPawStep, handleClose]);
+
+  const handleSubmit = useCallback(() => {
+    submitPawCheckin();
+    setIsSuccess(true);
+  }, [submitPawCheckin]);
+
+  const handleGoHome = useCallback(() => {
+    resetPawFlow();
+    router.replace('/(tabs)');
+  }, [resetPawFlow, router]);
+
+  const handleRestart = useCallback(() => {
+    resetPawFlow();
+    setIsSuccess(false);
+  }, [resetPawFlow]);
+
+  const toggleTag = useCallback((tag: FeelingTag) => {
+    if (selectedTags.includes(tag)) {
+      setPawTags(selectedTags.filter(t => t !== tag));
+    } else {
+      setPawTags([...selectedTags, tag]);
+    }
+  }, [selectedTags, setPawTags]);
+
+  // 방문 횟수 — submitPawCheckin() 호출 직후 store가 업데이트되므로
+  // isSuccess=true 시 이미 최신 값을 읽어옴 (Zustand는 동기 업데이트)
+  const successVisitCount = useMemo(() => {
+    if (!selectedSpot || !dog) return 1;
+    const sv = visitSummaries.find(v => v.spot_id === selectedSpot.spot_id && v.dog_id === dog.dog_id);
+    return sv ? sv.visit_count : 1;
+  }, [selectedSpot, dog, visitSummaries]);
+
+  // ── 성공 화면 ──────────────────────────────────────────────────────
+  if (isSuccess) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.successContainer}>
+          {/* 발바닥 아이콘 */}
+          <View style={s.successIconRing}>
+            <View style={s.successIconCircle}>
+              <Icon name="paw-filled" size={44} color={Colors.brand.primary} />
+            </View>
+          </View>
+
+          {/* 메시지 */}
+          <View style={s.successTextBlock}>
+            <Text style={s.successTitle}>발도장 완료!</Text>
+            <Text style={s.successSubtitle}>
+              {dog?.name}와 함께한 추억이 하나 더 쌓였어요 🐾
+            </Text>
+          </View>
+
+          {/* 요약 카드 */}
+          <View style={[s.summaryCard, { width: '100%' }]}>
+            <View style={s.successSummaryRow}>
+              <Icon name="map" size={16} color={Colors.text.tertiary} />
+              <Text style={s.successSummaryLabel}>장소</Text>
+              <Text style={s.successSummaryValue}>{selectedSpot?.name ?? '—'}</Text>
+            </View>
+            {successVisitCount > 0 && (
+              <View style={s.successSummaryRow}>
+                <Icon name="paw" size={16} color={Colors.text.tertiary} />
+                <Text style={s.successSummaryLabel}>누적 방문</Text>
+                <Text style={[s.successSummaryValue, { color: Colors.brand.accent, fontWeight: '700' }]}>
+                  총 {successVisitCount}회
+                </Text>
+              </View>
+            )}
+            {selectedTags.length > 0 && (
+              <View style={s.successSummaryRow}>
+                <Icon name="flag" size={16} color={Colors.text.tertiary} />
+                <Text style={s.successSummaryLabel}>느낌</Text>
+                <Text style={s.successSummaryValue}>
+                  {selectedTags.map(t => feelingTagLabel[t]).join(', ')}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* 분위기 힌트 */}
+          <Text style={s.successHint}>
+            오늘 방문이 장소 분위기 통계에 반영됐어요
+          </Text>
+        </View>
+
+        <View style={s.footer}>
+          <TouchableOpacity style={s.restartBtn} onPress={handleRestart} activeOpacity={0.75}>
+            <Icon name="paw" size={15} color={Colors.brand.primary} />
+            <Text style={s.restartBtnText}>발도장 다시 찍기</Text>
+          </TouchableOpacity>
+          <Button
+            label="홈으로 돌아가기"
+            onPress={handleGoHome}
+            variant="primary"
+            size="l"
+            fullWidth
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // 단계 레이블
+  const STEP_LABELS = ['장소', '느낌', '공개 범위', '완료'];
+  const totalSteps  = 4;
+
+  return (
+    <SafeAreaView style={s.safe}>
+      {/* 헤더 — 뒤로가기 + 단계 표시 */}
+      <View style={s.header}>
+        <TouchableOpacity onPress={handleBack} style={s.headerBtn}>
+          <Icon name={step === 1 ? 'close' : 'back'} size={22} color={Colors.text.primary} />
+        </TouchableOpacity>
+
+        <View style={s.stepIndicator}>
+          {STEP_LABELS.map((label, i) => {
+            const n = i + 1;
+            const done   = n < step;
+            const active = n === step;
+            return (
+              <React.Fragment key={n}>
+                <View style={[s.stepNode, done && s.stepNodeDone, active && s.stepNodeActive]}>
+                  {done ? (
+                    <Icon name="check" size={11} color={Colors.brand.onPrimary} />
+                  ) : (
+                    <Text style={[s.stepNodeText, active && s.stepNodeTextActive]}>{n}</Text>
+                  )}
+                </View>
+                {n < totalSteps && (
+                  <View style={[s.stepLine, n < step && s.stepLineDone]} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </View>
+
+        <View style={s.headerBtn} />
+      </View>
+
+      <ScrollView
+        style={s.scroll}
+        contentContainerStyle={s.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+
+        {/* ── STEP 1: 장소 확인 ── */}
+        {step === 1 && (() => {
+          const nearbyCards = cards.slice(0, 5);
+          const otherCards  = cards.slice(5);
+          return (
+            <View style={s.stepContainer}>
+              <View style={s.stepTitleBlock}>
+                <Text style={s.stepTitle}>어디서 산책했나요?</Text>
+                <Text style={s.stepDesc}>선택한 장소에 발도장이 기록돼요</Text>
+              </View>
+
+              {/* 신규 장소 등록 — 최상단 */}
+              <TouchableOpacity
+                style={s.newSpotCard}
+                onPress={() => router.push('/suggest-spot?from=paw')}
+                activeOpacity={0.8}
+              >
+                <View style={s.newSpotIconWrap}>
+                  <Icon name="plus" size={22} color={Colors.brand.primary} />
+                </View>
+                <View style={s.spotInfo}>
+                  <Text style={s.spotName}>새 장소 직접 추가하기</Text>
+                  <Text style={s.spotMeta}>목록에 없어도 괜찮아요</Text>
+                </View>
+                <Icon name="forward" size={18} color={Colors.brand.primary} />
+              </TouchableOpacity>
+
+              {cards.length === 0 ? (
+                <EmptyState
+                  headline="주변 장소가 없어요"
+                  description="위치 권한을 허용하거나 탐색 탭에서 먼저 장소를 찾아보세요."
+                  ctaLabel="탐색하러 가기"
+                  onCta={() => { resetPawFlow(); router.replace('/(tabs)/map'); }}
+                />
+              ) : (
+                <>
+                  {/* 구분선 — 주변 장소 */}
+                  <View style={s.spotSeparator}>
+                    <View style={s.separatorLine} />
+                    <Text style={s.separatorText}>주변 장소</Text>
+                    <View style={s.separatorLine} />
+                  </View>
+
+                  <View style={s.spotList}>
+                    {nearbyCards.map(card => (
+                      <TouchableOpacity
+                        key={card.spot_id}
+                        style={[s.spotItem, selectedSpot?.spot_id === card.spot_id && s.spotItemSelected]}
+                        onPress={() => setPawSpot(card)}
+                        activeOpacity={0.8}
+                      >
+                        {card.cover_image_url ? (
+                          <Image
+                            source={{ uri: card.cover_image_url }}
+                            style={s.spotThumb}
+                            resizeMode="cover"
+                          />
+                        ) : (
+                          <View style={[s.spotThumb, s.spotThumbFallback]}>
+                            <Icon name="leaf-filled" size={16} color={Colors.brand.primary} />
+                          </View>
+                        )}
+                        <View style={s.spotInfo}>
+                          <Text style={s.spotName}>{card.name}</Text>
+                          <Text style={s.spotMeta}>{card.category_label} · {card.distance_text}</Text>
+                        </View>
+                        {selectedSpot?.spot_id === card.spot_id && (
+                          <Icon name="check" size={18} color={Colors.brand.primary} />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {/* 다른 지역 추천 */}
+                  {otherCards.length > 0 && (
+                    <>
+                      <View style={s.spotSeparator}>
+                        <View style={s.separatorLine} />
+                        <Text style={s.separatorText}>조금 더 먼 곳</Text>
+                        <View style={s.separatorLine} />
+                      </View>
+                      <View style={s.spotList}>
+                        {otherCards.map(card => (
+                          <TouchableOpacity
+                            key={card.spot_id}
+                            style={[s.spotItem, s.spotItemOther, selectedSpot?.spot_id === card.spot_id && s.spotItemSelected]}
+                            onPress={() => setPawSpot(card)}
+                            activeOpacity={0.8}
+                          >
+                            {card.cover_image_url ? (
+                              <Image
+                                source={{ uri: card.cover_image_url }}
+                                style={s.spotThumb}
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <View style={[s.spotThumb, s.spotThumbFallback]}>
+                                <Icon name="leaf-filled" size={16} color={Colors.brand.primary} />
+                              </View>
+                            )}
+                            <View style={s.spotInfo}>
+                              <Text style={s.spotName}>{card.name}</Text>
+                              <Text style={s.spotMeta}>{card.category_label} · {card.distance_text}</Text>
+                            </View>
+                            {selectedSpot?.spot_id === card.spot_id && (
+                              <Icon name="check" size={18} color={Colors.brand.primary} />
+                            )}
+                          </TouchableOpacity>
+                        ))}
+                      </View>
+                    </>
+                  )}
+                </>
+              )}
+            </View>
+          );
+        })()}
+
+        {/* ── STEP 2: 느낌/태그 ── */}
+        {step === 2 && (
+          <View style={s.stepContainer}>
+            <View style={s.stepTitleBlock}>
+              <Text style={s.stepTitle}>오늘 산책은 어땠나요?</Text>
+              <Text style={s.stepDesc}>떠오르는 게 없으면 그냥 넘어가도 돼요</Text>
+            </View>
+
+            <View style={s.tagGrid}>
+              {FEELING_TAGS.map(tag => (
+                <TouchableOpacity
+                  key={tag}
+                  style={[s.tagChip, selectedTags.includes(tag) && s.tagChipSelected]}
+                  onPress={() => toggleTag(tag)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[s.tagChipText, selectedTags.includes(tag) && s.tagChipTextSelected]}>
+                    {feelingTagLabel[tag]}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* ── STEP 3: 공개 범위 ── */}
+        {step === 3 && (
+          <View style={s.stepContainer}>
+            <View style={s.stepTitleBlock}>
+              <Text style={s.stepTitle}>이 발도장, 누구에게 보여줄까요?</Text>
+              <Text style={s.stepDesc}>나중에 언제든 바꿀 수 있어요</Text>
+            </View>
+
+            <View style={s.visibilityList}>
+              {VISIBILITY_OPTIONS.map(opt => {
+                const selected = visibility === opt.level;
+                return (
+                  <TouchableOpacity
+                    key={opt.level}
+                    style={[s.visibilityCard, selected && s.visibilityCardSelected]}
+                    onPress={() => setPawVisibility(opt.level)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={[s.visibilityIcon, selected && s.visibilityIconSelected]}>
+                      <Icon name={opt.icon as any} size={20} color={selected ? Colors.brand.onPrimary : Colors.text.secondary} />
+                    </View>
+                    <View style={s.visibilityText}>
+                      <Text style={[s.visibilityTitle, selected && s.visibilityTitleSelected]}>
+                        {opt.title}
+                      </Text>
+                      <Text style={s.visibilityDesc}>{opt.desc}</Text>
+                    </View>
+                    {selected && (
+                      <Icon name="check" size={18} color={Colors.brand.primary} />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* ── STEP 4: 완료 확인 ── */}
+        {step === 4 && (
+          <View style={s.stepContainer}>
+            <View style={s.confirmIconWrap}>
+              <View style={s.confirmIconCircle}>
+                <Icon name="paw-filled" size={36} color={Colors.brand.primary} />
+              </View>
+              <Text style={s.stepTitle}>발도장을 남길게요!</Text>
+            </View>
+
+            <View style={[s.summaryCard, Shadow.s]}>
+              <SummaryRow label="장소"      value={selectedSpot?.name ?? '—'} />
+              <SummaryRow
+                label="느낌"
+                value={selectedTags.length > 0
+                  ? selectedTags.map(t => feelingTagLabel[t]).join(', ')
+                  : '선택 안 함'}
+              />
+              <SummaryRow label="공개 범위" value={visibilityLabel[visibility]} />
+            </View>
+          </View>
+        )}
+      </ScrollView>
+
+      {/* 하단 버튼 */}
+      <View style={s.footer}>
+        {step < 4 ? (
+          <Button
+            label={
+              step === 1 ? (selectedSpot ? '다음' : '장소를 선택해주세요') :
+              step === 2 ? '다음' :
+              '완료 확인'
+            }
+            onPress={handleNext}
+            variant="primary"
+            size="l"
+            fullWidth
+            disabled={step === 1 && !selectedSpot}
+          />
+        ) : (
+          <Button
+            label="발도장 찍기"
+            onPress={handleSubmit}
+            variant="primary"
+            size="l"
+            fullWidth
+          />
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+// ─── 완료 확인 요약 행 ────────────────────────────────────────
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={sum.row}>
+      <Text style={sum.label}>{label}</Text>
+      <Text style={sum.value} numberOfLines={2}>{value}</Text>
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: Colors.bg.primary },
+
+  // 헤더
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing[16],
+    paddingVertical: Spacing[14],
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border.default,
+    backgroundColor: Colors.bg.primary,
+  },
+  headerBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+
+  // 단계 인디케이터
+  stepIndicator: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing[8],
+  },
+  stepNode: {
+    width: 24, height: 24, borderRadius: 12,
+    backgroundColor: Colors.bg.secondary,
+    borderWidth: 1.5, borderColor: Colors.border.default,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  stepNodeDone:       { backgroundColor: Colors.brand.primary, borderColor: Colors.brand.primary },
+  stepNodeActive:     { borderColor: Colors.brand.primary, backgroundColor: Colors.surface.selected },
+  stepNodeText:       { ...Typography.label.s, color: Colors.text.tertiary },
+  stepNodeTextActive: { color: Colors.brand.accent, fontWeight: '700' },
+  stepLine:           { flex: 1, height: 2, backgroundColor: Colors.border.default, maxWidth: 36 },
+  stepLineDone:       { backgroundColor: Colors.brand.primary },
+
+  scroll:  { flex: 1 },
+  content: { padding: Spacing[20], paddingBottom: Spacing[24] },
+
+  stepContainer:  { gap: Spacing[20] },
+  stepTitleBlock: { gap: Spacing[6] },
+  stepTitle:      { ...Typography.display.s, color: Colors.text.primary },
+  stepDesc:       { ...Typography.body.m, color: Colors.text.secondary, lineHeight: 22 },
+
+  // 신규 장소 등록 카드
+  newSpotCard: {
+    flexDirection: 'row', alignItems: 'center',
+    padding: Spacing[16],
+    backgroundColor: Colors.brand.subtle,
+    borderRadius: Radius.l,
+    borderWidth: 1.5, borderColor: Colors.brand.primaryLight,
+    gap: Spacing[12],
+  },
+  newSpotIconWrap: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1.5, borderColor: Colors.brand.primaryLight,
+  },
+
+  // 구분선
+  spotSeparator: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[10],
+  },
+  separatorLine: { flex: 1, height: 1, backgroundColor: Colors.border.subtle },
+  separatorText: { ...Typography.label.s, color: Colors.text.tertiary, fontWeight: '600' },
+
+  // 장소 목록
+  spotList: { gap: Spacing[10] },
+  spotItem: {
+    flexDirection: 'row', alignItems: 'center',
+    padding: Spacing[12],
+    backgroundColor: Colors.surface.default,
+    borderRadius: Radius.l,
+    borderWidth: 1.5, borderColor: Colors.border.default,
+    gap: Spacing[12],
+  },
+  spotItemSelected: { borderColor: Colors.brand.primary, backgroundColor: Colors.surface.selected },
+  spotItemOther:    { opacity: 0.85 },
+
+  // 썸네일
+  spotThumb: {
+    width: 52, height: 52, borderRadius: Radius.m,
+    backgroundColor: Colors.brand.subtle,
+    flexShrink: 0,
+  },
+  spotThumbFallback: {
+    alignItems: 'center', justifyContent: 'center',
+  },
+
+  spotInfo: { flex: 1 },
+  spotName: { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
+  spotMeta: { ...Typography.caption, color: Colors.text.tertiary, marginTop: 3 },
+
+  // 태그 그리드
+  tagGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[10] },
+  tagChip: {
+    paddingHorizontal: Spacing[20], paddingVertical: Spacing[12],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.surface.default,
+    borderWidth: 1.5, borderColor: Colors.border.default,
+  },
+  tagChipSelected:     { backgroundColor: Colors.surface.selected, borderColor: Colors.brand.primary },
+  tagChipText:         { ...Typography.label.m, color: Colors.text.secondary },
+  tagChipTextSelected: { color: Colors.brand.accent, fontWeight: '700' },
+
+  // 공개 범위 카드
+  visibilityList: { gap: Spacing[10] },
+  visibilityCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[14],
+    padding: Spacing[16],
+    backgroundColor: Colors.surface.default,
+    borderRadius: Radius.l,
+    borderWidth: 1.5, borderColor: Colors.border.default,
+  },
+  visibilityCardSelected: { borderColor: Colors.brand.primary, backgroundColor: Colors.surface.selected },
+  visibilityIcon: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: Colors.bg.secondary,
+    alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  visibilityIconSelected: { backgroundColor: Colors.brand.primary },
+  visibilityText:          { flex: 1, gap: Spacing[4] },
+  visibilityTitle:         { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
+  visibilityTitleSelected: { color: Colors.brand.accent },
+  visibilityDesc:          { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 18 },
+
+  // 완료 확인
+  confirmIconWrap: { alignItems: 'center', gap: Spacing[12] },
+  confirmIconCircle: {
+    width: 80, height: 80, borderRadius: 40,
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: Colors.border.brand,
+  },
+  summaryCard: {
+    backgroundColor: Colors.surface.default,
+    borderRadius: Radius.l,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+  },
+
+  footer: {
+    padding: Spacing[16],
+    paddingBottom: Spacing[32],
+    borderTopWidth: 1,
+    borderTopColor: Colors.border.default,
+    backgroundColor: Colors.bg.primary,
+    gap: Spacing[10],
+  },
+  restartBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[6],
+    paddingVertical: Spacing[10],
+  },
+  restartBtnText: {
+    ...Typography.label.m,
+    color: Colors.brand.primary,
+    fontWeight: '600',
+  },
+
+  // ── 성공 화면 ─────────────────────────────────────────────────────
+  successContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing[24],
+    gap: Spacing[24],
+  },
+  successIconRing: {
+    padding: 8,
+    borderRadius: 56,
+    borderWidth: 2,
+    borderColor: Colors.brand.primaryLight,
+    borderStyle: 'dashed',
+  },
+  successIconCircle: {
+    width: 96, height: 96, borderRadius: 48,
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: Colors.border.brand,
+  },
+  successTextBlock: {
+    alignItems: 'center',
+    gap: Spacing[8],
+  },
+  successTitle: {
+    ...Typography.display.s,
+    color: Colors.text.primary,
+    textAlign: 'center',
+  },
+  successSubtitle: {
+    ...Typography.body.m,
+    color: Colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  successSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing[16],
+    paddingVertical: Spacing[13],
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border.subtle,
+    gap: Spacing[10],
+  },
+  successSummaryLabel: {
+    ...Typography.label.m,
+    color: Colors.text.tertiary,
+    width: 68,
+  },
+  successSummaryValue: {
+    flex: 1,
+    ...Typography.body.m,
+    color: Colors.text.primary,
+  },
+  successHint: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+});
+
+const sum = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    paddingHorizontal: Spacing[16], paddingVertical: Spacing[14],
+    borderBottomWidth: 1, borderBottomColor: Colors.border.subtle,
+    gap: Spacing[12], alignItems: 'flex-start',
+  },
+  label: { ...Typography.label.m, color: Colors.text.tertiary, width: 72 },
+  value: { flex: 1, ...Typography.body.m, color: Colors.text.primary },
+});
