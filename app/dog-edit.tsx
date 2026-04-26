@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
   },
   optionBtn: {
     flex: 1,
-    paddingVertical: Spacing[10],
+    paddingVertical: Spacing[14],
     alignItems: 'center',
     borderRadius: Radius.s,
     borderWidth: 1.5,

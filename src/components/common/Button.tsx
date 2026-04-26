@@ -57,10 +57,10 @@ const styles = StyleSheet.create({
   tertiary: { backgroundColor: Colors.bg.primary },
   destructive: { backgroundColor: Colors.status.error.bg },
 
-  // Sizes
-  size_l: { height: 52, paddingHorizontal: Spacing[24] },
-  size_m: { height: 44, paddingHorizontal: Spacing[20] },
-  size_s: { height: 36, paddingHorizontal: Spacing[16] },
+  // Sizes — min touch target 44px (Apple HIG / Material)
+  size_l: { height: 54, paddingHorizontal: Spacing[24] },
+  size_m: { height: 48, paddingHorizontal: Spacing[20] },
+  size_s: { height: 40, paddingHorizontal: Spacing[16] },
 
   disabled: { opacity: 0.4 },
 

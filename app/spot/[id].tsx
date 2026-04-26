@@ -414,9 +414,9 @@ const s = StyleSheet.create({
     paddingHorizontal: Spacing[4],
   },
   heroNavBtn: {
-    width: 38, height: 38,
+    width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
-    borderRadius: 19,
+    borderRadius: 22,
     backgroundColor: 'rgba(0,0,0,0.28)',
   },
   heroNavRight: { flexDirection: 'row' },

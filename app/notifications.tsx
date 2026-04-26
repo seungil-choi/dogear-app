@@ -217,8 +217,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface.default,
   },
   headerBackButton: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   },
   headerMarkAllButton: {
     width: 72,
-    height: 36,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },

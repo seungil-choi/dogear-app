@@ -575,7 +575,7 @@ const s = StyleSheet.create({
   // 태그 그리드
   tagGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[10] },
   tagChip: {
-    paddingHorizontal: Spacing[20], paddingVertical: Spacing[12],
+    paddingHorizontal: Spacing[20], paddingVertical: Spacing[14],
     borderRadius: Radius.round,
     backgroundColor: Colors.surface.default,
     borderWidth: 1.5, borderColor: Colors.border.default,
@@ -638,7 +638,7 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing[6],
-    paddingVertical: Spacing[10],
+    paddingVertical: Spacing[14],
   },
   restartBtnText: {
     ...Typography.label.m,
