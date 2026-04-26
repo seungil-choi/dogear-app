@@ -255,11 +255,10 @@ const r = StyleSheet.create({
   summaryCard: {
     flexDirection: 'row',
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     borderWidth: 1,
     borderColor: Colors.border.default,
     marginBottom: Spacing[24],
-    ...Shadow.s,
   },
   summaryCell: {
     flex: 1, alignItems: 'center',

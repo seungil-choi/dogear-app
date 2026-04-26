@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Colors, Typography, Radius, Spacing, Shadow } from '../../constants/tokens';
+import { Colors, Typography, Radius, Spacing } from '../../constants/tokens';
 import { Icon } from '../common/Icon';
 import type { HomeSpotCardViewModel } from '../../types';
 
@@ -12,7 +12,7 @@ interface FeaturedProps {
 // ─── Featured Card (홈 상단 추천 1개) ─────────────────────────────
 export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
   return (
-    <TouchableOpacity style={[s.featured, Shadow.s]} onPress={onPress} activeOpacity={0.88}>
+    <TouchableOpacity style={s.featured} onPress={onPress} activeOpacity={0.88}>
       {/* 이미지 영역 */}
       <View style={s.featuredImage}>
         {card.cover_image_url ? (
@@ -57,7 +57,7 @@ export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
 // ─── Compact Card (레일용) ─────────────────────────────
 export function CompactSpotCard({ card, onPress }: FeaturedProps) {
   return (
-    <TouchableOpacity style={[s.compact, Shadow.s]} onPress={onPress} activeOpacity={0.88}>
+    <TouchableOpacity style={s.compact} onPress={onPress} activeOpacity={0.88}>
       {/* 이미지 영역 */}
       <View style={s.compactImage}>
         {card.cover_image_url ? (
@@ -99,7 +99,7 @@ export function CompactSpotCard({ card, onPress }: FeaturedProps) {
 // ─── Recent Spot Card (최근 간 장소 레일) ─────────────────────────────
 export function RecentSpotCard({ card, onPress }: FeaturedProps) {
   return (
-    <TouchableOpacity style={[sr.card, Shadow.s]} onPress={onPress} activeOpacity={0.88}>
+    <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
       {/* 썸네일 */}
       <View style={sr.imageWrap}>
         {card.cover_image_url ? (
@@ -126,7 +126,7 @@ export function RecentSpotCard({ card, onPress }: FeaturedProps) {
 // ─── Regular Spot Card (자주 가는 장소 레일) ─────────────────────────────
 export function RegularSpotCard({ card, onPress }: FeaturedProps) {
   return (
-    <TouchableOpacity style={[sr.card, Shadow.s]} onPress={onPress} activeOpacity={0.88}>
+    <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
       {/* 썸네일 */}
       <View style={sr.imageWrap}>
         {card.cover_image_url ? (
@@ -223,7 +223,7 @@ const s = StyleSheet.create({
   // ── Featured ──────────────────────────
   featured: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     flexDirection: 'row',
     marginHorizontal: Spacing[16],
@@ -270,7 +270,7 @@ const s = StyleSheet.create({
   compact: {
     width: 168,
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border.default,
@@ -396,7 +396,7 @@ const sr = StyleSheet.create({
   card: {
     width: 148,
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border.default,

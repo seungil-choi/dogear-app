@@ -270,13 +270,8 @@ const s = StyleSheet.create({
     borderRadius: Radius.round,
     paddingHorizontal: Spacing[10],
     paddingVertical: Spacing[6],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
     borderWidth: 1,
-    borderColor: Colors.border.subtle,
+    borderColor: Colors.border.default,
   },
   badgeText: {
     ...Typography.label.s,
@@ -297,7 +292,7 @@ const s = StyleSheet.create({
 
   socialBtn: {
     height: 54,
-    borderRadius: Radius.l,
+    borderRadius: Radius.round,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

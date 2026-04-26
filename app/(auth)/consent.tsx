@@ -154,7 +154,7 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: Spacing[12],
     backgroundColor: Colors.surface.subtle,
     paddingHorizontal: Spacing[16], paddingVertical: Spacing[14],
-    borderRadius: Radius.l, marginBottom: Spacing[12],
+    borderRadius: Radius.round, marginBottom: Spacing[12],
   },
   allLabel: { ...Typography.title.s, color: Colors.text.primary },
 
@@ -191,7 +191,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
   },
   cta: {
-    height: 54, borderRadius: Radius.l,
+    height: 54, borderRadius: Radius.round,
     backgroundColor: Colors.brand.primary,
     alignItems: 'center', justifyContent: 'center',
   },

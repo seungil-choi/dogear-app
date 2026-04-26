@@ -88,7 +88,7 @@ function FeaturedCard({
   onSave: () => void;
 }) {
   return (
-    <TouchableOpacity style={[s.featuredCard, Shadow.m]} onPress={onPress} activeOpacity={0.92}>
+    <TouchableOpacity style={s.featuredCard} onPress={onPress} activeOpacity={0.92}>
       <View style={s.featuredImageWrap}>
         {card.cover_image_url ? (
           <Image source={{ uri: card.cover_image_url }} style={s.featuredImage} resizeMode="cover" />
@@ -414,11 +414,7 @@ const sa = StyleSheet.create({
     paddingVertical: Spacing[20],
     paddingHorizontal: Spacing[20],
     gap: Spacing[4],
-    shadowColor: '#2F2A27',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 10,
+    ...Shadow.l,
   },
   modalTitle: { ...Typography.title.s, color: Colors.text.primary, fontWeight: '700', marginBottom: Spacing[8] },
   modalItem: { flexDirection: 'row', alignItems: 'center', gap: Spacing[12], paddingVertical: Spacing[12], paddingHorizontal: Spacing[10], borderRadius: Radius.m },
@@ -474,7 +470,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.brand.subtle,
     marginHorizontal: Spacing[16],
     marginBottom: Spacing[4],
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     padding: Spacing[20],
     borderWidth: 1.5,
     borderColor: Colors.border.brand,
@@ -546,8 +542,10 @@ const s = StyleSheet.create({
   // ── 오늘의 추천 카드 (이미지 오버레이 방식) ──
   featuredCard: {
     marginHorizontal: Spacing[16],
-    borderRadius: Radius.xl,
+    borderRadius: Radius.card,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border.subtle,
   },
   featuredImageWrap: {
     height: 228,
@@ -629,7 +627,7 @@ const s = StyleSheet.create({
     gap: Spacing[4],
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.10,
     shadowRadius: 6,
     elevation: 3,
   },
@@ -673,7 +671,7 @@ const s = StyleSheet.create({
     paddingVertical: Spacing[16],
     paddingHorizontal: Spacing[20],
     backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     borderWidth: 1.5,
     borderColor: Colors.border.brand,
   },

@@ -488,7 +488,7 @@ const s = StyleSheet.create({
   dupList: { gap: Spacing[10] },
   dupCard: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     borderWidth: 1.5,
     borderColor: Colors.border.default,
     padding: Spacing[16],
@@ -596,7 +596,7 @@ const s = StyleSheet.create({
   mapHint: { ...Typography.body.s, color: Colors.text.tertiary, marginTop: -4 },
   mapWrap: {
     height: 210,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     backgroundColor: Colors.bg.tertiary,
     borderWidth: 1.5,
@@ -662,7 +662,7 @@ const s = StyleSheet.create({
   tempNoticeBox: {
     padding: Spacing[16],
     backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     borderWidth: 1,
     borderColor: Colors.border.brand,
     gap: Spacing[10],
@@ -674,7 +674,7 @@ const s = StyleSheet.create({
 
   doneSummaryCard: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border.default,

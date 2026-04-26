@@ -149,7 +149,7 @@ const s = StyleSheet.create({
   row: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing[12],
     paddingHorizontal: Spacing[16], paddingVertical: Spacing[14],
-    borderRadius: Radius.l, borderWidth: 1, borderColor: Colors.border.default,
+    borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border.default,
     backgroundColor: Colors.surface.default,
   },
   rowOn: { borderColor: Colors.brand.primary, backgroundColor: Colors.surface.selected },
@@ -167,7 +167,7 @@ const s = StyleSheet.create({
   detailLabel: { ...Typography.label.l, color: Colors.text.primary, marginTop: Spacing[24], marginBottom: Spacing[8] },
   input: {
     minHeight: 120, padding: Spacing[14],
-    borderRadius: Radius.l, borderWidth: 1, borderColor: Colors.border.default,
+    borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border.default,
     backgroundColor: Colors.surface.default,
     ...Typography.body.m, color: Colors.text.primary,
   },
@@ -179,7 +179,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
   },
   cta: {
-    height: 54, borderRadius: Radius.l,
+    height: 54, borderRadius: Radius.round,
     backgroundColor: Colors.brand.primary,
     alignItems: 'center', justifyContent: 'center',
   },

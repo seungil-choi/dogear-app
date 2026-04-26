@@ -248,11 +248,6 @@ const s = StyleSheet.create({
   },
   segmentActive: {
     backgroundColor: Colors.text.primary,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 3,
-    elevation: 2,
   },
   segmentText:       { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '500' },
   segmentTextActive: { color: '#FFFFFF', fontWeight: '700' },

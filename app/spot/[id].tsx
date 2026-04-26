@@ -468,7 +468,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.bg.secondary,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     paddingVertical: Spacing[16],
     borderWidth: 1,
     borderColor: Colors.border.default,
@@ -501,7 +501,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing[6],
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.round,
     paddingVertical: Spacing[14],
     borderWidth: 1.5,
     borderColor: Colors.border.default,
@@ -603,7 +603,7 @@ const s = StyleSheet.create({
 
   // ── 흔적 리스트 ──────────────────────────────────────────────────
   traceList: {
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     borderWidth: 1,
     borderColor: Colors.border.default,
     overflow: 'hidden',
@@ -664,14 +664,14 @@ const s = StyleSheet.create({
     gap: Spacing[10],
     padding: Spacing[24],
     backgroundColor: Colors.bg.secondary,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     justifyContent: 'center',
   },
   noTraceText: { ...Typography.body.s, color: Colors.text.tertiary },
 
   // ── 장소 정보 테이블 ─────────────────────────────────────────────
   infoTable: {
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     borderWidth: 1,
     borderColor: Colors.border.default,
     overflow: 'hidden',
@@ -734,7 +734,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing[8],
     paddingVertical: Spacing[14],
-    borderRadius: Radius.l,
+    borderRadius: Radius.round,
     borderWidth: 1.5,
     borderColor: Colors.border.default,
     backgroundColor: Colors.surface.default,
@@ -751,13 +751,8 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing[8],
     paddingVertical: Spacing[14],
-    borderRadius: Radius.l,
+    borderRadius: Radius.round,
     backgroundColor: Colors.brand.primary,
-    shadowColor: Colors.brand.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 5,
   },
   bottomBtnPawText: {
     ...Typography.label.l,
@@ -769,7 +764,7 @@ const s = StyleSheet.create({
   mapPlaceholder: {
     height: 96,
     backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing[6],

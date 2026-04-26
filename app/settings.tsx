@@ -191,7 +191,7 @@ const s = StyleSheet.create({
   card: {
     marginHorizontal: Spacing[16],
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border.default,

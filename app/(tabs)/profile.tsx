@@ -17,7 +17,7 @@ import {
   StyleSheet, SafeAreaView, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors, Typography, Spacing, Radius, Shadow } from '../../src/constants/tokens';
+import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
@@ -89,7 +89,7 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* ── 1) 반려견 프로필 컴팩트 카드 ── */}
-        <View style={[s.profileCard, Shadow.s]}>
+        <View style={s.profileCard}>
           <View style={s.avatarWrap}>
             {dog.avatar_url ? (
               <Image
@@ -232,16 +232,11 @@ const s = StyleSheet.create({
     marginTop: Spacing[24],
     marginBottom: Spacing[8],
     backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     padding: Spacing[20],
     gap: Spacing[16],
     borderWidth: 1.5,
     borderColor: Colors.border.brand,
-    shadowColor: '#2F2A27',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   avatarWrap: {
     width: 60, height: 60, borderRadius: 30,
@@ -280,7 +275,7 @@ const s = StyleSheet.create({
   // 설정 카드
   settingsCard: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border.default,

@@ -20,7 +20,7 @@ import {
   StyleSheet, SafeAreaView, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
+import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
 import { Button } from '../src/components/common/Button';
 import { Icon } from '../src/components/common/Icon';
@@ -425,7 +425,7 @@ export default function PawCheckinModal() {
               <Text style={s.stepTitle}>발도장을 남길게요!</Text>
             </View>
 
-            <View style={[s.summaryCard, Shadow.s]}>
+            <View style={s.summaryCard}>
               <SummaryRow label="장소"      value={selectedSpot?.name ?? '—'} />
               <SummaryRow
                 label="느낌"
@@ -527,7 +527,7 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     padding: Spacing[16],
     backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     borderWidth: 1.5, borderColor: Colors.brand.primaryLight,
     gap: Spacing[12],
   },
@@ -551,8 +551,8 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     padding: Spacing[12],
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
-    borderWidth: 1.5, borderColor: Colors.border.default,
+    borderRadius: Radius.card,
+    borderWidth: 1, borderColor: Colors.border.default,
     gap: Spacing[12],
   },
   spotItemSelected: { borderColor: Colors.brand.primary, backgroundColor: Colors.surface.selected },
@@ -592,8 +592,8 @@ const s = StyleSheet.create({
     gap: Spacing[14],
     padding: Spacing[16],
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
-    borderWidth: 1.5, borderColor: Colors.border.default,
+    borderRadius: Radius.card,
+    borderWidth: 1, borderColor: Colors.border.default,
   },
   visibilityCardSelected: { borderColor: Colors.brand.primary, backgroundColor: Colors.surface.selected },
   visibilityIcon: {
@@ -619,7 +619,7 @@ const s = StyleSheet.create({
   },
   summaryCard: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border.default,

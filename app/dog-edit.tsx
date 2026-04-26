@@ -403,9 +403,11 @@ const styles = StyleSheet.create({
   // 섹션 카드
   sectionCard: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     padding: Spacing[16],
     marginBottom: Spacing[12],
+    borderWidth: 1,
+    borderColor: Colors.border.default,
   },
   sectionTitle: {
     ...Typography.title.s,

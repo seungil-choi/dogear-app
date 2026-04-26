@@ -152,7 +152,7 @@ const s = StyleSheet.create({
   warnCard: {
     flexDirection: 'row', gap: Spacing[12], alignItems: 'flex-start',
     backgroundColor: Colors.status.error.bg,
-    padding: Spacing[14], borderRadius: Radius.l,
+    padding: Spacing[14], borderRadius: Radius.card,
     marginBottom: Spacing[20],
   },
   warnText: { flex: 1, ...Typography.body.m, color: Colors.status.error.text, lineHeight: 22 },
@@ -168,7 +168,7 @@ const s = StyleSheet.create({
   },
   input: {
     minHeight: 90, padding: Spacing[14],
-    borderRadius: Radius.l, borderWidth: 1, borderColor: Colors.border.default,
+    borderRadius: Radius.card, borderWidth: 1, borderColor: Colors.border.default,
     backgroundColor: Colors.surface.default,
     ...Typography.body.m, color: Colors.text.primary,
     marginBottom: Spacing[20],
@@ -178,7 +178,7 @@ const s = StyleSheet.create({
   bold: { fontWeight: '700', color: Colors.status.error.text },
   confirmInput: {
     height: 50, paddingHorizontal: Spacing[14],
-    borderRadius: Radius.l, borderWidth: 1.5, borderColor: Colors.status.error.text,
+    borderRadius: Radius.card, borderWidth: 1.5, borderColor: Colors.status.error.text,
     backgroundColor: Colors.surface.default,
     ...Typography.body.l, color: Colors.text.primary,
   },
@@ -189,7 +189,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
   },
   cta: {
-    height: 54, borderRadius: Radius.l,
+    height: 54, borderRadius: Radius.round,
     backgroundColor: Colors.status.error.text,
     alignItems: 'center', justifyContent: 'center',
   },

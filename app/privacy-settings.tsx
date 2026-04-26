@@ -149,7 +149,7 @@ const s = StyleSheet.create({
   levelList: { gap: Spacing[8] },
   levelItem: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     padding: Spacing[14],
     borderWidth: 1.5,
     borderColor: Colors.border.subtle,
@@ -167,7 +167,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     padding: Spacing[16],
     gap: Spacing[12],
   },
@@ -178,7 +178,7 @@ const s = StyleSheet.create({
   // Conditions
   conditionList: {
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     padding: Spacing[14],
     gap: Spacing[10],
   },

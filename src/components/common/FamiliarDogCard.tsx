@@ -38,7 +38,7 @@ const s = StyleSheet.create({
   card: {
     width: 110,
     backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
+    borderRadius: Radius.card,
     paddingVertical: Spacing[14],
     paddingHorizontal: Spacing[10],
     alignItems: 'center',
