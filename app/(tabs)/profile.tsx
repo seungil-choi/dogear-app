@@ -136,19 +136,6 @@ function DogProfileCard({
   );
 }
 
-// ─── + 강아지 추가 카드 ──────────────────────────────────────────
-function AddDogCard({ onPress }: { onPress: () => void }) {
-  return (
-    <TouchableOpacity style={s.addDogCard} onPress={onPress} activeOpacity={0.75}>
-      <View style={s.addDogIcon}>
-        <Icon name="plus" size={28} color={Colors.brand.primary} />
-      </View>
-      <Text style={s.addDogTitle}>강아지 추가</Text>
-      <Text style={s.addDogDesc}>함께 다니는 강아지를{'\n'}더 등록해보세요</Text>
-    </TouchableOpacity>
-  );
-}
-
 // ─── 페이지 도트 ─────────────────────────────────────────────────
 function PageDots({ total, current }: { total: number; current: number }) {
   return (
@@ -177,9 +164,8 @@ export default function ProfileScreen() {
   const [pageIndex, setPageIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
-  // 슬롯 총 개수: 강아지 수 + (최대 미달 시 추가 카드 1개)
   const canAddMore  = dogs.length < MAX_DOGS;
-  const totalSlots  = dogs.length + (canAddMore ? 1 : 0);
+  const totalSlots  = dogs.length; // 추가 카드 없이 강아지 수만
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -249,10 +235,16 @@ export default function ProfileScreen() {
               <Icon name="paw" size={15} color={Colors.text.secondary} />
               <Text style={s.sectionTitle}>내 반려견</Text>
             </View>
-            {/* 마리 수 카운터 */}
-            <Text style={s.dogCountText}>
-              {dogs.length}/{MAX_DOGS}마리
-            </Text>
+            {canAddMore && (
+              <TouchableOpacity
+                style={s.addDogBtn}
+                onPress={handleAddDog}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Icon name="plus" size={14} color={Colors.brand.primary} />
+                <Text style={s.addDogBtnText}>강아지 추가</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* 스와이프 영역 */}
@@ -268,7 +260,6 @@ export default function ProfileScreen() {
             scrollEventThrottle={16}
             contentContainerStyle={s.carouselTrack}
           >
-            {/* 강아지 카드들 */}
             {dogs.map(dog => (
               <DogProfileCard
                 key={dog.dog_id}
@@ -278,9 +269,6 @@ export default function ProfileScreen() {
                 onEdit={() => handleEdit(dog)}
               />
             ))}
-
-            {/* + 추가 카드 */}
-            {canAddMore && <AddDogCard onPress={handleAddDog} />}
           </ScrollView>
 
           {/* 페이지 도트 */}
@@ -391,10 +379,21 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: CARD_H_PADDING,
   },
-  dogCountText: {
+  addDogBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[4],
+    paddingHorizontal: Spacing[10],
+    paddingVertical: Spacing[6],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.subtle,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+  },
+  addDogBtnText: {
     ...Typography.label.s,
-    color: Colors.text.tertiary,
-    fontWeight: '500',
+    color: Colors.brand.primary,
+    fontWeight: '600',
   },
 
   // 스와이프 트랙
@@ -537,39 +536,6 @@ const s = StyleSheet.create({
     ...Typography.label.m,
     color: Colors.brand.primary,
     fontWeight: '700',
-  },
-
-  // + 추가 카드
-  addDogCard: {
-    width: CARD_W,
-    borderRadius: Radius.card,
-    padding: Spacing[20],
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[8],
-    borderWidth: 1.5,
-    borderColor: Colors.border.brand,
-    borderStyle: 'dashed',
-    backgroundColor: Colors.brand.subtle,
-    minHeight: 180,
-  },
-  addDogIcon: {
-    width: 56, height: 56,
-    borderRadius: 28,
-    backgroundColor: Colors.brand.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addDogTitle: {
-    ...Typography.title.s,
-    color: Colors.brand.accent,
-    fontWeight: '700',
-  },
-  addDogDesc: {
-    ...Typography.body.s,
-    color: Colors.text.tertiary,
-    textAlign: 'center',
-    lineHeight: 20,
   },
 
   // 페이지 도트

@@ -175,6 +175,7 @@ export function buildFamiliarDogCards(
       dog_id: s.visible_dog_id,
       name: dog?.name ?? '강아지',
       avatar_url: dog?.avatar_url,
+      breed_text: dog?.breed ?? '',
       size_label: dog ? sizeLabel[dog.size] : '',
       breed_age_text: breedAgeText,
       temperament_preview: (dog?.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),

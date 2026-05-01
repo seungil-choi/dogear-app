@@ -404,7 +404,7 @@ export default function SpotDetailScreen() {
 
             {selectedDog && (
               <>
-                {/* 아바타 */}
+                {/* ── 아바타 + 이름 ── */}
                 <View style={s.sheetAvatarWrap}>
                   {selectedDog.avatar_url ? (
                     <Image source={{ uri: selectedDog.avatar_url }} style={s.sheetAvatarImg} resizeMode="cover" />
@@ -414,31 +414,47 @@ export default function SpotDetailScreen() {
                     </View>
                   )}
                 </View>
-
-                {/* 이름 */}
                 <Text style={s.sheetName}>{selectedDog.name}</Text>
 
-                {/* 견종·몸집 */}
-                <Text style={s.sheetBreed}>{selectedDog.breed_age_text}</Text>
-
-                {/* 성향 칩 (1~2개) */}
-                {selectedDog.temperament_preview.length > 0 && (
-                  <View style={s.sheetTemperRow}>
-                    {selectedDog.temperament_preview.map(t => (
-                      <View key={t} style={s.sheetTemperChip}>
-                        <Text style={s.sheetTemperText}>{t}</Text>
+                {/* ── 견종 / 몸집 정보 테이블 ── */}
+                <View style={s.sheetInfoTable}>
+                  {selectedDog.breed_text ? (
+                    <>
+                      <View style={s.sheetInfoRow}>
+                        <Text style={s.sheetInfoKey}>견종</Text>
+                        <Text style={s.sheetInfoVal}>{selectedDog.breed_text}</Text>
                       </View>
-                    ))}
+                      <View style={s.sheetInfoDivider} />
+                    </>
+                  ) : null}
+                  <View style={s.sheetInfoRow}>
+                    <Text style={s.sheetInfoKey}>몸집</Text>
+                    <Text style={s.sheetInfoVal}>{selectedDog.size_label}</Text>
                   </View>
-                )}
+                  {selectedDog.temperament_preview.length > 0 && (
+                    <>
+                      <View style={s.sheetInfoDivider} />
+                      <View style={s.sheetInfoRow}>
+                        <Text style={s.sheetInfoKey}>성향</Text>
+                        <View style={s.sheetTemperRow}>
+                          {selectedDog.temperament_preview.map(t => (
+                            <View key={t} style={s.sheetTemperChip}>
+                              <Text style={s.sheetTemperText}>{t}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    </>
+                  )}
+                </View>
 
-                {/* 장소와의 관계 한 줄 */}
+                {/* ── 장소와의 관계 ── */}
                 <View style={s.sheetRelationBox}>
                   <Icon name="paw" size={14} color={Colors.brand.primary} />
                   <Text style={s.sheetRelationText}>{selectedDog.relation_text}</Text>
                 </View>
 
-                {/* 완화된 최근성 */}
+                {/* ── 완화된 최근성 ── */}
                 <Text style={s.sheetRecency}>{selectedDog.recency_label}</Text>
               </>
             )}
@@ -793,24 +809,55 @@ const s = StyleSheet.create({
     color: Colors.text.primary,
     fontWeight: '800',
     textAlign: 'center',
-  },
-  sheetBreed: {
-    ...Typography.label.m,
-    color: Colors.text.secondary,
-    textAlign: 'center',
     marginBottom: Spacing[4],
   },
+
+  // 견종·몸집·성향 정보 테이블
+  sheetInfoTable: {
+    alignSelf: 'stretch',
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+    overflow: 'hidden',
+    backgroundColor: Colors.bg.secondary,
+    marginBottom: Spacing[4],
+  },
+  sheetInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing[12],
+    paddingHorizontal: Spacing[16],
+    gap: Spacing[12],
+  },
+  sheetInfoDivider: {
+    height: 1,
+    backgroundColor: Colors.border.subtle,
+    marginHorizontal: Spacing[16],
+  },
+  sheetInfoKey: {
+    ...Typography.label.s,
+    color: Colors.text.tertiary,
+    width: 36,
+    fontWeight: '500',
+  },
+  sheetInfoVal: {
+    flex: 1,
+    ...Typography.label.m,
+    color: Colors.text.primary,
+    fontWeight: '600',
+  },
+
+  // 성향 칩 (테이블 내부)
   sheetTemperRow: {
+    flex: 1,
     flexDirection: 'row',
     gap: Spacing[6],
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: Spacing[4],
   },
   sheetTemperChip: {
     backgroundColor: Colors.brand.subtle,
-    paddingHorizontal: Spacing[12],
-    paddingVertical: 5,
+    paddingHorizontal: Spacing[10],
+    paddingVertical: 4,
     borderRadius: Radius.round,
     borderWidth: 1,
     borderColor: Colors.border.brand,
@@ -820,31 +867,30 @@ const s = StyleSheet.create({
     color: Colors.brand.accent,
     fontWeight: '600',
   },
+
+  // 장소 관계
   sheetRelationBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing[6],
-    backgroundColor: Colors.bg.secondary,
-    paddingHorizontal: Spacing[14],
-    paddingVertical: Spacing[10],
-    borderRadius: Radius.m,
+    gap: Spacing[8],
+    backgroundColor: Colors.brand.subtle,
+    paddingHorizontal: Spacing[16],
+    paddingVertical: Spacing[12],
+    borderRadius: Radius.card,
     borderWidth: 1,
-    borderColor: Colors.border.default,
-    marginTop: Spacing[4],
+    borderColor: Colors.border.brand,
     alignSelf: 'stretch',
-    justifyContent: 'center',
   },
   sheetRelationText: {
+    flex: 1,
     ...Typography.label.m,
-    color: Colors.text.primary,
+    color: Colors.brand.accent,
     fontWeight: '600',
-    textAlign: 'center',
   },
   sheetRecency: {
     ...Typography.caption,
     color: Colors.text.tertiary,
     textAlign: 'center',
-    marginTop: Spacing[2],
     marginBottom: Spacing[8],
   },
 

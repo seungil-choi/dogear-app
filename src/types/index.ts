@@ -169,8 +169,12 @@ export interface FamiliarDogCardViewModel {
   dog_id: string;
   name: string;
   avatar_url?: string;
+  /** 견종 텍스트 — 바텀시트 '견종' 행에 단독 표시 (없으면 '') */
+  breed_text: string;
+  /** 크기 레이블 — 바텀시트 '몸집' 행에 표시 (예: '소형견') */
   size_label: string;
-  breed_age_text: string;       // e.g., '푸들 · 성견' 또는 '소형견 · 퍼피'
+  /** 견종·나이 요약 — 목록 카드 서브 텍스트 (예: '말티즈 · 성견') */
+  breed_age_text: string;
   temperament_preview: string[]; // 성향 1~2개 (완화된 표현)
   /** 완화된 최근성 표현 — 목록 카드에 표시 (정확한 시간 절대 불가) */
   recency_label: string;         // e.g., '최근 자주 찾고 있어요'
