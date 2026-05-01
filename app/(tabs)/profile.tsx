@@ -1,17 +1,16 @@
 /**
  * 마이 탭
  *
- * 역할: 반려견 정보와 노출/안전/부가 설정을 관리
- * 핵심 질문: "우리 아이 정보와 서비스 노출/설정을 어디서 관리하지?"
+ * 역할: 여러 반려견 프로필과 서비스 설정을 관리
  *
  * 구조:
- *   1) 반려견 프로필 (컴팩트) — 사진 + 이름 + 기본 요약 + 수정 버튼
- *   2) 공개 범위 / 안전 설정 — 자주 찾는 강아지 노출, 사진/기록 노출
- *   3) 반려견 관리 — 정보 수정, 성향/산책 스타일 수정
- *   4) 부가 설정 — 알림, 위치, 도움말, 약관, 로그아웃
+ *   1) 내 반려견 — 전체 목록, 활성 강아지 전환, 강아지 추가
+ *   2) 발도장 설정 — 활성 강아지 기준 공개 범위 / 안전 설정
+ *   3) 앱 설정 — 알림, 약관, 개인정보
+ *   4) 로그아웃
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Switch,
   StyleSheet, SafeAreaView, Image,
@@ -22,6 +21,7 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, visibilityLabel, temperamentLabels } from '../../src/utils/labels';
+import type { Dog } from '../../src/types';
 
 // ─── 설정 행 ─────────────────────────────────────────────────────
 function SettingsRow({
@@ -51,15 +51,117 @@ function SettingsRow({
   );
 }
 
+// ─── 강아지 카드 ─────────────────────────────────────────────────
+const MAX_DOGS = 5;
+
+function DogCard({
+  dog,
+  isActive,
+  onActivate,
+  onEdit,
+}: {
+  dog: Dog;
+  isActive: boolean;
+  onActivate: () => void;
+  onEdit: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[s.dogCard, isActive && s.dogCardActive]}
+      onPress={isActive ? undefined : onActivate}
+      activeOpacity={isActive ? 1 : 0.75}
+    >
+      {/* 아바타 */}
+      <View style={[s.dogAvatarWrap, isActive && s.dogAvatarWrapActive]}>
+        {dog.avatar_url ? (
+          <Image
+            source={{ uri: dog.avatar_url }}
+            style={s.dogAvatarImg}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={s.dogAvatarPlaceholder}>
+            <Text style={s.dogAvatarInitial}>{dog.name[0]}</Text>
+          </View>
+        )}
+      </View>
+
+      {/* 정보 영역 */}
+      <View style={s.dogInfo}>
+        {/* 이름 + 활성 배지 */}
+        <View style={s.dogNameRow}>
+          <Text style={[s.dogName, isActive && s.dogNameActive]}>{dog.name}</Text>
+          {isActive && (
+            <View style={s.activeBadge}>
+              <Icon name="paw-filled" size={10} color={Colors.brand.primary} />
+              <Text style={s.activeBadgeText}>발도장 활성 중</Text>
+            </View>
+          )}
+        </View>
+
+        {/* 견종 · 나이 */}
+        <Text style={s.dogSub}>
+          {dog.breed ? `${dog.breed} · ` : ''}{sizeLabel[dog.size]} · {ageGroupLabel[dog.age_group]}
+        </Text>
+
+        {/* 성향 태그 */}
+        {dog.temperament_tags.length > 0 && (
+          <View style={s.tagRow}>
+            {dog.temperament_tags.slice(0, 2).map(t => (
+              <View key={t} style={[s.tag, isActive && s.tagActive]}>
+                <Text style={[s.tagText, isActive && s.tagTextActive]}>
+                  {temperamentLabels[t] ?? t}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* 비활성 안내 */}
+        {!isActive && (
+          <Text style={s.switchHint}>탭하여 활성으로 변경</Text>
+        )}
+      </View>
+
+      {/* 편집 버튼 */}
+      <TouchableOpacity
+        style={s.dogEditBtn}
+        onPress={onEdit}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        accessibilityLabel={`${dog.name} 프로필 수정`}
+      >
+        <Icon name="settings" size={17} color={Colors.text.tertiary} />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+}
+
+// ─── 메인 ────────────────────────────────────────────────────────
 export default function ProfileScreen() {
-  const router             = useRouter();
-  const dog                = useAppStore(s => s.dog);
-  const privacySetting     = useAppStore(s => s.privacySetting);
+  const router               = useRouter();
+  const activeDog            = useAppStore(s => s.activeDog);
+  const dogs                 = useAppStore(s => s.dogs);
+  const setActiveDog         = useAppStore(s => s.setActiveDog);
+  const privacySetting       = useAppStore(s => s.privacySetting);
   const updatePrivacySetting = useAppStore(s => s.updatePrivacySetting);
-  const logout             = useAppStore(s => s.logout);
+  const logout               = useAppStore(s => s.logout);
+
+  const handleActivate = useCallback((dog: Dog) => {
+    setActiveDog(dog);
+  }, [setActiveDog]);
+
+  const handleEdit = useCallback((dog: Dog) => {
+    // dog-edit은 activeDog 기준으로 동작 — 해당 강아지를 활성으로 전환 후 이동
+    setActiveDog(dog);
+    router.push('/dog-edit');
+  }, [setActiveDog, router]);
+
+  const handleAddDog = useCallback(() => {
+    router.push('/(auth)/dog-setup' as any);
+  }, [router]);
 
   // 강아지 없음 → 온보딩 유도
-  if (!dog) {
+  if (!activeDog || dogs.length === 0) {
     return (
       <SafeAreaView style={s.safe}>
         <View style={s.loginPrompt}>
@@ -79,7 +181,8 @@ export default function ProfileScreen() {
   }
 
   const currentVisibility = privacySetting.default_visibility_level;
-  const visibilityText = visibilityLabel[currentVisibility] ?? currentVisibility;
+  const visibilityText    = visibilityLabel[currentVisibility] ?? currentVisibility;
+  const canAddMore        = dogs.length < MAX_DOGS;
 
   return (
     <SafeAreaView style={s.safe}>
@@ -88,49 +191,58 @@ export default function ProfileScreen() {
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── 1) 반려견 프로필 컴팩트 카드 ── */}
-        <View style={s.profileCard}>
-          <View style={s.avatarWrap}>
-            {dog.avatar_url ? (
-              <Image
-                source={{ uri: dog.avatar_url }}
-                style={{ width: 60, height: 60, borderRadius: 30 }}
-                resizeMode="cover"
+
+        {/* ══════════════════════════════════════
+            1) 내 반려견
+        ══════════════════════════════════════ */}
+        <View style={s.section}>
+          {/* 섹션 헤더 */}
+          <View style={s.sectionHeader}>
+            <View style={s.sectionTitleRow}>
+              <Icon name="paw" size={15} color={Colors.text.secondary} />
+              <Text style={s.sectionTitle}>내 반려견</Text>
+            </View>
+            {canAddMore && (
+              <TouchableOpacity
+                style={s.addDogBtn}
+                onPress={handleAddDog}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Icon name="plus" size={14} color={Colors.brand.primary} />
+                <Text style={s.addDogText}>강아지 추가</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* 강아지 카드 목록 */}
+          <View style={s.dogList}>
+            {dogs.map(dog => (
+              <DogCard
+                key={dog.dog_id}
+                dog={dog}
+                isActive={dog.dog_id === activeDog.dog_id}
+                onActivate={() => handleActivate(dog)}
+                onEdit={() => handleEdit(dog)}
               />
-            ) : (
-              <Icon name="dog" size={32} color={Colors.brand.primary} />
-            )}
+            ))}
           </View>
-          <View style={s.profileInfo}>
-            <Text style={s.dogName}>{dog.name}</Text>
-            <Text style={s.dogSub}>
-              {sizeLabel[dog.size]} · {ageGroupLabel[dog.age_group]}
-            </Text>
-            {dog.temperament_tags.length > 0 && (
-              <View style={s.tagRow}>
-                {dog.temperament_tags.slice(0, 3).map(t => (
-                  <View key={t} style={s.tag}>
-                    <Text style={s.tagText}>{temperamentLabels[t] ?? t}</Text>
-                  </View>
-                ))}
-              </View>
-            )}
-          </View>
-          <TouchableOpacity
-            style={s.editBtn}
-            onPress={() => router.push('/dog-edit')}
-            accessibilityLabel="프로필 수정"
-            accessibilityRole="button"
-          >
-            <Icon name="settings" size={18} color={Colors.text.tertiary} />
-          </TouchableOpacity>
+
+          {/* 최대 도달 안내 */}
+          {!canAddMore && (
+            <Text style={s.maxDogsHint}>최대 {MAX_DOGS}마리까지 등록할 수 있어요</Text>
+          )}
         </View>
 
-        {/* ── 2) 공개 범위 / 안전 설정 ── */}
+        {/* ══════════════════════════════════════
+            2) 발도장 설정 (활성 강아지 기준)
+        ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
             <Icon name="lock" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>공개 범위 · 안전 설정</Text>
+            <Text style={s.sectionTitle}>
+              발도장 설정
+              <Text style={s.sectionTitleSub}> · {activeDog.name}</Text>
+            </Text>
           </View>
           <View style={s.settingsCard}>
             <SettingsRow
@@ -161,33 +273,25 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
-        {/* ── 3) 반려견 관리 ── */}
-        <View style={s.section}>
-          <View style={s.sectionTitleRow}>
-            <Icon name="paw" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>반려견 관리</Text>
-          </View>
-          <View style={s.settingsCard}>
-            <SettingsRow icon="paw"      label="기본 정보 수정"     onPress={() => router.push('/dog-edit')} />
-            <SettingsRow icon="flag"     label="성향 · 산책 스타일" onPress={() => router.push('/dog-edit')} />
-          </View>
-        </View>
-
-        {/* ── 4) 부가 설정 ── */}
+        {/* ══════════════════════════════════════
+            3) 앱 설정
+        ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
             <Icon name="settings" size={15} color={Colors.text.secondary} />
             <Text style={s.sectionTitle}>설정</Text>
           </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="bell"     label="알림"      onPress={() => router.push('/notifications')} />
-            <SettingsRow icon="settings" label="앱 설정"   onPress={() => router.push('/settings' as any)} />
-            <SettingsRow icon="document" label="서비스 이용약관"    onPress={() => router.push('/(legal)/terms' as any)} />
+            <SettingsRow icon="bell"     label="알림"             onPress={() => router.push('/notifications')} />
+            <SettingsRow icon="settings" label="앱 설정"          onPress={() => router.push('/settings' as any)} />
+            <SettingsRow icon="document" label="서비스 이용약관"  onPress={() => router.push('/(legal)/terms' as any)} />
             <SettingsRow icon="shield"   label="개인정보 처리방침" onPress={() => router.push('/(legal)/privacy-policy' as any)} />
           </View>
         </View>
 
-        {/* ── 5) 로그아웃 ── */}
+        {/* ══════════════════════════════════════
+            4) 로그아웃
+        ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.settingsCard}>
             <SettingsRow
@@ -205,10 +309,11 @@ export default function ProfileScreen() {
   );
 }
 
+// ─── 스타일 ──────────────────────────────────────────────────────
 const s = StyleSheet.create({
   safe:    { flex: 1, backgroundColor: Colors.bg.primary },
   scroll:  { flex: 1 },
-  content: { paddingBottom: 24 },
+  content: { paddingTop: Spacing[16], paddingBottom: Spacing[24] },
 
   // 로그인 유도
   loginPrompt: {
@@ -224,53 +329,187 @@ const s = StyleSheet.create({
   },
   loginTitle: { ...Typography.title.m, color: Colors.text.primary, textAlign: 'center' },
 
-  // 프로필 카드 (컴팩트, 가로 배치)
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: Spacing[16],
-    marginTop: Spacing[24],
-    marginBottom: Spacing[8],
-    backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.card,
-    padding: Spacing[20],
-    gap: Spacing[16],
-    borderWidth: 1.5,
-    borderColor: Colors.border.brand,
-  },
-  avatarWrap: {
-    width: 60, height: 60, borderRadius: 30,
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center', justifyContent: 'center',
-    flexShrink: 0,
-    borderWidth: 2,
-    borderColor: Colors.border.brand,
-  },
-  profileInfo: { flex: 1, gap: Spacing[6] },
-  dogName:     { ...Typography.title.m, color: Colors.text.primary },
-  dogSub:      { ...Typography.body.s, color: Colors.text.tertiary },
-  tagRow:      { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6], marginTop: 2 },
-  tag: {
-    backgroundColor: Colors.bg.secondary,
-    paddingHorizontal: Spacing[10], paddingVertical: Spacing[4],
-    borderRadius: Radius.round,
-  },
-  tagText:  { ...Typography.label.s, color: Colors.text.secondary },
-  editBtn:  {
-    width: 44, height: 44, borderRadius: 22,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.bg.secondary,
-  },
-
   // 섹션
   section: {
     marginHorizontal: Spacing[16],
     marginBottom: Spacing[24],
+    gap: Spacing[10],
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[6],
+    paddingHorizontal: Spacing[4],
+  },
+  sectionTitle: {
+    ...Typography.label.m,
+    color: Colors.text.tertiary,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  sectionTitleSub: {
+    ...Typography.label.m,
+    color: Colors.brand.accent,
+    fontWeight: '600',
+    letterSpacing: 0,
+  },
+  sectionHint: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    lineHeight: 18,
+    paddingHorizontal: Spacing[4],
+  },
+
+  // + 강아지 추가 버튼
+  addDogBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[4],
+    paddingHorizontal: Spacing[10],
+    paddingVertical: Spacing[6],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.subtle,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+  },
+  addDogText: {
+    ...Typography.label.s,
+    color: Colors.brand.primary,
+    fontWeight: '600',
+  },
+
+  // 강아지 카드 목록
+  dogList: {
     gap: Spacing[8],
   },
-  sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6], paddingHorizontal: Spacing[4] },
-  sectionTitle:    { ...Typography.label.m, color: Colors.text.tertiary, fontWeight: '600', letterSpacing: 0.3 },
-  sectionHint:     { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 18, paddingHorizontal: Spacing[4] },
+
+  // 강아지 카드
+  dogCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface.default,
+    borderRadius: Radius.card,
+    padding: Spacing[16],
+    gap: Spacing[14],
+    borderWidth: 1.5,
+    borderColor: Colors.border.default,
+  },
+  dogCardActive: {
+    backgroundColor: Colors.brand.subtle,
+    borderColor: Colors.border.brand,
+  },
+
+  // 아바타
+  dogAvatarWrap: {
+    width: 56, height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.bg.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flexShrink: 0,
+    borderWidth: 2,
+    borderColor: Colors.border.default,
+  },
+  dogAvatarWrapActive: {
+    borderColor: Colors.border.brand,
+  },
+  dogAvatarImg: { width: '100%', height: '100%' },
+  dogAvatarPlaceholder: {
+    flex: 1,
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dogAvatarInitial: {
+    ...Typography.title.m,
+    color: Colors.brand.accent,
+    fontWeight: '700',
+  },
+
+  // 강아지 정보
+  dogInfo: { flex: 1, gap: Spacing[4] },
+  dogNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[8],
+    flexWrap: 'wrap',
+  },
+  dogName: {
+    ...Typography.title.s,
+    color: Colors.text.primary,
+    fontWeight: '700',
+  },
+  dogNameActive: {
+    color: Colors.brand.accent,
+  },
+  dogSub: {
+    ...Typography.body.s,
+    color: Colors.text.tertiary,
+  },
+
+  // 활성 배지
+  activeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.brand.primaryLight,
+    paddingHorizontal: Spacing[8],
+    paddingVertical: 3,
+    borderRadius: Radius.round,
+  },
+  activeBadgeText: {
+    ...Typography.caption,
+    color: Colors.brand.primary,
+    fontWeight: '700',
+  },
+
+  // 성향 태그
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6], marginTop: Spacing[2] },
+  tag: {
+    backgroundColor: Colors.bg.secondary,
+    paddingHorizontal: Spacing[8],
+    paddingVertical: 3,
+    borderRadius: Radius.round,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+  },
+  tagActive: {
+    backgroundColor: 'transparent',
+    borderColor: Colors.border.brand,
+  },
+  tagText:  { ...Typography.label.s, color: Colors.text.secondary },
+  tagTextActive: { color: Colors.brand.accent },
+
+  // 비활성 전환 힌트
+  switchHint: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    marginTop: Spacing[2],
+  },
+
+  // 편집 버튼
+  dogEditBtn: {
+    width: 36, height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.bg.secondary,
+    flexShrink: 0,
+  },
+
+  // 최대 마리 수 안내
+  maxDogsHint: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    paddingHorizontal: Spacing[4],
+  },
 
   // 설정 카드
   settingsCard: {
@@ -299,7 +538,13 @@ const s = StyleSheet.create({
   settingsIconWrapDanger: {
     backgroundColor: Colors.status.error.bg,
   },
-  settingsLabel:    { flex: 1, ...Typography.body.m, color: Colors.text.primary },
-  settingsDanger:   { color: Colors.status.error.text },
-  settingsValue:    { ...Typography.body.s, color: Colors.text.tertiary, flexShrink: 1, textAlign: 'right', maxWidth: '45%' },
+  settingsLabel:  { flex: 1, ...Typography.body.m, color: Colors.text.primary },
+  settingsDanger: { color: Colors.status.error.text },
+  settingsValue:  {
+    ...Typography.body.s,
+    color: Colors.text.tertiary,
+    flexShrink: 1,
+    textAlign: 'right',
+    maxWidth: '45%',
+  },
 });
