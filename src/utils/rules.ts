@@ -123,6 +123,21 @@ export function computePinVariant(
   return 'default';
 }
 
+// ─── 자주 찾는 강아지 — 완화된 최근성 텍스트 ──────────────────
+// 정확한 시간·횟수·패턴 절대 노출 금지 (개인정보보호 + 비소셜 원칙)
+function softenedRecencyLabel(checkinCount: number, lastSeenAt: string): string {
+  const diffDays = (Date.now() - new Date(lastSeenAt).getTime()) / 86_400_000;
+  if (checkinCount >= 3 && diffDays <= 7) return '최근 자주 찾고 있어요';
+  if (diffDays <= 7) return '최근 방문 기록이 있어요';
+  return '이곳을 꾸준히 찾는 강아지예요';
+}
+
+function spotRelationText(checkinCount: number): string {
+  if (checkinCount >= 4) return '최근 꾸준히 흔적을 남긴 강아지예요';
+  if (checkinCount >= 2) return '이 장소에 익숙한 강아지예요';
+  return '이곳을 자주 찾는 강아지예요';
+}
+
 // ─── 익숙한 강아지 카드 ─────────────────────────────
 export function buildFamiliarDogCards(
   spotId: string,
@@ -163,7 +178,8 @@ export function buildFamiliarDogCards(
       size_label: dog ? sizeLabel[dog.size] : '',
       breed_age_text: breedAgeText,
       temperament_preview: (dog?.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),
-      last_seen_text: relativeTime(s.recent_last_seen_at),
+      recency_label: softenedRecencyLabel(s.recent_visible_checkin_count, s.recent_last_seen_at),
+      relation_text: spotRelationText(s.recent_visible_checkin_count),
     };
   });
 }

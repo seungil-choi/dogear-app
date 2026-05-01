@@ -28,8 +28,8 @@ export function FamiliarDogCard({ dog }: Props) {
       {/* 품종·나이 */}
       <Text style={s.breedAge} numberOfLines={1}>{dog.breed_age_text}</Text>
 
-      {/* 마지막 목격 */}
-      <Text style={s.lastSeen}>최근 {dog.last_seen_text}</Text>
+      {/* 완화된 최근성 */}
+      <Text style={s.lastSeen}>{dog.recency_label}</Text>
     </View>
   );
 }

@@ -264,27 +264,58 @@ export const mockCheckins: PawCheckin[] = [
     visibility_level: 'spot_only', source_type: 'spot_detail',
     is_valid_for_aggregate: true, created_at: '2026-04-19T17:00:05+09:00',
   },
-  // 타 강아지 발도장들 (분위기 집계용) — 72시간 내
+  // 타 강아지 발도장들 — 자주 찾는 강아지 섹션 노출 조건 충족 (familiar_layer × 2 이상)
+  // dog_009 / spot_001 — 2회
   {
     checkin_id: 'chk_009', dog_id: 'dog_009', spot_id: 'spot_001',
-    checked_in_at: '2026-04-25T06:50:00+09:00',
+    checked_in_at: '2026-04-28T06:50:00+09:00',
     feeling_tags: ['quiet'], note: undefined, photo_url: undefined,
     visibility_level: 'familiar_layer', source_type: 'home',
-    is_valid_for_aggregate: true, created_at: '2026-04-25T06:50:05+09:00',
+    is_valid_for_aggregate: true, created_at: '2026-04-28T06:50:05+09:00',
   },
+  {
+    checkin_id: 'chk_009b', dog_id: 'dog_009', spot_id: 'spot_001',
+    checked_in_at: '2026-04-22T06:50:00+09:00',
+    feeling_tags: ['quiet'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-22T06:50:05+09:00',
+  },
+  // dog_007 / spot_001 — 3회
   {
     checkin_id: 'chk_010', dog_id: 'dog_007', spot_id: 'spot_001',
-    checked_in_at: '2026-04-24T07:30:00+09:00',
+    checked_in_at: '2026-04-27T07:30:00+09:00',
     feeling_tags: ['quiet', 'good'], note: undefined, photo_url: undefined,
     visibility_level: 'familiar_layer', source_type: 'spot_detail',
-    is_valid_for_aggregate: true, created_at: '2026-04-24T07:30:05+09:00',
+    is_valid_for_aggregate: true, created_at: '2026-04-27T07:30:05+09:00',
   },
   {
+    checkin_id: 'chk_010b', dog_id: 'dog_007', spot_id: 'spot_001',
+    checked_in_at: '2026-04-23T07:30:00+09:00',
+    feeling_tags: ['good'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-23T07:30:05+09:00',
+  },
+  {
+    checkin_id: 'chk_010c', dog_id: 'dog_007', spot_id: 'spot_001',
+    checked_in_at: '2026-04-19T08:00:00+09:00',
+    feeling_tags: ['good'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-19T08:00:05+09:00',
+  },
+  // dog_005 / spot_002 — 2회 (familiar_layer로 변경)
+  {
     checkin_id: 'chk_011', dog_id: 'dog_005', spot_id: 'spot_002',
-    checked_in_at: '2026-04-25T08:15:00+09:00',
+    checked_in_at: '2026-04-28T08:15:00+09:00',
     feeling_tags: ['many_dogs'], note: undefined, photo_url: undefined,
-    visibility_level: 'spot_only', source_type: 'home',
-    is_valid_for_aggregate: true, created_at: '2026-04-25T08:15:05+09:00',
+    visibility_level: 'familiar_layer', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-28T08:15:05+09:00',
+  },
+  {
+    checkin_id: 'chk_011b', dog_id: 'dog_005', spot_id: 'spot_002',
+    checked_in_at: '2026-04-21T09:00:00+09:00',
+    feeling_tags: ['good'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'spot_detail',
+    is_valid_for_aggregate: true, created_at: '2026-04-21T09:00:05+09:00',
   },
   {
     checkin_id: 'chk_012', dog_id: 'dog_003', spot_id: 'spot_004',
@@ -371,22 +402,22 @@ export const mockFamiliarDogSignals: FamiliarDogSignal[] = [
   {
     familiar_signal_id: 'fam_001', spot_id: 'spot_001', visible_dog_id: 'dog_009',
     recent_visible_checkin_count: 4,
-    recent_last_seen_at: '2026-04-21T06:50:00+09:00',
+    recent_last_seen_at: '2026-04-28T06:50:00+09:00',
     exposure_allowed: true,
-    updated_at: '2026-04-21T07:00:00+09:00',
+    updated_at: '2026-04-28T07:00:00+09:00',
   },
   {
     familiar_signal_id: 'fam_002', spot_id: 'spot_001', visible_dog_id: 'dog_007',
     recent_visible_checkin_count: 3,
-    recent_last_seen_at: '2026-04-20T07:30:00+09:00',
+    recent_last_seen_at: '2026-04-27T07:30:00+09:00',
     exposure_allowed: true,
-    updated_at: '2026-04-20T08:00:00+09:00',
+    updated_at: '2026-04-27T08:00:00+09:00',
   },
   {
     familiar_signal_id: 'fam_003', spot_id: 'spot_002', visible_dog_id: 'dog_005',
     recent_visible_checkin_count: 2,
-    recent_last_seen_at: '2026-04-21T08:15:00+09:00',
+    recent_last_seen_at: '2026-04-28T08:15:00+09:00',
     exposure_allowed: true,
-    updated_at: '2026-04-21T08:30:00+09:00',
+    updated_at: '2026-04-28T08:30:00+09:00',
   },
 ];

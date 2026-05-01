@@ -170,9 +170,12 @@ export interface FamiliarDogCardViewModel {
   name: string;
   avatar_url?: string;
   size_label: string;
-  breed_age_text: string;   // e.g., '푸들 · 성견' 또는 '소형견 · 퍼피'
-  temperament_preview: string[];
-  last_seen_text: string;
+  breed_age_text: string;       // e.g., '푸들 · 성견' 또는 '소형견 · 퍼피'
+  temperament_preview: string[]; // 성향 1~2개 (완화된 표현)
+  /** 완화된 최근성 표현 — 목록 카드에 표시 (정확한 시간 절대 불가) */
+  recency_label: string;         // e.g., '최근 자주 찾고 있어요'
+  /** 이 장소와의 관계 한 줄 — 바텀시트 상세에만 표시 */
+  relation_text: string;         // e.g., '이 장소에 익숙한 강아지예요'
 }
 
 export interface TraceListItemViewModel {
