@@ -56,6 +56,7 @@ export interface Spot {
   cover_image_url?: string;
   opening_hours?: string;   // 운영 시간 (e.g., '연중무휴 · 24시간 개방')
   features?: string[];      // 특징 태그 (e.g., ['나무 그늘 많아요', '평지에요'])
+  description?: string;  // 한 줄 설명
   caution?: string;         // 주의사항
   status: SpotStatus;
   created_source: 'seed' | 'admin' | 'user_suggested';
@@ -210,6 +211,7 @@ export interface SpotDetailViewModel {
   address_text?: string;
   opening_hours?: string;
   features?: string[];
+  description?: string;
   caution?: string;
 }
 

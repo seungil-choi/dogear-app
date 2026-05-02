@@ -9,12 +9,14 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
-import type { User } from '@/types';
+import type { User, Dog } from '@/types';
 
 export function useAuth() {
   const setUser = useAppStore(s => s.setUser);
   const setActiveDog = useAppStore(s => s.setActiveDog);
+  const setDogs = useAppStore(s => s.setDogs);
   const setAuthLoading = useAppStore(s => s.setAuthLoading);
+  const completeOnboarding = useAppStore(s => s.completeOnboarding);
 
   useEffect(() => {
     setAuthLoading(true);
@@ -75,19 +77,23 @@ export function useAuth() {
       .order('created_at', { ascending: true });
 
     if (dogsData && dogsData.length > 0) {
-      const dog = dogsData[0];
-      setActiveDog({
-        dog_id: dog.dog_id,
-        user_id: dog.user_id,
-        name: dog.name,
-        avatar_url: dog.avatar_url,
-        size: dog.size,
-        age_group: dog.age_group,
-        temperament_tags: dog.temperament_tags,
-        walking_style_tags: dog.walking_style_tags,
-        is_active: dog.is_active,
-        created_at: dog.created_at,
-      });
+      completeOnboarding(); // 강아지가 있으면 온보딩 이미 완료한 것
+      const mappedDogs: Dog[] = dogsData.map((d: any) => ({
+        dog_id: d.dog_id,
+        user_id: d.user_id,
+        name: d.name,
+        avatar_url: d.avatar_url ?? undefined,
+        breed: d.breed ?? undefined,
+        weight_kg: d.weight_kg ?? undefined,
+        size: d.size,
+        age_group: d.age_group,
+        temperament_tags: d.temperament_tags ?? [],
+        walking_style_tags: d.walking_style_tags ?? [],
+        is_active: d.is_active,
+        created_at: d.created_at,
+      }));
+      setDogs(mappedDogs);
+      setActiveDog(mappedDogs[0]);
     }
 
     // last_active_at 갱신 (비동기, 에러 무시)

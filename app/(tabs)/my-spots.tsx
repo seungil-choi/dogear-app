@@ -99,6 +99,7 @@ export default function MySpotsScreen() {
     <SafeAreaView style={s.safe}>
       {/* 헤더 */}
       <View style={s.header}>
+        <Text style={s.headerTitle}>내장소</Text>
         {/* 세그먼트 컨트롤 */}
         <View style={s.segmentedControl}>
           {TABS.map(tab => {
@@ -225,6 +226,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
     gap: Spacing[14],
   },
+  headerTitle: { ...Typography.display.s, color: Colors.text.primary },
   screenTitle: { ...Typography.display.s, color: Colors.text.primary },
 
   // ── 세그먼트 컨트롤 ──────────────────────────────────────

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { AppImage } from './AppImage';
+import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Typography, Radius, Spacing, Shadow } from '../../constants/tokens';
 import { Icon } from './Icon';
 import type { FamiliarDogCardViewModel } from '../../types';
@@ -14,7 +15,7 @@ export function FamiliarDogCard({ dog }: Props) {
       {/* 아바타 */}
       <View style={s.avatarWrap}>
         {dog.avatar_url ? (
-          <Image source={{ uri: dog.avatar_url }} style={s.avatarImg} resizeMode="cover" />
+          <AppImage source={{ uri: dog.avatar_url }} style={s.avatarImg} resizeMode="cover" />
         ) : (
           <View style={s.avatarPlaceholder}>
             <Text style={s.avatarInitial}>{dog.name[0]}</Text>

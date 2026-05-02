@@ -12,8 +12,9 @@
  */
 
 import React, { useCallback, useState } from 'react';
+import { AppImage } from '../../src/components/common/AppImage';
 import {
-  View, Text, ScrollView, TouchableOpacity, Image,
+  View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Linking, Alert, Platform, Share, Modal, Pressable,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -40,9 +41,6 @@ export default function SpotDetailScreen() {
 
   const vm = getSpotDetail(id);
 
-  // ── 자주 찾는 강아지 UI 상태 ─────────────────────────────────
-  // 기본 3마리 노출, 더보기로 최대 6마리까지 확장
-  const [familiarExpanded, setFamiliarExpanded] = useState(false);
   const [selectedDog, setSelectedDog] = useState<FamiliarDogCardViewModel | null>(null);
 
   const handleSave = useCallback(() => toggleSaveSpot(id), [id, toggleSaveSpot]);
@@ -75,7 +73,8 @@ export default function SpotDetailScreen() {
       vm?.name ?? '장소',
       undefined,
       [
-        { text: '신고하기', style: 'destructive', onPress: () => router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } } as any) },
+        { text: '정보 수정 제안', onPress: () => Alert.alert('준비 중', '정보 수정 제안 기능을 준비 중이에요.') },
+        { text: '이 장소 신고하기', style: 'destructive', onPress: () => router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } } as any) },
         { text: '취소', style: 'cancel' },
       ],
     );
@@ -118,7 +117,7 @@ export default function SpotDetailScreen() {
         {/* ── 히어로 이미지 ── */}
         <View style={[s.heroWrap, { height: HERO_H + insets.top }]}>
           {vm.cover_image_url ? (
-            <Image
+            <AppImage
               source={{ uri: vm.cover_image_url }}
               style={StyleSheet.absoluteFill}
               resizeMode="cover"
@@ -154,40 +153,41 @@ export default function SpotDetailScreen() {
           </View>
         </View>
 
-        {/* ── 현황 카드 ── */}
+        {/* ── 현황 카드 (정보 전용, 터치 불가) ── */}
         <View style={s.statusCard}>
           <View style={s.statsRow}>
-            {/* 최근 발도장 */}
+            {/* 방문한 강아지 — 첫 번째 */}
+            <View style={s.statItem}>
+              <Icon name="leaf" size={16} color={Colors.brand.primary} />
+              <Text style={s.statValue}>{vm.unique_visitor_count}</Text>
+              <Text style={s.statLabel}>방문한 강아지</Text>
+            </View>
+            <View style={s.statDivider} />
+            {/* 최근 발도장 — 두 번째 */}
             <View style={s.statItem}>
               <Icon name="paw-filled" size={16} color={Colors.brand.primary} />
               <Text style={s.statValue}>{vm.recent_trace_count}</Text>
               <Text style={s.statLabel}>최근 발도장</Text>
             </View>
             <View style={s.statDivider} />
-            {/* 방문자 수 */}
-            <View style={s.statItem}>
-              <Icon name="leaf" size={16} color={Colors.brand.primary} />
-              <Text style={s.statValue}>{vm.unique_visitor_count}</Text>
-              <Text style={s.statLabel}>방문자 수</Text>
-            </View>
-            <View style={s.statDivider} />
-            {/* 내 방문 횟수 */}
             <View style={s.statItem}>
               <Icon name="star" size={16} color={Colors.brand.primary} />
               <Text style={s.statValue}>{vm.user_relation?.visit_count ?? 0}회</Text>
               <Text style={s.statLabel}>내 방문 횟수</Text>
             </View>
           </View>
+        </View>
 
-          {/* CTA — 저장하기 (발도장은 하단 고정 바에서) */}
+        {/* ── 저장 CTA ── */}
+        <View style={s.ctaRow}>
           <TouchableOpacity
-            style={[s.btnSave, s.btnSaveFull, vm.is_saved && s.btnSaveActive]}
+            style={[s.btnSave, vm.is_saved && s.btnSaveActive]}
             onPress={handleSave}
             activeOpacity={0.85}
           >
             <Icon
               name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
-              size={18}
+              size={17}
               color={vm.is_saved ? Colors.brand.primary : Colors.text.secondary}
             />
             <Text style={[s.btnSaveText, vm.is_saved && s.btnSaveTextActive]}>
@@ -196,9 +196,101 @@ export default function SpotDetailScreen() {
           </TouchableOpacity>
         </View>
 
-{/* 자주 찾는 강아지 섹션 — 장소 정보 이후에 배치 (P3 최하위 우선순위) */}
+        {/* ── P2: 장소 정보 ── */}
+        <View style={s.section}>
+          <Text style={s.sectionTitle}>장소 정보</Text>
 
-        {/* ── 최근 흔적 ── */}
+          <View style={s.infoTable}>
+            <View style={s.infoRow}>
+              <Text style={s.infoKey}>장소 유형</Text>
+              <Text style={s.infoVal}>{vm.category_label}</Text>
+            </View>
+            {vm.features && vm.features.length > 0 && (
+              <>
+                <View style={s.infoSep} />
+                <View style={s.infoRow}>
+                  <Text style={s.infoKey}>주요 태그</Text>
+                  <View style={s.featureChips}>
+                    {vm.features.map(f => (
+                      <View key={f} style={s.featureChip}>
+                        <Text style={s.featureChipText}>{f}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </>
+            )}
+            {vm.description && (
+              <>
+                <View style={s.infoSep} />
+                <View style={s.infoRow}>
+                  <Text style={s.infoKey}>설명</Text>
+                  <Text style={s.infoVal}>{vm.description}</Text>
+                </View>
+              </>
+            )}
+            {vm.address_text && (
+              <>
+                <View style={s.infoSep} />
+                <View style={s.infoRow}>
+                  <Text style={s.infoKey}>주소</Text>
+                  <View style={s.infoAddressRow}>
+                    <Text style={[s.infoVal, { flex: 1 }]}>{vm.address_text}</Text>
+                    <TouchableOpacity onPress={handleDirections} activeOpacity={0.75}>
+                      <Text style={s.mapTextLink}>지도에서 보기</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+
+        {/* ── P3: 자주 찾는 강아지 ── */}
+        {(() => {
+          const dogs = vm.familiar_dogs;
+          return (
+            <View style={s.section}>
+              <View style={s.sectionHead}>
+                <Text style={s.sectionTitle}>자주 찾는 강아지</Text>
+              </View>
+              {dogs.length === 0 ? (
+                <Text style={s.familiarEmptyText}>
+                  발도장이 쌓이면 익숙한 강아지들이 보일 수 있어요
+                </Text>
+              ) : (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={s.familiarRail}
+                >
+                  {dogs.map(dog => (
+                    <TouchableOpacity
+                      key={dog.dog_id}
+                      style={s.familiarCell}
+                      onPress={() => setSelectedDog(dog)}
+                      activeOpacity={0.72}
+                    >
+                      <View style={s.familiarAvatarWrap}>
+                        {dog.avatar_url ? (
+                          <AppImage source={{ uri: dog.avatar_url }} style={s.familiarAvatarImg} resizeMode="cover" />
+                        ) : (
+                          <View style={s.familiarAvatarPlaceholder}>
+                            <Text style={s.familiarAvatarInitial}>{dog.name[0]}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={s.familiarName} numberOfLines={1}>{dog.name}</Text>
+                      <Text style={s.familiarRecency} numberOfLines={2}>{dog.recency_label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              )}
+            </View>
+          );
+        })()}
+
+        {/* ── P3: 최근 흔적 ── */}
         <View style={s.section}>
           <View style={s.sectionHead}>
             <Text style={s.sectionTitle}>최근 흔적</Text>
@@ -217,12 +309,9 @@ export default function SpotDetailScreen() {
                   activeOpacity={0.75}
                   onPress={() => router.push(`/visit-history/${id}` as any)}
                 >
-                  {/* 발 아이콘 */}
                   <View style={s.traceIconWrap}>
                     <Icon name="paw-filled" size={14} color={Colors.brand.primary} />
                   </View>
-
-                  {/* 텍스트 */}
                   <View style={s.traceContent}>
                     <View style={s.traceTopRow}>
                       <Text style={s.traceTime}>{trace.relative_time_text}</Text>
@@ -232,22 +321,22 @@ export default function SpotDetailScreen() {
                         </View>
                       ) : null}
                     </View>
+                    {trace.secondary_text && (
+                      <Text style={s.traceNote} numberOfLines={1}>{trace.secondary_text}</Text>
+                    )}
+                    {/* Phase 2: 사진 라벨 — 사진 기능 구현 후 노출
                     {trace.photo_count != null && trace.photo_count > 0 && (
                       <Text style={s.tracePhotoLabel}>사진 {trace.photo_count}장</Text>
                     )}
-                    {trace.secondary_text && !trace.photo_count && (
-                      <Text style={s.traceNote} numberOfLines={1}>{trace.secondary_text}</Text>
-                    )}
+                    */}
                   </View>
-
-                  {/* 사진 썸네일 자리 */}
+                  {/* Phase 2: 사진 썸네일 — 사진 업로드/표시 기능 구현 후 활성화
                   {trace.has_photo && (
                     <View style={s.traceThumb}>
                       <Icon name="camera" size={16} color={Colors.text.tertiary} />
                     </View>
                   )}
-
-                  <Icon name="forward" size={13} color={Colors.border.strong} />
+                  */}
                 </TouchableOpacity>
               ))}
             </View>
@@ -259,128 +348,6 @@ export default function SpotDetailScreen() {
           )}
         </View>
 
-        {/* ── 장소 정보 ── */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>장소 정보</Text>
-
-          <View style={s.infoTable}>
-            {/* 운영 */}
-            {vm.opening_hours && (
-              <>
-                <View style={s.infoRow}>
-                  <Text style={s.infoKey}>운영</Text>
-                  <Text style={s.infoVal}>{vm.opening_hours}</Text>
-                </View>
-                <View style={s.infoSep} />
-              </>
-            )}
-
-            {/* 특징 */}
-            {vm.features && vm.features.length > 0 && (
-              <>
-                <View style={s.infoRow}>
-                  <Text style={s.infoKey}>특징</Text>
-                  <View style={s.featureChips}>
-                    {vm.features.map(f => (
-                      <View key={f} style={s.featureChip}>
-                        <Text style={s.featureChipText}>{f}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-                <View style={s.infoSep} />
-              </>
-            )}
-
-            {/* 주의사항 */}
-            {vm.caution && (
-              <>
-                <View style={s.infoRow}>
-                  <Text style={s.infoKey}>주의사항</Text>
-                  <Text style={s.infoVal}>{vm.caution}</Text>
-                </View>
-                <View style={s.infoSep} />
-              </>
-            )}
-
-            {/* 주소 */}
-            {vm.address_text && (
-              <View style={s.infoRow}>
-                <Text style={s.infoKey}>주소</Text>
-                <Text style={s.infoVal}>{vm.address_text}</Text>
-              </View>
-            )}
-          </View>
-
-          {/* 지도 자리 (정적 placeholder) */}
-          <TouchableOpacity style={s.mapPlaceholder} onPress={handleDirections} activeOpacity={0.85}>
-            <Icon name="map" size={24} color={Colors.text.tertiary} />
-            <Text style={s.mapPlaceholderText}>지도에서 보기</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── 자주 찾는 강아지 (P3 — 장소 정보 이후 최하단) ── */}
-        {(() => {
-          const dogs    = vm.familiar_dogs;
-          const visible = familiarExpanded ? dogs.slice(0, 6) : dogs.slice(0, 3);
-          const canExpand = !familiarExpanded && dogs.length > 3;
-
-          return (
-            <View style={s.section}>
-              <Text style={s.sectionTitle}>자주 찾는 강아지</Text>
-
-              {dogs.length === 0 ? (
-                /* ── 빈 상태 ── */
-                <View style={s.dogEmpty}>
-                  <Icon name="paw" size={20} color={Colors.text.tertiary} />
-                  <Text style={s.dogEmptyText}>
-                    발도장이 쌓이면 익숙한 강아지들이 보일 수 있어요
-                  </Text>
-                </View>
-              ) : (
-                <>
-                  {/* 강아지 행 — 가로 스크롤 없이 수평 wrap */}
-                  <View style={s.dogRow}>
-                    {visible.map(dog => (
-                      <TouchableOpacity
-                        key={dog.dog_id}
-                        style={s.dogCard}
-                        onPress={() => setSelectedDog(dog)}
-                        activeOpacity={0.75}
-                      >
-                        <View style={s.dogAvatarWrap}>
-                          {dog.avatar_url ? (
-                            <Image source={{ uri: dog.avatar_url }} style={s.dogAvatarImg} resizeMode="cover" />
-                          ) : (
-                            <View style={s.dogAvatarPlaceholder}>
-                              <Text style={s.dogAvatarInitial}>{dog.name[0]}</Text>
-                            </View>
-                          )}
-                        </View>
-                        <Text style={s.dogName} numberOfLines={1}>{dog.name}</Text>
-                        <Text style={s.dogBreed} numberOfLines={1}>{dog.breed_age_text}</Text>
-                        <Text style={s.dogRecency} numberOfLines={2}>{dog.recency_label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-
-                  {/* 더보기 버튼 (3마리 이상인 경우만) */}
-                  {canExpand && (
-                    <TouchableOpacity
-                      style={s.dogExpandBtn}
-                      onPress={() => setFamiliarExpanded(true)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={s.dogExpandText}>더 보기 ({dogs.length - 3}마리 더)</Text>
-                      <Icon name="down" size={14} color={Colors.text.tertiary} />
-                    </TouchableOpacity>
-                  )}
-                </>
-              )}
-            </View>
-          );
-        })()}
-
       </ScrollView>
 
       {/* ── 자주 찾는 강아지 — 바텀시트 상세 레이어 ── */}
@@ -391,73 +358,75 @@ export default function SpotDetailScreen() {
         onRequestClose={() => setSelectedDog(null)}
       >
         <Pressable style={s.sheetBackdrop} onPress={() => setSelectedDog(null)}>
-          <Pressable style={[s.sheetContainer, { paddingBottom: insets.bottom + Spacing[24] }]}
+          <Pressable
+            style={[s.sheetContainer, { paddingBottom: insets.bottom + Spacing[28] }]}
             onPress={e => e.stopPropagation()}
           >
             {/* 핸들 */}
             <View style={s.sheetHandle} />
 
-            {/* 닫기 버튼 */}
-            <TouchableOpacity style={s.sheetCloseBtn} onPress={() => setSelectedDog(null)}>
-              <Icon name="close" size={18} color={Colors.text.secondary} />
-            </TouchableOpacity>
+            {selectedDog && (() => {
+              const infoRows: { key: string; val: string }[] = [];
+              if (selectedDog.breed_text)  infoRows.push({ key: '견종', val: selectedDog.breed_text });
+              if (selectedDog.size_label)  infoRows.push({ key: '몸집', val: selectedDog.size_label });
 
-            {selectedDog && (
-              <>
-                {/* ── 아바타 + 이름 ── */}
-                <View style={s.sheetAvatarWrap}>
-                  {selectedDog.avatar_url ? (
-                    <Image source={{ uri: selectedDog.avatar_url }} style={s.sheetAvatarImg} resizeMode="cover" />
-                  ) : (
-                    <View style={s.sheetAvatarPlaceholder}>
-                      <Text style={s.sheetAvatarInitial}>{selectedDog.name[0]}</Text>
+              return (
+                <>
+                  {/* ── 아바타 + 이름 (중앙 정렬) ── */}
+                  <View style={s.sheetHero}>
+                    <View style={s.sheetAvatarWrap}>
+                      {selectedDog.avatar_url ? (
+                        <AppImage source={{ uri: selectedDog.avatar_url }} style={s.sheetAvatarImg} resizeMode="cover" />
+                      ) : (
+                        <View style={s.sheetAvatarPlaceholder}>
+                          <Text style={s.sheetAvatarInitial}>{selectedDog.name[0]}</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text style={s.sheetName}>{selectedDog.name}</Text>
+                    {/* 견종 · 몸집 한 줄 서브텍스트 */}
+                    {selectedDog.breed_age_text ? (
+                      <Text style={s.sheetSubLine}>{selectedDog.breed_age_text}</Text>
+                    ) : null}
+                  </View>
+
+                  {/* ── 성향 칩 ── */}
+                  {selectedDog.temperament_preview.length > 0 && (
+                    <View style={s.sheetChipRow}>
+                      {selectedDog.temperament_preview.map(t => (
+                        <View key={t} style={s.sheetChip}>
+                          <Text style={s.sheetChipText}>{t}</Text>
+                        </View>
+                      ))}
                     </View>
                   )}
-                </View>
-                <Text style={s.sheetName}>{selectedDog.name}</Text>
 
-                {/* ── 견종 / 몸집 정보 테이블 ── */}
-                <View style={s.sheetInfoTable}>
-                  {selectedDog.breed_text ? (
-                    <>
-                      <View style={s.sheetInfoRow}>
-                        <Text style={s.sheetInfoKey}>견종</Text>
-                        <Text style={s.sheetInfoVal}>{selectedDog.breed_text}</Text>
-                      </View>
-                      <View style={s.sheetInfoDivider} />
-                    </>
-                  ) : null}
-                  <View style={s.sheetInfoRow}>
-                    <Text style={s.sheetInfoKey}>몸집</Text>
-                    <Text style={s.sheetInfoVal}>{selectedDog.size_label}</Text>
-                  </View>
-                  {selectedDog.temperament_preview.length > 0 && (
-                    <>
-                      <View style={s.sheetInfoDivider} />
-                      <View style={s.sheetInfoRow}>
-                        <Text style={s.sheetInfoKey}>성향</Text>
-                        <View style={s.sheetTemperRow}>
-                          {selectedDog.temperament_preview.map(t => (
-                            <View key={t} style={s.sheetTemperChip}>
-                              <Text style={s.sheetTemperText}>{t}</Text>
-                            </View>
-                          ))}
-                        </View>
-                      </View>
-                    </>
+                  {/* ── 프로필 정보 테이블 ── */}
+                  {infoRows.length > 0 && (
+                    <View style={s.sheetInfoTable}>
+                      {infoRows.map((row, i) => (
+                        <React.Fragment key={row.key}>
+                          {i > 0 && <View style={s.sheetInfoSep} />}
+                          <View style={s.sheetInfoRow}>
+                            <Text style={s.sheetInfoKey}>{row.key}</Text>
+                            <Text style={s.sheetInfoVal}>{row.val}</Text>
+                          </View>
+                        </React.Fragment>
+                      ))}
+                    </View>
                   )}
-                </View>
 
-                {/* ── 장소와의 관계 ── */}
-                <View style={s.sheetRelationBox}>
-                  <Icon name="paw" size={14} color={Colors.brand.primary} />
-                  <Text style={s.sheetRelationText}>{selectedDog.relation_text}</Text>
-                </View>
+                  {/* ── 구분선 ── */}
+                  <View style={s.sheetDivider} />
 
-                {/* ── 완화된 최근성 ── */}
-                <Text style={s.sheetRecency}>{selectedDog.recency_label}</Text>
-              </>
-            )}
+                  {/* ── 장소 관계 + 최근성 ── */}
+                  <View style={s.sheetFooter}>
+                    <Text style={s.sheetRelation}>{selectedDog.relation_text}</Text>
+                    <Text style={s.sheetRecency}>{selectedDog.recency_label}</Text>
+                  </View>
+                </>
+              );
+            })()}
           </Pressable>
         </Pressable>
       </Modal>
@@ -570,11 +539,7 @@ const s = StyleSheet.create({
   statusCard: {
     backgroundColor: Colors.surface.default,
     paddingHorizontal: Spacing[16],
-    paddingTop: Spacing[20],
-    paddingBottom: Spacing[20],
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.border.default,
-    gap: Spacing[16],
+    paddingVertical: Spacing[20],
   },
   statsRow: {
     flexDirection: 'row',
@@ -607,7 +572,18 @@ const s = StyleSheet.create({
     backgroundColor: Colors.border.default,
   },
 
+  // ── 저장/발도장 2분할 CTA ─────────────────────────────────────────
+  ctaRow: {
+    flexDirection: 'row',
+    gap: Spacing[10],
+    paddingHorizontal: Spacing[16],
+    paddingVertical: Spacing[12],
+    backgroundColor: Colors.surface.default,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: Colors.border.default,
+  },
   btnSave: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -617,10 +593,6 @@ const s = StyleSheet.create({
     paddingVertical: Spacing[14],
     borderWidth: 1.5,
     borderColor: Colors.border.default,
-  },
-  btnSaveFull: {
-    // ctaRow 없이 단독 버튼으로 사용 시 전체 너비 채움
-    alignSelf: 'stretch',
   },
   btnSaveActive: {
     borderColor: Colors.brand.primary,
@@ -632,18 +604,31 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
   btnSaveTextActive: { color: Colors.brand.primary },
+  btnPawInline: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[6],
+    backgroundColor: Colors.brand.primary,
+    borderRadius: Radius.round,
+    paddingVertical: Spacing[14],
+  },
+  btnPawInlineText: {
+    ...Typography.label.m,
+    color: '#fff',
+    fontWeight: '700',
+  },
 
   // ── 공통 섹션 래퍼 ───────────────────────────────────────────────
   section: {
     backgroundColor: Colors.surface.default,
-    marginTop: Spacing[6],
     paddingHorizontal: Spacing[16],
     paddingTop: Spacing[20],
     paddingBottom: Spacing[20],
     gap: Spacing[14],
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: Colors.border.default,
+    borderTopColor: Colors.border.default,
   },
   sectionHead: {
     flexDirection: 'row',
@@ -665,93 +650,54 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
   },
 
-  // ── 자주 찾는 강아지 ─────────────────────────────────────────────
-  dogRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing[10],
+  // ── 자주 찾는 강아지 — 가로 스크롤 레일 ───────────────────────────
+  familiarRail: {
+    gap: Spacing[20],
+    paddingVertical: Spacing[4],
   },
-  dogCard: {
+  familiarCell: {
     alignItems: 'center',
-    gap: Spacing[4],
-    width: 88,
-    paddingVertical: Spacing[10],
-    paddingHorizontal: Spacing[4],
-    borderRadius: Radius.m,
-    backgroundColor: Colors.bg.secondary,
-    borderWidth: 1,
-    borderColor: Colors.border.default,
+    gap: Spacing[6],
+    width: 80,
   },
-  dogAvatarWrap: {
-    width: 56, height: 56,
-    borderRadius: 28,
+  familiarAvatarWrap: {
+    width: 52, height: 52,
+    borderRadius: 26,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: Colors.border.brand,
-    marginBottom: Spacing[2],
+    backgroundColor: Colors.bg.secondary,
   },
-  dogAvatarImg: { width: '100%', height: '100%' },
-  dogAvatarPlaceholder: {
+  familiarAvatarImg: { width: '100%', height: '100%' },
+  familiarAvatarPlaceholder: {
     flex: 1,
     backgroundColor: Colors.brand.subtle,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dogAvatarInitial: {
+  familiarAvatarInitial: {
     ...Typography.title.s,
     color: Colors.brand.accent,
     fontWeight: '700',
   },
-  dogName: {
-    ...Typography.label.m,
+  familiarName: {
+    ...Typography.label.s,
     color: Colors.text.primary,
     fontWeight: '600',
     textAlign: 'center',
   },
-  dogBreed: {
+  familiarRecency: {
     ...Typography.caption,
     color: Colors.text.tertiary,
     textAlign: 'center',
-  },
-  dogRecency: {
-    ...Typography.caption,
-    color: Colors.brand.accent,
-    textAlign: 'center',
-    lineHeight: 14,
-  },
-  // 더보기 버튼
-  dogExpandBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[4],
-    paddingVertical: Spacing[10],
-  },
-  dogExpandText: {
-    ...Typography.label.s,
-    color: Colors.text.tertiary,
-    fontWeight: '500',
+    lineHeight: 15,
   },
   // 빈 상태
-  dogEmpty: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[10],
-    paddingVertical: Spacing[20],
-    paddingHorizontal: Spacing[16],
-    backgroundColor: Colors.bg.secondary,
-    borderRadius: Radius.card,
-    borderWidth: 1,
-    borderColor: Colors.border.subtle,
-  },
-  dogEmptyText: {
-    flex: 1,
+  familiarEmptyText: {
     ...Typography.body.s,
     color: Colors.text.tertiary,
-    lineHeight: 20,
+    paddingVertical: Spacing[8],
   },
 
-  // ── 바텀시트 (자주 찾는 강아지 상세 레이어) ──────────────────────
+  // ── 바텀시트 (자주 찾는 강아지 프로필 레이어) ───────────────────
   sheetBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',
@@ -763,34 +709,29 @@ const s = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingTop: Spacing[12],
     paddingHorizontal: Spacing[24],
-    alignItems: 'center',
-    gap: Spacing[8],
-    minHeight: 300,
+    gap: Spacing[16],
   },
   sheetHandle: {
     width: 36, height: 4,
     borderRadius: 2,
     backgroundColor: Colors.border.strong,
-    marginBottom: Spacing[8],
+    marginBottom: Spacing[4],
+    alignSelf: 'center',
   },
-  sheetCloseBtn: {
-    position: 'absolute',
-    top: Spacing[16],
-    right: Spacing[16],
-    width: 32, height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.bg.secondary,
+
+  // 아바타 + 이름 중앙 정렬
+  sheetHero: {
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: Spacing[8],
+    paddingTop: Spacing[4],
   },
   sheetAvatarWrap: {
-    width: 80, height: 80,
-    borderRadius: 40,
+    width: 72, height: 72,
+    borderRadius: 36,
     overflow: 'hidden',
-    borderWidth: 2.5,
+    backgroundColor: Colors.bg.secondary,
+    borderWidth: 2,
     borderColor: Colors.border.brand,
-    marginTop: Spacing[8],
-    marginBottom: Spacing[4],
   },
   sheetAvatarImg: { width: '100%', height: '100%' },
   sheetAvatarPlaceholder: {
@@ -800,7 +741,7 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   sheetAvatarInitial: {
-    ...Typography.display.s,
+    ...Typography.title.m,
     color: Colors.brand.accent,
     fontWeight: '700',
   },
@@ -809,18 +750,41 @@ const s = StyleSheet.create({
     color: Colors.text.primary,
     fontWeight: '800',
     textAlign: 'center',
-    marginBottom: Spacing[4],
+  },
+  sheetSubLine: {
+    ...Typography.body.s,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
   },
 
-  // 견종·몸집·성향 정보 테이블
+  // 성향 칩 행
+  sheetChipRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing[8],
+  },
+  sheetChip: {
+    backgroundColor: Colors.brand.subtle,
+    paddingHorizontal: Spacing[12],
+    paddingVertical: Spacing[6],
+    borderRadius: Radius.round,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+  },
+  sheetChipText: {
+    ...Typography.label.s,
+    color: Colors.brand.accent,
+    fontWeight: '600',
+  },
+
+  // 정보 테이블
   sheetInfoTable: {
-    alignSelf: 'stretch',
     borderRadius: Radius.card,
     borderWidth: 1,
     borderColor: Colors.border.default,
     overflow: 'hidden',
     backgroundColor: Colors.bg.secondary,
-    marginBottom: Spacing[4],
   },
   sheetInfoRow: {
     flexDirection: 'row',
@@ -829,9 +793,9 @@ const s = StyleSheet.create({
     paddingHorizontal: Spacing[16],
     gap: Spacing[12],
   },
-  sheetInfoDivider: {
-    height: 1,
-    backgroundColor: Colors.border.subtle,
+  sheetInfoSep: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: Colors.border.default,
     marginHorizontal: Spacing[16],
   },
   sheetInfoKey: {
@@ -847,51 +811,25 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // 성향 칩 (테이블 내부)
-  sheetTemperRow: {
-    flex: 1,
-    flexDirection: 'row',
-    gap: Spacing[6],
-    flexWrap: 'wrap',
-  },
-  sheetTemperChip: {
-    backgroundColor: Colors.brand.subtle,
-    paddingHorizontal: Spacing[10],
-    paddingVertical: 4,
-    borderRadius: Radius.round,
-    borderWidth: 1,
-    borderColor: Colors.border.brand,
-  },
-  sheetTemperText: {
-    ...Typography.label.s,
-    color: Colors.brand.accent,
-    fontWeight: '600',
+  // 구분선
+  sheetDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: Colors.border.subtle,
   },
 
-  // 장소 관계
-  sheetRelationBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[8],
-    backgroundColor: Colors.brand.subtle,
-    paddingHorizontal: Spacing[16],
-    paddingVertical: Spacing[12],
-    borderRadius: Radius.card,
-    borderWidth: 1,
-    borderColor: Colors.border.brand,
-    alignSelf: 'stretch',
+  // 장소 관계 + 최근성
+  sheetFooter: {
+    gap: Spacing[4],
+    paddingBottom: Spacing[4],
   },
-  sheetRelationText: {
-    flex: 1,
-    ...Typography.label.m,
-    color: Colors.brand.accent,
-    fontWeight: '600',
+  sheetRelation: {
+    ...Typography.body.s,
+    color: Colors.text.secondary,
+    lineHeight: 20,
   },
   sheetRecency: {
     ...Typography.caption,
     color: Colors.text.tertiary,
-    textAlign: 'center',
-    marginBottom: Spacing[8],
   },
 
   // ── 흔적 리스트 ──────────────────────────────────────────────────
@@ -1010,6 +948,17 @@ const s = StyleSheet.create({
   },
   featureChipText: { ...Typography.label.s, color: Colors.text.secondary },
 
+  // 주소 + 지도 링크 행
+  infoAddressRow: {
+    flex: 1,
+    gap: Spacing[4],
+  },
+  mapTextLink: {
+    ...Typography.label.s,
+    color: Colors.brand.primary,
+    fontWeight: '600',
+  },
+
   // ── 하단 고정 액션 바 ──────────────────────────────────────────────
   bottomBar: {
     flexDirection: 'row',
@@ -1053,21 +1002,5 @@ const s = StyleSheet.create({
     fontWeight: '800',
   },
 
-  // 지도 placeholder
-  mapPlaceholder: {
-    height: 96,
-    backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[6],
-    borderWidth: 1.5,
-    borderColor: Colors.border.brand,
-  },
-  mapPlaceholderText: {
-    ...Typography.label.m,
-    color: Colors.brand.accent,
-    fontWeight: '600',
-  },
-
 });
+

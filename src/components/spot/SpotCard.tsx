@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { AppImage } from '../common/AppImage';
 import { Colors, Typography, Radius, Spacing } from '../../constants/tokens';
 import { Icon } from '../common/Icon';
 import type { HomeSpotCardViewModel } from '../../types';
@@ -16,7 +17,7 @@ export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
       {/* 이미지 영역 */}
       <View style={s.featuredImage}>
         {card.cover_image_url ? (
-          <Image source={{ uri: card.cover_image_url }} style={s.featuredImg} resizeMode="cover" />
+          <AppImage source={{ uri: card.cover_image_url }} style={s.featuredImg} resizeMode="cover" />
         ) : (
           <View style={s.featuredImgPlaceholder}>
             <Icon name="leaf-filled" size={28} color={Colors.brand.primary} />
@@ -61,7 +62,7 @@ export function CompactSpotCard({ card, onPress }: FeaturedProps) {
       {/* 이미지 영역 */}
       <View style={s.compactImage}>
         {card.cover_image_url ? (
-          <Image source={{ uri: card.cover_image_url }} style={s.compactImg} resizeMode="cover" />
+          <AppImage source={{ uri: card.cover_image_url }} style={s.compactImg} resizeMode="cover" />
         ) : (
           <View style={s.compactImgPlaceholder}>
             <Icon name="leaf-filled" size={20} color={Colors.brand.primary} />
@@ -103,7 +104,7 @@ export function RecentSpotCard({ card, onPress }: FeaturedProps) {
       {/* 썸네일 */}
       <View style={sr.imageWrap}>
         {card.cover_image_url ? (
-          <Image source={{ uri: card.cover_image_url }} style={sr.image} resizeMode="cover" />
+          <AppImage source={{ uri: card.cover_image_url }} style={sr.image} resizeMode="cover" />
         ) : (
           <View style={sr.imagePlaceholder}>
             <Icon name="leaf-filled" size={22} color={Colors.brand.primary} />
@@ -130,7 +131,7 @@ export function RegularSpotCard({ card, onPress }: FeaturedProps) {
       {/* 썸네일 */}
       <View style={sr.imageWrap}>
         {card.cover_image_url ? (
-          <Image source={{ uri: card.cover_image_url }} style={sr.image} resizeMode="cover" />
+          <AppImage source={{ uri: card.cover_image_url }} style={sr.image} resizeMode="cover" />
         ) : (
           <View style={sr.imagePlaceholder}>
             <Icon name="leaf-filled" size={22} color={Colors.brand.primary} />
@@ -179,7 +180,7 @@ export function ListSpotCard({
         {/* 썸네일 */}
         <View style={s.listImage}>
           {coverImageUrl ? (
-            <Image source={{ uri: coverImageUrl }} style={s.listImg} resizeMode="cover" />
+            <AppImage source={{ uri: coverImageUrl }} style={s.listImg} resizeMode="cover" />
           ) : (
             <View style={s.listImgPlaceholder}>
               <Icon name="leaf-filled" size={18} color={Colors.brand.primary} />

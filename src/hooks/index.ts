@@ -5,3 +5,4 @@ export { usePawCheckin } from './usePawCheckin';
 export { useSavedSpots } from './useSavedSpots';
 export { useMySpots } from './useMySpots';
 export { useLocation } from './useLocation';
+export { useUserData } from './useUserData';

@@ -33,7 +33,7 @@ export const mockDog2: Dog = {
   dog_id: 'dog_002',
   user_id: 'usr_001',
   name: '콩이',
-  avatar_url: undefined,
+  avatar_url: 'https://picsum.photos/seed/kongi/200/200',
   breed: '비글',
   weight_kg: 9.2,
   size: 'medium',
@@ -44,7 +44,22 @@ export const mockDog2: Dog = {
   is_active: true,
 };
 
-export const mockDogs: Dog[] = [mockDog, mockDog2];
+export const mockDog3: Dog = {
+  dog_id: 'dog_004',
+  user_id: 'usr_001',
+  name: '아몬드',
+  avatar_url: 'https://picsum.photos/seed/almond/200/200',
+  breed: '푸들',
+  weight_kg: 5.2,
+  size: 'small',
+  age_group: 'senior',
+  temperament_tags: ['quiet', 'gentle'],
+  walking_style_tags: ['slow_pace', 'sniffing'],
+  created_at: '2025-11-10T09:05:00+09:00',
+  is_active: true,
+};
+
+export const mockDogs: Dog[] = [mockDog, mockDog2, mockDog3];
 
 export const mockPrivacySetting: PrivacySetting = {
   privacy_setting_id: 'pri_001',
@@ -70,6 +85,7 @@ export const mockSpots: Spot[] = [
     cover_image_url: 'https://picsum.photos/id/15/400/300',
     opening_hours: '연중무휴 · 24시간',
     features: ['넓은 잔디밭', '강변 산책로', '쉼터 있음', '주차 가능'],
+    description: '한강변을 따라 이어지는 넓은 산책로예요. 강아지와 함께 여유롭게 걷기 좋아요.',
     caution: '자전거 통행이 많아요 · 목줄은 필수입니다',
     status: 'active',
     created_source: 'seed',
@@ -84,6 +100,7 @@ export const mockSpots: Spot[] = [
     address_text: '서울특별시 마포구 망원동 428',
     neighborhood: '망원',
     cover_image_url: 'https://picsum.photos/id/28/400/300',
+    description: '동네에서 잠깐 쉬어가기 좋은 아담한 공원이에요. 조용하고 아늑한 분위기예요.',
     opening_hours: '06:00 – 22:00',
     features: ['벤치 있어요', '그늘 있음', '강아지 친화적'],
     caution: '어린이 놀이터 근처 조용히 해주세요',
@@ -100,6 +117,7 @@ export const mockSpots: Spot[] = [
     address_text: '서울특별시 마포구 연남로 137-1',
     neighborhood: '홍대입구',
     cover_image_url: 'https://picsum.photos/id/10/400/300',
+    description: '철길 따라 조성된 나무 그늘 가득한 산책로예요. 조용히 산책하기에 딱 좋아요.',
     opening_hours: '연중무휴 · 24시간 개방',
     features: ['나무 그늘 많아요', '평지에요', '벤치 있어요', '포장길'],
     caution: '자전거 통행 주의 · 목줄은 필수입니다',
@@ -324,6 +342,55 @@ export const mockCheckins: PawCheckin[] = [
     visibility_level: 'spot_only', source_type: 'home',
     is_valid_for_aggregate: true, created_at: '2026-04-25T09:00:05+09:00',
   },
+  // ── spot_001 72시간 내 체크인 (최근 흔적 섹션용) ──────────────────
+  // dog_001 (보리) — 사진 포함
+  {
+    checkin_id: 'chk_015', dog_id: 'dog_001', spot_id: 'spot_001',
+    checked_in_at: '2026-04-30T07:35:00+09:00',
+    feeling_tags: ['quiet', 'good'], note: '이른 아침이라 한산해요. 보리도 신나게 뛰었어요 🐾',
+    photo_url: 'https://picsum.photos/seed/trace_bori_01/400/300',
+    visibility_level: 'spot_only', source_type: 'spot_detail',
+    is_valid_for_aggregate: true, created_at: '2026-04-30T07:35:10+09:00',
+  },
+  // dog_001 (보리) — 메모만
+  {
+    checkin_id: 'chk_016', dog_id: 'dog_001', spot_id: 'spot_001',
+    checked_in_at: '2026-04-29T18:20:00+09:00',
+    feeling_tags: ['come_back_again', 'good'], note: '강변 노을 보면서 산책 최고예요',
+    photo_url: undefined,
+    visibility_level: 'spot_only', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-29T18:20:10+09:00',
+  },
+  // dog_011 (마루) / spot_001 — 2회
+  {
+    checkin_id: 'chk_013', dog_id: 'dog_011', spot_id: 'spot_001',
+    checked_in_at: '2026-04-29T07:10:00+09:00',
+    feeling_tags: ['good', 'many_dogs'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-29T07:10:05+09:00',
+  },
+  {
+    checkin_id: 'chk_013b', dog_id: 'dog_011', spot_id: 'spot_001',
+    checked_in_at: '2026-04-25T08:40:00+09:00',
+    feeling_tags: ['good'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'spot_detail',
+    is_valid_for_aggregate: true, created_at: '2026-04-25T08:40:05+09:00',
+  },
+  // dog_013 (크림) / spot_001 — 2회
+  {
+    checkin_id: 'chk_014', dog_id: 'dog_013', spot_id: 'spot_001',
+    checked_in_at: '2026-04-28T17:30:00+09:00',
+    feeling_tags: ['quiet', 'good_for_short_rest'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-28T17:30:05+09:00',
+  },
+  {
+    checkin_id: 'chk_014b', dog_id: 'dog_013', spot_id: 'spot_001',
+    checked_in_at: '2026-04-22T17:00:00+09:00',
+    feeling_tags: ['quiet'], note: undefined, photo_url: undefined,
+    visibility_level: 'familiar_layer', source_type: 'home',
+    is_valid_for_aggregate: true, created_at: '2026-04-22T17:00:05+09:00',
+  },
 ];
 
 // ─────────────────────────────────────────
@@ -390,15 +457,43 @@ export const mockVisitSummaries: SpotVisitSummary[] = [
 // FAMILIAR DOG SIGNALS
 // ─────────────────────────────────────────
 
-// 다른 강아지 데이터 (최소 정보만)
+// 다른 강아지 데이터 (자주 찾는 강아지 섹션용)
+// avatar_url: picsum.photos seed — 시드 고정으로 항상 동일 이미지, 로드 안정성 보장
 export const mockOtherDogs: Pick<Dog, 'dog_id' | 'name' | 'size' | 'age_group' | 'breed' | 'temperament_tags' | 'avatar_url'>[] = [
-  { dog_id: 'dog_009', name: '두부',  breed: '포메라니안', size: 'small',  age_group: 'adult',  temperament_tags: ['quiet', 'shy'],        avatar_url: undefined },
-  { dog_id: 'dog_007', name: '코코',  breed: '비숑',       size: 'small',  age_group: 'adult',  temperament_tags: ['friendly', 'active'],  avatar_url: undefined },
-  { dog_id: 'dog_005', name: '모카',  breed: '시바',       size: 'medium', age_group: 'adult',  temperament_tags: ['active'],              avatar_url: undefined },
-  { dog_id: 'dog_003', name: '하루',  breed: '말티즈',     size: 'small',  age_group: 'puppy',  temperament_tags: ['quiet', 'sensitive'],  avatar_url: undefined },
+  {
+    dog_id: 'dog_009', name: '두부', breed: '포메라니안', size: 'small', age_group: 'adult',
+    temperament_tags: ['quiet', 'shy'],
+    avatar_url: 'https://picsum.photos/seed/dubu/200/200',
+  },
+  {
+    dog_id: 'dog_007', name: '코코', breed: '비숑', size: 'small', age_group: 'adult',
+    temperament_tags: ['friendly', 'active'],
+    avatar_url: 'https://picsum.photos/seed/koko/200/200',
+  },
+  {
+    dog_id: 'dog_011', name: '마루', breed: '골든리트리버', size: 'large', age_group: 'adult',
+    temperament_tags: ['active', 'friendly'],
+    avatar_url: 'https://picsum.photos/seed/maru/200/200',
+  },
+  {
+    dog_id: 'dog_013', name: '크림', breed: '말티푸', size: 'small', age_group: 'puppy',
+    temperament_tags: ['quiet'],
+    avatar_url: 'https://picsum.photos/seed/cream/200/200',
+  },
+  {
+    dog_id: 'dog_005', name: '모카', breed: '시바', size: 'medium', age_group: 'adult',
+    temperament_tags: ['active'],
+    avatar_url: 'https://picsum.photos/seed/moka/200/200',
+  },
+  {
+    dog_id: 'dog_003', name: '하루', breed: '말티즈', size: 'small', age_group: 'puppy',
+    temperament_tags: ['quiet', 'sensitive'],
+    avatar_url: 'https://picsum.photos/seed/haru/200/200',
+  },
 ];
 
 export const mockFamiliarDogSignals: FamiliarDogSignal[] = [
+  // spot_001 — 한강 망원지구 (4마리)
   {
     familiar_signal_id: 'fam_001', spot_id: 'spot_001', visible_dog_id: 'dog_009',
     recent_visible_checkin_count: 4,
@@ -413,6 +508,21 @@ export const mockFamiliarDogSignals: FamiliarDogSignal[] = [
     exposure_allowed: true,
     updated_at: '2026-04-27T08:00:00+09:00',
   },
+  {
+    familiar_signal_id: 'fam_004', spot_id: 'spot_001', visible_dog_id: 'dog_011',
+    recent_visible_checkin_count: 2,
+    recent_last_seen_at: '2026-04-29T07:10:00+09:00',
+    exposure_allowed: true,
+    updated_at: '2026-04-29T07:20:00+09:00',
+  },
+  {
+    familiar_signal_id: 'fam_005', spot_id: 'spot_001', visible_dog_id: 'dog_013',
+    recent_visible_checkin_count: 2,
+    recent_last_seen_at: '2026-04-28T17:30:00+09:00',
+    exposure_allowed: true,
+    updated_at: '2026-04-28T17:40:00+09:00',
+  },
+  // spot_002 — 망원 작은 공원 (1마리)
   {
     familiar_signal_id: 'fam_003', spot_id: 'spot_002', visible_dog_id: 'dog_005',
     recent_visible_checkin_count: 2,

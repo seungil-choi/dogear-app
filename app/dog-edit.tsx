@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { AppImage } from '../src/components/common/AppImage';
 import {
   View,
   Text,
@@ -9,7 +10,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
-  Image,
   Alert,
   ActionSheetIOS,
 } from 'react-native';
@@ -20,6 +20,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { Colors, Spacing, Radius, Typography, Layout } from '../src/constants/tokens';
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
+import { supabase } from '../src/lib/supabase';
+
+const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 import {
   sizeLabel,
   ageGroupLabel,
@@ -134,7 +137,7 @@ export default function DogEditScreen() {
   }
 
   // ─── 저장 ────────────────────────────────────────────
-  function handleSave() {
+  async function handleSave() {
     if (!dog) return;
     const updatedDog = {
       ...dog,
@@ -147,6 +150,28 @@ export default function DogEditScreen() {
       temperament_tags: temperamentTags,
       walking_style_tags: walkingStyleTags,
     };
+
+    if (IS_REAL_AUTH) {
+      const { error } = await supabase
+        .from('dogs')
+        .update({
+          name: updatedDog.name,
+          avatar_url: updatedDog.avatar_url ?? null,
+          breed: updatedDog.breed ?? null,
+          weight_kg: updatedDog.weight_kg ?? null,
+          size: updatedDog.size,
+          age_group: updatedDog.age_group,
+          temperament_tags: updatedDog.temperament_tags,
+          walking_style_tags: updatedDog.walking_style_tags,
+        })
+        .eq('dog_id', dog.dog_id);
+
+      if (error) {
+        Alert.alert('저장 실패', '프로필 저장에 실패했어요. 다시 시도해주세요.');
+        return;
+      }
+    }
+
     setActiveDog(updatedDog);
     setDogs(dogs.map(d => (d.dog_id === dog.dog_id ? updatedDog : d)));
     router.back();
@@ -183,7 +208,7 @@ export default function DogEditScreen() {
           <View style={styles.avatarSection}>
             <TouchableOpacity style={styles.avatarWrap} onPress={handleAvatarPress} activeOpacity={0.8}>
               {avatarUri ? (
-                <Image source={{ uri: avatarUri }} style={styles.avatarImg} />
+                <AppImage source={{ uri: avatarUri }} style={styles.avatarImg} />
               ) : (
                 <View style={styles.avatarPlaceholder}>
                   <Text style={styles.avatarInitial}>{dog.name[0]}</Text>

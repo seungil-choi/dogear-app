@@ -10,9 +10,10 @@
  */
 
 import React, { useMemo } from 'react';
+import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, SafeAreaView, Image,
+  StyleSheet, SafeAreaView,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -72,7 +73,7 @@ function CheckinRow({ checkin }: { checkin: PawCheckin }) {
 
         {/* 사진 */}
         {checkin.photo_url && (
-          <Image
+          <AppImage
             source={{ uri: checkin.photo_url }}
             style={r.photoImage}
             resizeMode="cover"

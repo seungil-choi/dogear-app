@@ -42,3 +42,9 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# 환경변수 — 실 키 포함 파일
+.env
+.env.production
+.env.local
+.env*.local

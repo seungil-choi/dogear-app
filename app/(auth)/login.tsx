@@ -16,6 +16,9 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { Icon } from '../../src/components/common/Icon';
+import { supabase } from '../../src/lib/supabase';
+
+const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 
 // ─── 소셜 로그인 버튼 ──────────────────────────────────────
 function SocialButton({
@@ -67,7 +70,7 @@ export default function LoginScreen() {
     }
   };
 
-  // Apple 로그인 — 실제 ID 토큰 획득 (프로덕션에서는 Supabase auth.signInWithIdToken으로 연동)
+  // Apple 로그인
   const handleAppleLogin = async () => {
     if (Platform.OS !== 'ios') {
       Alert.alert('알림', 'Apple 로그인은 iOS에서만 사용할 수 있어요.');
@@ -80,21 +83,47 @@ export default function LoginScreen() {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
-      // TODO(P0): credential.identityToken을 Supabase에 전달해 세션 생성
-      if (credential.identityToken) {
+
+      if (!credential.identityToken) {
+        Alert.alert('로그인 실패', '인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
+        return;
+      }
+
+      if (IS_REAL_AUTH) {
+        // 프로덕션: identityToken → Supabase 세션 생성
+        const { error } = await supabase.auth.signInWithIdToken({
+          provider: 'apple',
+          token: credential.identityToken,
+        });
+        if (error) {
+          Alert.alert('로그인 오류', error.message);
+          return;
+        }
+        // useAuth 훅이 onAuthStateChange로 user/dog 상태 자동 설정
         proceedAfterAuth();
       } else {
-        Alert.alert('로그인 실패', '인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
+        // 개발 목업 모드
+        proceedAfterAuth();
       }
     } catch (e: any) {
-      if (e?.code === 'ERR_REQUEST_CANCELED') return; // 사용자 취소
+      if (e?.code === 'ERR_REQUEST_CANCELED') return;
       Alert.alert('로그인 오류', 'Apple 로그인 중 문제가 발생했어요.');
     }
   };
 
   // 카카오/네이버 — 추후 SDK 연동 (현재는 임시 처리)
   const handleSocialLogin = (_provider: 'kakao' | 'naver') => {
-    Alert.alert('준비 중', '해당 로그인은 곧 지원될 예정이에요.');
+    Alert.alert('준비 중', '해당 로그인은 곧 지원될 예정이에요. 현재는 게스트로 이용해주세요.');
+  };
+
+  // 게스트 로그인 — 웹/Android에서 사용 가능 (데이터는 기기에만 저장됨)
+  const handleGuestLogin = () => {
+    login();
+    if (!consent) {
+      router.replace('/(auth)/consent' as any);
+    } else {
+      router.replace('/(tabs)');
+    }
   };
 
   return (
@@ -118,9 +147,9 @@ export default function LoginScreen() {
           {/* 배경 원 */}
           <View style={s.bgCircle} />
 
-          {/* 메인 아이콘 */}
+          {/* 메인 아이콘 — dog은 MCI 폰트 의존, 웹 fallback으로 paw 이중 보장 */}
           <View style={s.mainIconWrap}>
-            <Icon name="dog" size={96} color={Colors.brand.primary} />
+            <Text style={s.dogEmoji}>🐶</Text>
           </View>
 
           {/* 플로팅 배지들 */}
@@ -180,6 +209,19 @@ export default function LoginScreen() {
               </View>
             }
           />
+
+          {/* 구분선 */}
+          <View style={s.dividerRow}>
+            <View style={s.dividerLine} />
+            <Text style={s.dividerText}>또는</Text>
+            <View style={s.dividerLine} />
+          </View>
+
+          {/* 게스트로 시작하기 (웹/Android 전용) */}
+          <TouchableOpacity style={s.guestBtn} onPress={handleGuestLogin} activeOpacity={0.75}>
+            <Text style={s.guestBtnText}>게스트로 시작하기</Text>
+          </TouchableOpacity>
+          <Text style={s.guestNote}>소셜 계정 없이 기기에서만 사용해요</Text>
 
           <Text style={s.disclaimer}>
             로그인하면{' '}
@@ -258,6 +300,10 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 3,
     borderColor: Colors.brand.primaryLight,
+  },
+  dogEmoji: {
+    fontSize: 80,
+    lineHeight: 96,
   },
 
   // 플로팅 배지
@@ -338,6 +384,45 @@ const s = StyleSheet.create({
     fontWeight: '900',
     color: '#FFFFFF',
     lineHeight: 20,
+  },
+
+  // 구분선
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[12],
+    marginVertical: Spacing[4],
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.border.default,
+  },
+  dividerText: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+  },
+
+  // 게스트 로그인
+  guestBtn: {
+    height: 54,
+    borderRadius: Radius.round,
+    borderWidth: 1.5,
+    borderColor: Colors.border.default,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface.default,
+  },
+  guestBtnText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: Colors.text.secondary,
+  },
+  guestNote: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    marginTop: -Spacing[4],
   },
 
   // 약관 텍스트

@@ -14,14 +14,17 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, TextInput,
-  StyleSheet, SafeAreaView, ActivityIndicator, Platform, KeyboardAvoidingView,
+  StyleSheet, SafeAreaView, ActivityIndicator, Platform, KeyboardAvoidingView, Alert,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
+import { supabase } from '../src/lib/supabase';
 import { Button } from '../src/components/common/Button';
 import { Icon } from '../src/components/common/Icon';
 import type { SpotCategory, NearbyDuplicate } from '../src/types';
+
+const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 
 // react-native-maps — native only (not available on web)
 const RNMapView = Platform.OS !== 'web' ? require('react-native-maps').default : null;
@@ -55,6 +58,7 @@ export default function SuggestSpotScreen() {
   const currentLocation    = useAppStore(s => s.currentLocation);
   const getNearbyDuplicates = useAppStore(s => s.getNearbyDuplicates);
   const suggestSpot         = useAppStore(s => s.suggestSpot);
+  const user                = useAppStore(s => s.activeDog);
 
   const location = currentLocation ?? DEFAULT_LOCATION;
 
@@ -106,17 +110,40 @@ export default function SuggestSpotScreen() {
   }, [isFormValid, name, category, pinLocation, getNearbyDuplicates]);
 
   // ── 최종 제출 ─────────────────────────────────────────────
-  const handleSubmit = useCallback(() => {
-    suggestSpot({
+  const handleSubmit = useCallback(async () => {
+    const payload = {
       name: name.trim(),
       description: description.trim(),
       category,
       additional_tags: selectedTags,
       latitude: pinLocation.latitude,
       longitude: pinLocation.longitude,
-    });
+    };
+
+    if (IS_REAL_AUTH && user) {
+      const { error } = await supabase
+        .from('spot_suggestions')
+        .insert({
+          dog_id: user.dog_id,
+          user_id: user.user_id,
+          name: payload.name,
+          description: payload.description,
+          category: payload.category,
+          additional_tags: payload.additional_tags,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
+        });
+
+      if (error) {
+        Alert.alert('제안 실패', '장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.');
+        return;
+      }
+    }
+
+    // 로컬 store에도 반영 (즉각적인 UI 피드백)
+    suggestSpot(payload);
     setStep('done');
-  }, [name, description, category, selectedTags, pinLocation, suggestSpot]);
+  }, [name, description, category, selectedTags, pinLocation, suggestSpot, user]);
 
   // ── 기존 장소 사용 ────────────────────────────────────────
   const handleUseExistingSpot = useCallback((spotId: string) => {

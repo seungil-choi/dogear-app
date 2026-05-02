@@ -15,18 +15,22 @@
  */
 
 import React, { useCallback, useState, useMemo } from 'react';
+import { AppImage } from '../src/components/common/AppImage';
 import {
   View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, SafeAreaView, Image,
+  StyleSheet, SafeAreaView, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
+import { usePawCheckin } from '../src/hooks/usePawCheckin';
 import { Button } from '../src/components/common/Button';
 import { Icon } from '../src/components/common/Icon';
 import { EmptyState } from '../src/components/common/EmptyState';
 import type { FeelingTag, VisibilityLevel } from '../src/types';
 import { feelingTagLabel, visibilityLabel } from '../src/utils/labels';
+
+const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 
 
 
@@ -75,6 +79,7 @@ export default function PawCheckinModal() {
   const dog            = useAppStore(s => s.dog);
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const { submit: submitToServer, isSubmitting } = usePawCheckin();
 
   const { step, selectedSpot, selectedTags, visibility } = pawFlow;
   const cards = getHomeCards();
@@ -90,10 +95,18 @@ export default function PawCheckinModal() {
     else setPawStep(step - 1);
   }, [step, setPawStep, handleClose]);
 
-  const handleSubmit = useCallback(() => {
-    submitPawCheckin();
+  const handleSubmit = useCallback(async () => {
+    if (IS_REAL_AUTH) {
+      try {
+        await submitToServer(); // Edge Function → Supabase 저장
+      } catch (err: any) {
+        Alert.alert('발도장 저장 실패', err.message ?? '잠시 후 다시 시도해주세요.');
+        return;
+      }
+    }
+    submitPawCheckin(); // 로컬 store 업데이트 (즉각적인 UI 반영)
     setIsSuccess(true);
-  }, [submitPawCheckin]);
+  }, [submitPawCheckin, submitToServer]);
 
   const handleGoHome = useCallback(() => {
     resetPawFlow();
@@ -287,7 +300,7 @@ export default function PawCheckinModal() {
                         activeOpacity={0.8}
                       >
                         {card.cover_image_url ? (
-                          <Image
+                          <AppImage
                             source={{ uri: card.cover_image_url }}
                             style={s.spotThumb}
                             resizeMode="cover"
@@ -325,7 +338,7 @@ export default function PawCheckinModal() {
                             activeOpacity={0.8}
                           >
                             {card.cover_image_url ? (
-                              <Image
+                              <AppImage
                                 source={{ uri: card.cover_image_url }}
                                 style={s.spotThumb}
                                 resizeMode="cover"
@@ -456,11 +469,12 @@ export default function PawCheckinModal() {
           />
         ) : (
           <Button
-            label="발도장 찍기"
+            label={isSubmitting ? '저장 중...' : '발도장 찍기'}
             onPress={handleSubmit}
             variant="primary"
             size="l"
             fullWidth
+            disabled={isSubmitting}
           />
         )}
       </View>
@@ -687,7 +701,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing[16],
-    paddingVertical: Spacing[13],
+    paddingVertical: 13,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border.subtle,
     gap: Spacing[10],

@@ -11,9 +11,10 @@
  */
 
 import React, { useMemo, useCallback, useState } from 'react';
+import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, SafeAreaView, Modal, Image,
+  StyleSheet, SafeAreaView, Modal,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -21,15 +22,26 @@ import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants
 import { useAppStore } from '../../src/store/useAppStore';
 import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
-import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels } from '../../src/utils/labels';
+import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
 import { EmptyState } from '../../src/components/common/EmptyState';
-import type { Dog, HomeSpotCardViewModel } from '../../src/types';
+import type { Dog, HomeSpotCardViewModel, AtmosphereState } from '../../src/types';
+
+// ─── 추천 카드 강아지 맞춤 설명 생성 ────────────────────────────────
+function buildPersonalizedDesc(dogName: string, tags: string[], atmosphere: AtmosphereState): string {
+  const isQuiet  = tags.some(t => ['quiet', 'shy', 'calm', 'gentle'].includes(t));
+  const isActive = tags.some(t => ['active', 'playful', 'friendly'].includes(t));
+  if (isQuiet && atmosphere !== 'active')  return `${dogName}처럼 조용한 아이에게 잘 맞아요`;
+  if (isActive && atmosphere !== 'quiet') return `${dogName}처럼 활발한 아이에게 딱이에요`;
+  if (atmosphere === 'quiet')  return '조용히 산책하기 좋은 장소예요';
+  if (atmosphere === 'active') return '활기찬 분위기의 장소예요';
+  return '자주 찾는 친숙한 장소예요';
+}
 
 // ─── 강아지 아바타 ────────────────────────────────────────────────
 function DogAvatar({ dog, size = 52 }: { dog: Dog; size?: number }) {
   if (dog.avatar_url) {
     return (
-      <Image
+      <AppImage
         source={{ uri: dog.avatar_url }}
         style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: Colors.brand.subtle }}
         resizeMode="cover"
@@ -80,10 +92,11 @@ function DogPickerModal({
 
 // ─── 오늘의 추천 스팟 카드 ───────────────────────────────────────
 function FeaturedCard({
-  card, isSaved, onPress, onSave,
+  card, isSaved, personalizedDesc, onPress, onSave,
 }: {
   card: HomeSpotCardViewModel;
   isSaved: boolean;
+  personalizedDesc?: string;
   onPress: () => void;
   onSave: () => void;
 }) {
@@ -91,9 +104,9 @@ function FeaturedCard({
     <TouchableOpacity style={s.featuredCard} onPress={onPress} activeOpacity={0.92}>
       <View style={s.featuredImageWrap}>
         {card.cover_image_url ? (
-          <Image source={{ uri: card.cover_image_url }} style={s.featuredImage} resizeMode="cover" />
+          <AppImage source={{ uri: card.cover_image_url }} style={s.featuredImage} resizeMode="cover" />
         ) : (
-          <View style={[s.featuredImage, s.featuredImageFallback]}>
+          <View style={[s.featuredImageWrap, s.featuredImageFallback]}>
             <Icon name="leaf-filled" size={44} color={Colors.brand.primary} />
           </View>
         )}
@@ -108,6 +121,9 @@ function FeaturedCard({
         {/* Text floating on scrim */}
         <View style={s.featuredOverlay}>
           <Text style={s.featuredName} numberOfLines={1}>{card.name}</Text>
+          {personalizedDesc && (
+            <Text style={s.featuredDesc} numberOfLines={1}>{personalizedDesc}</Text>
+          )}
           {card.atmosphere_badges.length > 0 && (
             <View style={s.featuredTagRow}>
               {card.atmosphere_badges.slice(0, 2).map(b => (
@@ -197,6 +213,29 @@ export default function HomeScreen() {
     return parts.join(' · ');
   }, [dog]);
 
+  // ── 최근 산책 — 방문 기록 중 가장 최신 last_visit_at ──────────────
+  const lastWalkText = useMemo(() => {
+    if (!dog) return null;
+    const mine = visitSummaries.filter(vs => vs.dog_id === dog.dog_id);
+    if (mine.length === 0) return null;
+    const latest = mine.reduce((a, b) =>
+      new Date(a.last_visit_at) > new Date(b.last_visit_at) ? a : b
+    );
+    return relativeTime(latest.last_visit_at);
+  }, [dog, visitSummaries]);
+
+  // ── 추천 카드 강아지 맞춤 설명 ────────────────────────────────────
+  const personalizedDesc = useMemo(() => {
+    if (!dog || !featuredCard) return undefined;
+    // atmosphere_state는 HomeSpotCardViewModel에 없으므로 배지에서 유추
+    const badges = featuredCard.atmosphere_badges;
+    const atmosphere =
+      badges.some(b => b.includes('한산') || b.includes('조용'))  ? 'quiet'  :
+      badges.some(b => b.includes('활발') || b.includes('많은')) ? 'active' :
+      'mixed';
+    return buildPersonalizedDesc(dog.name, dog.temperament_tags, atmosphere as AtmosphereState);
+  }, [dog, featuredCard]);
+
   const handlePressCard = useCallback((spotId: string) => {
     router.push(`/spot/${spotId}`);
   }, [router]);
@@ -204,6 +243,22 @@ export default function HomeScreen() {
   const handleFeaturedSave = useCallback(() => {
     if (featuredCard) toggleSaveSpot(featuredCard.spot_id);
   }, [featuredCard, toggleSaveSpot]);
+
+  // 강아지 미등록 → 온보딩 유도
+  if (!dog) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.noDogWrap}>
+          <Text style={s.noDogEmoji}>🐾</Text>
+          <Text style={s.noDogTitle}>반려견을 등록해주세요</Text>
+          <Text style={s.noDogDesc}>산책 스팟 추천과 발도장 기록을{'\n'}시작하려면 강아지 프로필이 필요해요.</Text>
+          <TouchableOpacity style={s.noDogBtn} onPress={() => router.push('/(auth)/dog-setup' as any)}>
+            <Text style={s.noDogBtnText}>강아지 등록하기</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={s.safe}>
@@ -268,6 +323,14 @@ export default function HomeScreen() {
                   ))}
                 </View>
               )}
+
+              {/* 최근 산책 */}
+              {lastWalkText && (
+                <View style={s.profileWalkRow}>
+                  <Icon name="walk" size={12} color={Colors.text.tertiary} />
+                  <Text style={s.profileWalkText}>최근 산책 · {lastWalkText}</Text>
+                </View>
+              )}
             </View>
           </TouchableOpacity>
         )}
@@ -311,6 +374,7 @@ export default function HomeScreen() {
             <FeaturedCard
               card={featuredCard}
               isSaved={isFeaturedSaved}
+              personalizedDesc={personalizedDesc}
               onPress={() => handlePressCard(featuredCard.spot_id)}
               onSave={handleFeaturedSave}
             />
@@ -432,6 +496,21 @@ const s = StyleSheet.create({
   content: { paddingBottom: 40 },
   emptyWrap: { minHeight: 280, paddingHorizontal: Spacing[16] },
 
+  // 강아지 미등록 빈 상태
+  noDogWrap: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    padding: Spacing[32], gap: Spacing[16],
+  },
+  noDogEmoji: { fontSize: 64 },
+  noDogTitle: { ...Typography.display.s, color: Colors.text.primary, textAlign: 'center' },
+  noDogDesc:  { ...Typography.body.m, color: Colors.text.secondary, textAlign: 'center', lineHeight: 24 },
+  noDogBtn: {
+    marginTop: Spacing[8],
+    paddingHorizontal: Spacing[28], paddingVertical: Spacing[14],
+    borderRadius: Radius.round, backgroundColor: Colors.brand.primary,
+  },
+  noDogBtnText: { ...Typography.label.l, color: '#FFFFFF', fontWeight: '700' },
+
   // ── 상단 로고 바 ──
   topBar: {
     flexDirection: 'row',
@@ -510,6 +589,16 @@ const s = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
+  profileWalkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[4],
+    marginTop: Spacing[6],
+  },
+  profileWalkText: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+  },
 
   // ── 섹션 공통 ──
   sectionWrap: {
@@ -573,6 +662,12 @@ const s = StyleSheet.create({
     left: Spacing[16],
     right: Spacing[16],
     gap: Spacing[4],
+  },
+  featuredDesc: {
+    ...Typography.body.s,
+    color: 'rgba(255,255,255,0.88)',
+    lineHeight: 18,
+    marginBottom: Spacing[4],
   },
   featuredTagRow: {
     flexDirection: 'row',

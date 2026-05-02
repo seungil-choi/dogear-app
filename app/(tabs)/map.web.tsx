@@ -1,3 +1,4 @@
+// @ts-nocheck — RNW 웹 전용 스타일(cursor, outlineStyle 등) 타입 충돌 허용
 /**
  * 탐색 탭 — 웹 전용 (Leaflet 지도 + 슬라이딩 바텀시트)
  *
@@ -10,6 +11,7 @@
 import React, {
   useState, useMemo, useRef, useEffect, useCallback,
 } from 'react';
+import * as Location from 'expo-location';
 import {
   View, Text, StyleSheet, Dimensions,
   TouchableOpacity, ScrollView, TextInput,
@@ -335,9 +337,11 @@ function SearchAndFilters({
 export default function ExploreWebScreen() {
   const router       = useRouter();
   const insets       = useSafeAreaInsets();
-  const getHomeCards = useAppStore(s => s.getHomeCards);
-  const spots        = useAppStore(s => s.spots);
-  const isSaved      = useAppStore(s => s.isSaved);
+  const getHomeCards        = useAppStore(s => s.getHomeCards);
+  const spots               = useAppStore(s => s.spots);
+  const isSaved             = useAppStore(s => s.isSaved);
+  const setCurrentLocation  = useAppStore(s => s.setCurrentLocation);
+  const currentLocation     = useAppStore(s => s.currentLocation);
 
   const [activeFilter,   setActiveFilter]   = useState<FilterKey>('all');
   const [searchState,    setSearchState]    = useState<SearchState>('idle');
@@ -349,6 +353,26 @@ export default function ExploreWebScreen() {
 
   // Leaflet 지도 인스턴스 ref (현재위치 이동에 사용)
   const leafletMapRef = useRef<any>(null);
+
+  // ── 위치 권한 요청 + 현재 위치 취득 ───────────────────────────────
+  useEffect(() => {
+    if (currentLocation) return; // 이미 위치 있으면 생략
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') return;
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        setCurrentLocation({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? undefined,
+        });
+        leafletMapRef.current?.flyTo([pos.coords.latitude, pos.coords.longitude], 14, { duration: 1.2 });
+      } catch {
+        // 위치 취득 실패 시 무시 (DEV_PREVIEW_SEED 기본값 사용)
+      }
+    })();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── 장소 상세 이동 (divIcon 내 onclick 에서 호출) ──────────────────
   useEffect(() => {
@@ -369,16 +393,27 @@ export default function ExploreWebScreen() {
   }, []);
 
   // ── 현재 위치 이동 ──────────────────────────────────────────────
-  const handleLocateMe = useCallback(() => {
+  const handleLocateMe = useCallback(async () => {
     if (!leafletMapRef.current) return;
     setLocating(true);
-    // 실제 앱에서는 expo-location 으로 GPS 좌표를 받아옴
-    // 목업: 망원동 중심
-    const mockLat = 37.5560;
-    const mockLng = 126.9080;
-    leafletMapRef.current.flyTo([mockLat, mockLng], 16, { duration: 1.2 });
-    setTimeout(() => setLocating(false), 1400);
-  }, []);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const { latitude, longitude, accuracy } = pos.coords;
+        setCurrentLocation({ latitude, longitude, accuracy: accuracy ?? undefined });
+        leafletMapRef.current.flyTo([latitude, longitude], 16, { duration: 1.2 });
+      } else if (currentLocation) {
+        leafletMapRef.current.flyTo([currentLocation.latitude, currentLocation.longitude], 16, { duration: 1.2 });
+      }
+    } catch {
+      if (currentLocation) {
+        leafletMapRef.current.flyTo([currentLocation.latitude, currentLocation.longitude], 16, { duration: 1.2 });
+      }
+    } finally {
+      setTimeout(() => setLocating(false), 1400);
+    }
+  }, [currentLocation, setCurrentLocation]);
 
   // ── 바텀 시트 애니메이션 ────────────────────────────────────────
   // translateY: (sheetFull - SHEET_PEEK) = 접힘, 0 = 완전 펼침

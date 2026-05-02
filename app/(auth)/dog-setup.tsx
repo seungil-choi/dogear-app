@@ -1,43 +1,114 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, StyleSheet, SafeAreaView,
+  ScrollView, StyleSheet, SafeAreaView, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
+import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/common/Button';
-import type { DogSize, DogAgeGroup } from '../../src/types';
+import type { DogSize, DogAgeGroup, Dog } from '../../src/types';
 import { sizeLabel, ageGroupLabel } from '../../src/utils/labels';
+
+const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 
 const SIZES: DogSize[] = ['small', 'medium', 'large'];
 const AGE_GROUPS: DogAgeGroup[] = ['puppy', 'adult', 'senior'];
 
-const TEMPERAMENT_OPTIONS = ['활발해요', '조용해요', '낯가려요', '사교적이에요', '겁이 많아요', '용감해요'];
-const WALKING_OPTIONS = ['짧게 자주', '길게 천천히', '냄새 탐색', '달리기 좋아함', '특정 루트 선호'];
+const TEMPERAMENT_OPTIONS: { key: string; label: string }[] = [
+  { key: 'active',     label: '활발해요' },
+  { key: 'quiet',      label: '조용해요' },
+  { key: 'shy',        label: '낯가려요' },
+  { key: 'friendly',   label: '사교적이에요' },
+  { key: 'sensitive',  label: '겁이 많아요' },
+  { key: 'confident',  label: '용감해요' },
+];
+const WALKING_OPTIONS: { key: string; label: string }[] = [
+  { key: 'frequent_walks', label: '짧게 자주' },
+  { key: 'slow_pace',      label: '길게 천천히' },
+  { key: 'sniffing',       label: '냄새 탐색' },
+  { key: 'running',        label: '달리기 좋아함' },
+  { key: 'fixed_route',    label: '특정 루트 선호' },
+];
 
 export default function DogSetupScreen() {
   const router = useRouter();
   const completeOnboarding = useAppStore(s => s.completeOnboarding);
+  const registerDog        = useAppStore(s => s.registerDog);
+  const user               = useAppStore(s => s.user);
 
   const [name, setName] = useState('');
   const [size, setSize] = useState<DogSize>('small');
   const [ageGroup, setAgeGroup] = useState<DogAgeGroup>('adult');
   const [selectedTemperament, setSelectedTemperament] = useState<string[]>([]);
   const [selectedWalking, setSelectedWalking] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const toggleItem = (arr: string[], item: string, set: (v: string[]) => void) => {
-    if (arr.includes(item)) set(arr.filter(i => i !== item));
-    else set([...arr, item]);
+  const toggleItem = (arr: string[], key: string, setter: (v: string[]) => void) => {
+    if (arr.includes(key)) setter(arr.filter(i => i !== key));
+    else setter([...arr, key]);
   };
 
-  const handleDone = () => {
-    // 실제 구현 시 store action으로 dog 저장
+  const handleDone = async () => {
+    if (!name.trim() || isSaving) return;
+    setIsSaving(true);
+
+    if (IS_REAL_AUTH && user) {
+      // 실 환경: Supabase dogs 테이블에 저장 → DB 생성 UUID 사용
+      const { data, error } = await supabase
+        .from('dogs')
+        .insert({
+          user_id: user.user_id,
+          name: name.trim(),
+          size,
+          age_group: ageGroup,
+          temperament_tags: selectedTemperament,
+          walking_style_tags: selectedWalking,
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (error || !data) {
+        Alert.alert('등록 실패', '강아지 등록에 실패했어요. 잠시 후 다시 시도해주세요.');
+        setIsSaving(false);
+        return;
+      }
+
+      const newDog: Dog = {
+        dog_id: data.dog_id,
+        user_id: data.user_id,
+        name: data.name,
+        size: data.size,
+        age_group: data.age_group,
+        temperament_tags: data.temperament_tags ?? [],
+        walking_style_tags: data.walking_style_tags ?? [],
+        is_active: data.is_active,
+        created_at: data.created_at,
+      };
+      registerDog(newDog);
+    } else {
+      // 목업 환경: 로컬 ID 사용
+      const newDog: Dog = {
+        dog_id: `dog_${Date.now()}`,
+        user_id: user?.user_id ?? 'local',
+        name: name.trim(),
+        size,
+        age_group: ageGroup,
+        temperament_tags: selectedTemperament,
+        walking_style_tags: selectedWalking,
+        created_at: new Date().toISOString(),
+        is_active: true,
+      };
+      registerDog(newDog);
+    }
+
     completeOnboarding();
     router.replace('/(tabs)');
   };
 
-  const canProceed = name.trim().length > 0;
+  const canProceed = name.trim().length > 0 && !isSaving;
 
   return (
     <SafeAreaView style={s.safe}>
@@ -94,13 +165,13 @@ export default function DogSetupScreen() {
         <View style={s.field}>
           <Text style={s.fieldLabel}>기질 (선택)</Text>
           <View style={s.chipRow}>
-            {TEMPERAMENT_OPTIONS.map(t => (
+            {TEMPERAMENT_OPTIONS.map(({ key, label }) => (
               <TouchableOpacity
-                key={t}
-                style={[s.chip, selectedTemperament.includes(t) && s.chipSelected]}
-                onPress={() => toggleItem(selectedTemperament, t, setSelectedTemperament)}
+                key={key}
+                style={[s.chip, selectedTemperament.includes(key) && s.chipSelected]}
+                onPress={() => toggleItem(selectedTemperament, key, setSelectedTemperament)}
               >
-                <Text style={[s.chipText, selectedTemperament.includes(t) && s.chipTextSelected]}>{t}</Text>
+                <Text style={[s.chipText, selectedTemperament.includes(key) && s.chipTextSelected]}>{label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -110,13 +181,13 @@ export default function DogSetupScreen() {
         <View style={s.field}>
           <Text style={s.fieldLabel}>산책 스타일 (선택)</Text>
           <View style={s.chipRow}>
-            {WALKING_OPTIONS.map(w => (
+            {WALKING_OPTIONS.map(({ key, label }) => (
               <TouchableOpacity
-                key={w}
-                style={[s.chip, selectedWalking.includes(w) && s.chipSelected]}
-                onPress={() => toggleItem(selectedWalking, w, setSelectedWalking)}
+                key={key}
+                style={[s.chip, selectedWalking.includes(key) && s.chipSelected]}
+                onPress={() => toggleItem(selectedWalking, key, setSelectedWalking)}
               >
-                <Text style={[s.chipText, selectedWalking.includes(w) && s.chipTextSelected]}>{w}</Text>
+                <Text style={[s.chipText, selectedWalking.includes(key) && s.chipTextSelected]}>{label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -127,7 +198,7 @@ export default function DogSetupScreen() {
 
       <View style={s.footer}>
         <Button
-          label={canProceed ? '완료' : '이름을 입력해주세요'}
+          label={isSaving ? '등록 중...' : canProceed ? '완료' : '이름을 입력해주세요'}
           onPress={handleDone}
           variant="primary"
           size="l"

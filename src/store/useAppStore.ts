@@ -1,4 +1,9 @@
-import { create } from 'zustand';
+import { create, type StateCreator } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../lib/supabase';
+
+const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 import type {
   User, Dog, Spot, PawCheckin, SavedSpot, SpotVisitSummary,
   FamiliarDogSignal, PrivacySetting, VisibilityLevel, FeelingTag,
@@ -27,10 +32,12 @@ import type { SpotDetailViewModel, DogMapSpotViewModel } from '../types';
 import {
   mockUser, mockDog, mockDogs, mockSpots, mockCheckins, mockSavedSpots,
   mockVisitSummaries, mockFamiliarDogSignals, mockPrivacySetting,
+  mockOtherDogs,
 } from '../data/mockData';
 
-// 🔧 DEV ONLY — 미리보기/스크린샷용 시드. 출시 전 false로 되돌릴 것.
-const DEV_PREVIEW_SEED = true;
+// 목업 시드 — .env의 EXPO_PUBLIC_DEV_SEED=true 일 때만 활성화
+// 프로덕션 빌드: .env.production에 EXPO_PUBLIC_DEV_SEED=false 설정
+const DEV_PREVIEW_SEED = process.env.EXPO_PUBLIC_DEV_SEED === 'true';
 
 // ─── 기본 개인정보 설정 (강아지 신규 가입 시 사용) ─────────────────
 const defaultPrivacySetting: PrivacySetting = {
@@ -121,6 +128,7 @@ interface AppState {
   // Supabase 연동 actions
   setUser: (user: User | null) => void;
   setActiveDog: (dog: Dog | null) => void;
+  registerDog: (dog: Dog) => void;
   setDogs: (dogs: Dog[]) => void;
   setAuthLoading: (loading: boolean) => void;
   setCurrentLocation: (loc: { latitude: number; longitude: number; accuracy?: number } | null) => void;
@@ -195,7 +203,7 @@ const initialState = DEV_PREVIEW_SEED
       selectedSpotId: null,
     };
 
-export const useAppStore = create<AppState>((set, get) => ({
+const storeImpl: StateCreator<AppState> = (set, get) => ({
   // ─── Initial State (mock 제거 — Supabase 페치로 채워짐) ─────────
   ...initialState,
 
@@ -224,6 +232,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     const existing = savedSpots.find(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
     if (existing) {
       set({ savedSpots: savedSpots.filter(s => s.saved_spot_id !== existing.saved_spot_id) });
+      // 실 환경: DB에서 삭제 (fire-and-forget)
+      if (IS_REAL_AUTH) {
+        supabase.from('saved_spots')
+          .delete()
+          .eq('dog_id', dog.dog_id)
+          .eq('spot_id', spotId)
+          .then(({ error }) => { if (error) console.error('saved_spots delete failed:', error); });
+      }
     } else {
       const newSaved: SavedSpot = {
         saved_spot_id: `sav_${Date.now()}`,
@@ -233,6 +249,12 @@ export const useAppStore = create<AppState>((set, get) => ({
         saved_at: new Date().toISOString(),
       };
       set({ savedSpots: [...savedSpots, newSaved] });
+      // 실 환경: DB에 저장 (fire-and-forget)
+      if (IS_REAL_AUTH) {
+        supabase.from('saved_spots')
+          .insert({ dog_id: dog.dog_id, spot_id: spotId, saved_type: 'want_to_go' })
+          .then(({ error }) => { if (error) console.error('saved_spots insert failed:', error); });
+      }
     }
   },
 
@@ -318,10 +340,19 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setConsent: (consent) => set({ consent }),
 
-  // 회원탈퇴 — 모든 사용자 데이터 영구 삭제
-  // TODO(P0): Supabase RPC `delete_user_account` 호출 — auth.users + cascade delete
-  deleteAccount: async (_reason) => {
-    // 백엔드 연동 전: 클라이언트 상태만 초기화
+  // 회원탈퇴 — 서버 데이터 영구 삭제 후 클라이언트 상태 초기화
+  deleteAccount: async (reason) => {
+    if (IS_REAL_AUTH) {
+      // delete-account Edge Function 호출 → auth.users cascade 삭제
+      const { error } = await supabase.functions.invoke('delete-account', {
+        body: { reason: reason ?? '' },
+      });
+      if (error) {
+        console.error('deleteAccount Edge Function error:', error);
+        throw new Error('계정 삭제에 실패했어요');
+      }
+    }
+    // 클라이언트 상태 초기화
     set({ ...initialState, isAuthLoading: false, hasCompletedOnboarding: false });
   },
 
@@ -338,8 +369,23 @@ export const useAppStore = create<AppState>((set, get) => ({
       status: 'pending',
       created_at: new Date().toISOString(),
     };
-    // TODO(P0): Supabase reports 테이블 insert + 운영자 알림
     set({ reports: [...reports, newReport] });
+
+    // 실 환경: Supabase reports 테이블 INSERT (fire-and-forget)
+    // 테이블 컬럼: reporter_dog_id, target_type, target_id, report_type, description, status
+    const { dog } = get();
+    if (IS_REAL_AUTH && dog) {
+      supabase.from('reports').insert({
+        reporter_dog_id: dog.dog_id,
+        target_type,
+        target_id,
+        report_type: reason,
+        description: detail ?? null,
+        status: 'pending',
+      }).then(({ error }) => {
+        if (error) console.error('report insert failed:', error);
+      });
+    }
   },
 
   blockUser: (blocked_user_id, blocked_dog_id) => {
@@ -368,6 +414,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Supabase 연동
   setUser: (user) => set({ user, isAuthenticated: !!user }),
   setActiveDog: (dog) => set({ activeDog: dog, dog }),
+  registerDog: (newDog) => {
+    const { dogs } = get();
+    const exists = dogs.some(d => d.dog_id === newDog.dog_id);
+    const updatedDogs = exists
+      ? dogs.map(d => d.dog_id === newDog.dog_id ? newDog : d)
+      : [...dogs, newDog];
+    set({ dogs: updatedDogs, activeDog: newDog, dog: newDog });
+  },
   setDogs: (dogs) => set({ dogs }),
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
   setCurrentLocation: (currentLocation) => set({ currentLocation }),
@@ -464,8 +518,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     const isSaved = savedSpots.some(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
 
     const psMap = new Map([[dog.dog_id, privacySetting]]);
-    // 익숙한 강아지 후보: 등록된 dogs 풀에서만 (mockOtherDogs 의존성 제거)
-    const familiarDogs = buildFamiliarDogCards(spotId, familiarSignals, dogs, dog.dog_id, psMap, filteredCheckins);
+    // DEV: 익숙한 강아지 정보 조회 — 실사용 시 서버에서 가져옴
+    const allDogsForLookup = [...dogs, ...mockOtherDogs];
+    const familiarDogs = buildFamiliarDogCards(spotId, familiarSignals, allDogsForLookup, dog.dog_id, psMap, filteredCheckins);
     const traces = buildTraceList(spotId, filteredCheckins);
 
     const regularStatus = summary ? computeRegularStatus(summary) : 'none';
@@ -495,6 +550,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       recent_trace_count: agg.recent_trace_count,
       unique_visitor_count: agg.recent_unique_dog_count,
       dominant_tags: agg.dominant_feeling_tags,
+      description: spot.description,
       address_text: spot.address_text,
       opening_hours: spot.opening_hours,
       features: spot.features,
@@ -534,7 +590,34 @@ export const useAppStore = create<AppState>((set, get) => ({
       })
       .filter(Boolean) as DogMapSpotViewModel[];
   },
-}));
+});
+
+export const useAppStore = DEV_PREVIEW_SEED
+  ? create<AppState>(storeImpl as any)
+  : create<AppState>()(
+      persist(storeImpl as any, {
+        name: 'dogear-v1',
+        storage: createJSONStorage(() => AsyncStorage),
+        partialize: (state: any) => ({
+          isAuthenticated: state.isAuthenticated,
+          hasCompletedOnboarding: state.hasCompletedOnboarding,
+          consent: state.consent,
+          user: state.user,
+          dog: state.dog,
+          activeDog: state.activeDog,
+          dogs: state.dogs,
+          privacySetting: state.privacySetting,
+          spots: state.spots,
+          checkins: state.checkins,
+          savedSpots: state.savedSpots,
+          visitSummaries: state.visitSummaries,
+          familiarSignals: state.familiarSignals,
+          suggestedSpots: state.suggestedSpots,
+          blockedUsers: state.blockedUsers,
+          currentLocation: state.currentLocation,
+        }),
+      })
+    );
 
 // ─── DEV ONLY: window에 store 노출 (preview/디버깅용) ────────────
 // 프로덕션 빌드에서는 __DEV__가 false로 트리쉐이킹됨

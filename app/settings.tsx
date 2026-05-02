@@ -141,9 +141,9 @@ export default function SettingsScreen() {
         {/* ── 계정 ── */}
         <SectionTitle label="계정" />
         <View style={s.card}>
-          <SettingsRow icon="logout"  label="로그아웃"  onPress={handleLogout} />
+          <SettingsRow icon="logout"  label="로그아웃"   onPress={handleLogout} />
           <View style={s.divider} />
-          <SettingsRow icon="warning" label="계정 삭제" onPress={handleDeleteAccount} danger />
+          <SettingsRow icon="person"  label="계정 관리"  onPress={handleDeleteAccount} />
         </View>
 
         {/* 앱 버전 */}
@@ -206,7 +206,11 @@ const s = StyleSheet.create({
     paddingVertical: Spacing[16],
     gap: Spacing[12],
   },
-  rowIconWrap: { width: 28, alignItems: 'center' },
+  rowIconWrap: {
+    width: 32, height: 32, borderRadius: 8,
+    backgroundColor: Colors.bg.secondary,
+    alignItems: 'center', justifyContent: 'center',
+  },
   rowLabel:   { flex: 1, ...Typography.body.m, color: Colors.text.primary },
   rowDanger:  { color: Colors.status.error.text },
   rowValue:   { ...Typography.body.s, color: Colors.text.tertiary },
