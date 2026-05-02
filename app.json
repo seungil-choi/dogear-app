@@ -69,6 +69,15 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "privacyPolicyUrl": "https://seungil-choi.github.io/dogear-app/legal/privacy-policy.html",
+      "termsUrl": "https://seungil-choi.github.io/dogear-app/legal/terms.html",
+      "locationTermsUrl": "https://seungil-choi.github.io/dogear-app/legal/location-terms.html",
+      "supportEmail": "support@9factorial.com",
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
     }
   }
 }
