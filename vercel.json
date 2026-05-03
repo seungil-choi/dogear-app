@@ -1,9 +1,10 @@
 {
-  "buildCommand": "EXPO_PUBLIC_DEV_SEED=true npx expo export --platform web",
+  "buildCommand": "EXPO_PUBLIC_DEV_SEED=true npx expo export --platform web && node scripts/fix-html.js",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/assets/(.*)", "destination": "/assets/$1" },
     { "source": "/_expo/(.*)", "destination": "/_expo/$1" },
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/favicon.ico", "destination": "/favicon.ico" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
