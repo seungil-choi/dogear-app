@@ -116,6 +116,7 @@ function FeaturedCard({
           colors={['transparent', 'rgba(18,12,6,0.18)', 'rgba(18,12,6,0.72)']}
           locations={[0, 0.45, 1]}
           style={s.featuredScrim}
+          pointerEvents="none"
         />
 
         {/* Text floating on scrim */}

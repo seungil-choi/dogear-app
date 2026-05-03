@@ -72,8 +72,9 @@ export default function LoginScreen() {
 
   // Apple 로그인
   const handleAppleLogin = async () => {
-    if (Platform.OS !== 'ios') {
-      Alert.alert('알림', 'Apple 로그인은 iOS에서만 사용할 수 있어요.');
+    // 웹 또는 DEV 목업 모드 → 바로 로그인 진행 (데모/개발용)
+    if (Platform.OS !== 'ios' || !IS_REAL_AUTH) {
+      proceedAfterAuth();
       return;
     }
     try {
@@ -111,9 +112,13 @@ export default function LoginScreen() {
     }
   };
 
-  // 카카오/네이버 — 추후 SDK 연동 (현재는 임시 처리)
+  // 카카오/네이버 — 데모/웹에서는 바로 진행, 실 환경은 추후 SDK 연동
   const handleSocialLogin = (_provider: 'kakao' | 'naver') => {
-    Alert.alert('준비 중', '해당 로그인은 곧 지원될 예정이에요. 현재는 게스트로 이용해주세요.');
+    if (!IS_REAL_AUTH || Platform.OS === 'web') {
+      proceedAfterAuth();
+      return;
+    }
+    Alert.alert('준비 중', '해당 로그인은 곧 지원될 예정이에요.');
   };
 
   // 게스트 로그인 — 웹/Android에서 사용 가능 (데이터는 기기에만 저장됨)

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../src/constants/tokens';
@@ -154,9 +154,13 @@ export default function RootLayout() {
 const s = StyleSheet.create({
   root: {
     flex: 1,
-    height: '100dvh' as any,
-    minHeight: '100dvh' as any,
-    paddingTop: 'env(safe-area-inset-top)' as any,
-    paddingBottom: 'env(safe-area-inset-bottom)' as any,
+    ...(Platform.OS === 'web' ? {
+      height: '100dvh' as any,
+      minHeight: '100dvh' as any,
+      paddingTop: 'env(safe-area-inset-top)' as any,
+      paddingBottom: 'env(safe-area-inset-bottom)' as any,
+      // 모바일 브라우저 tap delay 제거
+      touchAction: 'manipulation' as any,
+    } : {}),
   },
 });
