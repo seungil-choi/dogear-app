@@ -2,6 +2,8 @@
   "buildCommand": "EXPO_PUBLIC_DEV_SEED=true npx expo export --platform web",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/_expo/(.*)", "destination": "/_expo/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
