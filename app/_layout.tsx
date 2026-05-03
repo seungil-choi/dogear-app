@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../src/constants/tokens';
@@ -47,6 +47,9 @@ function DataProvider() {
   return null;
 }
 
+// 웹에서는 GestureHandlerRootView가 터치를 막으므로 View로 대체
+const RootContainer = Platform.OS === 'web' ? View : GestureHandlerRootView;
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     ...Ionicons.font,
@@ -54,7 +57,7 @@ export default function RootLayout() {
   });
 
   return (
-    <GestureHandlerRootView style={s.root as any}>
+    <RootContainer style={s.root as any}>
       <StatusBar style="dark" backgroundColor={Colors.bg.primary} />
       {IS_REAL_AUTH && <AuthProvider />}
       {IS_REAL_AUTH && <DataProvider />}
@@ -147,7 +150,7 @@ export default function RootLayout() {
           }}
         />
       </Stack>
-    </GestureHandlerRootView>
+    </RootContainer>
   );
 }
 
