@@ -1,0 +1,12 @@
+{
+  "buildCommand": "EXPO_PUBLIC_DEV_SEED=true npx expo export --platform web",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "EXPO_PUBLIC_DEV_SEED": "true",
+    "EXPO_PUBLIC_SUPABASE_URL": "https://ncargfjnfsabmdwmegyn.supabase.co",
+    "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jYXJnZmpuZnNhYm1kd21lZ3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NDQxNTgsImV4cCI6MjA5MzIyMDE1OH0.9oCmHk0_oEuzP4MCUYFuTWPjCp6EMWA1mPwE7ZgUeAU"
+  }
+}
