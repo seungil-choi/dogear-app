@@ -20,7 +20,19 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
+import { distanceText } from '../../src/utils/labels';
 import type { SpotCategory } from '../../src/types';
+
+// ─── 거리 계산 (Haversine) ────────────────────────────────────────
+function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000; // 지구 반지름 (m)
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const dPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a = Math.sin(dPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
 
 // ─── 초기 중심 (서울 마포구) ─────────────────────────────────
 const INITIAL_CENTER = { latitude: 37.5563, longitude: 126.9237, level: 4 };
@@ -61,6 +73,11 @@ export default function ExploreScreen() {
   const [searchQuery,   setSearchQuery]   = useState('');
   const [selectedId,    setSelectedId]    = useState<string | null>(null);
   const [isTracking,    setIsTracking]    = useState(false);
+  // 지도 중심 좌표 — 사용자가 지도를 드래그하면 갱신되어 카드 목록 정렬에 사용됨
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
+    lat: INITIAL_CENTER.latitude,
+    lng: INITIAL_CENTER.longitude,
+  });
 
   const mapRef = useRef<KakaoMapRef>(null);
   const cardListRef = useRef<ScrollView>(null);
@@ -120,6 +137,31 @@ export default function ExploreScreen() {
     setSelectedId(null);
     selectSpot(null);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── 사용자 현재 위치가 잡히면 지도 중심도 거기로 동기화 (최초 1회) ──
+  useEffect(() => {
+    if (currentLocation) {
+      setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
+    }
+  }, [currentLocation]);
+
+  // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 ──
+  // 사용자가 지도를 옮기면 mapCenter가 바뀌고, filteredCards가 mapCenter 기준으로 재정렬된다.
+  const sortedCards = useMemo(() => {
+    return filteredCards
+      .map(card => {
+        const spot = spots.find(s => s.spot_id === card.spot_id);
+        if (!spot) return { card, dist: Number.MAX_SAFE_INTEGER };
+        const dist = haversineMeters(mapCenter.lat, mapCenter.lng, spot.latitude, spot.longitude);
+        return { card, dist };
+      })
+      .sort((a, b) => a.dist - b.dist)
+      .map(({ card, dist }) => ({
+        ...card,
+        // 카드 표시용 거리 텍스트를 mapCenter 기준으로 갱신
+        distance_text: dist === Number.MAX_SAFE_INTEGER ? card.distance_text : distanceText(dist),
+      }));
+  }, [filteredCards, spots, mapCenter]);
 
   const handlePinPress = useCallback((spotId: string) => {
     setSelectedId(spotId);
@@ -237,6 +279,7 @@ export default function ExploreScreen() {
               markers={kakaoMarkers}
               onMarkerClick={handlePinPress}
               onMapClick={() => { setSelectedId(null); }}
+              onRegionChange={(lat, lng) => setMapCenter({ lat, lng })}
             />
 
             {/* 내 위치 버튼 */}
@@ -255,10 +298,10 @@ export default function ExploreScreen() {
             <View style={s.peekHeader}>
               <Text style={s.peekTitle}>주변 장소</Text>
               <View style={s.peekCountBadge}>
-                <Text style={s.peekCount}>{filteredCards.length}곳</Text>
+                <Text style={s.peekCount}>{sortedCards.length}곳</Text>
               </View>
             </View>
-            {filteredCards.length === 0 ? (
+            {sortedCards.length === 0 ? (
               <View style={s.peekEmpty}>
                 <Icon name="map" size={28} color={Colors.text.tertiary} />
                 <Text style={s.peekEmptyText}>해당하는 장소가 없어요</Text>
@@ -270,7 +313,7 @@ export default function ExploreScreen() {
                 contentContainerStyle={s.peekScrollContent}
                 showsVerticalScrollIndicator={false}
               >
-                {filteredCards.map((card, idx) => {
+                {sortedCards.map(card => {
                   const isSelected = selectedId === card.spot_id;
                   return (
                     <View
@@ -288,7 +331,7 @@ export default function ExploreScreen() {
                           card.has_visited ? '발도장 남긴 곳' : undefined
                         }
                         isSaved={isSaved(card.spot_id)}
-                        onPress={() => handlePinPress(card.spot_id)}
+                        onPress={() => router.push(`/spot/${card.spot_id}` as any)}
                       />
                     </View>
                   );
@@ -304,15 +347,15 @@ export default function ExploreScreen() {
       {viewMode === 'list' && (
         <ScrollView style={s.listScroll} contentContainerStyle={s.listContent} showsVerticalScrollIndicator={false}>
           <View style={s.listResultHeader}>
-            <Text style={s.listResultText}>{filteredCards.length}개의 장소</Text>
+            <Text style={s.listResultText}>{sortedCards.length}개의 장소</Text>
           </View>
-          {filteredCards.length === 0 ? (
+          {sortedCards.length === 0 ? (
             <View style={s.listEmpty}>
               <Icon name="map" size={32} color={Colors.text.tertiary} />
               <Text style={s.listEmptyText}>해당하는 장소가 없어요</Text>
             </View>
           ) : (
-            filteredCards.map(card => (
+            sortedCards.map(card => (
               <ListSpotCard
                 key={card.spot_id}
                 name={card.name}
@@ -324,7 +367,7 @@ export default function ExploreScreen() {
                   card.has_visited ? '발도장 남긴 곳' : undefined
                 }
                 isSaved={isSaved(card.spot_id)}
-                onPress={() => router.push(`/spot/${card.spot_id}`)}
+                onPress={() => router.push(`/spot/${card.spot_id}` as any)}
               />
             ))
           )}
