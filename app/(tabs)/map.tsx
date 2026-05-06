@@ -60,10 +60,11 @@ export default function ExploreScreen() {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery,   setSearchQuery]   = useState('');
   const [selectedId,    setSelectedId]    = useState<string | null>(null);
-  const [sheetOpen,     setSheetOpen]     = useState(false);
   const [isTracking,    setIsTracking]    = useState(false);
 
   const mapRef = useRef<KakaoMapRef>(null);
+  const cardListRef = useRef<ScrollView>(null);
+  const cardOffsetsRef = useRef<Record<string, number>>({});
   const homeCards = getHomeCards();
 
   // ── 필터 + 검색 ───────────────────────────────────────────
@@ -114,22 +115,24 @@ export default function ExploreScreen() {
       .filter(Boolean) as KakaoMarker[];
   }, [filteredCards, spots]);
 
-  // ── 페이지 진입 시 시트/선택 상태 초기화 ──
-  // store의 selectedSpotId가 다른 화면에서 설정된 경우 자동으로 시트가 뜨는 걸 방지
+  // ── 페이지 진입 시 선택 상태 초기화 ──
   useEffect(() => {
     setSelectedId(null);
-    setSheetOpen(false);
     selectSpot(null);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handlePinPress = useCallback((spotId: string) => {
     setSelectedId(spotId);
-    setSheetOpen(true);
     selectSpot(spotId);
     const spot = spots.find(s => s.spot_id === spotId);
     if (spot && mapRef.current) {
-      // 바텀시트가 화면 하단을 가리므로 살짝 위로 보정
+      // 카드 목록이 하단에 있으므로 살짝 위로 보정
       mapRef.current.setCenter(spot.latitude - 0.002, spot.longitude, 4);
+    }
+    // 카드 목록에서 해당 카드로 자동 스크롤
+    const offset = cardOffsetsRef.current[spotId];
+    if (offset != null && cardListRef.current) {
+      cardListRef.current.scrollTo({ y: Math.max(0, offset - 8), animated: true });
     }
   }, [spots, selectSpot]);
 
@@ -143,18 +146,10 @@ export default function ExploreScreen() {
     }
   }, [isTracking, currentLocation]);
 
-  const handleCloseSheet = useCallback(() => {
-    setSheetOpen(false);
-    setSelectedId(null);
-  }, []);
-
   const handleSearchToggle = useCallback(() => {
     setSearchVisible(v => !v);
     if (searchVisible) setSearchQuery('');
   }, [searchVisible]);
-
-  const selectedCard = homeCards.find(c => c.spot_id === selectedId);
-  const selectedSpot = spots.find(s => s.spot_id === selectedId);
 
   return (
     <SafeAreaView style={s.safe}>
@@ -224,94 +219,82 @@ export default function ExploreScreen() {
         </ScrollView>
       </View>
 
-      {/* ── 지도 뷰 ── */}
+      {/* ── 지도 뷰: 위 지도 + 아래 카드 목록 ── */}
       {viewMode === 'map' && (
-        <View style={s.mapContainer}>
-          <KakaoMap
-            ref={mapRef}
-            style={s.map}
-            initialLatitude={INITIAL_CENTER.latitude}
-            initialLongitude={INITIAL_CENTER.longitude}
-            initialLevel={INITIAL_CENTER.level}
-            userLocation={isTracking ? currentLocation : null}
-            selectedId={selectedId}
-            markers={kakaoMarkers}
-            onMarkerClick={handlePinPress}
-            onMapClick={() => { if (sheetOpen) handleCloseSheet(); }}
-          />
+        <View style={s.mapSplitContainer}>
+          {/* 지도 영역 */}
+          <View style={s.mapArea}>
+            <KakaoMap
+              ref={mapRef}
+              style={s.map}
+              initialLatitude={INITIAL_CENTER.latitude}
+              initialLongitude={INITIAL_CENTER.longitude}
+              initialLevel={INITIAL_CENTER.level}
+              userLocation={isTracking ? currentLocation : null}
+              selectedId={selectedId}
+              markers={kakaoMarkers}
+              onMarkerClick={handlePinPress}
+              onMapClick={() => { setSelectedId(null); }}
+            />
 
-          {/* 내 위치 버튼 */}
-          <TouchableOpacity
-            style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
-            onPress={handleMyLocation}
-            activeOpacity={0.8}
-          >
-            <Icon name="navigate" size={20} color={isTracking ? Colors.brand.onPrimary : Colors.brand.primary} />
-          </TouchableOpacity>
+            {/* 내 위치 버튼 */}
+            <TouchableOpacity
+              style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
+              onPress={handleMyLocation}
+              activeOpacity={0.8}
+            >
+              <Icon name="navigate" size={20} color={isTracking ? Colors.brand.onPrimary : Colors.brand.primary} />
+            </TouchableOpacity>
+          </View>
 
-          {/* 바텀 시트 (핀 선택 시) */}
-          {sheetOpen && selectedCard && selectedSpot ? (
-            <View style={[s.sheet, Shadow.l, { paddingBottom: insets.bottom + Spacing[16] }]}>
-              <View style={s.sheetHandle} />
-              {(selectedCard.is_regular || selectedCard.has_visited) && (
-                <View style={s.sheetStatusRow}>
-                  <View style={[s.statusChip, selectedCard.is_regular && s.statusChipRegular]}>
-                    <Icon
-                      name={selectedCard.is_regular ? 'star' : 'paw'} size={11}
-                      color={selectedCard.is_regular ? Colors.brand.primary : Colors.text.secondary}
-                    />
-                    <Text style={[s.statusChipText, selectedCard.is_regular && { color: Colors.brand.primary }]}>
-                      {selectedCard.is_regular ? '단골 스팟' : '발도장 남긴 곳'}
-                    </Text>
-                  </View>
-                </View>
-              )}
-              <ListSpotCard
-                name={selectedCard.name}
-                categoryLabel={selectedCard.category_label}
-                distanceText={selectedCard.distance_text}
-                atmosphereSummary={selectedCard.atmosphere_badges.join(' · ')}
-                isSaved={isSaved(selectedCard.spot_id)}
-                onPress={() => router.push(`/spot/${selectedCard.spot_id}`)}
-              />
-              <TouchableOpacity
-                style={s.sheetDetailBtn}
-                onPress={() => router.push(`/spot/${selectedCard.spot_id}`)}
-                activeOpacity={0.75}
-              >
-                <Text style={s.sheetDetailText}>장소 상세 보기</Text>
-                <Icon name="forward" size={16} color={Colors.brand.primary} />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={[s.miniSheet, Shadow.m, { bottom: insets.bottom + 16 }]}>
-              <View style={s.miniHeader}>
-                <Text style={s.miniTitle}>주변 장소</Text>
-                <View style={s.miniCountBadge}>
-                  <Text style={s.miniCount}>{filteredCards.length}곳</Text>
-                </View>
+          {/* 하단 카드 목록 (peek sheet) */}
+          <View style={[s.peekSheet, Shadow.m]}>
+            <View style={s.peekHandle} />
+            <View style={s.peekHeader}>
+              <Text style={s.peekTitle}>주변 장소</Text>
+              <View style={s.peekCountBadge}>
+                <Text style={s.peekCount}>{filteredCards.length}곳</Text>
               </View>
-              {filteredCards.length === 0 ? (
-                <Text style={s.miniEmpty}>해당하는 장소가 없어요</Text>
-              ) : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.miniList}>
-                  {filteredCards.slice(0, 8).map(card => (
-                    <TouchableOpacity
-                      key={card.spot_id}
-                      style={[s.miniChip, card.is_regular && s.miniChipRegular]}
-                      onPress={() => handlePinPress(card.spot_id)}
-                      activeOpacity={0.75}
-                    >
-                      {card.is_regular && <Icon name="star" size={11} color={Colors.brand.primary} />}
-                      <Text style={[s.miniChipText, card.is_regular && s.miniChipTextRegular]} numberOfLines={1}>
-                        {card.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
             </View>
-          )}
+            {filteredCards.length === 0 ? (
+              <View style={s.peekEmpty}>
+                <Icon name="map" size={28} color={Colors.text.tertiary} />
+                <Text style={s.peekEmptyText}>해당하는 장소가 없어요</Text>
+              </View>
+            ) : (
+              <ScrollView
+                ref={cardListRef}
+                style={s.peekScroll}
+                contentContainerStyle={s.peekScrollContent}
+                showsVerticalScrollIndicator={false}
+              >
+                {filteredCards.map((card, idx) => {
+                  const isSelected = selectedId === card.spot_id;
+                  return (
+                    <View
+                      key={card.spot_id}
+                      onLayout={(e) => { cardOffsetsRef.current[card.spot_id] = e.nativeEvent.layout.y; }}
+                      style={[s.peekCardWrap, isSelected && s.peekCardWrapSelected]}
+                    >
+                      <ListSpotCard
+                        name={card.name}
+                        categoryLabel={card.category_label}
+                        distanceText={card.distance_text}
+                        atmosphereSummary={card.atmosphere_badges.join(' · ')}
+                        relationSummary={
+                          card.is_regular ? '단골 스팟' :
+                          card.has_visited ? '발도장 남긴 곳' : undefined
+                        }
+                        isSaved={isSaved(card.spot_id)}
+                        onPress={() => handlePinPress(card.spot_id)}
+                      />
+                    </View>
+                  );
+                })}
+                <View style={{ height: insets.bottom + 80 }} />
+              </ScrollView>
+            )}
+          </View>
         </View>
       )}
 
@@ -404,6 +387,10 @@ const s = StyleSheet.create({
   mapContainer: { flex: 1, position: 'relative', overflow: 'hidden' },
   map:          { flex: 1 },
 
+  // 지도 + 카드 목록 split layout
+  mapSplitContainer: { flex: 1, flexDirection: 'column', backgroundColor: Colors.bg.primary },
+  mapArea:           { flex: 1.4, position: 'relative', overflow: 'hidden' },
+
   myLocBtn: {
     position: 'absolute', top: 12, right: Spacing[16],
     width: 44, height: 44, borderRadius: 22,
@@ -413,71 +400,45 @@ const s = StyleSheet.create({
   },
   myLocBtnActive: { backgroundColor: Colors.brand.primary },
 
-  sheet: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
+  // ── 하단 카드 목록 (peek sheet) ──
+  peekSheet: {
+    flex: 1,
     backgroundColor: Colors.surface.default,
-    borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl,
-    zIndex: 20,
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    paddingTop: Spacing[8],
+    marginTop: -Spacing[8], // 지도 영역과 살짝 겹쳐 둥근 모서리 강조
+    zIndex: 5,
   },
-  sheetHandle: {
+  peekHandle: {
     width: 36, height: 4, borderRadius: 2,
     backgroundColor: Colors.border.default,
     alignSelf: 'center',
-    marginTop: Spacing[12], marginBottom: Spacing[8],
+    marginBottom: Spacing[8],
   },
-  sheetStatusRow: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing[16], paddingBottom: Spacing[6], gap: Spacing[6],
-  },
-  statusChip: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing[4],
-    paddingHorizontal: Spacing[10], paddingVertical: Spacing[4],
-    borderRadius: Radius.round, backgroundColor: Colors.bg.secondary,
-  },
-  statusChipRegular: { backgroundColor: Colors.brand.subtle },
-  statusChipText:    { ...Typography.label.s, color: Colors.text.secondary },
-  sheetDetailBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[6],
-    paddingVertical: Spacing[12],
-    marginHorizontal: Spacing[16],
-    marginBottom: Spacing[4],
-    backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.l,
-    borderWidth: 1,
-    borderColor: Colors.brand.primaryLight,
-  },
-  sheetDetailText: { ...Typography.label.m, color: Colors.brand.accent, fontWeight: '600' },
-
-  miniSheet: {
-    position: 'absolute', left: 0, right: 0,
-    backgroundColor: Colors.surface.default,
-    borderRadius: Radius.xl, marginHorizontal: Spacing[16], paddingVertical: Spacing[12],
-    zIndex: 20,
-  },
-  miniHeader: {
+  peekHeader: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
-    paddingHorizontal: Spacing[16], marginBottom: Spacing[10],
+    paddingHorizontal: Spacing[16], paddingBottom: Spacing[10],
+    borderBottomWidth: 1, borderBottomColor: Colors.border.subtle,
   },
-  miniTitle:      { ...Typography.label.l, color: Colors.text.primary },
-  miniCountBadge: {
+  peekTitle: { ...Typography.label.l, color: Colors.text.primary, fontWeight: '700' },
+  peekCountBadge: {
     backgroundColor: Colors.brand.subtle,
-    paddingHorizontal: Spacing[8], paddingVertical: 2, borderRadius: Radius.round,
+    paddingHorizontal: Spacing[10], paddingVertical: 2, borderRadius: Radius.round,
   },
-  miniCount:            { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '600' },
-  miniEmpty:            { ...Typography.body.s, color: Colors.text.tertiary, paddingHorizontal: Spacing[16], paddingBottom: Spacing[4] },
-  miniList:             { paddingHorizontal: Spacing[16], gap: Spacing[8] },
-  miniChip: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing[4],
-    backgroundColor: Colors.bg.secondary,
-    paddingHorizontal: Spacing[12], paddingVertical: Spacing[8],
-    borderRadius: Radius.round, borderWidth: 1, borderColor: Colors.border.subtle,
+  peekCount: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
+  peekEmpty: {
+    alignItems: 'center', gap: Spacing[8], paddingVertical: Spacing[40],
   },
-  miniChipRegular:      { backgroundColor: Colors.brand.subtle, borderColor: Colors.brand.primary },
-  miniChipText:         { ...Typography.label.s, color: Colors.text.secondary, maxWidth: 80 },
-  miniChipTextRegular:  { color: Colors.brand.primary, fontWeight: '600' },
+  peekEmptyText: { ...Typography.body.m, color: Colors.text.tertiary },
+  peekScroll: { flex: 1 },
+  peekScrollContent: { paddingTop: Spacing[4] },
+  peekCardWrap: {
+    backgroundColor: Colors.surface.default,
+  },
+  peekCardWrapSelected: {
+    backgroundColor: Colors.brand.subtle,
+  },
 
   listScroll:       { flex: 1 },
   listContent:      { paddingBottom: 88 },
