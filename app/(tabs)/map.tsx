@@ -8,7 +8,7 @@
  *   지도 뷰 또는 리스트 뷰 (동일 맥락 안에서 전환)
  */
 
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView,
   TouchableOpacity, ScrollView, TextInput,
@@ -97,6 +97,31 @@ export default function ExploreScreen() {
     return result;
   }, [homeCards, spots, activeFilter, searchQuery, isSaved]);
 
+  // ── 카카오 마커 데이터 (컴포넌트 본체에서 메모화 — Hook 규칙) ──
+  const kakaoMarkers = useMemo<KakaoMarker[]>(() => {
+    return filteredCards
+      .map(card => {
+        const spot = spots.find(sp => sp.spot_id === card.spot_id);
+        if (!spot) return null;
+        return {
+          id: card.spot_id,
+          latitude: spot.latitude,
+          longitude: spot.longitude,
+          label: card.name,
+          variant: card.is_regular ? 'regular' : (card.has_visited ? 'visited' : 'default'),
+        } as KakaoMarker;
+      })
+      .filter(Boolean) as KakaoMarker[];
+  }, [filteredCards, spots]);
+
+  // ── 페이지 진입 시 시트/선택 상태 초기화 ──
+  // store의 selectedSpotId가 다른 화면에서 설정된 경우 자동으로 시트가 뜨는 걸 방지
+  useEffect(() => {
+    setSelectedId(null);
+    setSheetOpen(false);
+    selectSpot(null);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handlePinPress = useCallback((spotId: string) => {
     setSelectedId(spotId);
     setSheetOpen(true);
@@ -138,7 +163,7 @@ export default function ExploreScreen() {
       <View style={s.topBar}>
         {searchVisible ? (
           <View style={s.searchRow}>
-            <Icon name="map" size={16} color={Colors.text.tertiary} />
+            <Icon name="search-outline" size={16} color={Colors.text.tertiary} />
             <TextInput
               style={s.searchInput}
               placeholder="장소명으로 검색"
@@ -157,7 +182,7 @@ export default function ExploreScreen() {
             <Text style={s.topTitle}>탐색</Text>
             <View style={s.topActions}>
               <TouchableOpacity style={s.topBtn} onPress={handleSearchToggle}>
-                <Icon name="map" size={20} color={Colors.text.secondary} />
+                <Icon name="search-outline" size={20} color={Colors.text.secondary} />
               </TouchableOpacity>
               <View style={s.viewToggle}>
                 <TouchableOpacity
@@ -170,7 +195,7 @@ export default function ExploreScreen() {
                   style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
                   onPress={() => setViewMode('list')}
                 >
-                  <Icon name="flag" size={16} color={viewMode === 'list' ? Colors.brand.onPrimary : Colors.text.secondary} />
+                  <Icon name="list-outline" size={16} color={viewMode === 'list' ? Colors.brand.onPrimary : Colors.text.secondary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -210,17 +235,7 @@ export default function ExploreScreen() {
             initialLevel={INITIAL_CENTER.level}
             userLocation={isTracking ? currentLocation : null}
             selectedId={selectedId}
-            markers={useMemo<KakaoMarker[]>(() => filteredCards.map(card => {
-              const spot = spots.find(sp => sp.spot_id === card.spot_id);
-              if (!spot) return null;
-              return {
-                id: card.spot_id,
-                latitude: spot.latitude,
-                longitude: spot.longitude,
-                label: card.name,
-                variant: card.is_regular ? 'regular' : (card.has_visited ? 'visited' : 'default'),
-              } as KakaoMarker;
-            }).filter(Boolean) as KakaoMarker[], [filteredCards, spots])}
+            markers={kakaoMarkers}
             onMarkerClick={handlePinPress}
             onMapClick={() => { if (sheetOpen) handleCloseSheet(); }}
           />

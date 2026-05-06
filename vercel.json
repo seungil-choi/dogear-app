@@ -1,5 +1,5 @@
 {
-  "buildCommand": "EXPO_PUBLIC_DEV_SEED=true npx expo export --platform web && node scripts/fix-html.js",
+  "buildCommand": "EXPO_PUBLIC_DEV_SEED=true EXPO_PUBLIC_KAKAO_JS_KEY=034f48bf73783dcd6f97dcba1f6ba572 EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY=8dfd3d035c15b72d4ed49561d2232b61 npx expo export --platform web && node scripts/fix-html.js",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/_expo/(.*)", "destination": "/_expo/$1" },
