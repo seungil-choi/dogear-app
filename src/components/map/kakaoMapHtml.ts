@@ -108,12 +108,18 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         }
       }
 
-      function pinHtml(label, variant, selected) {
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function(c) {
+          return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+        });
+      }
+
+      function pinHtml(id, label, variant, selected) {
         var icon = variant === 'regular' ? '★' : '🐾';
         var cls = 'pin-dot pin-' + (variant || 'default') + (selected ? ' pin-selected' : '');
-        return '<div class="pin">' +
+        return '<div class="pin" data-marker-id="' + escapeHtml(id) + '">' +
                  '<div class="' + cls + '">' + icon + '</div>' +
-                 '<div class="pin-label">' + (label || '') + '</div>' +
+                 '<div class="pin-label">' + escapeHtml(label || '') + '</div>' +
                '</div>';
       }
 
@@ -127,7 +133,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         clearMarkers();
         items.forEach(function(item) {
           var pos = new kakao.maps.LatLng(item.latitude, item.longitude);
-          var content = pinHtml(item.label, item.variant, item.id === selectedId);
+          var content = pinHtml(item.id, item.label, item.variant, item.id === selectedId);
           var overlay = new kakao.maps.CustomOverlay({
             position: pos,
             content: content,
@@ -138,20 +144,20 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
           markers.push(overlay);
           markerById[item.id] = { overlay: overlay, item: item };
         });
-        // 클릭 처리: DOM에 위임
-        setTimeout(bindMarkerClicks, 50);
+        // 클릭 처리: data-marker-id로 정확 타겟팅
+        requestAnimationFrame(function() {
+          bindMarkerClicks();
+          setTimeout(bindMarkerClicks, 100);
+        });
       }
 
       function bindMarkerClicks() {
-        document.querySelectorAll('.pin').forEach(function(el, idx) {
+        document.querySelectorAll('[data-marker-id]').forEach(function(el) {
+          var id = el.getAttribute('data-marker-id');
+          if (!id) return;
           el.onclick = function(e) {
             e.stopPropagation();
-            // 인덱스 → markers 배열로 매핑 (CustomOverlay는 DOM 순서 유지)
-            var keys = Object.keys(markerById);
-            var key = keys[idx];
-            if (key !== undefined) {
-              postMsg({ type: 'markerClick', id: key });
-            }
+            postMsg({ type: 'markerClick', id: id });
           };
         });
       }

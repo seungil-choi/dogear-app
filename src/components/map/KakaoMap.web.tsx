@@ -38,15 +38,21 @@ const VARIANT_BG = {
   regular: '#C47848',
 } as const;
 
-function pinHtml(label: string, variant: KakaoMarker['variant'], selected: boolean): string {
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[c] as string);
+}
+
+function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], selected: boolean): string {
   const icon = variant === 'regular' ? '★' : '🐾';
   const sizeStyle = selected
     ? 'width:36px;height:36px;box-shadow:0 4px 10px rgba(196,120,72,0.4);transform:scale(1.15);'
     : 'width:28px;height:28px;box-shadow:0 2px 6px rgba(0,0,0,0.25);';
   return `
-    <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translateY(-100%)">
+    <div data-marker-id="${escapeHtml(id)}" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translateY(-100%);pointer-events:auto;">
       <div style="${sizeStyle}border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;border:2px solid #fff;background:${VARIANT_BG[variant]}">${icon}</div>
-      <div style="margin-top:4px;max-width:110px;padding:3px 8px;background:rgba(255,255,255,0.95);border-radius:12px;color:#1A1612;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,0.1)">${label}</div>
+      <div style="margin-top:4px;max-width:110px;padding:3px 8px;background:rgba(255,255,255,0.95);border-radius:12px;color:#1A1612;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,0.1)">${escapeHtml(label)}</div>
     </div>
   `;
 }
@@ -112,7 +118,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
       const isSelected = m.id === props.selectedId;
       const overlay = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(m.latitude, m.longitude),
-        content: pinHtml(m.label, m.variant, isSelected),
+        content: pinHtml(m.id, m.label, m.variant, isSelected),
         yAnchor: 1,
         clickable: true,
       });
@@ -120,18 +126,25 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
       overlaysRef.current.set(m.id, overlay);
     });
 
-    // 클릭 핸들러: DOM에서 직접
-    setTimeout(() => {
-      const els = containerRef.current?.querySelectorAll('[style*="cursor:pointer"]');
-      els?.forEach((el, idx) => {
-        const id = props.markers[idx]?.id;
+    // 클릭 핸들러: data-marker-id 셀렉터로 정확히 타겟팅
+    // (cursor:pointer는 카카오 자체 컨트롤도 매치되어 인덱싱이 어긋남)
+    const attachClicks = () => {
+      const els = containerRef.current?.querySelectorAll<HTMLElement>('[data-marker-id]');
+      els?.forEach((el) => {
+        const id = el.dataset.markerId;
         if (!id) return;
-        (el as HTMLElement).onclick = (e) => {
+        el.onclick = (e) => {
           e.stopPropagation();
           props.onMarkerClick?.(id);
         };
       });
-    }, 50);
+    };
+    // 카카오맵 DOM 렌더링 타이밍 보장 (setTimeout + requestAnimationFrame)
+    requestAnimationFrame(() => {
+      attachClicks();
+      // 한 번 더 — 일부 브라우저에서 첫 RAF 직후 DOM 미반영 케이스 대비
+      setTimeout(attachClicks, 100);
+    });
   }, [ready, props.markers, props.selectedId, props.onMarkerClick]);
 
   // 사용자 위치

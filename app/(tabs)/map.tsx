@@ -401,7 +401,7 @@ const s = StyleSheet.create({
   filterLabel:       { ...Typography.label.s, color: Colors.text.secondary },
   filterLabelActive: { color: Colors.brand.onPrimary, fontWeight: '600' },
 
-  mapContainer: { flex: 1 },
+  mapContainer: { flex: 1, position: 'relative', overflow: 'hidden' },
   map:          { flex: 1 },
 
   myLocBtn: {
@@ -409,6 +409,7 @@ const s = StyleSheet.create({
     width: 44, height: 44, borderRadius: 22,
     backgroundColor: Colors.surface.default,
     alignItems: 'center', justifyContent: 'center',
+    zIndex: 10,
   },
   myLocBtnActive: { backgroundColor: Colors.brand.primary },
 
@@ -416,6 +417,7 @@ const s = StyleSheet.create({
     position: 'absolute', bottom: 0, left: 0, right: 0,
     backgroundColor: Colors.surface.default,
     borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl,
+    zIndex: 20,
   },
   sheetHandle: {
     width: 36, height: 4, borderRadius: 2,
@@ -453,6 +455,7 @@ const s = StyleSheet.create({
     position: 'absolute', left: 0, right: 0,
     backgroundColor: Colors.surface.default,
     borderRadius: Radius.xl, marginHorizontal: Spacing[16], paddingVertical: Spacing[12],
+    zIndex: 20,
   },
   miniHeader: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
