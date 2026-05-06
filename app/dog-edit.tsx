@@ -21,6 +21,7 @@ import { Colors, Spacing, Radius, Typography, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
+import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
 
 const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 import {
@@ -139,9 +140,28 @@ export default function DogEditScreen() {
   // ─── 저장 ────────────────────────────────────────────
   async function handleSave() {
     if (!dog) return;
+
+    // 1. 새 아바타가 로컬 URI(file:// 또는 blob:)이면 Storage 업로드
+    let finalAvatarUrl = avatarUri;
+    if (IS_REAL_AUTH && avatarUri && !avatarUri.startsWith('http')) {
+      try {
+        const oldPath = dog.avatar_url ? pathFromPublicUrl(dog.avatar_url, 'dog-avatars') : null;
+        const result = await uploadImage({
+          bucket: 'dog-avatars',
+          uri: avatarUri,
+          userId: dog.user_id,
+          oldPath: oldPath ?? undefined,
+        });
+        finalAvatarUrl = result.url;
+      } catch (e: any) {
+        Alert.alert('업로드 실패', e.message ?? '사진 업로드에 실패했어요.');
+        return;
+      }
+    }
+
     const updatedDog = {
       ...dog,
-      avatar_url: avatarUri,
+      avatar_url: finalAvatarUrl,
       name: name.trim() || dog.name,
       breed: breed.trim() || undefined,
       weight_kg: weightKg ? parseFloat(weightKg) : undefined,

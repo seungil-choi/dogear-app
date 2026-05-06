@@ -11,6 +11,7 @@ import { useAuth } from '../src/hooks/useAuth';
 import { useLocation } from '../src/hooks/useLocation';
 import { useNearbySpots } from '../src/hooks/useNearbySpots';
 import { useUserData } from '../src/hooks/useUserData';
+import { usePushToken } from '../src/hooks/usePushToken';
 
 // 인증 가드: 로그아웃 상태에서 보호 화면 접근 시 로그인으로 리다이렉트
 function AuthGate() {
@@ -44,6 +45,7 @@ function DataProvider() {
   useLocation();       // 위치 권한 요청 + currentLocation 설정
   useNearbySpots();    // 위치 기반 spots 페치 → setSpots
   useUserData();       // 로그인 후 checkins/savedSpots/visitSummaries/familiarSignals 로드
+  usePushToken();      // 로그인 후 expo push token 등록
   return null;
 }
 

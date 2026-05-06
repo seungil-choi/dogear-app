@@ -13,12 +13,24 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { Icon } from '../../src/components/common/Icon';
 import { supabase } from '../../src/lib/supabase';
 
 const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+
+// Google Sign-In 초기 설정 (실 환경에서만)
+// webClientId는 Google Cloud Console에서 OAuth 2.0 Client ID 생성 후 받음
+// EAS Secrets 또는 .env에 EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID 등록 필요
+if (IS_REAL_AUTH && Platform.OS !== 'web') {
+  GoogleSignin.configure({
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    scopes: ['profile', 'email'],
+    offlineAccess: false,
+  });
+}
 
 // ─── 소셜 로그인 버튼 ──────────────────────────────────────
 function SocialButton({
@@ -112,8 +124,92 @@ export default function LoginScreen() {
     }
   };
 
-  // 카카오/네이버 — 데모/웹에서는 바로 진행, 실 환경은 추후 SDK 연동
-  const handleSocialLogin = (_provider: 'kakao' | 'naver') => {
+  // Google 로그인 (Android 기본 인증)
+  const handleGoogleLogin = async () => {
+    // 웹/DEV: 바로 진행
+    if (!IS_REAL_AUTH || Platform.OS === 'web') {
+      proceedAfterAuth();
+      return;
+    }
+
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = (userInfo as any).idToken ?? (userInfo as any).data?.idToken;
+
+      if (!idToken) {
+        Alert.alert('로그인 실패', '인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
+        return;
+      }
+
+      // Supabase 세션 생성
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idToken,
+      });
+
+      if (error) {
+        Alert.alert('로그인 오류', error.message);
+        return;
+      }
+
+      proceedAfterAuth();
+    } catch (e: any) {
+      if (e?.code === statusCodes.SIGN_IN_CANCELLED) return;
+      if (e?.code === statusCodes.IN_PROGRESS) return;
+      if (e?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert('알림', 'Google Play Services가 필요해요.');
+        return;
+      }
+      console.error('Google Sign-In error:', e);
+      Alert.alert('로그인 오류', 'Google 로그인 중 문제가 발생했어요.');
+    }
+  };
+
+  // 카카오 로그인
+  const handleKakaoLogin = async () => {
+    if (!IS_REAL_AUTH || Platform.OS === 'web') {
+      proceedAfterAuth();
+      return;
+    }
+
+    try {
+      // 카카오 SDK 동적 import (웹 빌드 호환을 위해)
+      const KakaoLogin = (await import('@react-native-seoul/kakao-login')).default;
+      const token = await KakaoLogin.login();
+
+      // Edge Function으로 카카오 토큰 → Supabase 세션 변환
+      const { data, error: fnError } = await supabase.functions.invoke('kakao-auth', {
+        body: { kakaoAccessToken: token.accessToken },
+      });
+
+      if (fnError || !data?.email || !data?.hashed_token) {
+        Alert.alert('로그인 오류', '카카오 로그인 처리에 실패했어요.');
+        return;
+      }
+
+      // OTP 검증으로 세션 설정
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: data.email,
+        token: data.otp,
+        type: 'magiclink',
+      });
+
+      if (verifyError) {
+        Alert.alert('로그인 오류', verifyError.message);
+        return;
+      }
+
+      proceedAfterAuth();
+    } catch (e: any) {
+      if (e?.code === 'E_CANCELLED_OPERATION') return;
+      console.error('Kakao login error:', e);
+      Alert.alert('로그인 오류', '카카오 로그인 중 문제가 발생했어요.');
+    }
+  };
+
+  // 네이버 — 추후 SDK 연동
+  const handleSocialLogin = (_provider: 'naver') => {
     if (!IS_REAL_AUTH || Platform.OS === 'web') {
       proceedAfterAuth();
       return;
@@ -178,22 +274,38 @@ export default function LoginScreen() {
 
         {/* ── 하단: 로그인 버튼 ── */}
         <View style={s.loginArea}>
-          {/* Apple */}
-          <SocialButton
-            onPress={handleAppleLogin}
-            bgColor="#1C1C1E"
-            textColor="#FFFFFF"
-            label="Apple로 계속하기"
-            icon={
-              <View style={s.appleIcon}>
-                <Text style={s.appleIconText}></Text>
-              </View>
-            }
-          />
+          {/* Apple — iOS에서만 노출 */}
+          {Platform.OS === 'ios' && (
+            <SocialButton
+              onPress={handleAppleLogin}
+              bgColor="#1C1C1E"
+              textColor="#FFFFFF"
+              label="Apple로 계속하기"
+              icon={
+                <View style={s.appleIcon}>
+                  <Text style={s.appleIconText}></Text>
+                </View>
+              }
+            />
+          )}
+
+          {/* Google — Android 및 웹 */}
+          {Platform.OS !== 'ios' && (
+            <SocialButton
+              onPress={handleGoogleLogin}
+              bgColor="#FFFFFF"
+              textColor="#1A1612"
+              borderColor="#DADCE0"
+              label="Google로 계속하기"
+              icon={
+                <Text style={{ fontSize: 18, lineHeight: 22 }}>G</Text>
+              }
+            />
+          )}
 
           {/* 카카오 */}
           <SocialButton
-            onPress={() => handleSocialLogin('kakao')}
+            onPress={handleKakaoLogin}
             bgColor="#FEE500"
             textColor="#191919"
             label="카카오로 계속하기"
