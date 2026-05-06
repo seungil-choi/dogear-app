@@ -11,7 +11,7 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView,
-  TouchableOpacity, ScrollView, TextInput,
+  TouchableOpacity, ScrollView, TextInput, Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -158,7 +158,7 @@ export default function ExploreScreen() {
       <View style={s.topBar}>
         {searchVisible ? (
           <View style={s.searchRow}>
-            <Icon name="search-outline" size={16} color={Colors.text.tertiary} />
+            <Text style={s.searchLeadIcon}>🔍</Text>
             <TextInput
               style={s.searchInput}
               placeholder="장소명으로 검색"
@@ -168,29 +168,31 @@ export default function ExploreScreen() {
               autoFocus
               returnKeyType="search"
             />
-            <TouchableOpacity onPress={handleSearchToggle}>
-              <Icon name="close" size={18} color={Colors.text.tertiary} />
+            <TouchableOpacity onPress={handleSearchToggle} accessibilityLabel="검색 닫기">
+              <Text style={s.searchCloseIcon}>✕</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={s.titleRow}>
             <Text style={s.topTitle}>탐색</Text>
             <View style={s.topActions}>
-              <TouchableOpacity style={s.topBtn} onPress={handleSearchToggle}>
-                <Icon name="search-outline" size={20} color={Colors.text.secondary} />
+              <TouchableOpacity style={s.topBtn} onPress={handleSearchToggle} accessibilityLabel="검색">
+                <Text style={s.topBtnEmoji}>🔍</Text>
               </TouchableOpacity>
               <View style={s.viewToggle}>
                 <TouchableOpacity
                   style={[s.toggleBtn, viewMode === 'map' && s.toggleBtnActive]}
                   onPress={() => setViewMode('map')}
+                  accessibilityLabel="지도 뷰"
                 >
-                  <Icon name="map" size={16} color={viewMode === 'map' ? Colors.brand.onPrimary : Colors.text.secondary} />
+                  <Text style={[s.toggleBtnText, viewMode === 'map' && s.toggleBtnTextActive]}>지도</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
                   onPress={() => setViewMode('list')}
+                  accessibilityLabel="목록 뷰"
                 >
-                  <Icon name="list-outline" size={16} color={viewMode === 'list' ? Colors.brand.onPrimary : Colors.text.secondary} />
+                  <Text style={[s.toggleBtnText, viewMode === 'list' && s.toggleBtnTextActive]}>목록</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -349,7 +351,13 @@ const s = StyleSheet.create({
   },
   topTitle:   { ...Typography.display.s, color: Colors.text.primary },
   topActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing[8] },
-  topBtn:     { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  topBtn:     {
+    width: 36, height: 36, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.bg.secondary,
+    borderRadius: Radius.round,
+    borderWidth: 1, borderColor: Colors.border.default,
+  },
+  topBtnEmoji: { fontSize: 16 },
 
   viewToggle: {
     flexDirection: 'row',
@@ -358,18 +366,28 @@ const s = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1, borderColor: Colors.border.default,
   },
-  toggleBtn:       { paddingHorizontal: Spacing[10], paddingVertical: Spacing[6] },
+  toggleBtn:       { paddingHorizontal: Spacing[12], paddingVertical: Spacing[6] },
   toggleBtnActive: { backgroundColor: Colors.brand.primary },
+  toggleBtnText: {
+    ...Typography.label.s,
+    color: Colors.text.secondary,
+    fontWeight: '600',
+  },
+  toggleBtnTextActive: {
+    color: Colors.brand.onPrimary,
+  },
 
   searchRow: {
     flexDirection: 'row', alignItems: 'center',
     margin: Spacing[12],
     paddingHorizontal: Spacing[14], paddingVertical: Spacing[10],
-    backgroundColor: Colors.bg.secondary,
+    backgroundColor: Colors.surface.default,
     borderRadius: Radius.round,
     gap: Spacing[8],
-    borderWidth: 1, borderColor: Colors.border.default,
+    borderWidth: 1.5, borderColor: Colors.brand.primary,
   },
+  searchLeadIcon: { fontSize: 14 },
+  searchCloseIcon: { fontSize: 14, color: Colors.text.tertiary, paddingHorizontal: 4 },
   searchInput: { flex: 1, ...Typography.body.m, color: Colors.text.primary, padding: 0 },
 
   filterList:       { paddingHorizontal: Spacing[16], gap: Spacing[8], paddingBottom: 2 },
@@ -388,8 +406,18 @@ const s = StyleSheet.create({
   map:          { flex: 1 },
 
   // 지도 + 카드 목록 split layout
-  mapSplitContainer: { flex: 1, flexDirection: 'column', backgroundColor: Colors.bg.primary },
-  mapArea:           { flex: 1.4, position: 'relative', overflow: 'hidden' },
+  // RN-Web에서 flex 비율이 잘 안 잡혀 픽셀 + flex 혼합 사용
+  mapSplitContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: Colors.bg.primary,
+    minHeight: 0,
+  },
+  mapArea: {
+    height: Math.max(280, Math.round(Dimensions.get('window').height * 0.45)),
+    position: 'relative',
+    overflow: 'hidden',
+  },
 
   myLocBtn: {
     position: 'absolute', top: 12, right: Spacing[16],
@@ -403,12 +431,14 @@ const s = StyleSheet.create({
   // ── 하단 카드 목록 (peek sheet) ──
   peekSheet: {
     flex: 1,
+    minHeight: 0, // ScrollView가 부모 안에서 정확한 높이 계산 (flex shrink 허용)
     backgroundColor: Colors.surface.default,
     borderTopLeftRadius: Radius.xl,
     borderTopRightRadius: Radius.xl,
     paddingTop: Spacing[8],
     marginTop: -Spacing[8], // 지도 영역과 살짝 겹쳐 둥근 모서리 강조
     zIndex: 5,
+    overflow: 'hidden', // 내부 scrollview의 둥근 모서리 유지
   },
   peekHandle: {
     width: 36, height: 4, borderRadius: 2,
