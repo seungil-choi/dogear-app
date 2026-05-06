@@ -1,9 +1,7 @@
 /**
- * 탐색 탭 — react-native-maps (Google Maps) 기반
+ * 탐색 탭 — 카카오맵 기반 (네이티브)
  *
  * 역할: 지도 기반으로 현재 위치 주변 장소를 직접 탐색하고 비교하는 화면
- * 핵심 질문: "근처에 어떤 장소가 있고, 어디가 지금 맞지?"
- *
  * 구조:
  *   상단: 탐색 타이틀 + 지도/리스트 토글 + 검색 토글
  *   필터: 가까운곳/저장한곳/발도장남긴곳/짧게걷기/오래걷기/쉬기좋은
@@ -13,30 +11,19 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, SafeAreaView,
-  TouchableOpacity, ScrollView, TextInput, Platform,
+  TouchableOpacity, ScrollView, TextInput,
 } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
+import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
 import type { SpotCategory } from '../../src/types';
 
-// ─── 초기 리전 (서울 마포구) ─────────────────────────────────
-const INITIAL_REGION: Region = {
-  latitude: 37.5563,
-  longitude: 126.9237,
-  latitudeDelta: 0.03,
-  longitudeDelta: 0.03,
-};
-
-const PIN_COLOR = {
-  regular: Colors.brand.primary,
-  visited: '#7BA08B',
-  default: '#9C9B97',
-};
+// ─── 초기 중심 (서울 마포구) ─────────────────────────────────
+const INITIAL_CENTER = { latitude: 37.5563, longitude: 126.9237, level: 4 };
 
 // ─── 필터 ────────────────────────────────────────────────────
 type FilterKey = 'all' | 'saved' | 'visited' | 'short_walk' | 'long_walk' | 'rest';
@@ -60,10 +47,11 @@ type ViewMode = 'map' | 'list';
 
 export default function ExploreScreen() {
   const router       = useRouter();
-  const getHomeCards = useAppStore(s => s.getHomeCards);
-  const spots        = useAppStore(s => s.spots);
-  const isSaved      = useAppStore(s => s.isSaved);
-  const selectSpot   = useAppStore(s => s.selectSpot);
+  const getHomeCards    = useAppStore(s => s.getHomeCards);
+  const spots           = useAppStore(s => s.spots);
+  const isSaved         = useAppStore(s => s.isSaved);
+  const selectSpot      = useAppStore(s => s.selectSpot);
+  const currentLocation = useAppStore(s => s.currentLocation);
 
   const insets = useSafeAreaInsets();
 
@@ -75,7 +63,7 @@ export default function ExploreScreen() {
   const [sheetOpen,     setSheetOpen]     = useState(false);
   const [isTracking,    setIsTracking]    = useState(false);
 
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<KakaoMapRef>(null);
   const homeCards = getHomeCards();
 
   // ── 필터 + 검색 ───────────────────────────────────────────
@@ -115,18 +103,20 @@ export default function ExploreScreen() {
     selectSpot(spotId);
     const spot = spots.find(s => s.spot_id === spotId);
     if (spot && mapRef.current) {
-      mapRef.current.animateToRegion({
-        latitude: spot.latitude - 0.003, longitude: spot.longitude,
-        latitudeDelta: 0.02, longitudeDelta: 0.02,
-      }, 400);
+      // 바텀시트가 화면 하단을 가리므로 살짝 위로 보정
+      mapRef.current.setCenter(spot.latitude - 0.002, spot.longitude, 4);
     }
   }, [spots, selectSpot]);
 
   const handleMyLocation = useCallback(() => {
     const next = !isTracking;
     setIsTracking(next);
-    if (next) mapRef.current?.animateToRegion(INITIAL_REGION, 400);
-  }, [isTracking]);
+    if (next && currentLocation) {
+      mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
+    } else if (next) {
+      mapRef.current?.setCenter(INITIAL_CENTER.latitude, INITIAL_CENTER.longitude, INITIAL_CENTER.level);
+    }
+  }, [isTracking, currentLocation]);
 
   const handleCloseSheet = useCallback(() => {
     setSheetOpen(false);
@@ -212,43 +202,28 @@ export default function ExploreScreen() {
       {/* ── 지도 뷰 ── */}
       {viewMode === 'map' && (
         <View style={s.mapContainer}>
-          <MapView
+          <KakaoMap
             ref={mapRef}
             style={s.map}
-            initialRegion={INITIAL_REGION}
-            showsUserLocation={isTracking}
-            showsMyLocationButton={false}
-            showsCompass={false}
-            showsScale={false}
-            toolbarEnabled={false}
-            onPress={() => { if (sheetOpen) handleCloseSheet(); }}
-          >
-            {filteredCards.map(card => {
+            initialLatitude={INITIAL_CENTER.latitude}
+            initialLongitude={INITIAL_CENTER.longitude}
+            initialLevel={INITIAL_CENTER.level}
+            userLocation={isTracking ? currentLocation : null}
+            selectedId={selectedId}
+            markers={useMemo<KakaoMarker[]>(() => filteredCards.map(card => {
               const spot = spots.find(sp => sp.spot_id === card.spot_id);
               if (!spot) return null;
-              const isSelected = selectedId === card.spot_id;
-              const pinColor   = card.is_regular ? PIN_COLOR.regular
-                : card.has_visited ? PIN_COLOR.visited : PIN_COLOR.default;
-              return (
-                <Marker
-                  key={card.spot_id}
-                  coordinate={{ latitude: spot.latitude, longitude: spot.longitude }}
-                  onPress={() => handlePinPress(card.spot_id)}
-                  anchor={{ x: 0.5, y: 1.0 }}
-                  tracksViewChanges={isSelected}
-                >
-                  <View style={pin.wrap}>
-                    <View style={[pin.dot, { backgroundColor: pinColor }, isSelected && pin.dotSelected]}>
-                      <Icon name={card.is_regular ? 'star' : 'paw'} size={11} color="#FFF" />
-                    </View>
-                    <Text style={[pin.label, isSelected && pin.labelSelected]} numberOfLines={1}>
-                      {card.name}
-                    </Text>
-                  </View>
-                </Marker>
-              );
-            })}
-          </MapView>
+              return {
+                id: card.spot_id,
+                latitude: spot.latitude,
+                longitude: spot.longitude,
+                label: card.name,
+                variant: card.is_regular ? 'regular' : (card.has_visited ? 'visited' : 'default'),
+              } as KakaoMarker;
+            }).filter(Boolean) as KakaoMarker[], [filteredCards, spots])}
+            onMarkerClick={handlePinPress}
+            onMapClick={() => { if (sheetOpen) handleCloseSheet(); }}
+          />
 
           {/* 내 위치 버튼 */}
           <TouchableOpacity
@@ -359,24 +334,6 @@ export default function ExploreScreen() {
     </SafeAreaView>
   );
 }
-
-const pin = StyleSheet.create({
-  wrap:         { alignItems: 'center', gap: 2 },
-  dot: {
-    width: 28, height: 28, borderRadius: 14,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: '#FFF',
-  },
-  dotSelected:  { width: 32, height: 32, borderRadius: 16 },
-  label: {
-    ...Typography.label.s, fontSize: 11,
-    color: Colors.text.primary,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    paddingHorizontal: 5, paddingVertical: 1,
-    borderRadius: 4, maxWidth: 72, overflow: 'hidden',
-  },
-  labelSelected: { color: Colors.brand.primary, fontWeight: '700', backgroundColor: '#FFF' },
-});
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bg.primary },
