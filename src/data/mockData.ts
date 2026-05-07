@@ -2,6 +2,7 @@ import type {
   User, Dog, Spot, PawCheckin, SavedSpot,
   SpotVisitSummary, FamiliarDogSignal, PrivacySetting,
 } from '../types';
+import { seedParkSpots } from './seedParkSpots';
 
 // ─────────────────────────────────────────
 // USER & DOG
@@ -216,6 +217,11 @@ export const mockSpots: Spot[] = [
     created_source: 'seed',
     created_at: '2026-02-10T10:00:00+09:00',
   },
+  // ─────────────────────────────────────────
+  // 공공데이터포털 도시공원 표준데이터 (서울시 34개)
+  // place-ingestor 정규화 결과를 자동 생성한 seedParkSpots 에서 병합
+  // ─────────────────────────────────────────
+  ...seedParkSpots,
 ];
 
 // ─────────────────────────────────────────
