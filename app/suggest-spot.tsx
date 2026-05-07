@@ -22,6 +22,7 @@ import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { Button } from '../src/components/common/Button';
 import { Icon } from '../src/components/common/Icon';
+import KakaoMap from '../src/components/map/KakaoMap';
 import type { SpotCategory, NearbyDuplicate } from '../src/types';
 
 const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
@@ -287,26 +288,25 @@ export default function SuggestSpotScreen() {
                     toolbarEnabled={false}
                   />
                 ) : (
-                  <View style={s.webLocationBox}>
-                    <View style={s.webLocationIconWrap}>
-                      <Icon name="location" size={22} color={Colors.brand.primary} />
-                    </View>
-                    <View>
-                      <Text style={s.webLocationText}>현재 위치로 등록됩니다</Text>
-                      <Text style={s.webLocationCoord}>
-                        {location.latitude.toFixed(5)}°N,  {location.longitude.toFixed(5)}°E
-                      </Text>
-                    </View>
-                  </View>
+                  // 웹: KakaoMap 으로 동일 UX 제공 (지도 중심 = 핀 위치)
+                  <KakaoMap
+                    style={s.mapView}
+                    initialLatitude={location.latitude}
+                    initialLongitude={location.longitude}
+                    initialLevel={3}
+                    userLocation={currentLocation}
+                    markers={[]}
+                    onRegionChange={(lat, lng) =>
+                      setPinLocation({ latitude: lat, longitude: lng })
+                    }
+                  />
                 )}
 
-                {/* 지도 중앙 고정 핀 (native map 위에만 표시) */}
-                {Platform.OS !== 'web' && RNMapView && (
-                  <View style={s.mapPinOverlay} pointerEvents="none">
-                    <Icon name="location" size={40} color={Colors.brand.primary} />
-                    <View style={s.mapPinDot} />
-                  </View>
-                )}
+                {/* 지도 중앙 고정 핀 — 모든 플랫폼 공통 */}
+                <View style={s.mapPinOverlay} pointerEvents="none">
+                  <Icon name="location-filled" size={40} color={Colors.brand.primary} />
+                  <View style={s.mapPinDot} />
+                </View>
               </View>
 
               {/* 현재 좌표 표시 */}
@@ -645,23 +645,6 @@ const s = StyleSheet.create({
     opacity: 0.5,
     marginTop: -4,
   },
-  webLocationBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[14],
-    padding: Spacing[20],
-    backgroundColor: Colors.brand.subtle,
-  },
-  webLocationIconWrap: {
-    width: 44, height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.brand.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  webLocationText: { ...Typography.label.m, color: Colors.text.primary, fontWeight: '600' },
-  webLocationCoord: { ...Typography.caption, color: Colors.text.tertiary, marginTop: 2 },
   coordRow: {
     flexDirection: 'row',
     alignItems: 'center',

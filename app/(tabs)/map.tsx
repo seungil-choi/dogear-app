@@ -87,24 +87,31 @@ export default function ExploreScreen() {
   const homeCards = getHomeCards();
 
   // ── 슬라이드 패널 (네이버 지도 스타일) ────────────────────────
-  // 패널은 3단 snap: peek(작게) / half(중간) / full(헤더 아래까지)
+  // 패널은 4단 snap:
+  //   min(헤더만 노출, 카드 가려짐) / peek(카드 ~2장) / half(중간) / full(헤더 아래까지)
   const SCREEN_H = Dimensions.get('window').height;
   const [headerH, setHeaderH] = useState(160); // 헤더 측정값 (대략 추정 후 onLayout 갱신)
+  const PANEL_MIN_H  = 56;    // 핸들 + "주변 장소 N곳" 헤더만 (카드 완전히 가림)
   const PANEL_PEEK_H = 200;   // 카드 ~2장 보이는 높이
   const PANEL_HALF_H = Math.round(SCREEN_H * 0.55);
   const PANEL_FULL_H = Math.max(0, SCREEN_H - headerH - 40);
 
   const panelHeight = useRef(new Animated.Value(PANEL_PEEK_H)).current;
-  const [snapState, setSnapState] = useState<'peek' | 'half' | 'full'>('peek');
+  const [snapState, setSnapState] = useState<'min' | 'peek' | 'half' | 'full'>('peek');
+
+  type PanelSnap = 'min' | 'peek' | 'half' | 'full';
 
   // snap 상태 → 실제 픽셀 높이 매핑
-  const snapToHeight = useCallback((snap: 'peek' | 'half' | 'full') => {
-    const h = snap === 'peek' ? PANEL_PEEK_H : snap === 'half' ? PANEL_HALF_H : PANEL_FULL_H;
+  const snapToHeight = useCallback((snap: PanelSnap) => {
+    const h =
+      snap === 'min'  ? PANEL_MIN_H  :
+      snap === 'peek' ? PANEL_PEEK_H :
+      snap === 'half' ? PANEL_HALF_H : PANEL_FULL_H;
     Animated.spring(panelHeight, {
       toValue: h, useNativeDriver: false, friction: 9, tension: 60,
     }).start();
     setSnapState(snap);
-  }, [PANEL_PEEK_H, PANEL_HALF_H, PANEL_FULL_H, panelHeight]);
+  }, [PANEL_MIN_H, PANEL_PEEK_H, PANEL_HALF_H, PANEL_FULL_H, panelHeight]);
 
   // 드래그 시작 시 현재 높이 기준점
   const dragStartH = useRef(PANEL_PEEK_H);
@@ -117,14 +124,17 @@ export default function ExploreScreen() {
     },
     onPanResponderMove: (_, g) => {
       // 위로 드래그 → 높이 증가, 아래 → 감소
-      const next = Math.max(80, Math.min(PANEL_FULL_H, dragStartH.current - g.dy));
+      const next = Math.max(PANEL_MIN_H, Math.min(PANEL_FULL_H, dragStartH.current - g.dy));
       panelHeight.setValue(next);
     },
-    onPanResponderRelease: (_, g) => {
+    onPanResponderRelease: () => {
       panelHeight.stopAnimation((value: number) => {
         // 가장 가까운 snap으로 정렬
-        const candidates: Array<['peek' | 'half' | 'full', number]> = [
-          ['peek', PANEL_PEEK_H], ['half', PANEL_HALF_H], ['full', PANEL_FULL_H],
+        const candidates: Array<[PanelSnap, number]> = [
+          ['min',  PANEL_MIN_H],
+          ['peek', PANEL_PEEK_H],
+          ['half', PANEL_HALF_H],
+          ['full', PANEL_FULL_H],
         ];
         const [nearestSnap] = candidates.reduce((best, cur) =>
           Math.abs(cur[1] - value) < Math.abs(best[1] - value) ? cur : best,
@@ -132,7 +142,7 @@ export default function ExploreScreen() {
         snapToHeight(nearestSnap);
       });
     },
-  }), [PANEL_PEEK_H, PANEL_HALF_H, PANEL_FULL_H, panelHeight, snapToHeight]);
+  }), [PANEL_MIN_H, PANEL_PEEK_H, PANEL_HALF_H, PANEL_FULL_H, panelHeight, snapToHeight]);
 
   // ── 필터 + 검색 ───────────────────────────────────────────
   const filteredCards = useMemo(() => {
@@ -390,8 +400,8 @@ export default function ExploreScreen() {
             onRegionChange={(lat, lng) => setMapCenter({ lat, lng })}
           />
 
-          {/* 내 위치 버튼 — 패널 위쪽으로 떠 있음 */}
-          <Animated.View style={[s.myLocFloating, { bottom: panelHeight }]} pointerEvents="box-none">
+          {/* 내 위치 버튼 — 헤더 + 카테고리 아래 우측 상단 고정 */}
+          <View style={s.myLocFloating} pointerEvents="box-none">
             <TouchableOpacity
               style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
               onPress={handleMyLocation}
@@ -405,7 +415,7 @@ export default function ExploreScreen() {
                 color={isTracking ? Colors.brand.onPrimary : Colors.text.primary}
               />
             </TouchableOpacity>
-          </Animated.View>
+          </View>
 
           {/* 슬라이드 패널 — 핸들 영역으로 드래그 */}
           <Animated.View style={[s.slidePanel, Shadow.l, { height: panelHeight }]}>
@@ -419,7 +429,12 @@ export default function ExploreScreen() {
                 </View>
                 <TouchableOpacity
                   style={s.panelExpandBtn}
-                  onPress={() => snapToHeight(snapState === 'full' ? 'peek' : 'full')}
+                  onPress={() => {
+                    // min → peek 으로 복귀, peek/half → full, full → peek
+                    if (snapState === 'min') snapToHeight('peek');
+                    else if (snapState === 'full') snapToHeight('peek');
+                    else snapToHeight('full');
+                  }}
                   accessibilityLabel={snapState === 'full' ? '패널 접기' : '패널 펼치기'}
                 >
                   <Icon
@@ -612,18 +627,16 @@ const s = StyleSheet.create({
     width: 28, height: 28, alignItems: 'center', justifyContent: 'center',
   },
 
-  // 내 위치 버튼 — 패널 위쪽으로 떠 있음
+  // 내 위치 버튼 — 헤더 + 카테고리 아래 우측 상단 고정
+  // (지도 컨테이너의 top:0이 카테고리 바로 아래이므로 24px 띄움)
   myLocFloating: {
-    position: 'absolute', right: Spacing[16],
-    marginBottom: Spacing[12],
+    position: 'absolute', top: 24, right: Spacing[16],
     zIndex: 11,
   },
   myLocBtn: {
-    position: 'absolute', top: 12, right: Spacing[16],
     width: 44, height: 44, borderRadius: 22,
     backgroundColor: Colors.surface.default,
     alignItems: 'center', justifyContent: 'center',
-    zIndex: 10,
   },
   myLocBtnActive: { backgroundColor: Colors.brand.primary },
 
