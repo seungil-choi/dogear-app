@@ -12,6 +12,7 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import {
   View, Text, StyleSheet, SafeAreaView,
   TouchableOpacity, ScrollView, TextInput, Dimensions,
+  Animated, PanResponder,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -69,7 +70,6 @@ export default function ExploreScreen() {
 
   const [viewMode,      setViewMode]      = useState<ViewMode>('map');
   const [activeFilter,  setActiveFilter]  = useState<FilterKey>('all');
-  const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery,   setSearchQuery]   = useState('');
   const [selectedId,    setSelectedId]    = useState<string | null>(null);
   const [isTracking,    setIsTracking]    = useState(false);
@@ -83,6 +83,54 @@ export default function ExploreScreen() {
   const cardListRef = useRef<ScrollView>(null);
   const cardOffsetsRef = useRef<Record<string, number>>({});
   const homeCards = getHomeCards();
+
+  // ── 슬라이드 패널 (네이버 지도 스타일) ────────────────────────
+  // 패널은 3단 snap: peek(작게) / half(중간) / full(헤더 아래까지)
+  const SCREEN_H = Dimensions.get('window').height;
+  const [headerH, setHeaderH] = useState(160); // 헤더 측정값 (대략 추정 후 onLayout 갱신)
+  const PANEL_PEEK_H = 200;   // 카드 ~2장 보이는 높이
+  const PANEL_HALF_H = Math.round(SCREEN_H * 0.55);
+  const PANEL_FULL_H = Math.max(0, SCREEN_H - headerH - 40);
+
+  const panelHeight = useRef(new Animated.Value(PANEL_PEEK_H)).current;
+  const [snapState, setSnapState] = useState<'peek' | 'half' | 'full'>('peek');
+
+  // snap 상태 → 실제 픽셀 높이 매핑
+  const snapToHeight = useCallback((snap: 'peek' | 'half' | 'full') => {
+    const h = snap === 'peek' ? PANEL_PEEK_H : snap === 'half' ? PANEL_HALF_H : PANEL_FULL_H;
+    Animated.spring(panelHeight, {
+      toValue: h, useNativeDriver: false, friction: 9, tension: 60,
+    }).start();
+    setSnapState(snap);
+  }, [PANEL_PEEK_H, PANEL_HALF_H, PANEL_FULL_H, panelHeight]);
+
+  // 드래그 시작 시 현재 높이 기준점
+  const dragStartH = useRef(PANEL_PEEK_H);
+  const panelPanResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 4,
+    onPanResponderGrant: () => {
+      // 현재 Animated 값 capture
+      panelHeight.stopAnimation((value: number) => { dragStartH.current = value; });
+    },
+    onPanResponderMove: (_, g) => {
+      // 위로 드래그 → 높이 증가, 아래 → 감소
+      const next = Math.max(80, Math.min(PANEL_FULL_H, dragStartH.current - g.dy));
+      panelHeight.setValue(next);
+    },
+    onPanResponderRelease: (_, g) => {
+      panelHeight.stopAnimation((value: number) => {
+        // 가장 가까운 snap으로 정렬
+        const candidates: Array<['peek' | 'half' | 'full', number]> = [
+          ['peek', PANEL_PEEK_H], ['half', PANEL_HALF_H], ['full', PANEL_FULL_H],
+        ];
+        const [nearestSnap] = candidates.reduce((best, cur) =>
+          Math.abs(cur[1] - value) < Math.abs(best[1] - value) ? cur : best,
+        );
+        snapToHeight(nearestSnap);
+      });
+    },
+  }), [PANEL_PEEK_H, PANEL_HALF_H, PANEL_FULL_H, panelHeight, snapToHeight]);
 
   // ── 필터 + 검색 ───────────────────────────────────────────
   const filteredCards = useMemo(() => {
@@ -188,64 +236,37 @@ export default function ExploreScreen() {
     }
   }, [isTracking, currentLocation]);
 
-  const handleSearchToggle = useCallback(() => {
-    setSearchVisible(v => !v);
-    if (searchVisible) setSearchQuery('');
-  }, [searchVisible]);
-
   return (
     <SafeAreaView style={s.safe}>
 
       {/* ── 상단 헤더 ── */}
       <View style={s.topBar}>
-        {searchVisible ? (
-          <View style={s.searchRow}>
-            <Text style={s.searchLeadIcon}>🔍</Text>
-            <TextInput
-              style={s.searchInput}
-              placeholder="장소명으로 검색"
-              placeholderTextColor={Colors.text.tertiary}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              autoFocus
-              returnKeyType="search"
-            />
-            <TouchableOpacity onPress={handleSearchToggle} accessibilityLabel="검색 닫기">
+        {/* 검색바 — 항상 노출 */}
+        <View style={s.searchRow}>
+          <Text style={s.searchLeadIcon}>🔍</Text>
+          <TextInput
+            style={s.searchInput}
+            placeholder="장소명으로 검색"
+            placeholderTextColor={Colors.text.tertiary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} accessibilityLabel="검색어 지우기">
               <Text style={s.searchCloseIcon}>✕</Text>
             </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={s.titleRow}>
-            <Text style={s.topTitle}>탐색</Text>
-            <View style={s.topActions}>
-              <TouchableOpacity style={s.topBtn} onPress={handleSearchToggle} accessibilityLabel="검색">
-                <Text style={s.topBtnEmoji}>🔍</Text>
-              </TouchableOpacity>
-              <View style={s.viewToggle}>
-                <TouchableOpacity
-                  style={[s.toggleBtn, viewMode === 'map' && s.toggleBtnActive]}
-                  onPress={() => setViewMode('map')}
-                  accessibilityLabel="지도 뷰"
-                >
-                  <Text style={[s.toggleBtnText, viewMode === 'map' && s.toggleBtnTextActive]}>지도</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
-                  onPress={() => setViewMode('list')}
-                  accessibilityLabel="목록 뷰"
-                >
-                  <Text style={[s.toggleBtnText, viewMode === 'list' && s.toggleBtnTextActive]}>목록</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        )}
+          )}
+        </View>
 
-        <ScrollView
-          horizontal showsHorizontalScrollIndicator={false}
-          contentContainerStyle={s.filterList}
-          keyboardShouldPersistTaps="handled"
-        >
+        {/* 필터 + 뷰 토글 — 한 줄에 함께 */}
+        <View style={s.filterToggleRow}>
+          <ScrollView
+            horizontal showsHorizontalScrollIndicator={false}
+            contentContainerStyle={s.filterList}
+            keyboardShouldPersistTaps="handled"
+            style={s.filterScroll}
+          >
           {FILTERS.map(f => {
             const active = activeFilter === f.key;
             return (
@@ -260,47 +281,77 @@ export default function ExploreScreen() {
               </TouchableOpacity>
             );
           })}
-        </ScrollView>
+          </ScrollView>
+
+          {/* 지도/목록 토글 — 필터 옆 */}
+          <View style={s.viewToggle}>
+            <TouchableOpacity
+              style={[s.toggleBtn, viewMode === 'map' && s.toggleBtnActive]}
+              onPress={() => setViewMode('map')}
+              accessibilityLabel="지도 뷰"
+            >
+              <Text style={[s.toggleBtnText, viewMode === 'map' && s.toggleBtnTextActive]}>지도</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
+              onPress={() => setViewMode('list')}
+              accessibilityLabel="목록 뷰"
+            >
+              <Text style={[s.toggleBtnText, viewMode === 'list' && s.toggleBtnTextActive]}>목록</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
-      {/* ── 지도 뷰: 위 지도 + 아래 카드 목록 ── */}
+      {/* ── 지도 뷰: 풀스크린 지도 + 슬라이드 업 패널 ── */}
       {viewMode === 'map' && (
-        <View style={s.mapSplitContainer}>
-          {/* 지도 영역 */}
-          <View style={s.mapArea}>
-            <KakaoMap
-              ref={mapRef}
-              style={s.map}
-              initialLatitude={INITIAL_CENTER.latitude}
-              initialLongitude={INITIAL_CENTER.longitude}
-              initialLevel={INITIAL_CENTER.level}
-              userLocation={isTracking ? currentLocation : null}
-              selectedId={selectedId}
-              markers={kakaoMarkers}
-              onMarkerClick={handlePinPress}
-              onMapClick={() => { setSelectedId(null); }}
-              onRegionChange={(lat, lng) => setMapCenter({ lat, lng })}
-            />
+        <View style={s.mapFullContainer}>
+          {/* 지도 풀스크린 */}
+          <KakaoMap
+            ref={mapRef}
+            style={s.mapFull}
+            initialLatitude={INITIAL_CENTER.latitude}
+            initialLongitude={INITIAL_CENTER.longitude}
+            initialLevel={INITIAL_CENTER.level}
+            userLocation={isTracking ? currentLocation : null}
+            selectedId={selectedId}
+            markers={kakaoMarkers}
+            onMarkerClick={handlePinPress}
+            onMapClick={() => { setSelectedId(null); }}
+            onRegionChange={(lat, lng) => setMapCenter({ lat, lng })}
+          />
 
-            {/* 내 위치 버튼 */}
+          {/* 내 위치 버튼 — 패널 위쪽으로 떠 있음 */}
+          <Animated.View style={[s.myLocFloating, { bottom: panelHeight }]} pointerEvents="box-none">
             <TouchableOpacity
               style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
               onPress={handleMyLocation}
               activeOpacity={0.8}
+              accessibilityLabel="현재 위치"
             >
-              <Icon name="navigate" size={20} color={isTracking ? Colors.brand.onPrimary : Colors.brand.primary} />
+              <Text style={[s.myLocIcon, isTracking && s.myLocIconActive]}>📍</Text>
             </TouchableOpacity>
-          </View>
+          </Animated.View>
 
-          {/* 하단 카드 목록 (peek sheet) */}
-          <View style={[s.peekSheet, Shadow.m]}>
-            <View style={s.peekHandle} />
-            <View style={s.peekHeader}>
-              <Text style={s.peekTitle}>주변 장소</Text>
-              <View style={s.peekCountBadge}>
-                <Text style={s.peekCount}>{sortedCards.length}곳</Text>
+          {/* 슬라이드 패널 — 핸들 영역으로 드래그 */}
+          <Animated.View style={[s.slidePanel, Shadow.l, { height: panelHeight }]}>
+            {/* 드래그 핸들 — PanResponder 영역 */}
+            <View {...panelPanResponder.panHandlers} style={s.panelHandleArea}>
+              <View style={s.panelHandle} />
+              <View style={s.panelHeader}>
+                <Text style={s.panelTitle}>주변 장소</Text>
+                <View style={s.panelCountBadge}>
+                  <Text style={s.panelCount}>{sortedCards.length}곳</Text>
+                </View>
+                <TouchableOpacity
+                  style={s.panelExpandBtn}
+                  onPress={() => snapToHeight(snapState === 'full' ? 'peek' : 'full')}
+                >
+                  <Text style={s.panelExpandIcon}>{snapState === 'full' ? '⌄' : '⌃'}</Text>
+                </TouchableOpacity>
               </View>
             </View>
+
             {sortedCards.length === 0 ? (
               <View style={s.peekEmpty}>
                 <Icon name="map" size={28} color={Colors.text.tertiary} />
@@ -312,6 +363,7 @@ export default function ExploreScreen() {
                 style={s.peekScroll}
                 contentContainerStyle={s.peekScrollContent}
                 showsVerticalScrollIndicator={false}
+                nestedScrollEnabled
               >
                 {sortedCards.map(card => {
                   const isSelected = selectedId === card.spot_id;
@@ -339,7 +391,7 @@ export default function ExploreScreen() {
                 <View style={{ height: insets.bottom + 80 }} />
               </ScrollView>
             )}
-          </View>
+          </Animated.View>
         </View>
       )}
 
@@ -387,20 +439,12 @@ const s = StyleSheet.create({
     borderBottomColor: Colors.border.subtle,
     paddingBottom: Spacing[8],
   },
-  titleRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing[16],
-    paddingTop: Spacing[14], paddingBottom: Spacing[8],
+  filterToggleRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: Spacing[16], paddingBottom: Spacing[8],
+    gap: Spacing[8],
   },
-  topTitle:   { ...Typography.display.s, color: Colors.text.primary },
-  topActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing[8] },
-  topBtn:     {
-    width: 36, height: 36, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.bg.secondary,
-    borderRadius: Radius.round,
-    borderWidth: 1, borderColor: Colors.border.default,
-  },
-  topBtnEmoji: { fontSize: 16 },
+  filterScroll: { flex: 1 },
 
   viewToggle: {
     flexDirection: 'row',
@@ -448,19 +492,53 @@ const s = StyleSheet.create({
   mapContainer: { flex: 1, position: 'relative', overflow: 'hidden' },
   map:          { flex: 1 },
 
-  // 지도 + 카드 목록 split layout
-  // RN-Web에서 flex 비율이 잘 안 잡혀 픽셀 + flex 혼합 사용
-  mapSplitContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: Colors.bg.primary,
-    minHeight: 0,
-  },
-  mapArea: {
-    height: Math.max(280, Math.round(Dimensions.get('window').height * 0.45)),
-    position: 'relative',
+  // 풀스크린 지도 + 슬라이드 업 패널
+  mapFullContainer: { flex: 1, position: 'relative', backgroundColor: Colors.bg.primary, overflow: 'hidden' },
+  mapFull:          { flex: 1 },
+
+  // 슬라이드 패널 (peek/half/full snap)
+  slidePanel: {
+    position: 'absolute', left: 0, right: 0, bottom: 0,
+    backgroundColor: Colors.surface.default,
+    borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl,
     overflow: 'hidden',
+    zIndex: 10,
   },
+  panelHandleArea: {
+    paddingTop: Spacing[8], paddingBottom: Spacing[4],
+    backgroundColor: Colors.surface.default,
+    borderTopLeftRadius: Radius.xl, borderTopRightRadius: Radius.xl,
+  },
+  panelHandle: {
+    width: 40, height: 4, borderRadius: 2,
+    backgroundColor: Colors.border.default,
+    alignSelf: 'center', marginBottom: Spacing[8],
+  },
+  panelHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[8],
+    paddingHorizontal: Spacing[16], paddingBottom: Spacing[10],
+    borderBottomWidth: 1, borderBottomColor: Colors.border.subtle,
+  },
+  panelTitle: { ...Typography.label.l, color: Colors.text.primary, fontWeight: '700' },
+  panelCountBadge: {
+    backgroundColor: Colors.brand.subtle,
+    paddingHorizontal: Spacing[10], paddingVertical: 2, borderRadius: Radius.round,
+  },
+  panelCount: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
+  panelExpandBtn: {
+    marginLeft: 'auto',
+    width: 28, height: 28, alignItems: 'center', justifyContent: 'center',
+  },
+  panelExpandIcon: { fontSize: 18, color: Colors.text.tertiary, lineHeight: 18 },
+
+  // 내 위치 버튼 — 패널 위쪽으로 떠 있음
+  myLocFloating: {
+    position: 'absolute', right: Spacing[16],
+    marginBottom: Spacing[12],
+    zIndex: 11,
+  },
+  myLocIcon: { fontSize: 18 },
+  myLocIconActive: { },
 
   myLocBtn: {
     position: 'absolute', top: 12, right: Spacing[16],

@@ -309,30 +309,48 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            3) 앱 설정
+            3) 앱 — 알림 / 앱 설정
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
             <Icon name="settings" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>설정</Text>
+            <Text style={s.sectionTitle}>앱</Text>
           </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="bell"     label="알림"             onPress={() => router.push('/notifications')} />
-            <SettingsRow icon="settings" label="앱 설정"          onPress={() => router.push('/settings' as any)} />
-            <SettingsRow icon="document" label="서비스 이용약관"  onPress={() => router.push('/(legal)/terms' as any)} />
-            <SettingsRow icon="shield"   label="개인정보 처리방침" onPress={() => router.push('/(legal)/privacy-policy' as any)} />
-            <SettingsRow icon="person"   label="차단한 사용자"     onPress={() => router.push('/blocked-users' as any)} />
+            <SettingsRow icon="bell"     label="알림"     onPress={() => router.push('/notifications')} />
+            <SettingsRow icon="settings" label="앱 설정"  onPress={() => router.push('/settings' as any)} />
           </View>
         </View>
 
         {/* ══════════════════════════════════════
-            4) 로그아웃 / 회원 탈퇴
+            4) 정책 / 안전
         ══════════════════════════════════════ */}
         <View style={s.section}>
+          <View style={s.sectionTitleRow}>
+            <Icon name="shield" size={15} color={Colors.text.secondary} />
+            <Text style={s.sectionTitle}>정책 · 안전</Text>
+          </View>
+          <View style={s.settingsCard}>
+            <SettingsRow icon="document" label="서비스 이용약관"   onPress={() => router.push('/(legal)/terms' as any)} />
+            <SettingsRow icon="shield"   label="개인정보 처리방침"  onPress={() => router.push('/(legal)/privacy-policy' as any)} />
+            <SettingsRow icon="person"   label="차단한 사용자"       onPress={() => router.push('/blocked-users' as any)} />
+          </View>
+        </View>
+
+        {/* ══════════════════════════════════════
+            5) 계정 — 로그아웃만 노출, 회원 탈퇴는 앱 설정 → 계정 관리에서
+        ══════════════════════════════════════ */}
+        <View style={s.section}>
+          <View style={s.sectionTitleRow}>
+            <Icon name="person" size={15} color={Colors.text.secondary} />
+            <Text style={s.sectionTitle}>계정</Text>
+          </View>
           <View style={s.settingsCard}>
             <SettingsRow icon="logout" label="로그아웃" onPress={logout} danger />
-            <SettingsRow icon="trash"  label="회원 탈퇴" onPress={() => router.push('/account-delete' as any)} danger />
           </View>
+          <Text style={s.sectionFootnote}>
+            회원 탈퇴는 [앱 설정 → 계정 관리]에서 진행할 수 있어요.
+          </Text>
         </View>
 
         <View style={{ height: Spacing[16] }} />
@@ -539,6 +557,14 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
     fontWeight: '600',
     letterSpacing: 0.3,
+  },
+  sectionFootnote: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    paddingHorizontal: Spacing[16],
+    paddingTop: Spacing[6],
+    fontSize: 11,
+    lineHeight: 16,
   },
   sectionTitleDog: {
     ...Typography.label.m,

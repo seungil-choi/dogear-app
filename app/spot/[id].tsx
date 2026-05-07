@@ -7,11 +7,12 @@
  *  - 우리 보리와의 관계 (첫 방문 / 방문 횟수 / 최근 방문 / 단골 여부)
  *  - 자주 오는 강아지 (원형 아바타)
  *  - 최근 흔적 (사진 썸네일 포함)
- *  - 장소 정보 (유형·운영·특징·주의사항·주소)
- *  - 하단 바 (길찾기 + 발도장 남기기)
+ *  - 장소 정보 (유형·운영·특징·주의사항·주소 + 주소 복사)
+ *  - 하단 CTA (저장 / 발도장 남기기)
  */
 
 import React, { useCallback, useState } from 'react';
+import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity,
@@ -44,6 +45,14 @@ export default function SpotDetailScreen() {
   const [selectedDog, setSelectedDog] = useState<FamiliarDogCardViewModel | null>(null);
 
   const handleSave = useCallback(() => toggleSaveSpot(id), [id, toggleSaveSpot]);
+  const handleCopyAddress = useCallback(async (text: string) => {
+    try {
+      await Clipboard.setStringAsync(text);
+      Alert.alert('복사됨', '주소를 클립보드에 복사했어요.');
+    } catch {
+      Alert.alert('복사 실패', '주소를 복사하지 못했어요.');
+    }
+  }, []);
 
   const handlePawCheckin = useCallback(() => {
     const cards = getHomeCards();
@@ -178,24 +187,6 @@ export default function SpotDetailScreen() {
           </View>
         </View>
 
-        {/* ── 저장 CTA ── */}
-        <View style={s.ctaRow}>
-          <TouchableOpacity
-            style={[s.btnSave, vm.is_saved && s.btnSaveActive]}
-            onPress={handleSave}
-            activeOpacity={0.85}
-          >
-            <Icon
-              name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
-              size={17}
-              color={vm.is_saved ? Colors.brand.primary : Colors.text.secondary}
-            />
-            <Text style={[s.btnSaveText, vm.is_saved && s.btnSaveTextActive]}>
-              {vm.is_saved ? '저장됨' : '저장하기'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
         {/* ── P2: 장소 정보 ── */}
         <View style={s.section}>
           <Text style={s.sectionTitle}>장소 정보</Text>
@@ -236,8 +227,8 @@ export default function SpotDetailScreen() {
                   <Text style={s.infoKey}>주소</Text>
                   <View style={s.infoAddressRow}>
                     <Text style={[s.infoVal, { flex: 1 }]}>{vm.address_text}</Text>
-                    <TouchableOpacity onPress={handleDirections} activeOpacity={0.75}>
-                      <Text style={s.mapTextLink}>지도에서 보기</Text>
+                    <TouchableOpacity onPress={() => handleCopyAddress(vm.address_text!)} activeOpacity={0.75}>
+                      <Text style={s.mapTextLink}>복사</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -440,17 +431,24 @@ export default function SpotDetailScreen() {
           <TouchableOpacity style={s.heroNavBtn} onPress={handleShare}>
             <Icon name="share" size={20} color="#fff" />
           </TouchableOpacity>
-          <TouchableOpacity style={s.heroNavBtn} onPress={handleMore}>
-            <Icon name="more" size={20} color="#fff" />
-          </TouchableOpacity>
         </View>
       </View>
 
-      {/* ── 하단 고정 액션 바 ── */}
+      {/* ── 하단 고정 액션 바 — 저장 + 발도장 ── */}
       <View style={[s.bottomBar, { paddingBottom: insets.bottom + Spacing[8] }]}>
-        <TouchableOpacity style={s.bottomBtnDirections} onPress={handleDirections} activeOpacity={0.85}>
-          <Icon name="navigate" size={18} color={Colors.brand.primary} />
-          <Text style={s.bottomBtnDirectionsText}>길찾기</Text>
+        <TouchableOpacity
+          style={[s.bottomBtnDirections, vm.is_saved && s.bottomBtnSaveActive]}
+          onPress={handleSave}
+          activeOpacity={0.85}
+        >
+          <Icon
+            name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
+            size={18}
+            color={Colors.brand.primary}
+          />
+          <Text style={s.bottomBtnDirectionsText}>
+            {vm.is_saved ? '저장됨' : '저장하기'}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.bottomBtnPaw} onPress={handlePawCheckin} activeOpacity={0.88}>
           <Icon name="paw-filled" size={18} color="#fff" />
@@ -985,6 +983,10 @@ const s = StyleSheet.create({
     ...Typography.label.l,
     color: Colors.brand.primary,
     fontWeight: '700',
+  },
+  bottomBtnSaveActive: {
+    backgroundColor: Colors.brand.subtle,
+    borderColor: Colors.brand.primary,
   },
   bottomBtnPaw: {
     flex: 2,

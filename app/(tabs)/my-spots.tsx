@@ -97,9 +97,8 @@ export default function MySpotsScreen() {
 
   return (
     <SafeAreaView style={s.safe}>
-      {/* 헤더 */}
+      {/* 헤더 — 타이틀 제거, 세그먼트 컨트롤만 */}
       <View style={s.header}>
-        <Text style={s.headerTitle}>내장소</Text>
         {/* 세그먼트 컨트롤 */}
         <View style={s.segmentedControl}>
           {TABS.map(tab => {
