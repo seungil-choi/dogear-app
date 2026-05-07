@@ -3,8 +3,6 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, Platform, View } from 'react-native';
-import { useFonts } from 'expo-font';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
 import { useAuth } from '../src/hooks/useAuth';
@@ -53,11 +51,6 @@ function DataProvider() {
 const RootContainer = Platform.OS === 'web' ? View : GestureHandlerRootView;
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    ...Ionicons.font,
-    ...MaterialCommunityIcons.font,
-  });
-
   return (
     <RootContainer style={s.root as any}>
       <StatusBar style="dark" backgroundColor={Colors.bg.primary} />
