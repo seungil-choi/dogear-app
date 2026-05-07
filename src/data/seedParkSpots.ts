@@ -2965,7 +2965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00072',
-    name: "샘물",
+    name: "샘물 어린이공원",
     category: 'park',
     latitude: 37.3472131,
     longitude: 126.8161689,
@@ -2981,7 +2981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00071',
-    name: "복지",
+    name: "복지 어린이공원",
     category: 'park',
     latitude: 37.3397974,
     longitude: 126.8279429,
@@ -2997,7 +2997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00070',
-    name: "기쁨",
+    name: "기쁨 어린이공원",
     category: 'park',
     latitude: 37.3326171,
     longitude: 126.8207986,
@@ -3013,7 +3013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00069',
-    name: "샘터",
+    name: "샘터 어린이공원",
     category: 'park',
     latitude: 37.3449934,
     longitude: 126.8221853,
@@ -3029,7 +3029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00068',
-    name: "여울",
+    name: "여울 어린이공원",
     category: 'park',
     latitude: 37.3442291,
     longitude: 126.8205269,
@@ -3045,7 +3045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00067',
-    name: "와동",
+    name: "와동 어린이공원",
     category: 'park',
     latitude: 37.3330753,
     longitude: 126.8252036,
@@ -3061,7 +3061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00066',
-    name: "달미",
+    name: "달미 어린이공원",
     category: 'park',
     latitude: 37.3440675,
     longitude: 126.8160715,
@@ -3077,7 +3077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00065',
-    name: "정지막골",
+    name: "정지막골 어린이공원",
     category: 'park',
     latitude: 37.3403479,
     longitude: 126.8081624,
@@ -3093,7 +3093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00064',
-    name: "경일",
+    name: "경일 어린이공원",
     category: 'park',
     latitude: 37.345534,
     longitude: 126.8068729,
@@ -3109,7 +3109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00063',
-    name: "안식",
+    name: "안식 어린이공원",
     category: 'park',
     latitude: 37.3288957,
     longitude: 126.8189949,
@@ -3125,7 +3125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00062',
-    name: "해송",
+    name: "해송 어린이공원",
     category: 'park',
     latitude: 37.3295289,
     longitude: 126.8392958,
@@ -3141,7 +3141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00061',
-    name: "황금",
+    name: "황금 어린이공원",
     category: 'park',
     latitude: 37.3320751,
     longitude: 126.8297554,
@@ -3157,7 +3157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00060',
-    name: "석수",
+    name: "석수 어린이공원",
     category: 'park',
     latitude: 37.3433348,
     longitude: 126.8050229,
@@ -3173,7 +3173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00059',
-    name: "화랑",
+    name: "화랑 어린이공원",
     category: 'park',
     latitude: 37.3259851,
     longitude: 126.8207893,
@@ -3189,7 +3189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00058',
-    name: "거미울",
+    name: "거미울 어린이공원",
     category: 'park',
     latitude: 37.3425004,
     longitude: 126.8018084,
@@ -3205,7 +3205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00057',
-    name: "보배",
+    name: "보배 어린이공원",
     category: 'park',
     latitude: 37.3309233,
     longitude: 126.8289946,
@@ -3237,7 +3237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00055',
-    name: "만남",
+    name: "만남 어린이공원",
     category: 'park',
     latitude: 37.3397106,
     longitude: 126.8300998,
@@ -3253,7 +3253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00054',
-    name: "못골",
+    name: "못골 어린이공원",
     category: 'park',
     latitude: 37.3380578,
     longitude: 126.8035604,
@@ -3269,7 +3269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00111',
-    name: "정동",
+    name: "정동 어린이공원",
     category: 'park',
     latitude: 37.2975169,
     longitude: 126.8875088,
@@ -3301,7 +3301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00109',
-    name: "천문",
+    name: "천문 어린이공원",
     category: 'park',
     latitude: 37.305885,
     longitude: 126.8457615,
@@ -3317,7 +3317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00108',
-    name: "소나무",
+    name: "소나무 어린이공원",
     category: 'park',
     latitude: 37.3084825,
     longitude: 126.8460151,
@@ -3333,7 +3333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00107',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.3104336,
     longitude: 126.8492794,
@@ -3349,7 +3349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00106',
-    name: "갯벌",
+    name: "갯벌 어린이공원",
     category: 'park',
     latitude: 37.3127683,
     longitude: 126.8475291,
@@ -3365,7 +3365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00073',
-    name: "뗏골",
+    name: "뗏골 어린이공원",
     category: 'park',
     latitude: 37.3390324,
     longitude: 126.7957018,
@@ -3381,7 +3381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00085',
-    name: "광덕산밑",
+    name: "광덕산밑 어린이공원",
     category: 'park',
     latitude: 37.3375497,
     longitude: 126.8293546,
@@ -3397,7 +3397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00084',
-    name: "와개",
+    name: "와개 어린이공원",
     category: 'park',
     latitude: 37.3424689,
     longitude: 126.8293009,
@@ -3413,7 +3413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00083',
-    name: "바람",
+    name: "바람 어린이공원",
     category: 'park',
     latitude: 37.3242662,
     longitude: 126.8075022,
@@ -3429,7 +3429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00082',
-    name: "군자샛별",
+    name: "군자샛별 어린이공원",
     category: 'park',
     latitude: 37.3281919,
     longitude: 126.7929747,
@@ -3461,7 +3461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00080',
-    name: "주택희망",
+    name: "주택희망 어린이공원",
     category: 'park',
     latitude: 37.3320052,
     longitude: 126.7922706,
@@ -3477,7 +3477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00079',
-    name: "방죽",
+    name: "방죽 어린이공원",
     category: 'park',
     latitude: 37.3327471,
     longitude: 126.8175693,
@@ -3493,7 +3493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00078',
-    name: "슬기나",
+    name: "슬기나 어린이공원",
     category: 'park',
     latitude: 37.3470317,
     longitude: 126.8196593,
@@ -3509,7 +3509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00077',
-    name: "선삼로",
+    name: "선삼로 어린이공원",
     category: 'park',
     latitude: 37.3467047,
     longitude: 126.8112899,
@@ -3525,7 +3525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00076',
-    name: "원곡",
+    name: "원곡 어린이공원",
     category: 'park',
     latitude: 37.323895,
     longitude: 126.8028595,
@@ -3541,7 +3541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00075',
-    name: "양지",
+    name: "양지 어린이공원",
     category: 'park',
     latitude: 37.3264037,
     longitude: 126.797889,
@@ -3557,7 +3557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00074',
-    name: "나무",
+    name: "나무 어린이공원",
     category: 'park',
     latitude: 37.3272436,
     longitude: 126.7945244,
@@ -3589,7 +3589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00104',
-    name: "파도",
+    name: "파도 어린이공원",
     category: 'park',
     latitude: 37.314347,
     longitude: 126.8175413,
@@ -3605,7 +3605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00103',
-    name: "소리",
+    name: "소리 어린이공원",
     category: 'park',
     latitude: 37.3143474,
     longitude: 126.8139764,
@@ -3621,7 +3621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00102',
-    name: "잠자리",
+    name: "잠자리 어린이공원",
     category: 'park',
     latitude: 37.3334705,
     longitude: 126.7857587,
@@ -3637,7 +3637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00101',
-    name: "어울림",
+    name: "어울림 어린이공원",
     category: 'park',
     latitude: 37.3330402,
     longitude: 126.7886205,
@@ -3653,7 +3653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00100',
-    name: "동화",
+    name: "동화 어린이공원",
     category: 'park',
     latitude: 37.3376587,
     longitude: 126.7891107,
@@ -3669,7 +3669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00099',
-    name: "해솔",
+    name: "해솔 어린이공원",
     category: 'park',
     latitude: 37.3380565,
     longitude: 126.7874793,
@@ -3685,7 +3685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00098',
-    name: "연꽃",
+    name: "연꽃 어린이공원",
     category: 'park',
     latitude: 37.3349783,
     longitude: 126.7807918,
@@ -3701,7 +3701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00097',
-    name: "공룡",
+    name: "공룡 어린이공원",
     category: 'park',
     latitude: 37.3366316,
     longitude: 126.7794674,
@@ -3717,7 +3717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00096',
-    name: "능길해맞이",
+    name: "능길해맞이 어린이공원",
     category: 'park',
     latitude: 37.3363346,
     longitude: 126.764723,
@@ -3733,7 +3733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00095',
-    name: "신길달맞이",
+    name: "신길달맞이 어린이공원",
     category: 'park',
     latitude: 37.3382306,
     longitude: 126.7616338,
@@ -3749,7 +3749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00094',
-    name: "지곡",
+    name: "지곡 어린이공원",
     category: 'park',
     latitude: 37.3361821,
     longitude: 126.8034095,
@@ -3765,7 +3765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00093',
-    name: "이삭길",
+    name: "이삭길 어린이공원",
     category: 'park',
     latitude: 37.3132073,
     longitude: 126.8398849,
@@ -3781,7 +3781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00092',
-    name: "중앙역",
+    name: "중앙역 어린이공원",
     category: 'park',
     latitude: 37.3133237,
     longitude: 126.8379653,
@@ -3797,7 +3797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00091',
-    name: "햇살",
+    name: "햇살 어린이공원",
     category: 'park',
     latitude: 37.3135606,
     longitude: 126.823623,
@@ -3813,7 +3813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00090',
-    name: "행복",
+    name: "행복 어린이공원",
     category: 'park',
     latitude: 37.3320562,
     longitude: 126.8314822,
@@ -3829,7 +3829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00089',
-    name: "강서",
+    name: "강서 어린이공원",
     category: 'park',
     latitude: 37.3413132,
     longitude: 126.8272422,
@@ -3845,7 +3845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00088',
-    name: "늘봄",
+    name: "늘봄 어린이공원",
     category: 'park',
     latitude: 37.3383024,
     longitude: 126.8180465,
@@ -3861,7 +3861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00087',
-    name: "왜둘기",
+    name: "왜둘기 어린이공원",
     category: 'park',
     latitude: 37.3425676,
     longitude: 126.8192663,
@@ -3877,7 +3877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00086',
-    name: "큰고개",
+    name: "큰고개 어린이공원",
     category: 'park',
     latitude: 37.3387103,
     longitude: 126.8219109,
@@ -4245,7 +4245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00016',
-    name: "사세충열문",
+    name: "사세충열문 근린공원",
     category: 'park',
     latitude: 37.3374449,
     longitude: 126.8306088,
@@ -4661,7 +4661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00038',
-    name: "성호",
+    name: "성호 어린이공원",
     category: 'park',
     latitude: 37.3169859,
     longitude: 126.8615672,
@@ -4677,7 +4677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00037',
-    name: "팔곡소",
+    name: "팔곡소 소공원",
     category: 'park',
     latitude: 37.2952357,
     longitude: 126.8854333,
@@ -4693,7 +4693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00036',
-    name: "용담뿌리",
+    name: "용담뿌리 소공원",
     category: 'park',
     latitude: 37.3013,
     longitude: 126.8999059,
@@ -4709,7 +4709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00035',
-    name: "수암소",
+    name: "수암소 소공원",
     category: 'park',
     latitude: 37.3656198,
     longitude: 126.878919,
@@ -4725,7 +4725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00034',
-    name: "성포주공3-3",
+    name: "성포주공3-3 소공원",
     category: 'park',
     latitude: 37.3200831,
     longitude: 126.8482637,
@@ -4741,7 +4741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00033',
-    name: "성포주공3-1",
+    name: "성포주공3-1 소공원",
     category: 'park',
     latitude: 37.3194858,
     longitude: 126.8461405,
@@ -4757,7 +4757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00032',
-    name: "새마을",
+    name: "새마을 소공원",
     category: 'park',
     latitude: 37.345795,
     longitude: 126.867408,
@@ -4773,7 +4773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00031',
-    name: "건건소1",
+    name: "건건소1 소공원",
     category: 'park',
     latitude: 37.3073013,
     longitude: 126.9038119,
@@ -4789,7 +4789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00030',
-    name: "건건",
+    name: "건건 소공원",
     category: 'park',
     latitude: 37.3074782,
     longitude: 126.9053999,
@@ -4805,7 +4805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00053',
-    name: "달미역",
+    name: "달미역공원",
     category: 'park',
     latitude: 37.3488712,
     longitude: 126.8098901,
@@ -4821,7 +4821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00052',
-    name: "단원",
+    name: "단원공원",
     category: 'park',
     latitude: 37.3219034,
     longitude: 126.8271487,
@@ -4837,7 +4837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00051',
-    name: "초지상",
+    name: "초지상공원",
     category: 'park',
     latitude: 37.323469,
     longitude: 126.8070748,
@@ -4853,7 +4853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00050',
-    name: "초지1",
+    name: "초지1공원",
     category: 'park',
     latitude: 37.3234684,
     longitude: 126.8061157,
@@ -4869,7 +4869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00049',
-    name: "원곡3",
+    name: "원곡3공원",
     category: 'park',
     latitude: 37.324644,
     longitude: 126.8038631,
@@ -4885,7 +4885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00048',
-    name: "원곡1",
+    name: "원곡1공원",
     category: 'park',
     latitude: 37.3276504,
     longitude: 126.7982076,
@@ -4901,7 +4901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00047',
-    name: "원곡2",
+    name: "원곡2공원",
     category: 'park',
     latitude: 37.3258889,
     longitude: 126.8013273,
@@ -5093,7 +5093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00045',
-    name: "상록수",
+    name: "상록수 어린이공원",
     category: 'park',
     latitude: 37.3131087,
     longitude: 126.8482459,
@@ -5109,7 +5109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00044',
-    name: "매화",
+    name: "매화 어린이공원",
     category: 'park',
     latitude: 37.3058915,
     longitude: 126.8594669,
@@ -5125,7 +5125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00043',
-    name: "석삼말",
+    name: "석삼말 어린이공원",
     category: 'park',
     latitude: 37.3105622,
     longitude: 126.8626002,
@@ -5141,7 +5141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00042',
-    name: "이동",
+    name: "이동 어린이공원",
     category: 'park',
     latitude: 37.3117792,
     longitude: 126.8589156,
@@ -5157,7 +5157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00041',
-    name: "웃말",
+    name: "웃말 어린이공원",
     category: 'park',
     latitude: 37.3080067,
     longitude: 126.8705125,
@@ -5173,7 +5173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00040',
-    name: "안골",
+    name: "안골 어린이공원",
     category: 'park',
     latitude: 37.3098093,
     longitude: 126.8715009,
@@ -5189,7 +5189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00039',
-    name: "첨성",
+    name: "첨성 어린이공원",
     category: 'park',
     latitude: 37.3184126,
     longitude: 126.8618841,
@@ -5205,7 +5205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00060',
-    name: "감골",
+    name: "감골 어린이공원",
     category: 'park',
     latitude: 37.2832455,
     longitude: 126.8527152,
@@ -5221,7 +5221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00059',
-    name: "푸른",
+    name: "푸른 어린이공원",
     category: 'park',
     latitude: 37.3025258,
     longitude: 126.8515091,
@@ -5237,7 +5237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00058',
-    name: "서암",
+    name: "서암 어린이공원",
     category: 'park',
     latitude: 37.3021319,
     longitude: 126.8489884,
@@ -5253,7 +5253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00057',
-    name: "용신",
+    name: "용신 어린이공원",
     category: 'park',
     latitude: 37.3003157,
     longitude: 126.856844,
@@ -5269,7 +5269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00056',
-    name: "상수리",
+    name: "상수리 어린이공원",
     category: 'park',
     latitude: 37.2981459,
     longitude: 126.8579708,
@@ -5285,7 +5285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00055',
-    name: "문학",
+    name: "문학 어린이공원",
     category: 'park',
     latitude: 37.2946161,
     longitude: 126.8516856,
@@ -5301,7 +5301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00054',
-    name: "산구비",
+    name: "산구비 어린이공원",
     category: 'park',
     latitude: 37.2968854,
     longitude: 126.8459778,
@@ -5317,7 +5317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00053',
-    name: "한양나래",
+    name: "한양나래 어린이공원",
     category: 'park',
     latitude: 37.3003877,
     longitude: 126.8419879,
@@ -5333,7 +5333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00052',
-    name: "학사",
+    name: "학사 어린이공원",
     category: 'park',
     latitude: 37.299951,
     longitude: 126.8388025,
@@ -5349,7 +5349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00051',
-    name: "후곡",
+    name: "후곡 어린이공원",
     category: 'park',
     latitude: 37.29649,
     longitude: 126.8497961,
@@ -5365,7 +5365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00050',
-    name: "시곡",
+    name: "시곡 어린이공원",
     category: 'park',
     latitude: 37.2944228,
     longitude: 126.8559292,
@@ -5381,7 +5381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00049',
-    name: "수리실",
+    name: "수리실 어린이공원",
     category: 'park',
     latitude: 37.3149972,
     longitude: 126.8703178,
@@ -5397,7 +5397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00048',
-    name: "호동",
+    name: "호동 어린이공원",
     category: 'park',
     latitude: 37.314747,
     longitude: 126.8658202,
@@ -5413,7 +5413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00047',
-    name: "식물원",
+    name: "식물원 어린이공원",
     category: 'park',
     latitude: 37.3152482,
     longitude: 126.8635902,
@@ -5429,7 +5429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00046',
-    name: "성태산",
+    name: "성태산 어린이공원",
     category: 'park',
     latitude: 37.3153343,
     longitude: 126.872603,
@@ -5445,7 +5445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00086',
-    name: "성모",
+    name: "성모 어린이공원",
     category: 'park',
     latitude: 37.3345209,
     longitude: 126.8522527,
@@ -5461,7 +5461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00085',
-    name: "월광",
+    name: "월광 어린이공원",
     category: 'park',
     latitude: 37.3356188,
     longitude: 126.8437725,
@@ -5477,7 +5477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00084',
-    name: "양지",
+    name: "양지 어린이공원",
     category: 'park',
     latitude: 37.2977705,
     longitude: 126.8695601,
@@ -5493,7 +5493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00083',
-    name: "장수",
+    name: "장수 어린이공원",
     category: 'park',
     latitude: 37.3008356,
     longitude: 126.8744434,
@@ -5509,7 +5509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00082',
-    name: "놀애별",
+    name: "놀애별 어린이공원",
     category: 'park',
     latitude: 37.2956241,
     longitude: 126.8684192,
@@ -5525,7 +5525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00081',
-    name: "각골",
+    name: "각골 어린이공원",
     category: 'park',
     latitude: 37.2955407,
     longitude: 126.8710145,
@@ -5541,7 +5541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00080',
-    name: "패랭이",
+    name: "패랭이 어린이공원",
     category: 'park',
     latitude: 37.2937892,
     longitude: 126.8744468,
@@ -5557,7 +5557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00079',
-    name: "약수",
+    name: "약수 어린이공원",
     category: 'park',
     latitude: 37.2958735,
     longitude: 126.8747429,
@@ -5573,7 +5573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00078',
-    name: "신성",
+    name: "신성 어린이공원",
     category: 'park',
     latitude: 37.287934,
     longitude: 126.8670681,
@@ -5589,7 +5589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00077',
-    name: "신선",
+    name: "신선 어린이공원",
     category: 'park',
     latitude: 37.2894273,
     longitude: 126.8649255,
@@ -5605,7 +5605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00076',
-    name: "산우물",
+    name: "산우물 어린이공원",
     category: 'park',
     latitude: 37.2881751,
     longitude: 126.858392,
@@ -5621,7 +5621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00075',
-    name: "이호",
+    name: "이호 어린이공원",
     category: 'park',
     latitude: 37.2830797,
     longitude: 126.8579389,
@@ -5637,7 +5637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00074',
-    name: "샘골",
+    name: "샘골 어린이공원",
     category: 'park',
     latitude: 37.2864258,
     longitude: 126.8629519,
@@ -5653,7 +5653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00073',
-    name: "백두령",
+    name: "백두령 어린이공원",
     category: 'park',
     latitude: 37.2906819,
     longitude: 126.8708051,
@@ -5669,7 +5669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00072',
-    name: "해란",
+    name: "해란 어린이공원",
     category: 'park',
     latitude: 37.2863479,
     longitude: 126.8651635,
@@ -5685,7 +5685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00071',
-    name: "소반월",
+    name: "소반월 어린이공원",
     category: 'park',
     latitude: 37.2876178,
     longitude: 126.8650993,
@@ -5701,7 +5701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00070',
-    name: "기양죽",
+    name: "기양죽 어린이공원",
     category: 'park',
     latitude: 37.2862205,
     longitude: 126.8678607,
@@ -5717,7 +5717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00069',
-    name: "선암",
+    name: "선암 어린이공원",
     category: 'park',
     latitude: 37.2893597,
     longitude: 126.8625695,
@@ -5733,7 +5733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00068',
-    name: "본오",
+    name: "본오 어린이공원",
     category: 'park',
     latitude: 37.2908974,
     longitude: 126.8641253,
@@ -5749,7 +5749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00067',
-    name: "산정",
+    name: "산정 어린이공원",
     category: 'park',
     latitude: 37.2927952,
     longitude: 126.8609502,
@@ -5765,7 +5765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00066',
-    name: "장곡",
+    name: "장곡 어린이공원",
     category: 'park',
     latitude: 37.2907878,
     longitude: 126.8677359,
@@ -5781,7 +5781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00065',
-    name: "배기",
+    name: "배기 어린이공원",
     category: 'park',
     latitude: 37.2923919,
     longitude: 126.8705879,
@@ -5797,7 +5797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00064',
-    name: "고산",
+    name: "고산 어린이공원",
     category: 'park',
     latitude: 37.2925276,
     longitude: 126.8649918,
@@ -5813,7 +5813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00063',
-    name: "항가울",
+    name: "항가울 어린이공원",
     category: 'park',
     latitude: 37.2867171,
     longitude: 126.8455465,
@@ -5829,7 +5829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00062',
-    name: "장화",
+    name: "장화 어린이공원",
     category: 'park',
     latitude: 37.2833577,
     longitude: 126.8494206,
@@ -5845,7 +5845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00061',
-    name: "항호",
+    name: "항호 어린이공원",
     category: 'park',
     latitude: 37.283783,
     longitude: 126.8468205,
@@ -6293,7 +6293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00100',
-    name: "아람",
+    name: "아람 어린이공원",
     category: 'park',
     latitude: 37.324912,
     longitude: 126.8584126,
@@ -6309,7 +6309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00099',
-    name: "부남",
+    name: "부남 어린이공원",
     category: 'park',
     latitude: 37.3266924,
     longitude: 126.8608342,
@@ -6325,7 +6325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00098',
-    name: "시랑",
+    name: "시랑 어린이공원",
     category: 'park',
     latitude: 37.3323329,
     longitude: 126.8645745,
@@ -6341,7 +6341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00097',
-    name: "태마당",
+    name: "태마당 어린이공원",
     category: 'park',
     latitude: 37.3318397,
     longitude: 126.8619978,
@@ -6357,7 +6357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00096',
-    name: "정재1",
+    name: "정재1 어린이공원",
     category: 'park',
     latitude: 37.3368312,
     longitude: 126.8657143,
@@ -6373,7 +6373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00095',
-    name: "정재2",
+    name: "정재2 어린이공원",
     category: 'park',
     latitude: 37.3346265,
     longitude: 126.8631971,
@@ -6389,7 +6389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00094',
-    name: "점섬",
+    name: "점섬 어린이공원",
     category: 'park',
     latitude: 37.3217805,
     longitude: 126.8588548,
@@ -6405,7 +6405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00093',
-    name: "부곡",
+    name: "부곡 어린이공원",
     category: 'park',
     latitude: 37.3230213,
     longitude: 126.8604495,
@@ -6421,7 +6421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00092',
-    name: "새말",
+    name: "새말 어린이공원",
     category: 'park',
     latitude: 37.3337866,
     longitude: 126.8658278,
@@ -6437,7 +6437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00091',
-    name: "부루지",
+    name: "부루지 어린이공원",
     category: 'park',
     latitude: 37.3303447,
     longitude: 126.8518084,
@@ -6453,7 +6453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00090',
-    name: "한빛",
+    name: "한빛 어린이공원",
     category: 'park',
     latitude: 37.3342945,
     longitude: 126.8465687,
@@ -6469,7 +6469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00089',
-    name: "월성",
+    name: "월성 어린이공원",
     category: 'park',
     latitude: 37.3370296,
     longitude: 126.8526321,
@@ -6485,7 +6485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00088',
-    name: "행운",
+    name: "행운 어린이공원",
     category: 'park',
     latitude: 37.3369209,
     longitude: 126.8544393,
@@ -6501,7 +6501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00087',
-    name: "원앙",
+    name: "원앙 어린이공원",
     category: 'park',
     latitude: 37.3338532,
     longitude: 126.8502994,
@@ -6517,7 +6517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00105',
-    name: "달집",
+    name: "달집 어린이공원",
     category: 'park',
     latitude: 37.3127908,
     longitude: 126.8433659,
@@ -6533,7 +6533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00104',
-    name: "장상",
+    name: "장상 어린이공원",
     category: 'park',
     latitude: 37.3601495,
     longitude: 126.8721934,
@@ -6549,7 +6549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00103',
-    name: "안산큰",
+    name: "안산큰 어린이공원",
     category: 'park',
     latitude: 37.3621615,
     longitude: 126.8772093,
@@ -6565,7 +6565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00102',
-    name: "원당",
+    name: "원당 어린이공원",
     category: 'park',
     latitude: 37.3628134,
     longitude: 126.8813426,
@@ -6581,7 +6581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41271_00101',
-    name: "월피",
+    name: "월피 어린이공원",
     category: 'park',
     latitude: 37.3343993,
     longitude: 126.8583143,
@@ -6597,7 +6597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41273_00001',
-    name: "상동6",
+    name: "상동6 어린이공원",
     category: 'park',
     latitude: 37.2398813,
     longitude: 126.5832126,
@@ -6613,7 +6613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00052',
-    name: "비둘기",
+    name: "비둘기 어린이공원",
     category: 'park',
     latitude: 37.505903,
     longitude: 126.9517486,
@@ -6629,7 +6629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00051',
-    name: "까막골",
+    name: "까막골 소공원",
     category: 'park',
     latitude: 37.5045058,
     longitude: 126.9605347,
@@ -6645,7 +6645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00050',
-    name: "새빛",
+    name: "새빛 소공원",
     category: 'park',
     latitude: 37.4873357,
     longitude: 126.9744112,
@@ -6661,7 +6661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00049',
-    name: "꿈나래",
+    name: "꿈나래 어린이공원",
     category: 'park',
     latitude: 37.5052677,
     longitude: 126.9481801,
@@ -6677,7 +6677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00048',
-    name: "칸나",
+    name: "칸나 소공원",
     category: 'park',
     latitude: 37.4856269,
     longitude: 126.9043083,
@@ -6693,7 +6693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00047',
-    name: "흑석",
+    name: "흑석 소공원",
     category: 'park',
     latitude: 37.509161,
     longitude: 126.957863,
@@ -6709,7 +6709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00046',
-    name: "꽃담길",
+    name: "꽃담길 소공원",
     category: 'park',
     latitude: 37.505644,
     longitude: 126.942102,
@@ -6725,7 +6725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00045',
-    name: "나비",
+    name: "나비 소공원",
     category: 'park',
     latitude: 37.5033464,
     longitude: 126.943593,
@@ -6741,7 +6741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00044',
-    name: "영도",
+    name: "영도 소공원",
     category: 'park',
     latitude: 37.5033858,
     longitude: 126.9411913,
@@ -6757,7 +6757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00043',
-    name: "해밀",
+    name: "해밀 어린이공원",
     category: 'park',
     latitude: 37.4885268,
     longitude: 126.9744312,
@@ -6773,7 +6773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00042',
-    name: "까망돌",
+    name: "까망돌 어린이공원",
     category: 'park',
     latitude: 37.506578,
     longitude: 126.964102,
@@ -6789,7 +6789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00041',
-    name: "흐리목",
+    name: "흐리목 소공원",
     category: 'park',
     latitude: 37.494486,
     longitude: 126.9530398,
@@ -6805,7 +6805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00040',
-    name: "국화원",
+    name: "국화원 소공원",
     category: 'park',
     latitude: 37.5047962,
     longitude: 126.942298,
@@ -6821,7 +6821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00039',
-    name: "빙수골",
+    name: "빙수골 소공원",
     category: 'park',
     latitude: 37.4966829,
     longitude: 126.932279,
@@ -6837,7 +6837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00038',
-    name: "꿈나무",
+    name: "꿈나무 어린이공원",
     category: 'park',
     latitude: 37.5032904,
     longitude: 126.9427329,
@@ -6853,7 +6853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00037',
-    name: "충효",
+    name: "충효 소공원",
     category: 'park',
     latitude: 37.5140153,
     longitude: 126.950109,
@@ -6869,7 +6869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00036',
-    name: "남성",
+    name: "남성 소공원",
     category: 'park',
     latitude: 37.4849921,
     longitude: 126.9721592,
@@ -6885,7 +6885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00035',
-    name: "희망",
+    name: "희망 어린이공원",
     category: 'park',
     latitude: 37.4938888,
     longitude: 126.9801298,
@@ -6901,7 +6901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00034',
-    name: "서달",
+    name: "서달 소공원",
     category: 'park',
     latitude: 37.5011592,
     longitude: 126.9599134,
@@ -6917,7 +6917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00033',
-    name: "태양",
+    name: "태양 어린이공원",
     category: 'park',
     latitude: 37.506795,
     longitude: 126.944663,
@@ -6933,7 +6933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00032',
-    name: "비계",
+    name: "비계 소공원",
     category: 'park',
     latitude: 37.505468,
     longitude: 126.966378,
@@ -6949,7 +6949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00031',
-    name: "해당화",
+    name: "해당화 어린이공원",
     category: 'park',
     latitude: 37.4868746,
     longitude: 126.905905,
@@ -6965,7 +6965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00030',
-    name: "청명",
+    name: "청명 어린이공원",
     category: 'park',
     latitude: 37.487572,
     longitude: 126.9080022,
@@ -6981,7 +6981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00029',
-    name: "개나리",
+    name: "개나리 어린이공원",
     category: 'park',
     latitude: 37.4862236,
     longitude: 126.965684,
@@ -6997,7 +6997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00028',
-    name: "본동",
+    name: "본동 어린이공원",
     category: 'park',
     latitude: 37.5106286,
     longitude: 126.9544535,
@@ -7013,7 +7013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00027',
-    name: "늘푸른",
+    name: "늘푸른 어린이공원",
     category: 'park',
     latitude: 37.4824486,
     longitude: 126.9690493,
@@ -7029,7 +7029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00026',
-    name: "반달",
+    name: "반달 어린이공원",
     category: 'park',
     latitude: 37.4835501,
     longitude: 126.967932,
@@ -7045,7 +7045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00025',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.4874019,
     longitude: 126.965401,
@@ -7061,7 +7061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00024',
-    name: "동작주차",
+    name: "동작주차 근린공원",
     category: 'park',
     latitude: 37.503828,
     longitude: 126.977294,
@@ -7077,7 +7077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00023',
-    name: "옹달샘",
+    name: "옹달샘 어린이공원",
     category: 'park',
     latitude: 37.4951828,
     longitude: 126.929617,
@@ -7093,7 +7093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00022',
-    name: "새벽",
+    name: "새벽 어린이공원",
     category: 'park',
     latitude: 37.5009225,
     longitude: 126.930155,
@@ -7109,7 +7109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00021',
-    name: "양지",
+    name: "양지 어린이공원",
     category: 'park',
     latitude: 37.4798868,
     longitude: 126.974021,
@@ -7125,7 +7125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00020',
-    name: "참새",
+    name: "참새 어린이공원",
     category: 'park',
     latitude: 37.498336,
     longitude: 126.921885,
@@ -7141,7 +7141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00019',
-    name: "토끼",
+    name: "토끼 어린이공원",
     category: 'park',
     latitude: 37.4781774,
     longitude: 126.970241,
@@ -7173,7 +7173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00017',
-    name: "꿈돌이",
+    name: "꿈돌이 어린이공원",
     category: 'park',
     latitude: 37.4803351,
     longitude: 126.9699916,
@@ -7189,7 +7189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00016',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.479905,
     longitude: 126.973124,
@@ -7205,7 +7205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00015',
-    name: "노루",
+    name: "노루 어린이공원",
     category: 'park',
     latitude: 37.4818256,
     longitude: 126.974225,
@@ -7221,7 +7221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00014',
-    name: "장미",
+    name: "장미 어린이공원",
     category: 'park',
     latitude: 37.4936682,
     longitude: 126.936031,
@@ -7237,7 +7237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00013',
-    name: "은하수",
+    name: "은하수 어린이공원",
     category: 'park',
     latitude: 37.494528,
     longitude: 126.912513,
@@ -7253,7 +7253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00012',
-    name: "까치산",
+    name: "까치산 근린공원",
     category: 'park',
     latitude: 37.5106681,
     longitude: 126.9627656,
@@ -7269,7 +7269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00011',
-    name: "까치",
+    name: "까치 어린이공원",
     category: 'park',
     latitude: 37.480539,
     longitude: 126.979537,
@@ -7285,7 +7285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00010',
-    name: "삼일",
+    name: "삼일 근린공원",
     category: 'park',
     latitude: 37.483419,
     longitude: 126.966736,
@@ -7301,7 +7301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00009',
-    name: "별님",
+    name: "별님 어린이공원",
     category: 'park',
     latitude: 37.498885,
     longitude: 126.944953,
@@ -7317,7 +7317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00008',
-    name: "해님",
+    name: "해님 어린이공원",
     category: 'park',
     latitude: 37.5015852,
     longitude: 126.951273,
@@ -7349,7 +7349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00006',
-    name: "사육신",
+    name: "사육신 역사공원",
     category: 'park',
     latitude: 37.5134563,
     longitude: 126.9494127,
@@ -7365,7 +7365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00005',
-    name: "현충",
+    name: "현충 근린공원",
     category: 'park',
     latitude: 37.4853857,
     longitude: 126.9757312,
@@ -7381,7 +7381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00004',
-    name: "용봉정",
+    name: "용봉정 근린공원",
     category: 'park',
     latitude: 37.511663,
     longitude: 126.958792,
@@ -7397,7 +7397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00003',
-    name: "노량진",
+    name: "노량진 근린공원",
     category: 'park',
     latitude: 37.509371,
     longitude: 126.943688,
@@ -7413,7 +7413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00002',
-    name: "상도",
+    name: "상도 근린공원",
     category: 'park',
     latitude: 37.4932181,
     longitude: 126.9384079,
@@ -7429,7 +7429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11590_00001',
-    name: "제비",
+    name: "제비 어린이공원",
     category: 'park',
     latitude: 37.506438,
     longitude: 126.925844,
@@ -7445,7 +7445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00020',
-    name: "신  현",
+    name: "신  현 어린이공원",
     category: 'park',
     latitude: 37.6034717,
     longitude: 127.0897486,
@@ -7461,7 +7461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00019',
-    name: "꽃피울",
+    name: "꽃피울 어린이공원",
     category: 'park',
     latitude: 37.6084271,
     longitude: 127.0940364,
@@ -7477,7 +7477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00018',
-    name: "한아름",
+    name: "한아름 어린이공원",
     category: 'park',
     latitude: 37.6132819,
     longitude: 127.0941169,
@@ -7493,7 +7493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00017',
-    name: "안  골",
+    name: "안  골 어린이공원",
     category: 'park',
     latitude: 37.6045318,
     longitude: 127.0978631,
@@ -7509,7 +7509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00048',
-    name: "먹  골",
+    name: "먹  골 어린이공원",
     category: 'park',
     latitude: 37.6115371,
     longitude: 127.0790717,
@@ -7525,7 +7525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00047',
-    name: "소  망",
+    name: "소  망 어린이공원",
     category: 'park',
     latitude: 37.6111429,
     longitude: 127.0748852,
@@ -7541,7 +7541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00046',
-    name: "본  동",
+    name: "본  동 어린이공원",
     category: 'park',
     latitude: 37.6011364,
     longitude: 127.0857752,
@@ -7557,7 +7557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00045',
-    name: "세  화",
+    name: "세  화 어린이공원",
     category: 'park',
     latitude: 37.5992089,
     longitude: 127.0738061,
@@ -7573,7 +7573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00044',
-    name: "배  꽃",
+    name: "배  꽃 어린이공원",
     category: 'park',
     latitude: 37.6041874,
     longitude: 127.0749772,
@@ -7589,7 +7589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00043',
-    name: "초  롱",
+    name: "초  롱 어린이공원",
     category: 'park',
     latitude: 37.5957492,
     longitude: 127.0727829,
@@ -7605,7 +7605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00037',
-    name: "꿈마루",
+    name: "꿈마루 어린이공원",
     category: 'park',
     latitude: 37.5803162,
     longitude: 127.093536,
@@ -7621,7 +7621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00036',
-    name: "이  화",
+    name: "이  화 어린이공원",
     category: 'park',
     latitude: 37.5870183,
     longitude: 127.1003895,
@@ -7637,7 +7637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00035',
-    name: "한  신",
+    name: "한  신 어린이공원",
     category: 'park',
     latitude: 37.5881688,
     longitude: 127.0769075,
@@ -7653,7 +7653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00034',
-    name: "섬  들",
+    name: "섬  들 어린이공원",
     category: 'park',
     latitude: 37.5914819,
     longitude: 127.0925459,
@@ -7669,7 +7669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00033',
-    name: "소  파",
+    name: "소  파 어린이공원",
     category: 'park',
     latitude: 37.5892198,
     longitude: 127.0956963,
@@ -7781,7 +7781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00053',
-    name: "묵  동",
+    name: "묵  동 어린이공원",
     category: 'park',
     latitude: 37.6171215,
     longitude: 127.0813554,
@@ -7797,7 +7797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00052',
-    name: "새  싹",
+    name: "새  싹 어린이공원",
     category: 'park',
     latitude: 37.5822887,
     longitude: 127.083337,
@@ -7813,7 +7813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00051',
-    name: "방  죽",
+    name: "방  죽 어린이공원",
     category: 'park',
     latitude: 37.6024039,
     longitude: 127.1026933,
@@ -7829,7 +7829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00050',
-    name: "갓바위",
+    name: "갓바위 어린이공원",
     category: 'park',
     latitude: 37.5991494,
     longitude: 127.1035307,
@@ -7845,7 +7845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00049',
-    name: "등나무",
+    name: "등나무 어린이공원",
     category: 'park',
     latitude: 37.5977392,
     longitude: 127.0966044,
@@ -7861,7 +7861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00021',
-    name: "망우동",
+    name: "망우동 어린이공원",
     category: 'park',
     latitude: 37.6021554,
     longitude: 127.1038444,
@@ -7877,7 +7877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00042',
-    name: "중화리",
+    name: "중화리 어린이공원",
     category: 'park',
     latitude: 37.6040362,
     longitude: 127.0805855,
@@ -7893,7 +7893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00041',
-    name: "봉  화",
+    name: "봉  화 어린이공원",
     category: 'park',
     latitude: 37.5982736,
     longitude: 127.0773921,
@@ -7909,7 +7909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00040',
-    name: "상  리",
+    name: "상  리 어린이공원",
     category: 'park',
     latitude: 37.5919367,
     longitude: 127.0739354,
@@ -7925,7 +7925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00039',
-    name: "상  봉",
+    name: "상  봉 어린이공원",
     category: 'park',
     latitude: 37.5931312,
     longitude: 127.0824887,
@@ -7941,7 +7941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00038',
-    name: "봉  황",
+    name: "봉  황 어린이공원",
     category: 'park',
     latitude: 37.5950538,
     longitude: 127.0844896,
@@ -8037,7 +8037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00032',
-    name: "송  계",
+    name: "송  계 어린이공원",
     category: 'park',
     latitude: 37.5845356,
     longitude: 127.0779651,
@@ -8053,7 +8053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00031',
-    name: "샘  터",
+    name: "샘  터 어린이공원",
     category: 'park',
     latitude: 37.5730375,
     longitude: 127.0834002,
@@ -8069,7 +8069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00030',
-    name: "까  치",
+    name: "까  치 어린이공원",
     category: 'park',
     latitude: 37.5835083,
     longitude: 127.086969,
@@ -8085,7 +8085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00029',
-    name: "햇  살",
+    name: "햇  살 어린이공원",
     category: 'park',
     latitude: 37.5899334,
     longitude: 127.0832088,
@@ -8101,7 +8101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00028',
-    name: "남  촌",
+    name: "남  촌 어린이공원",
     category: 'park',
     latitude: 37.5854895,
     longitude: 127.0912564,
@@ -8117,7 +8117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00027',
-    name: "사  랑",
+    name: "사  랑 어린이공원",
     category: 'park',
     latitude: 37.5856476,
     longitude: 127.0818678,
@@ -8133,7 +8133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00026',
-    name: "열  매",
+    name: "열  매 어린이공원",
     category: 'park',
     latitude: 37.5885713,
     longitude: 127.0809543,
@@ -8149,7 +8149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00025',
-    name: "오거리",
+    name: "오거리 어린이공원",
     category: 'park',
     latitude: 37.5771083,
     longitude: 127.0844469,
@@ -8165,7 +8165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00024',
-    name: "겸  재",
+    name: "겸  재 어린이공원",
     category: 'park',
     latitude: 37.5879761,
     longitude: 127.093223,
@@ -8181,7 +8181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00023',
-    name: "양  지",
+    name: "양  지 어린이공원",
     category: 'park',
     latitude: 37.5902049,
     longitude: 127.088887,
@@ -8197,7 +8197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00022',
-    name: "면  목",
+    name: "면  목 어린이공원",
     category: 'park',
     latitude: 37.5895639,
     longitude: 127.0859226,
@@ -8213,7 +8213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00016',
-    name: "햇  님",
+    name: "햇  님 어린이공원",
     category: 'park',
     latitude: 37.5936072,
     longitude: 127.0952679,
@@ -8229,7 +8229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00015',
-    name: "샛  별",
+    name: "샛  별 어린이공원",
     category: 'park',
     latitude: 37.5933946,
     longitude: 127.1008446,
@@ -8277,7 +8277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00012',
-    name: "은하수",
+    name: "은하수 어린이공원",
     category: 'park',
     latitude: 37.6156627,
     longitude: 127.0912651,
@@ -8293,7 +8293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00011',
-    name: "서  당",
+    name: "서  당 어린이공원",
     category: 'park',
     latitude: 37.6170641,
     longitude: 127.0881222,
@@ -8309,7 +8309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11260_00010',
-    name: "원  묵",
+    name: "원  묵 어린이공원",
     category: 'park',
     latitude: 37.616747,
     longitude: 127.084772,
@@ -8373,7 +8373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00428',
-    name: "9호",
+    name: "9호공원",
     category: 'park',
     latitude: 37.2077094,
     longitude: 127.1090049,
@@ -8389,7 +8389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00427',
-    name: "48호",
+    name: "48호공원",
     category: 'park',
     latitude: 37.1956464,
     longitude: 127.1018446,
@@ -8405,7 +8405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00426',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.1956464,
     longitude: 127.1018446,
@@ -8421,7 +8421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00425',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.2006656,
     longitude: 127.0998117,
@@ -8437,7 +8437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00424',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.2030563,
     longitude: 127.0992003,
@@ -8453,7 +8453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00423',
-    name: "46호",
+    name: "46호공원",
     category: 'park',
     latitude: 37.2015646,
     longitude: 127.1152247,
@@ -8469,7 +8469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00422',
-    name: "46호",
+    name: "46호공원",
     category: 'park',
     latitude: 37.1972288,
     longitude: 127.1079552,
@@ -8485,7 +8485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00421',
-    name: "46호",
+    name: "46호공원",
     category: 'park',
     latitude: 37.1956464,
     longitude: 127.1018446,
@@ -8501,7 +8501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00429',
-    name: "10호",
+    name: "10호공원",
     category: 'park',
     latitude: 37.2092887,
     longitude: 127.1140167,
@@ -8517,7 +8517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00438',
-    name: "13호(K)",
+    name: "13호(K)공원",
     category: 'park',
     latitude: 37.1969467,
     longitude: 127.1175939,
@@ -8533,7 +8533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00437',
-    name: "13호(J)",
+    name: "13호(J)공원",
     category: 'park',
     latitude: 37.1969467,
     longitude: 127.1175939,
@@ -8549,7 +8549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00436',
-    name: "13호(I)",
+    name: "13호(I)공원",
     category: 'park',
     latitude: 37.1979918,
     longitude: 127.1175534,
@@ -8565,7 +8565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00435',
-    name: "13호(H)",
+    name: "13호(H)공원",
     category: 'park',
     latitude: 37.1979918,
     longitude: 127.1175534,
@@ -8581,7 +8581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00434',
-    name: "13호(D)",
+    name: "13호(D)공원",
     category: 'park',
     latitude: 37.2050871,
     longitude: 127.1117252,
@@ -8597,7 +8597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00433',
-    name: "13호(C)",
+    name: "13호(C)공원",
     category: 'park',
     latitude: 37.2053435,
     longitude: 127.1122755,
@@ -8613,7 +8613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00432',
-    name: "13호(B)",
+    name: "13호(B)공원",
     category: 'park',
     latitude: 37.2087977,
     longitude: 127.1091357,
@@ -8629,7 +8629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00431',
-    name: "13호(A)",
+    name: "13호(A)공원",
     category: 'park',
     latitude: 37.2082045,
     longitude: 127.0992058,
@@ -8645,7 +8645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00430',
-    name: "11호",
+    name: "11호공원",
     category: 'park',
     latitude: 37.2092887,
     longitude: 127.1140167,
@@ -8853,7 +8853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00534',
-    name: "98호",
+    name: "98호공원",
     category: 'park',
     latitude: 37.1735184,
     longitude: 127.0955758,
@@ -8869,7 +8869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00533',
-    name: "97호",
+    name: "97호공원",
     category: 'park',
     latitude: 37.1927189,
     longitude: 127.0878588,
@@ -8885,7 +8885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00532',
-    name: "95호",
+    name: "95호공원",
     category: 'park',
     latitude: 37.1594951,
     longitude: 127.1197712,
@@ -8901,7 +8901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00531',
-    name: "94호",
+    name: "94호공원",
     category: 'park',
     latitude: 37.156169,
     longitude: 127.1089291,
@@ -8917,7 +8917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00530',
-    name: "93호",
+    name: "93호공원",
     category: 'park',
     latitude: 37.1616815,
     longitude: 127.111088,
@@ -8933,7 +8933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00529',
-    name: "92호",
+    name: "92호공원",
     category: 'park',
     latitude: 37.1553206,
     longitude: 127.1133319,
@@ -8949,7 +8949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00528',
-    name: "91호",
+    name: "91호공원",
     category: 'park',
     latitude: 37.1559481,
     longitude: 127.1137909,
@@ -8965,7 +8965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00527',
-    name: "90호",
+    name: "90호공원",
     category: 'park',
     latitude: 37.1568094,
     longitude: 127.1077129,
@@ -8981,7 +8981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00526',
-    name: "88호",
+    name: "88호공원",
     category: 'park',
     latitude: 37.1696258,
     longitude: 127.095264,
@@ -8997,7 +8997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00525',
-    name: "87호",
+    name: "87호공원",
     category: 'park',
     latitude: 37.1696258,
     longitude: 127.095264,
@@ -9013,7 +9013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00524',
-    name: "85호",
+    name: "85호공원",
     category: 'park',
     latitude: 37.1696245,
     longitude: 127.0952107,
@@ -9029,7 +9029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00523',
-    name: "84호",
+    name: "84호공원",
     category: 'park',
     latitude: 37.164648,
     longitude: 127.098537,
@@ -9045,7 +9045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00522',
-    name: "81호",
+    name: "81호공원",
     category: 'park',
     latitude: 37.1723482,
     longitude: 127.1169231,
@@ -9061,7 +9061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00521',
-    name: "81호",
+    name: "81호공원",
     category: 'park',
     latitude: 37.1727189,
     longitude: 127.1015652,
@@ -9493,7 +9493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00592',
-    name: "공공공지 26호",
+    name: "공공공지 26호공원",
     category: 'park',
     latitude: 37.1856076,
     longitude: 127.083033,
@@ -9525,7 +9525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00592',
-    name: "공공공지 23호",
+    name: "공공공지 23호공원",
     category: 'park',
     latitude: 37.1946649,
     longitude: 127.0820122,
@@ -9541,7 +9541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00592',
-    name: "공공공지 22호",
+    name: "공공공지 22호공원",
     category: 'park',
     latitude: 37.1951899,
     longitude: 127.0823213,
@@ -9573,7 +9573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00591',
-    name: "병점역 공공공지",
+    name: "병점역 공공공지공원",
     category: 'park',
     latitude: 37.2072734,
     longitude: 127.0348581,
@@ -9589,7 +9589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00590',
-    name: "공공공지2호",
+    name: "공공공지2호공원",
     category: 'park',
     latitude: 37.2289819,
     longitude: 127.0680177,
@@ -9605,7 +9605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00589',
-    name: "병점2지구 3호공공공지",
+    name: "병점2지구 3호공공공지공원",
     category: 'park',
     latitude: 37.2009909,
     longitude: 127.0402872,
@@ -9621,7 +9621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00588',
-    name: "병점2지구 2호공공공지",
+    name: "병점2지구 2호공공공지공원",
     category: 'park',
     latitude: 37.2009549,
     longitude: 127.0416482,
@@ -9637,7 +9637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00587',
-    name: "진안 공공공지",
+    name: "진안 공공공지공원",
     category: 'park',
     latitude: 37.2178985,
     longitude: 127.0314016,
@@ -9653,7 +9653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00586',
-    name: "병점지구 1호 유수지",
+    name: "병점지구 1호 유수지공원",
     category: 'park',
     latitude: 37.2013337,
     longitude: 127.0290817,
@@ -9893,7 +9893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00592',
-    name: "병점지구 1호 공공공지",
+    name: "병점지구 1호 공공공지공원",
     category: 'park',
     latitude: 37.2056295,
     longitude: 127.027982,
@@ -9909,7 +9909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00448',
-    name: "24호",
+    name: "24호공원",
     category: 'park',
     latitude: 37.1896589,
     longitude: 127.1235865,
@@ -9925,7 +9925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00447',
-    name: "23호",
+    name: "23호공원",
     category: 'park',
     latitude: 37.1979918,
     longitude: 127.1175534,
@@ -9941,7 +9941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00446',
-    name: "22호",
+    name: "22호공원",
     category: 'park',
     latitude: 37.1969467,
     longitude: 127.1175939,
@@ -9957,7 +9957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00445',
-    name: "18호",
+    name: "18호공원",
     category: 'park',
     latitude: 37.2057487,
     longitude: 127.1128389,
@@ -9973,7 +9973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00444',
-    name: "17호",
+    name: "17호공원",
     category: 'park',
     latitude: 37.2053435,
     longitude: 127.1122755,
@@ -9989,7 +9989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00443',
-    name: "16호",
+    name: "16호공원",
     category: 'park',
     latitude: 37.2061949,
     longitude: 127.1117917,
@@ -10005,7 +10005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00442',
-    name: "15호",
+    name: "15호공원",
     category: 'park',
     latitude: 37.2082045,
     longitude: 127.0992058,
@@ -10021,7 +10021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00441',
-    name: "13호",
+    name: "13호공원",
     category: 'park',
     latitude: 37.1915129,
     longitude: 127.1220502,
@@ -10037,7 +10037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00440',
-    name: "13호(M)",
+    name: "13호(M)공원",
     category: 'park',
     latitude: 37.1940788,
     longitude: 127.1157854,
@@ -10053,7 +10053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00439',
-    name: "13호(L)",
+    name: "13호(L)공원",
     category: 'park',
     latitude: 37.1982176,
     longitude: 127.1218742,
@@ -10069,7 +10069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00468',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.1607496,
     longitude: 127.1053319,
@@ -10085,7 +10085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00467',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.1770596,
     longitude: 127.1052196,
@@ -10101,7 +10101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00466',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.1853092,
     longitude: 127.1013907,
@@ -10117,7 +10117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00465',
-    name: "47호(E)",
+    name: "47호(E)공원",
     category: 'park',
     latitude: 37.2082045,
     longitude: 127.0992058,
@@ -10133,7 +10133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00464',
-    name: "47호(A)",
+    name: "47호(A)공원",
     category: 'park',
     latitude: 37.1931569,
     longitude: 127.0991393,
@@ -10149,7 +10149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00463',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.2083982,
     longitude: 127.0984508,
@@ -10165,7 +10165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00462',
-    name: "46호(C)",
+    name: "46호(C)공원",
     category: 'park',
     latitude: 37.1982177,
     longitude: 127.121784,
@@ -10181,7 +10181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00461',
-    name: "46호(B)",
+    name: "46호(B)공원",
     category: 'park',
     latitude: 37.1979918,
     longitude: 127.1175534,
@@ -10197,7 +10197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00460',
-    name: "46호(A)",
+    name: "46호(A)공원",
     category: 'park',
     latitude: 37.1969467,
     longitude: 127.1175939,
@@ -10213,7 +10213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00459',
-    name: "45호",
+    name: "45호공원",
     category: 'park',
     latitude: 37.2028889,
     longitude: 127.127352,
@@ -10229,7 +10229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00458',
-    name: "44호",
+    name: "44호공원",
     category: 'park',
     latitude: 37.2031162,
     longitude: 127.1249357,
@@ -10245,7 +10245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00457',
-    name: "43호",
+    name: "43호공원",
     category: 'park',
     latitude: 37.2038001,
     longitude: 127.1247511,
@@ -10261,7 +10261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00456',
-    name: "42호",
+    name: "42호공원",
     category: 'park',
     latitude: 37.2040559,
     longitude: 127.1244734,
@@ -10277,7 +10277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00455',
-    name: "41호",
+    name: "41호공원",
     category: 'park',
     latitude: 37.2032911,
     longitude: 127.1218133,
@@ -10293,7 +10293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00454',
-    name: "40호",
+    name: "40호공원",
     category: 'park',
     latitude: 37.2030113,
     longitude: 127.1217467,
@@ -10309,7 +10309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00453',
-    name: "35호(B)",
+    name: "35호(B)공원",
     category: 'park',
     latitude: 37.2026636,
     longitude: 127.1233783,
@@ -10325,7 +10325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00452',
-    name: "35호(A)",
+    name: "35호(A)공원",
     category: 'park',
     latitude: 37.2021513,
     longitude: 127.1281814,
@@ -10341,7 +10341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00451',
-    name: "27호",
+    name: "27호공원",
     category: 'park',
     latitude: 37.1719312,
     longitude: 127.1186683,
@@ -10357,7 +10357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00450',
-    name: "26호",
+    name: "26호공원",
     category: 'park',
     latitude: 37.1737524,
     longitude: 127.1194383,
@@ -10373,7 +10373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00449',
-    name: "25호",
+    name: "25호공원",
     category: 'park',
     latitude: 37.1745148,
     longitude: 127.119814,
@@ -10389,7 +10389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00495',
-    name: "51호",
+    name: "51호공원",
     category: 'park',
     latitude: 37.1756705,
     longitude: 127.1060936,
@@ -10405,7 +10405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00494',
-    name: "50호",
+    name: "50호공원",
     category: 'park',
     latitude: 37.1754203,
     longitude: 127.1052622,
@@ -10421,7 +10421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00493',
-    name: "49호",
+    name: "49호공원",
     category: 'park',
     latitude: 37.1857664,
     longitude: 127.1013448,
@@ -10437,7 +10437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00492',
-    name: "47호",
+    name: "47호공원",
     category: 'park',
     latitude: 37.164486,
     longitude: 127.095449,
@@ -10453,7 +10453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00491',
-    name: "3호",
+    name: "3호공원",
     category: 'park',
     latitude: 37.164486,
     longitude: 127.0954293,
@@ -10469,7 +10469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00490',
-    name: "3호",
+    name: "3호공원",
     category: 'park',
     latitude: 37.1690117,
     longitude: 127.0954513,
@@ -10485,7 +10485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00489',
-    name: "36호",
+    name: "36호공원",
     category: 'park',
     latitude: 37.2041211,
     longitude: 127.0897568,
@@ -10501,7 +10501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00488',
-    name: "35호",
+    name: "35호공원",
     category: 'park',
     latitude: 37.2044445,
     longitude: 127.0910639,
@@ -10517,7 +10517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00487',
-    name: "34호",
+    name: "34호공원",
     category: 'park',
     latitude: 37.1542028,
     longitude: 127.1015853,
@@ -10533,7 +10533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00486',
-    name: "33호",
+    name: "33호공원",
     category: 'park',
     latitude: 37.1945552,
     longitude: 127.0923758,
@@ -10549,7 +10549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00485',
-    name: "32호",
+    name: "32호공원",
     category: 'park',
     latitude: 37.2045517,
     longitude: 127.0923931,
@@ -10565,7 +10565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00484',
-    name: "31호",
+    name: "31호공원",
     category: 'park',
     latitude: 37.1889848,
     longitude: 127.0878919,
@@ -10581,7 +10581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00483',
-    name: "31호",
+    name: "31호공원",
     category: 'park',
     latitude: 37.2082639,
     longitude: 127.0924449,
@@ -10597,7 +10597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00482',
-    name: "30호",
+    name: "30호공원",
     category: 'park',
     latitude: 37.1653254,
     longitude: 127.1071141,
@@ -10613,7 +10613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00481',
-    name: "29호",
+    name: "29호공원",
     category: 'park',
     latitude: 37.1654704,
     longitude: 127.1062695,
@@ -10629,7 +10629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00480',
-    name: "28호",
+    name: "28호공원",
     category: 'park',
     latitude: 37.1659028,
     longitude: 127.1062849,
@@ -10645,7 +10645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00479',
-    name: "14호",
+    name: "14호공원",
     category: 'park',
     latitude: 37.2082246,
     longitude: 127.0924449,
@@ -10661,7 +10661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00478',
-    name: "13호",
+    name: "13호공원",
     category: 'park',
     latitude: 37.165968,
     longitude: 127.1089884,
@@ -10677,7 +10677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00477',
-    name: "13호",
+    name: "13호공원",
     category: 'park',
     latitude: 37.165968,
     longitude: 127.1089421,
@@ -10693,7 +10693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00476',
-    name: "13호",
+    name: "13호공원",
     category: 'park',
     latitude: 37.2090994,
     longitude: 127.0871042,
@@ -10709,7 +10709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00475',
-    name: "46호",
+    name: "46호공원",
     category: 'park',
     latitude: 37.1945329,
     longitude: 127.091052,
@@ -10725,7 +10725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00474',
-    name: "36호",
+    name: "36호공원",
     category: 'park',
     latitude: 37.2041209,
     longitude: 127.0897265,
@@ -10741,7 +10741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00473',
-    name: "35호",
+    name: "35호공원",
     category: 'park',
     latitude: 37.2044888,
     longitude: 127.0910632,
@@ -10757,7 +10757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00472',
-    name: "33호",
+    name: "33호공원",
     category: 'park',
     latitude: 37.194532,
     longitude: 127.0923135,
@@ -10773,7 +10773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00471',
-    name: "32호",
+    name: "32호공원",
     category: 'park',
     latitude: 37.2045157,
     longitude: 127.0923931,
@@ -10789,7 +10789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00470',
-    name: "31호",
+    name: "31호공원",
     category: 'park',
     latitude: 37.1889685,
     longitude: 127.0878019,
@@ -10805,7 +10805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00469',
-    name: "58호",
+    name: "58호공원",
     category: 'park',
     latitude: 37.1940789,
     longitude: 127.1156953,
@@ -10821,7 +10821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00501',
-    name: "57호",
+    name: "57호공원",
     category: 'park',
     latitude: 37.1625652,
     longitude: 127.1065054,
@@ -10837,7 +10837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00500',
-    name: "56호",
+    name: "56호공원",
     category: 'park',
     latitude: 37.1629352,
     longitude: 127.106731,
@@ -10853,7 +10853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00499',
-    name: "55호",
+    name: "55호공원",
     category: 'park',
     latitude: 37.1727862,
     longitude: 127.1071317,
@@ -10869,7 +10869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00498',
-    name: "54호",
+    name: "54호공원",
     category: 'park',
     latitude: 37.1727855,
     longitude: 127.1062045,
@@ -10885,7 +10885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00497',
-    name: "53호",
+    name: "53호공원",
     category: 'park',
     latitude: 37.1751989,
     longitude: 127.1062076,
@@ -10901,7 +10901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00496',
-    name: "52호",
+    name: "52호공원",
     category: 'park',
     latitude: 37.1750943,
     longitude: 127.1054358,
@@ -10917,7 +10917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00512',
-    name: "72호",
+    name: "72호공원",
     category: 'park',
     latitude: 37.1855497,
     longitude: 127.1017626,
@@ -10933,7 +10933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00511',
-    name: "71호",
+    name: "71호공원",
     category: 'park',
     latitude: 37.183393,
     longitude: 127.1197405,
@@ -10949,7 +10949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00510',
-    name: "71호",
+    name: "71호공원",
     category: 'park',
     latitude: 37.1856524,
     longitude: 127.1026187,
@@ -10965,7 +10965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00509',
-    name: "71호",
+    name: "71호공원",
     category: 'park',
     latitude: 37.1871456,
     longitude: 127.0892894,
@@ -10981,7 +10981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00508',
-    name: "70호",
+    name: "70호공원",
     category: 'park',
     latitude: 37.1882941,
     longitude: 127.0909531,
@@ -10997,7 +10997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00507',
-    name: "67호",
+    name: "67호공원",
     category: 'park',
     latitude: 37.1741673,
     longitude: 127.0956889,
@@ -11013,7 +11013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00506',
-    name: "65호",
+    name: "65호공원",
     category: 'park',
     latitude: 37.1904536,
     longitude: 127.0870376,
@@ -11029,7 +11029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00505',
-    name: "64호",
+    name: "64호공원",
     category: 'park',
     latitude: 37.1896877,
     longitude: 127.085415,
@@ -11045,7 +11045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00504',
-    name: "61호",
+    name: "61호공원",
     category: 'park',
     latitude: 37.1934659,
     longitude: 127.0910758,
@@ -11061,7 +11061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00503',
-    name: "60호",
+    name: "60호공원",
     category: 'park',
     latitude: 37.1927684,
     longitude: 127.0890226,
@@ -11077,7 +11077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00502',
-    name: "59호",
+    name: "59호공원",
     category: 'park',
     latitude: 37.1940194,
     longitude: 127.092314,
@@ -11093,7 +11093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00513',
-    name: "73호",
+    name: "73호공원",
     category: 'park',
     latitude: 37.1850241,
     longitude: 127.1015816,
@@ -11109,7 +11109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00520',
-    name: "80호",
+    name: "80호공원",
     category: 'park',
     latitude: 37.1774288,
     longitude: 127.1142736,
@@ -11125,7 +11125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00519',
-    name: "79호",
+    name: "79호공원",
     category: 'park',
     latitude: 37.1783309,
     longitude: 127.1132457,
@@ -11141,7 +11141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00518',
-    name: "77호",
+    name: "77호공원",
     category: 'park',
     latitude: 37.1799775,
     longitude: 127.1245475,
@@ -11157,7 +11157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00517',
-    name: "76호",
+    name: "76호공원",
     category: 'park',
     latitude: 37.1822193,
     longitude: 127.125193,
@@ -11173,7 +11173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00516',
-    name: "75호",
+    name: "75호공원",
     category: 'park',
     latitude: 37.1843234,
     longitude: 127.102848,
@@ -11189,7 +11189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00515',
-    name: "74호",
+    name: "74호공원",
     category: 'park',
     latitude: 37.184683,
     longitude: 127.1036984,
@@ -11205,7 +11205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00514',
-    name: "74호",
+    name: "74호공원",
     category: 'park',
     latitude: 37.1842021,
     longitude: 127.1048774,
@@ -11221,7 +11221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00420',
-    name: "39호",
+    name: "39호공원",
     category: 'park',
     latitude: 37.2024353,
     longitude: 127.106477,
@@ -11237,7 +11237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00419',
-    name: "38호",
+    name: "38호공원",
     category: 'park',
     latitude: 37.2030563,
     longitude: 127.0992003,
@@ -11253,7 +11253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00418',
-    name: "37호",
+    name: "37호공원",
     category: 'park',
     latitude: 37.2030563,
     longitude: 127.0992003,
@@ -11269,7 +11269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00417',
-    name: "35호",
+    name: "35호공원",
     category: 'park',
     latitude: 37.2024353,
     longitude: 127.106477,
@@ -11285,7 +11285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00416',
-    name: "35호",
+    name: "35호공원",
     category: 'park',
     latitude: 37.2019674,
     longitude: 127.1139456,
@@ -11301,7 +11301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00415',
-    name: "35호",
+    name: "35호공원",
     category: 'park',
     latitude: 37.2018348,
     longitude: 127.1195156,
@@ -11317,7 +11317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00414',
-    name: "35호",
+    name: "35호공원",
     category: 'park',
     latitude: 37.2018348,
     longitude: 127.1195156,
@@ -11365,7 +11365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00335',
-    name: "동탄7호 공공공지",
+    name: "동탄7호 공공공지공원",
     category: 'park',
     latitude: 37.2077253,
     longitude: 127.0775618,
@@ -11381,7 +11381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00334',
-    name: "동탄6호 공공공지",
+    name: "동탄6호 공공공지공원",
     category: 'park',
     latitude: 37.2066397,
     longitude: 127.0520406,
@@ -11397,7 +11397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00333',
-    name: "동탄4호 공공공지",
+    name: "동탄4호 공공공지공원",
     category: 'park',
     latitude: 37.2226277,
     longitude: 127.0747923,
@@ -11413,7 +11413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00332',
-    name: "동탄3호 공공공지",
+    name: "동탄3호 공공공지공원",
     category: 'park',
     latitude: 37.1979098,
     longitude: 127.0651828,
@@ -11429,7 +11429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00331',
-    name: "동탄2호 공공공지",
+    name: "동탄2호 공공공지공원",
     category: 'park',
     latitude: 37.2171634,
     longitude: 127.0555448,
@@ -11445,7 +11445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00330',
-    name: "동탄1호 공공공지",
+    name: "동탄1호 공공공지공원",
     category: 'park',
     latitude: 37.2203946,
     longitude: 127.0588485,
@@ -12005,7 +12005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00350',
-    name: "감배산(12호)",
+    name: "감배산(12호) 근린공원",
     category: 'park',
     latitude: 37.1929392,
     longitude: 127.0973958,
@@ -12021,7 +12021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00349',
-    name: "감배산(12호)",
+    name: "감배산(12호) 근린공원",
     category: 'park',
     latitude: 37.1952908,
     longitude: 127.1024523,
@@ -12037,7 +12037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00348',
-    name: "솔향기(9호)",
+    name: "솔향기(9호) 근린공원",
     category: 'park',
     latitude: 37.1982413,
     longitude: 127.1219131,
@@ -12053,7 +12053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00347',
-    name: "치동천3호(6호)",
+    name: "치동천3호(6호) 근린공원",
     category: 'park',
     latitude: 37.2050871,
     longitude: 127.1117252,
@@ -12069,7 +12069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00346',
-    name: "치동천2호(5호)",
+    name: "치동천2호(5호) 근린공원",
     category: 'park',
     latitude: 37.206586,
     longitude: 127.1000852,
@@ -12085,7 +12085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00345',
-    name: "치동천1호(4호)",
+    name: "치동천1호(4호) 근린공원",
     category: 'park',
     latitude: 37.2059485,
     longitude: 127.0935473,
@@ -12101,7 +12101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00344',
-    name: "치동천1호(4호)",
+    name: "치동천1호(4호) 근린공원",
     category: 'park',
     latitude: 37.2061118,
     longitude: 127.0902548,
@@ -12117,7 +12117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00343',
-    name: "치동천1호(4호)",
+    name: "치동천1호(4호) 근린공원",
     category: 'park',
     latitude: 37.2060622,
     longitude: 127.0964809,
@@ -12293,7 +12293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00385',
-    name: "체육4호",
+    name: "체육4호 체육공원",
     category: 'park',
     latitude: 37.1856559,
     longitude: 127.1039982,
@@ -12677,7 +12677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00284',
-    name: "금반 저류지 (저류지 6호)",
+    name: "금반 저류지 (저류지 6호)공원",
     category: 'park',
     latitude: 37.1849427,
     longitude: 127.0829053,
@@ -12693,7 +12693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00283',
-    name: "반송 저류지 (저류지 5호)",
+    name: "반송 저류지 (저류지 5호)공원",
     category: 'park',
     latitude: 37.1917167,
     longitude: 127.0819641,
@@ -12709,7 +12709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00282',
-    name: "인곡2 저류지 (저류지 7호)",
+    name: "인곡2 저류지 (저류지 7호)공원",
     category: 'park',
     latitude: 37.2106408,
     longitude: 127.0552515,
@@ -12725,7 +12725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00009',
-    name: "공공공지 3호",
+    name: "공공공지 3호공원",
     category: 'park',
     latitude: 37.2859636,
     longitude: 126.8165033,
@@ -12741,7 +12741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00008',
-    name: "공공공지 2호",
+    name: "공공공지 2호공원",
     category: 'park',
     latitude: 37.2792729,
     longitude: 126.8195413,
@@ -12757,7 +12757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00007',
-    name: "공공공지 1호",
+    name: "공공공지 1호공원",
     category: 'park',
     latitude: 37.2796343,
     longitude: 126.8201719,
@@ -12853,7 +12853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00038',
-    name: "1호체육 푸른 건강 뜰",
+    name: "1호체육 푸른 건강 뜰 체육공원",
     category: 'park',
     latitude: 37.2099739,
     longitude: 126.8264524,
@@ -12869,7 +12869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00037',
-    name: "7호근린 마을어귀 길",
+    name: "7호근린 마을어귀 길 근린공원",
     category: 'park',
     latitude: 37.2024676,
     longitude: 126.823594,
@@ -12917,7 +12917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00034',
-    name: "4호근린 너른 고향 들",
+    name: "4호근린 너른 고향 들 근린공원",
     category: 'park',
     latitude: 37.2103429,
     longitude: 126.8250355,
@@ -13221,7 +13221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00015',
-    name: "공공공지 9호",
+    name: "공공공지 9호공원",
     category: 'park',
     latitude: 37.2857169,
     longitude: 126.8147639,
@@ -13237,7 +13237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00014',
-    name: "공공공지 8호",
+    name: "공공공지 8호공원",
     category: 'park',
     latitude: 37.2863333,
     longitude: 126.8144719,
@@ -13253,7 +13253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00013',
-    name: "공공공지 7호",
+    name: "공공공지 7호공원",
     category: 'park',
     latitude: 37.285784,
     longitude: 126.8152252,
@@ -13269,7 +13269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00012',
-    name: "공공공지 6호",
+    name: "공공공지 6호공원",
     category: 'park',
     latitude: 37.2861316,
     longitude: 126.8153062,
@@ -13285,7 +13285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00011',
-    name: "공공공지 5호",
+    name: "공공공지 5호공원",
     category: 'park',
     latitude: 37.2851054,
     longitude: 126.8154616,
@@ -13301,7 +13301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00010',
-    name: "공공공지 4호",
+    name: "공공공지 4호공원",
     category: 'park',
     latitude: 37.2856469,
     longitude: 126.8161295,
@@ -13541,7 +13541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00052',
-    name: "공공공지2호",
+    name: "공공공지2호공원",
     category: 'park',
     latitude: 37.1985005,
     longitude: 126.8276667,
@@ -13557,7 +13557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00051',
-    name: "공공공지1호",
+    name: "공공공지1호공원",
     category: 'park',
     latitude: 37.1994141,
     longitude: 126.8267235,
@@ -14245,7 +14245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00085',
-    name: "전곡리 공공공지",
+    name: "전곡리 공공공지공원",
     category: 'park',
     latitude: 37.1907814,
     longitude: 126.6595448,
@@ -14261,7 +14261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00084',
-    name: "제부교차로 공공공지",
+    name: "제부교차로 공공공지공원",
     category: 'park',
     latitude: 37.1722876,
     longitude: 126.6586255,
@@ -14405,7 +14405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00134',
-    name: "향남2지구 8호 어린이(시샘달)",
+    name: "향남2지구 8호 어린이(시샘달) 어린이공원",
     category: 'park',
     latitude: 37.1035609,
     longitude: 126.8995773,
@@ -14421,7 +14421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00133',
-    name: "향남2지구 7호 어린이(열매달)",
+    name: "향남2지구 7호 어린이(열매달) 어린이공원",
     category: 'park',
     latitude: 37.1059975,
     longitude: 126.8986871,
@@ -14437,7 +14437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00132',
-    name: "향남2지구 6호 어린이(물오름달)",
+    name: "향남2지구 6호 어린이(물오름달) 어린이공원",
     category: 'park',
     latitude: 37.1053879,
     longitude: 126.9028323,
@@ -14453,7 +14453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00131',
-    name: "향남2지구 5호 어린이(잎새달)",
+    name: "향남2지구 5호 어린이(잎새달) 어린이공원",
     category: 'park',
     latitude: 37.10721,
     longitude: 126.9025489,
@@ -14469,7 +14469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00130',
-    name: "향남2지구 4호 어린이(푸른달)",
+    name: "향남2지구 4호 어린이(푸른달) 어린이공원",
     category: 'park',
     latitude: 37.1108094,
     longitude: 126.9192451,
@@ -14485,7 +14485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00129',
-    name: "향남2지구 3호 어린이(타오름달)",
+    name: "향남2지구 3호 어린이(타오름달) 어린이공원",
     category: 'park',
     latitude: 37.113758,
     longitude: 126.906615,
@@ -14501,7 +14501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00128',
-    name: "향남2지구 2호 어린이(누리달)",
+    name: "향남2지구 2호 어린이(누리달) 어린이공원",
     category: 'park',
     latitude: 37.117158,
     longitude: 126.9160259,
@@ -14517,7 +14517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00127',
-    name: "향남2지구 1호 어린이(견우직녀달)",
+    name: "향남2지구 1호 어린이(견우직녀달) 어린이공원",
     category: 'park',
     latitude: 37.1199747,
     longitude: 126.9114104,
@@ -14661,7 +14661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00118',
-    name: "평리 공공공지",
+    name: "평리 공공공지공원",
     category: 'park',
     latitude: 37.1303755,
     longitude: 126.9076108,
@@ -14965,7 +14965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00151',
-    name: "향남2지구 주택단지 공공공지",
+    name: "향남2지구 주택단지 공공공지공원",
     category: 'park',
     latitude: 37.117748,
     longitude: 126.9163425,
@@ -14981,7 +14981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00150',
-    name: "향남2지구 2-1호 공공공지",
+    name: "향남2지구 2-1호 공공공지공원",
     category: 'park',
     latitude: 37.1208695,
     longitude: 126.9144009,
@@ -14997,7 +14997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00149',
-    name: "향남2지구 7호 공공공지",
+    name: "향남2지구 7호 공공공지공원",
     category: 'park',
     latitude: 37.1054828,
     longitude: 126.9095273,
@@ -15013,7 +15013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00148',
-    name: "향남2지구 6호 공공공지",
+    name: "향남2지구 6호 공공공지공원",
     category: 'park',
     latitude: 37.1059772,
     longitude: 126.908621,
@@ -15029,7 +15029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00147',
-    name: "향남2지구 5호 공공공지",
+    name: "향남2지구 5호 공공공지공원",
     category: 'park',
     latitude: 37.1068258,
     longitude: 126.9072403,
@@ -15045,7 +15045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00146',
-    name: "향남2지구 4호 공공공지",
+    name: "향남2지구 4호 공공공지공원",
     category: 'park',
     latitude: 37.1070545,
     longitude: 126.9079434,
@@ -15061,7 +15061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00145',
-    name: "향남2지구 3호 공공공지",
+    name: "향남2지구 3호 공공공지공원",
     category: 'park',
     latitude: 37.1067063,
     longitude: 126.9081747,
@@ -15077,7 +15077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00144',
-    name: "향남2지구 2호 공공공지",
+    name: "향남2지구 2호 공공공지공원",
     category: 'park',
     latitude: 37.1072532,
     longitude: 126.9090024,
@@ -15093,7 +15093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00143',
-    name: "향남2지구 1호 공공공지",
+    name: "향남2지구 1호 공공공지공원",
     category: 'park',
     latitude: 37.1080173,
     longitude: 126.9085284,
@@ -15157,7 +15157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00139',
-    name: "향남2지구 3호주제(화합체육)",
+    name: "향남2지구 3호주제(화합체육) 체육공원",
     category: 'park',
     latitude: 37.10543,
     longitude: 126.905648,
@@ -15189,7 +15189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00137',
-    name: "향남2지구 11호 어린이(해솟음달)",
+    name: "향남2지구 11호 어린이(해솟음달) 어린이공원",
     category: 'park',
     latitude: 37.098959,
     longitude: 126.9011577,
@@ -15205,7 +15205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00136',
-    name: "향남2지구 10호 어린이(미름달)",
+    name: "향남2지구 10호 어린이(미름달) 어린이공원",
     category: 'park',
     latitude: 37.0991052,
     longitude: 126.8968809,
@@ -15221,7 +15221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00135',
-    name: "향남2지구 9호 어린이(하늘연달)",
+    name: "향남2지구 9호 어린이(하늘연달) 어린이공원",
     category: 'park',
     latitude: 37.1012163,
     longitude: 126.8956483,
@@ -15365,7 +15365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00161',
-    name: "장안근린 2호",
+    name: "장안근린 2호 근린공원",
     category: 'park',
     latitude: 37.1047294,
     longitude: 126.8488242,
@@ -15381,7 +15381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00160',
-    name: "장안근린 1호",
+    name: "장안근린 1호 근린공원",
     category: 'park',
     latitude: 37.1098512,
     longitude: 126.8473263,
@@ -15765,7 +15765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00176',
-    name: "조암 3호 공공공지",
+    name: "조암 3호 공공공지공원",
     category: 'park',
     latitude: 37.0877797,
     longitude: 126.8255456,
@@ -15781,7 +15781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00175',
-    name: "조암 2호 공공공지",
+    name: "조암 2호 공공공지공원",
     category: 'park',
     latitude: 37.0872502,
     longitude: 126.8227378,
@@ -15797,7 +15797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00174',
-    name: "조암 1호 공공공지",
+    name: "조암 1호 공공공지공원",
     category: 'park',
     latitude: 37.0879099,
     longitude: 126.8228186,
@@ -16053,7 +16053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00216',
-    name: "봉담2 공공공지2호",
+    name: "봉담2 공공공지2호공원",
     category: 'park',
     latitude: 37.2259061,
     longitude: 126.9460043,
@@ -16069,7 +16069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00215',
-    name: "봉담2 공공공지1호",
+    name: "봉담2 공공공지1호공원",
     category: 'park',
     latitude: 37.2256235,
     longitude: 126.9451931,
@@ -16245,7 +16245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00204',
-    name: "동화리 공공공지 5호",
+    name: "동화리 공공공지 5호공원",
     category: 'park',
     latitude: 37.2227806,
     longitude: 126.9564825,
@@ -16261,7 +16261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00203',
-    name: "동화리 공공공지 4호",
+    name: "동화리 공공공지 4호공원",
     category: 'park',
     latitude: 37.2232242,
     longitude: 126.9572485,
@@ -16277,7 +16277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00202',
-    name: "동화리 공공공지 3호",
+    name: "동화리 공공공지 3호공원",
     category: 'park',
     latitude: 37.2218991,
     longitude: 126.959473,
@@ -16293,7 +16293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00201',
-    name: "동화리 공공공지 2호",
+    name: "동화리 공공공지 2호공원",
     category: 'park',
     latitude: 37.2227376,
     longitude: 126.9589085,
@@ -16309,7 +16309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00200',
-    name: "동화리 공공공지 1호",
+    name: "동화리 공공공지 1호공원",
     category: 'park',
     latitude: 37.2234189,
     longitude: 126.9581062,
@@ -16437,7 +16437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00253',
-    name: "4호 공공공지",
+    name: "4호 공공공지공원",
     category: 'park',
     latitude: 37.1411688,
     longitude: 127.0244691,
@@ -16453,7 +16453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00252',
-    name: "3호 공공공지",
+    name: "3호 공공공지공원",
     category: 'park',
     latitude: 37.1413455,
     longitude: 127.0249868,
@@ -16469,7 +16469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00251',
-    name: "2호 공공공지",
+    name: "2호 공공공지공원",
     category: 'park',
     latitude: 37.141871,
     longitude: 127.0269766,
@@ -16485,7 +16485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00250',
-    name: "1호 공공공지",
+    name: "1호 공공공지공원",
     category: 'park',
     latitude: 37.1418349,
     longitude: 127.0273732,
@@ -16661,7 +16661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00239',
-    name: "한승미메이드 공공공지",
+    name: "한승미메이드 공공공지공원",
     category: 'park',
     latitude: 37.2089108,
     longitude: 127.0131703,
@@ -16821,7 +16821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00281',
-    name: "한반 저류지 (저류지3호)",
+    name: "한반 저류지 (저류지3호)공원",
     category: 'park',
     latitude: 37.2252495,
     longitude: 127.0721266,
@@ -16837,7 +16837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00280',
-    name: "능리 저류지 (저류지2호)",
+    name: "능리 저류지 (저류지2호)공원",
     category: 'park',
     latitude: 37.1970464,
     longitude: 127.0507194,
@@ -16853,7 +16853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00279',
-    name: "인곡1 저류지 (저류지1호)",
+    name: "인곡1 저류지 (저류지1호)공원",
     category: 'park',
     latitude: 37.2140788,
     longitude: 127.0543215,
@@ -17541,7 +17541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00413',
-    name: "21호",
+    name: "21호공원",
     category: 'park',
     latitude: 37.2015646,
     longitude: 127.1152247,
@@ -17557,7 +17557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00412',
-    name: "20호",
+    name: "20호공원",
     category: 'park',
     latitude: 37.2015646,
     longitude: 127.1152247,
@@ -17573,7 +17573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00411',
-    name: "19호",
+    name: "19호공원",
     category: 'park',
     latitude: 37.2019674,
     longitude: 127.1139456,
@@ -17589,7 +17589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00410',
-    name: "13호",
+    name: "13호공원",
     category: 'park',
     latitude: 37.2019674,
     longitude: 127.1139456,
@@ -17605,7 +17605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00409',
-    name: "13호",
+    name: "13호공원",
     category: 'park',
     latitude: 37.2015646,
     longitude: 127.1152247,
@@ -17621,7 +17621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41590_00408',
-    name: "13호",
+    name: "13호공원",
     category: 'park',
     latitude: 37.2015646,
     longitude: 127.1152247,
@@ -18261,7 +18261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11680_00042',
-    name: "수서택지개발(광평부근)",
+    name: "수서택지개발(광평부근) 근린공원",
     category: 'park',
     latitude: 37.4867454,
     longitude: 127.0971098,
@@ -18277,7 +18277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11680_00041',
-    name: "수서택지개발(대모산부근)",
+    name: "수서택지개발(대모산부근) 근린공원",
     category: 'park',
     latitude: 37.4809323,
     longitude: 127.0805118,
@@ -20229,7 +20229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11680_00152',
-    name: "아크로삼성아파트",
+    name: "아크로삼성아파트 소공원",
     category: 'park',
     latitude: 37.5204492,
     longitude: 127.0599597,
@@ -20277,7 +20277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00142',
-    name: "도란2",
+    name: "도란2 소공원",
     category: 'park',
     latitude: 37.367423,
     longitude: 126.7276566,
@@ -20821,7 +20821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00108',
-    name: "한울(1)",
+    name: "한울(1) 수변공원",
     category: 'riverside',
     latitude: 37.372027,
     longitude: 126.7179802,
@@ -20853,7 +20853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00106',
-    name: "차오름",
+    name: "차오름 근린공원",
     category: 'park',
     latitude: 37.3737798,
     longitude: 126.7313455,
@@ -20869,7 +20869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00105',
-    name: "두드림",
+    name: "두드림 근린공원",
     category: 'park',
     latitude: 37.3757836,
     longitude: 126.7280166,
@@ -20885,7 +20885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00104',
-    name: "배곧생명",
+    name: "배곧생명 근린공원",
     category: 'park',
     latitude: 37.3720055,
     longitude: 126.7218464,
@@ -20933,7 +20933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00101',
-    name: "파코스",
+    name: "파코스 소공원",
     category: 'park',
     latitude: 37.3456361,
     longitude: 126.785128,
@@ -21205,7 +21205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00200',
-    name: "장현3",
+    name: "장현3 체육공원",
     category: 'park',
     latitude: 37.3843394,
     longitude: 126.8021554,
@@ -21221,7 +21221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00199',
-    name: "장현2",
+    name: "장현2 체육공원",
     category: 'park',
     latitude: 37.3767798,
     longitude: 126.8024784,
@@ -21237,7 +21237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00198',
-    name: "MTV88호",
+    name: "MTV88호 문화공원",
     category: 'park',
     latitude: 37.3226362,
     longitude: 126.6811482,
@@ -21253,7 +21253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00197',
-    name: "공단1",
+    name: "공단1 문화공원",
     category: 'park',
     latitude: 37.3375635,
     longitude: 126.7392308,
@@ -21285,7 +21285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00194',
-    name: "MTV 60호",
+    name: "MTV 60호 수변공원",
     category: 'riverside',
     latitude: 37.322061,
     longitude: 126.6763895,
@@ -21301,7 +21301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00193',
-    name: "대야이3",
+    name: "대야이3 수변공원",
     category: 'riverside',
     latitude: 37.4443721,
     longitude: 126.7907316,
@@ -21317,7 +21317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00192',
-    name: "대야이2",
+    name: "대야이2 수변공원",
     category: 'riverside',
     latitude: 37.4453887,
     longitude: 126.791499,
@@ -21333,7 +21333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00191',
-    name: "대야이1",
+    name: "대야이1 수변공원",
     category: 'riverside',
     latitude: 37.4461179,
     longitude: 126.791934,
@@ -21349,7 +21349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00190',
-    name: "영남",
+    name: "영남 어린이공원",
     category: 'park',
     latitude: 37.4496466,
     longitude: 126.7874941,
@@ -21365,7 +21365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00189',
-    name: "대야삼2",
+    name: "대야삼2 어린이공원",
     category: 'park',
     latitude: 37.4399973,
     longitude: 126.7914884,
@@ -21381,7 +21381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00188',
-    name: "대야삼1",
+    name: "대야삼1 어린이공원",
     category: 'park',
     latitude: 37.4411532,
     longitude: 126.7885292,
@@ -21397,7 +21397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00187',
-    name: "생매",
+    name: "생매 어린이공원",
     category: 'park',
     latitude: 37.4468169,
     longitude: 126.7942447,
@@ -21413,7 +21413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00186',
-    name: "은계",
+    name: "은계 어린이공원",
     category: 'park',
     latitude: 37.4475798,
     longitude: 126.7959435,
@@ -21653,7 +21653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00171',
-    name: "장현문화1",
+    name: "장현문화1 문화공원",
     category: 'park',
     latitude: 37.38127,
     longitude: 126.7802379,
@@ -21669,7 +21669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00170',
-    name: "문화1",
+    name: "문화1 문화공원",
     category: 'park',
     latitude: 37.3779528,
     longitude: 126.8461783,
@@ -21749,7 +21749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00166',
-    name: "새미지구 어린이",
+    name: "새미지구 어린이 어린이공원",
     category: 'park',
     latitude: 37.3626005,
     longitude: 126.7718598,
@@ -21765,7 +21765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00165',
-    name: "월동1",
+    name: "월동1 어린이공원",
     category: 'park',
     latitude: 37.3797552,
     longitude: 126.7648075,
@@ -21781,7 +21781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00164',
-    name: "장현어린이1호",
+    name: "장현어린이1호 어린이공원",
     category: 'park',
     latitude: 37.3674785,
     longitude: 126.8060193,
@@ -21989,7 +21989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00151',
-    name: "죽율체육",
+    name: "죽율체육 체육공원",
     category: 'park',
     latitude: 37.3492272,
     longitude: 126.7599514,
@@ -22005,7 +22005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00150',
-    name: "한울(2)",
+    name: "한울(2) 문화공원",
     category: 'park',
     latitude: 37.3568975,
     longitude: 126.7034527,
@@ -22021,7 +22021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00149',
-    name: "한울(3)",
+    name: "한울(3) 수변공원",
     category: 'riverside',
     latitude: 37.3835039,
     longitude: 126.7282884,
@@ -22037,7 +22037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00148',
-    name: "86호",
+    name: "86호 수변공원",
     category: 'riverside',
     latitude: 37.3202449,
     longitude: 126.6858666,
@@ -22053,7 +22053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00147',
-    name: "85호",
+    name: "85호 수변공원",
     category: 'riverside',
     latitude: 37.3273417,
     longitude: 126.6730046,
@@ -22069,7 +22069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00146',
-    name: "함줄",
+    name: "함줄 근린공원",
     category: 'park',
     latitude: 37.368592,
     longitude: 126.7378081,
@@ -22085,7 +22085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00145',
-    name: "아름",
+    name: "아름 소공원",
     category: 'park',
     latitude: 37.3749293,
     longitude: 126.737776,
@@ -22101,7 +22101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00144',
-    name: "갈대너울",
+    name: "갈대너울 소공원",
     category: 'park',
     latitude: 37.3567193,
     longitude: 126.7063837,
@@ -22117,7 +22117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00143',
-    name: "애두름",
+    name: "애두름 소공원",
     category: 'park',
     latitude: 37.3583185,
     longitude: 126.7078133,
@@ -22181,7 +22181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41390_00081',
-    name: "물비늘",
+    name: "물비늘 수변공원",
     category: 'riverside',
     latitude: 37.3209724,
     longitude: 126.7095464,
@@ -23477,7 +23477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00062',
-    name: "하늘(일산2-3)",
+    name: "하늘(일산2-3) 근린공원",
     category: 'park',
     latitude: 37.6778299,
     longitude: 126.7858163,
@@ -23493,7 +23493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00061',
-    name: "하늘별무리(일산2-7)",
+    name: "하늘별무리(일산2-7) 어린이공원",
     category: 'park',
     latitude: 37.6767064,
     longitude: 126.7864298,
@@ -23509,7 +23509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00060',
-    name: "성아(일산2-2)",
+    name: "성아(일산2-2) 근린공원",
     category: 'park',
     latitude: 37.6776343,
     longitude: 126.7893793,
@@ -23525,7 +23525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00059',
-    name: "개나리(일산2-4)",
+    name: "개나리(일산2-4) 어린이공원",
     category: 'park',
     latitude: 37.683825,
     longitude: 126.7901512,
@@ -23541,7 +23541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00058',
-    name: "소개울(일산2-1)",
+    name: "소개울(일산2-1) 근린공원",
     category: 'park',
     latitude: 37.6830789,
     longitude: 126.7824518,
@@ -23557,7 +23557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00057',
-    name: "안곡습지",
+    name: "안곡습지 수변공원",
     category: 'riverside',
     latitude: 37.6840228,
     longitude: 126.7844936,
@@ -23573,7 +23573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00056',
-    name: "하늘장미(일산2-5)",
+    name: "하늘장미(일산2-5) 어린이공원",
     category: 'park',
     latitude: 37.6804768,
     longitude: 126.7847155,
@@ -23589,7 +23589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00055',
-    name: "하늘자전거(일산2-6)",
+    name: "하늘자전거(일산2-6) 어린이공원",
     category: 'park',
     latitude: 37.6795185,
     longitude: 126.7801215,
@@ -23605,7 +23605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00054',
-    name: "풍동",
+    name: "풍동 어린이공원",
     category: 'park',
     latitude: 37.663053,
     longitude: 126.7957747,
@@ -23637,7 +23637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00052',
-    name: "식골",
+    name: "식골 근린공원",
     category: 'park',
     latitude: 37.6707298,
     longitude: 126.7971233,
@@ -23653,7 +23653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00051',
-    name: "달맞이",
+    name: "달맞이 근린공원",
     category: 'park',
     latitude: 37.6746343,
     longitude: 126.8008034,
@@ -23669,7 +23669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00050',
-    name: "참나무(풍동)",
+    name: "참나무(풍동) 어린이공원",
     category: 'park',
     latitude: 37.6660414,
     longitude: 126.8008116,
@@ -23685,7 +23685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00049',
-    name: "소나무(풍동)",
+    name: "소나무(풍동) 어린이공원",
     category: 'park',
     latitude: 37.6643409,
     longitude: 126.7978742,
@@ -23701,7 +23701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00048',
-    name: "벚나무(풍동)",
+    name: "벚나무(풍동) 어린이공원",
     category: 'park',
     latitude: 37.6677517,
     longitude: 126.7974653,
@@ -23717,7 +23717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00047',
-    name: "이팝나무",
+    name: "이팝나무 어린이공원",
     category: 'park',
     latitude: 37.6701044,
     longitude: 126.8006537,
@@ -23733,7 +23733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00046',
-    name: "느티나무(풍동)",
+    name: "느티나무(풍동) 어린이공원",
     category: 'park',
     latitude: 37.6702812,
     longitude: 126.7984263,
@@ -23749,7 +23749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00045',
-    name: "목련",
+    name: "목련 어린이공원",
     category: 'park',
     latitude: 37.672816,
     longitude: 126.7976815,
@@ -23765,7 +23765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00044',
-    name: "산수유",
+    name: "산수유 어린이공원",
     category: 'park',
     latitude: 37.673448,
     longitude: 126.8016509,
@@ -23797,7 +23797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00042',
-    name: "장항",
+    name: "장항 어린이공원",
     category: 'park',
     latitude: 37.6664355,
     longitude: 126.7755653,
@@ -23813,7 +23813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00041',
-    name: "닥밭",
+    name: "닥밭 어린이공원",
     category: 'park',
     latitude: 37.667494,
     longitude: 126.7725147,
@@ -23829,7 +23829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00040',
-    name: "수정",
+    name: "수정 어린이공원",
     category: 'park',
     latitude: 37.6682716,
     longitude: 126.7785766,
@@ -23845,7 +23845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00039',
-    name: "사재",
+    name: "사재 어린이공원",
     category: 'park',
     latitude: 37.6726075,
     longitude: 126.7818175,
@@ -23861,7 +23861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00038',
-    name: "두루미",
+    name: "두루미 어린이공원",
     category: 'park',
     latitude: 37.6714293,
     longitude: 126.7761671,
@@ -23877,7 +23877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00037',
-    name: "매봉재",
+    name: "매봉재 어린이공원",
     category: 'park',
     latitude: 37.6752079,
     longitude: 126.7778151,
@@ -23893,7 +23893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00036',
-    name: "호수",
+    name: "호수 근린공원",
     category: 'park',
     latitude: 37.6644464,
     longitude: 126.7604431,
@@ -23909,7 +23909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00035',
-    name: "호수",
+    name: "호수 근린공원",
     category: 'park',
     latitude: 37.6508982,
     longitude: 126.7712748,
@@ -23925,7 +23925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00034',
-    name: "호수",
+    name: "호수 근린공원",
     category: 'park',
     latitude: 37.649473,
     longitude: 126.7680833,
@@ -23941,7 +23941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00033',
-    name: "알미",
+    name: "알미 근린공원",
     category: 'park',
     latitude: 37.6455002,
     longitude: 126.783942,
@@ -23957,7 +23957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00032',
-    name: "안산",
+    name: "안산 문화공원",
     category: 'park',
     latitude: 37.6461364,
     longitude: 126.7847188,
@@ -23973,7 +23973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00031',
-    name: "정발산",
+    name: "정발산 근린공원",
     category: 'park',
     latitude: 37.6627719,
     longitude: 126.7718898,
@@ -23989,7 +23989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00030',
-    name: "중산 9(중산추만)",
+    name: "중산 9(중산추만) 어린이공원",
     category: 'park',
     latitude: 37.685766,
     longitude: 126.7802281,
@@ -24005,7 +24005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00029',
-    name: "중산 8(중산삼애)",
+    name: "중산 8(중산삼애) 어린이공원",
     category: 'park',
     latitude: 37.6879102,
     longitude: 126.7828258,
@@ -24021,7 +24021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00028',
-    name: "중산 4(중산오름)",
+    name: "중산 4(중산오름) 어린이공원",
     category: 'park',
     latitude: 37.6929569,
     longitude: 126.7827654,
@@ -24037,7 +24037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00027',
-    name: "중산 7(중산어린이)",
+    name: "중산 7(중산어린이) 어린이공원",
     category: 'park',
     latitude: 37.689008,
     longitude: 126.7818312,
@@ -24053,7 +24053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00026',
-    name: "중산 5(중산안학)",
+    name: "중산 5(중산안학) 어린이공원",
     category: 'park',
     latitude: 37.6916078,
     longitude: 126.7816181,
@@ -24069,7 +24069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00025',
-    name: "중산 6(중산더부골)",
+    name: "중산 6(중산더부골) 어린이공원",
     category: 'park',
     latitude: 37.6887281,
     longitude: 126.7789273,
@@ -24085,7 +24085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00024',
-    name: "중산 2(중산안골)",
+    name: "중산 2(중산안골) 어린이공원",
     category: 'park',
     latitude: 37.6950135,
     longitude: 126.7793364,
@@ -24101,7 +24101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00023',
-    name: "중산 1(중산마루)",
+    name: "중산 1(중산마루) 어린이공원",
     category: 'park',
     latitude: 37.6974626,
     longitude: 126.7806215,
@@ -24117,7 +24117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00022',
-    name: "중산 3(중산테미어린이)",
+    name: "중산 3(중산테미어린이) 어린이공원",
     category: 'park',
     latitude: 37.6932086,
     longitude: 126.7824585,
@@ -24133,7 +24133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00021',
-    name: "중산태미(중산4)",
+    name: "중산태미(중산4) 근린공원",
     category: 'park',
     latitude: 37.6982103,
     longitude: 126.7829969,
@@ -24149,7 +24149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00020',
-    name: "백마",
+    name: "백마 근린공원",
     category: 'park',
     latitude: 37.6567924,
     longitude: 126.7903357,
@@ -24165,7 +24165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00019',
-    name: "밤가시",
+    name: "밤가시 어린이공원",
     category: 'park',
     latitude: 37.6694783,
     longitude: 126.7826296,
@@ -24181,7 +24181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00018',
-    name: "부촌",
+    name: "부촌 어린이공원",
     category: 'park',
     latitude: 37.6469973,
     longitude: 126.7771633,
@@ -24197,7 +24197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00017',
-    name: "낙민",
+    name: "낙민 근린공원",
     category: 'park',
     latitude: 37.6501138,
     longitude: 126.7730312,
@@ -24213,7 +24213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00016',
-    name: "향나무(알미)",
+    name: "향나무(알미) 어린이공원",
     category: 'park',
     latitude: 37.6445731,
     longitude: 126.7801183,
@@ -24229,7 +24229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00015',
-    name: "용천",
+    name: "용천 어린이공원",
     category: 'park',
     latitude: 37.6422474,
     longitude: 126.7831277,
@@ -24245,7 +24245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00014',
-    name: "간이",
+    name: "간이 어린이공원",
     category: 'park',
     latitude: 37.6461588,
     longitude: 126.7880046,
@@ -24261,7 +24261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00013',
-    name: "백석",
+    name: "백석 근린공원",
     category: 'park',
     latitude: 37.6487152,
     longitude: 126.7948256,
@@ -24277,7 +24277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00012',
-    name: "방기",
+    name: "방기 어린이공원",
     category: 'park',
     latitude: 37.6485172,
     longitude: 126.7848251,
@@ -24293,7 +24293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00011',
-    name: "백송",
+    name: "백송 어린이공원",
     category: 'park',
     latitude: 37.650741,
     longitude: 126.7891568,
@@ -24309,7 +24309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00010',
-    name: "검바골",
+    name: "검바골 어린이공원",
     category: 'park',
     latitude: 37.6486331,
     longitude: 126.7911069,
@@ -24325,7 +24325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00009',
-    name: "청천",
+    name: "청천 어린이공원",
     category: 'park',
     latitude: 37.652511,
     longitude: 126.7944631,
@@ -24341,7 +24341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00008',
-    name: "안골",
+    name: "안골 어린이공원",
     category: 'park',
     latitude: 37.657472,
     longitude: 126.7784665,
@@ -24357,7 +24357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00007',
-    name: "능안",
+    name: "능안 어린이공원",
     category: 'park',
     latitude: 37.6599068,
     longitude: 126.7836536,
@@ -24373,7 +24373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00006',
-    name: "설촌",
+    name: "설촌 어린이공원",
     category: 'park',
     latitude: 37.6620352,
     longitude: 126.7886259,
@@ -24389,7 +24389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00005',
-    name: "냉천",
+    name: "냉천 어린이공원",
     category: 'park',
     latitude: 37.6648701,
     longitude: 126.7858478,
@@ -24405,7 +24405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00004',
-    name: "강촌",
+    name: "강촌 근린공원",
     category: 'park',
     latitude: 37.6533324,
     longitude: 126.7810761,
@@ -24421,7 +24421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00003',
-    name: "말머리",
+    name: "말머리 어린이공원",
     category: 'park',
     latitude: 37.6527838,
     longitude: 126.7817958,
@@ -24437,7 +24437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00002',
-    name: "마두",
+    name: "마두 근린공원",
     category: 'park',
     latitude: 37.6546888,
     longitude: 126.7844884,
@@ -24453,7 +24453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00001',
-    name: "모범",
+    name: "모범 어린이공원",
     category: 'park',
     latitude: 37.6556743,
     longitude: 126.7858803,
@@ -24501,7 +24501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00140',
-    name: "덕은6",
+    name: "덕은6 소공원",
     category: 'park',
     latitude: 37.5836212,
     longitude: 126.8694284,
@@ -24517,7 +24517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00139',
-    name: "덕은1",
+    name: "덕은1 수변공원",
     category: 'riverside',
     latitude: 37.5779936,
     longitude: 126.8634605,
@@ -24533,7 +24533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00138',
-    name: "덕은1",
+    name: "덕은1 근린공원",
     category: 'park',
     latitude: 37.579961,
     longitude: 126.8636111,
@@ -24549,7 +24549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00137',
-    name: "덕은2",
+    name: "덕은2 어린이공원",
     category: 'park',
     latitude: 37.581675,
     longitude: 126.8627661,
@@ -24565,7 +24565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00136',
-    name: "덕은1",
+    name: "덕은1 어린이공원",
     category: 'park',
     latitude: 37.581448,
     longitude: 126.8688971,
@@ -24581,7 +24581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00135',
-    name: "덕은5",
+    name: "덕은5 소공원",
     category: 'park',
     latitude: 37.583212,
     longitude: 126.8642261,
@@ -24597,7 +24597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00134',
-    name: "덕은4",
+    name: "덕은4 소공원",
     category: 'park',
     latitude: 37.5822956,
     longitude: 126.8643161,
@@ -24613,7 +24613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00133',
-    name: "덕은3",
+    name: "덕은3 소공원",
     category: 'park',
     latitude: 37.582471,
     longitude: 126.8628121,
@@ -24629,7 +24629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00132',
-    name: "덕은2",
+    name: "덕은2 소공원",
     category: 'park',
     latitude: 37.5835955,
     longitude: 126.8619692,
@@ -24677,7 +24677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00129',
-    name: "배다리",
+    name: "배다리 어린이공원",
     category: 'park',
     latitude: 37.6625338,
     longitude: 126.8294252,
@@ -24773,7 +24773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00123',
-    name: "지축근린3",
+    name: "지축근린3 근린공원",
     category: 'park',
     latitude: 37.6533637,
     longitude: 126.9177423,
@@ -24789,7 +24789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00122',
-    name: "지축근린2",
+    name: "지축근린2 근린공원",
     category: 'park',
     latitude: 37.6533637,
     longitude: 126.9177423,
@@ -24805,7 +24805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00121',
-    name: "지축근린1",
+    name: "지축근린1 근린공원",
     category: 'park',
     latitude: 37.6523076,
     longitude: 126.9135968,
@@ -24821,7 +24821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00120',
-    name: "지축어린이3",
+    name: "지축어린이3 어린이공원",
     category: 'park',
     latitude: 37.6533637,
     longitude: 126.9177423,
@@ -24837,7 +24837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00119',
-    name: "지축어린이2",
+    name: "지축어린이2 어린이공원",
     category: 'park',
     latitude: 37.6533637,
     longitude: 126.9177423,
@@ -24853,7 +24853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00118',
-    name: "지축어린이1",
+    name: "지축어린이1 어린이공원",
     category: 'park',
     latitude: 37.6533637,
     longitude: 126.9177423,
@@ -24933,7 +24933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00113',
-    name: "향동어린이2",
+    name: "향동어린이2 어린이공원",
     category: 'park',
     latitude: 37.5989155,
     longitude: 126.8901682,
@@ -24949,7 +24949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00112',
-    name: "향동수변2",
+    name: "향동수변2 수변공원",
     category: 'riverside',
     latitude: 37.5978119,
     longitude: 126.8903115,
@@ -24965,7 +24965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00111',
-    name: "향동근린2",
+    name: "향동근린2 근린공원",
     category: 'park',
     latitude: 37.6069348,
     longitude: 126.8933163,
@@ -24981,7 +24981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00110',
-    name: "향동근린1",
+    name: "향동근린1 근린공원",
     category: 'park',
     latitude: 37.5956491,
     longitude: 126.8925162,
@@ -25013,7 +25013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00108',
-    name: "향동수변1",
+    name: "향동수변1 수변공원",
     category: 'riverside',
     latitude: 37.6003014,
     longitude: 126.8923911,
@@ -25045,7 +25045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00106',
-    name: "향동어린이1",
+    name: "향동어린이1 어린이공원",
     category: 'park',
     latitude: 37.6021211,
     longitude: 126.891554,
@@ -25077,7 +25077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00104',
-    name: "원흥근린3(도래울의장대)",
+    name: "원흥근린3(도래울의장대) 근린공원",
     category: 'park',
     latitude: 37.6278474,
     longitude: 126.8735354,
@@ -25109,7 +25109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00102',
-    name: "원흥근린2(도래울의장대)",
+    name: "원흥근린2(도래울의장대) 근린공원",
     category: 'park',
     latitude: 37.6293268,
     longitude: 126.8706765,
@@ -25125,7 +25125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00101',
-    name: "원흥근린1(도래울석탄)",
+    name: "원흥근린1(도래울석탄) 근린공원",
     category: 'park',
     latitude: 37.6297314,
     longitude: 126.8662456,
@@ -25157,7 +25157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00099',
-    name: "삼송근린12(당고개)",
+    name: "삼송근린12(당고개) 근린공원",
     category: 'park',
     latitude: 37.6621644,
     longitude: 126.9039898,
@@ -25173,7 +25173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00098',
-    name: "화전1(마루치)",
+    name: "화전1(마루치) 어린이공원",
     category: 'park',
     latitude: 37.5976936,
     longitude: 126.8785618,
@@ -25221,7 +25221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00095',
-    name: "삼송근린1(송현)",
+    name: "삼송근린1(송현) 근린공원",
     category: 'park',
     latitude: 37.6487679,
     longitude: 126.8774365,
@@ -25237,7 +25237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00094',
-    name: "삼송근린10(소청)",
+    name: "삼송근린10(소청) 근린공원",
     category: 'park',
     latitude: 37.6601455,
     longitude: 126.9129564,
@@ -25253,7 +25253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00093',
-    name: "삼송근린11(오금상촌)",
+    name: "삼송근린11(오금상촌) 근린공원",
     category: 'park',
     latitude: 37.6630724,
     longitude: 126.9188102,
@@ -25269,7 +25269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00092',
-    name: "삼송근린9(오금)",
+    name: "삼송근린9(오금) 근린공원",
     category: 'park',
     latitude: 37.6608632,
     longitude: 126.9067379,
@@ -25301,7 +25301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00090',
-    name: "삼송근린7(신원)",
+    name: "삼송근린7(신원) 근린공원",
     category: 'park',
     latitude: 37.6678132,
     longitude: 126.8902247,
@@ -25317,7 +25317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00089',
-    name: "삼송어린이1(한우물)",
+    name: "삼송어린이1(한우물) 어린이공원",
     category: 'park',
     latitude: 37.6615301,
     longitude: 126.8882056,
@@ -25333,7 +25333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00088',
-    name: "삼송근린6(조관)",
+    name: "삼송근린6(조관) 근린공원",
     category: 'park',
     latitude: 37.6663828,
     longitude: 126.8863592,
@@ -25349,7 +25349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00087',
-    name: "삼송근린5(송강이야기)",
+    name: "삼송근린5(송강이야기) 근린공원",
     category: 'park',
     latitude: 37.6669084,
     longitude: 126.8812963,
@@ -25365,7 +25365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00086',
-    name: "삼송근린2(덕수)",
+    name: "삼송근린2(덕수) 근린공원",
     category: 'park',
     latitude: 37.6467683,
     longitude: 126.8801913,
@@ -25381,7 +25381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00085',
-    name: "삼송어린이2(달걀부리)",
+    name: "삼송어린이2(달걀부리) 어린이공원",
     category: 'park',
     latitude: 37.6419597,
     longitude: 126.8762715,
@@ -25397,7 +25397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00084',
-    name: "삼송근린3(세솔)",
+    name: "삼송근린3(세솔) 근린공원",
     category: 'park',
     latitude: 37.6519014,
     longitude: 126.8892505,
@@ -25445,7 +25445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00081',
-    name: "주공1",
+    name: "주공1 어린이공원",
     category: 'park',
     latitude: 37.6606295,
     longitude: 126.8402255,
@@ -25461,7 +25461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00080',
-    name: "주택재개발(196호)",
+    name: "주택재개발(196호) 어린이공원",
     category: 'park',
     latitude: 37.6274995,
     longitude: 126.8193911,
@@ -25477,7 +25477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00079',
-    name: "주택재개발(195호)",
+    name: "주택재개발(195호) 어린이공원",
     category: 'park',
     latitude: 37.6208064,
     longitude: 126.8310364,
@@ -25493,7 +25493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00078',
-    name: "원당1",
+    name: "원당1 어린이공원",
     category: 'park',
     latitude: 37.6586451,
     longitude: 126.8418105,
@@ -25509,7 +25509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00077',
-    name: "원당2",
+    name: "원당2 소공원",
     category: 'park',
     latitude: 37.6606481,
     longitude: 126.8412199,
@@ -25525,7 +25525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00076',
-    name: "서정",
+    name: "서정 근린공원",
     category: 'park',
     latitude: 37.6173583,
     longitude: 126.8489586,
@@ -25541,7 +25541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00075',
-    name: "서두나루",
+    name: "서두나루 근린공원",
     category: 'park',
     latitude: 37.6147489,
     longitude: 126.8483479,
@@ -25557,7 +25557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00074',
-    name: "서두물",
+    name: "서두물 근린공원",
     category: 'park',
     latitude: 37.6165919,
     longitude: 126.8510884,
@@ -25573,7 +25573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00073',
-    name: "행신나루",
+    name: "행신나루 근린공원",
     category: 'park',
     latitude: 37.6159395,
     longitude: 126.8484009,
@@ -25685,7 +25685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00066',
-    name: "벽제2",
+    name: "벽제2 어린이공원",
     category: 'park',
     latitude: 37.7112708,
     longitude: 126.9035569,
@@ -25701,7 +25701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00065',
-    name: "벽제",
+    name: "벽제 어린이공원",
     category: 'park',
     latitude: 37.7149543,
     longitude: 126.9031066,
@@ -25717,7 +25717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00064',
-    name: "소나무(능곡)",
+    name: "소나무(능곡) 어린이공원",
     category: 'park',
     latitude: 37.6265249,
     longitude: 126.8331235,
@@ -25733,7 +25733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00063',
-    name: "백양",
+    name: "백양 근린공원",
     category: 'park',
     latitude: 37.627804,
     longitude: 126.8348018,
@@ -25749,7 +25749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00062',
-    name: "은행나무",
+    name: "은행나무 어린이공원",
     category: 'park',
     latitude: 37.6286549,
     longitude: 126.8357424,
@@ -25765,7 +25765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00061',
-    name: "회화나무",
+    name: "회화나무 어린이공원",
     category: 'park',
     latitude: 37.620276,
     longitude: 126.8359194,
@@ -25781,7 +25781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00060',
-    name: "행신",
+    name: "행신 근린공원",
     category: 'park',
     latitude: 37.6186385,
     longitude: 126.8372428,
@@ -25797,7 +25797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00059',
-    name: "살구나무",
+    name: "살구나무 어린이공원",
     category: 'park',
     latitude: 37.6189728,
     longitude: 126.8392334,
@@ -25813,7 +25813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00058',
-    name: "벚나무(능곡)",
+    name: "벚나무(능곡) 어린이공원",
     category: 'park',
     latitude: 37.6221926,
     longitude: 126.8427752,
@@ -25829,7 +25829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00057',
-    name: "단풍나무",
+    name: "단풍나무 어린이공원",
     category: 'park',
     latitude: 37.6226998,
     longitude: 126.8384469,
@@ -25845,7 +25845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00056',
-    name: "참나무(능곡)",
+    name: "참나무(능곡) 어린이공원",
     category: 'park',
     latitude: 37.6248313,
     longitude: 126.8384741,
@@ -25861,7 +25861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00055',
-    name: "가라산",
+    name: "가라산 근린공원",
     category: 'park',
     latitude: 37.6251821,
     longitude: 126.8419941,
@@ -25877,7 +25877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00054',
-    name: "자작나무",
+    name: "자작나무 어린이공원",
     category: 'park',
     latitude: 37.6261034,
     longitude: 126.8433305,
@@ -25893,7 +25893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00053',
-    name: "밤나무(능곡)",
+    name: "밤나무(능곡) 어린이공원",
     category: 'park',
     latitude: 37.6280431,
     longitude: 126.8385337,
@@ -25909,7 +25909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00052',
-    name: "느티나무(능곡)",
+    name: "느티나무(능곡) 어린이공원",
     category: 'park',
     latitude: 37.6253986,
     longitude: 126.8317576,
@@ -25925,7 +25925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00051',
-    name: "옥빛",
+    name: "옥빛 근린공원",
     category: 'park',
     latitude: 37.6333064,
     longitude: 126.8357558,
@@ -25941,7 +25941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00050',
-    name: "화정중앙",
+    name: "화정중앙 근린공원",
     category: 'park',
     latitude: 37.6309582,
     longitude: 126.831811,
@@ -25957,7 +25957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00049',
-    name: "꽃우물",
+    name: "꽃우물 근린공원",
     category: 'park',
     latitude: 37.6281898,
     longitude: 126.8278501,
@@ -25973,7 +25973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00048',
-    name: "별빛",
+    name: "별빛 근린공원",
     category: 'park',
     latitude: 37.6330638,
     longitude: 126.8255876,
@@ -25989,7 +25989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00047',
-    name: "은빛",
+    name: "은빛 근린공원",
     category: 'park',
     latitude: 37.6381383,
     longitude: 126.8367593,
@@ -26005,7 +26005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00046',
-    name: "꽃물",
+    name: "꽃물 근린공원",
     category: 'park',
     latitude: 37.641051,
     longitude: 126.8295741,
@@ -26021,7 +26021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00045',
-    name: "달빛",
+    name: "달빛 근린공원",
     category: 'park',
     latitude: 37.6449839,
     longitude: 126.8311177,
@@ -26037,7 +26037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00044',
-    name: "화수",
+    name: "화수 근린공원",
     category: 'park',
     latitude: 37.6442022,
     longitude: 126.8380238,
@@ -26053,7 +26053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00043',
-    name: "가라뫼",
+    name: "가라뫼 근린공원",
     category: 'park',
     latitude: 37.6152402,
     longitude: 126.8439091,
@@ -26069,7 +26069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00042',
-    name: "차장",
+    name: "차장 근린공원",
     category: 'park',
     latitude: 37.6167298,
     longitude: 126.8333705,
@@ -26085,7 +26085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00041',
-    name: "번데미",
+    name: "번데미 근린공원",
     category: 'park',
     latitude: 37.6157352,
     longitude: 126.8296216,
@@ -26101,7 +26101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00040',
-    name: "행신 9(행복)",
+    name: "행신 9(행복) 어린이공원",
     category: 'park',
     latitude: 37.6167791,
     longitude: 126.8438132,
@@ -26117,7 +26117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00039',
-    name: "행신 8(화신)",
+    name: "행신 8(화신) 어린이공원",
     category: 'park',
     latitude: 37.6140534,
     longitude: 126.8402054,
@@ -26133,7 +26133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00038',
-    name: "행신 7(소만)",
+    name: "행신 7(소만) 어린이공원",
     category: 'park',
     latitude: 37.6165269,
     longitude: 126.8404084,
@@ -26149,7 +26149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00037',
-    name: "행신 5(행신)",
+    name: "행신 5(행신) 어린이공원",
     category: 'park',
     latitude: 37.6182267,
     longitude: 126.8368437,
@@ -26165,7 +26165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00036',
-    name: "행신 6(용현)",
+    name: "행신 6(용현) 어린이공원",
     category: 'park',
     latitude: 37.6142344,
     longitude: 126.8375411,
@@ -26181,7 +26181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00035',
-    name: "행신 4(용마루)",
+    name: "행신 4(용마루) 어린이공원",
     category: 'park',
     latitude: 37.6160194,
     longitude: 126.8356661,
@@ -26197,7 +26197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00034',
-    name: "행신 3(무원)",
+    name: "행신 3(무원) 어린이공원",
     category: 'park',
     latitude: 37.6179434,
     longitude: 126.8327666,
@@ -26213,7 +26213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00033',
-    name: "행신 2(장고뫼)",
+    name: "행신 2(장고뫼) 어린이공원",
     category: 'park',
     latitude: 37.6139406,
     longitude: 126.8310223,
@@ -26229,7 +26229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00032',
-    name: "행신 1(번데미)",
+    name: "행신 1(번데미) 어린이공원",
     category: 'park',
     latitude: 37.6172457,
     longitude: 126.8298323,
@@ -26245,7 +26245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00031',
-    name: "화정 16(배꽃)",
+    name: "화정 16(배꽃) 어린이공원",
     category: 'park',
     latitude: 37.6366839,
     longitude: 126.8353033,
@@ -26261,7 +26261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00030',
-    name: "화정 17(별빛어린이)",
+    name: "화정 17(별빛어린이) 어린이공원",
     category: 'park',
     latitude: 37.6329026,
     longitude: 126.8296879,
@@ -26277,7 +26277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00029',
-    name: "화정 18(꽃우물어린이)",
+    name: "화정 18(꽃우물어린이) 어린이공원",
     category: 'park',
     latitude: 37.6286572,
     longitude: 126.8272144,
@@ -26293,7 +26293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00028',
-    name: "화정 15(민들레)",
+    name: "화정 15(민들레) 어린이공원",
     category: 'park',
     latitude: 37.6365233,
     longitude: 126.827505,
@@ -26309,7 +26309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00027',
-    name: "화정 14(용정)",
+    name: "화정 14(용정) 어린이공원",
     category: 'park',
     latitude: 37.6395389,
     longitude: 126.8306516,
@@ -26325,7 +26325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00026',
-    name: "화정 13(개나리)",
+    name: "화정 13(개나리) 어린이공원",
     category: 'park',
     latitude: 37.6392722,
     longitude: 126.8347402,
@@ -26341,7 +26341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00025',
-    name: "화정 12(진달래)",
+    name: "화정 12(진달래) 어린이공원",
     category: 'park',
     latitude: 37.6441354,
     longitude: 126.8343009,
@@ -26357,7 +26357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00024',
-    name: "화정 10(달빛어린이)",
+    name: "화정 10(달빛어린이) 어린이공원",
     category: 'park',
     latitude: 37.6478476,
     longitude: 126.8343541,
@@ -26373,7 +26373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00023',
-    name: "화정 11(화수어린이)",
+    name: "화정 11(화수어린이) 어린이공원",
     category: 'park',
     latitude: 37.6448459,
     longitude: 126.8373176,
@@ -26389,7 +26389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00022',
-    name: "성사 2(별모래)",
+    name: "성사 2(별모래) 어린이공원",
     category: 'park',
     latitude: 37.6512339,
     longitude: 126.8359284,
@@ -26405,7 +26405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00021',
-    name: "성사 3(성라어린이)",
+    name: "성사 3(성라어린이) 어린이공원",
     category: 'park',
     latitude: 37.6515238,
     longitude: 126.8332572,
@@ -26421,7 +26421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00020',
-    name: "성사 1(어울림)",
+    name: "성사 1(어울림) 어린이공원",
     category: 'park',
     latitude: 37.653515,
     longitude: 126.8332399,
@@ -26437,7 +26437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00019',
-    name: "고양제1",
+    name: "고양제1 어린이공원",
     category: 'park',
     latitude: 37.7046289,
     longitude: 126.8968093,
@@ -26453,7 +26453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00018',
-    name: "토당 2",
+    name: "토당 2 어린이공원",
     category: 'park',
     latitude: 37.6274559,
     longitude: 126.8258131,
@@ -26469,7 +26469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00017',
-    name: "토당 6",
+    name: "토당 6 어린이공원",
     category: 'park',
     latitude: 37.6184119,
     longitude: 126.8263211,
@@ -26485,7 +26485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00016',
-    name: "토당 4",
+    name: "토당 4 어린이공원",
     category: 'park',
     latitude: 37.6207604,
     longitude: 126.8259534,
@@ -26501,7 +26501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00015',
-    name: "토당 5",
+    name: "토당 5 어린이공원",
     category: 'park',
     latitude: 37.6190831,
     longitude: 126.8234098,
@@ -26517,7 +26517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00014',
-    name: "토당 3",
+    name: "토당 3 어린이공원",
     category: 'park',
     latitude: 37.6261421,
     longitude: 126.8250996,
@@ -26533,7 +26533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00013',
-    name: "토당 1",
+    name: "토당 1 어린이공원",
     category: 'park',
     latitude: 37.6268293,
     longitude: 126.8220485,
@@ -26549,7 +26549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00012',
-    name: "주교7호",
+    name: "주교7호 어린이공원",
     category: 'park',
     latitude: 37.6614491,
     longitude: 126.8360178,
@@ -26565,7 +26565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00011',
-    name: "주교6호",
+    name: "주교6호 어린이공원",
     category: 'park',
     latitude: 37.6593065,
     longitude: 126.8331222,
@@ -26581,7 +26581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00010',
-    name: "주교 3",
+    name: "주교 3 어린이공원",
     category: 'park',
     latitude: 37.6580513,
     longitude: 126.8366476,
@@ -26597,7 +26597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00009',
-    name: "주교 1",
+    name: "주교 1 어린이공원",
     category: 'park',
     latitude: 37.6563545,
     longitude: 126.8343115,
@@ -26613,7 +26613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00008',
-    name: "주교 2",
+    name: "주교 2 어린이공원",
     category: 'park',
     latitude: 37.6549634,
     longitude: 126.8381641,
@@ -26629,7 +26629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00007',
-    name: "관산",
+    name: "관산 근린공원",
     category: 'park',
     latitude: 37.6901537,
     longitude: 126.8669816,
@@ -26645,7 +26645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00006',
-    name: "자전거",
+    name: "자전거 체육공원",
     category: 'park',
     latitude: 37.6624079,
     longitude: 126.8449287,
@@ -26661,7 +26661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00005',
-    name: "고양",
+    name: "고양 근린공원",
     category: 'park',
     latitude: 37.7058354,
     longitude: 126.9003247,
@@ -26677,7 +26677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00004',
-    name: "행주산성",
+    name: "행주산성 역사공원",
     category: 'park',
     latitude: 37.6031287,
     longitude: 126.8233225,
@@ -26693,7 +26693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00003',
-    name: "지도",
+    name: "지도 근린공원",
     category: 'park',
     latitude: 37.6219971,
     longitude: 126.8271981,
@@ -26709,7 +26709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00002',
-    name: "마상",
+    name: "마상 근린공원",
     category: 'park',
     latitude: 37.6601495,
     longitude: 126.8330165,
@@ -26725,7 +26725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41281_00001',
-    name: "성라",
+    name: "성라 근린공원",
     category: 'park',
     latitude: 37.6490565,
     longitude: 126.835368,
@@ -26757,7 +26757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00058',
-    name: "고양생태",
+    name: "고양생태 근린공원",
     category: 'park',
     latitude: 37.683949,
     longitude: 126.7441279,
@@ -26773,7 +26773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00057',
-    name: "농업체험",
+    name: "농업체험 근린공원",
     category: 'park',
     latitude: 37.6747327,
     longitude: 126.7387386,
@@ -26789,7 +26789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00056',
-    name: "탄현주상복합(탄현통나무)",
+    name: "탄현주상복합(탄현통나무) 어린이공원",
     category: 'park',
     latitude: 37.6951458,
     longitude: 126.7641204,
@@ -26853,7 +26853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00052',
-    name: "탄현주상복합(숯고개향나무)",
+    name: "탄현주상복합(숯고개향나무) 어린이공원",
     category: 'park',
     latitude: 37.6931033,
     longitude: 126.7631554,
@@ -26885,7 +26885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00050',
-    name: "킨텍스2단계(킨텍스온누리)",
+    name: "킨텍스2단계(킨텍스온누리) 근린공원",
     category: 'park',
     latitude: 37.6650513,
     longitude: 126.7467674,
@@ -26933,7 +26933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00047',
-    name: "덕이어린이1(샘물)",
+    name: "덕이어린이1(샘물) 어린이공원",
     category: 'park',
     latitude: 37.703864,
     longitude: 126.7526057,
@@ -26949,7 +26949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00046',
-    name: "덕이어린이2(아지랑이)",
+    name: "덕이어린이2(아지랑이) 어린이공원",
     category: 'park',
     latitude: 37.6994263,
     longitude: 126.7524671,
@@ -26965,7 +26965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00045',
-    name: "덕이어린이3(잎새)",
+    name: "덕이어린이3(잎새) 어린이공원",
     category: 'park',
     latitude: 37.6987178,
     longitude: 126.7525033,
@@ -26981,7 +26981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00044',
-    name: "덕이어린이4(한별)",
+    name: "덕이어린이4(한별) 어린이공원",
     category: 'park',
     latitude: 37.698186,
     longitude: 126.7531957,
@@ -26997,7 +26997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00043',
-    name: "탄현일단의주택지168(탄현호곡)",
+    name: "탄현일단의주택지168(탄현호곡) 어린이공원",
     category: 'park',
     latitude: 37.702124,
     longitude: 126.7661657,
@@ -27013,7 +27013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00042',
-    name: "탄현일단의주택지168(탄현용현)",
+    name: "탄현일단의주택지168(탄현용현) 어린이공원",
     category: 'park',
     latitude: 37.703514,
     longitude: 126.7645746,
@@ -27029,7 +27029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00041',
-    name: "덕이근린1(덕이)",
+    name: "덕이근린1(덕이) 근린공원",
     category: 'park',
     latitude: 37.7016969,
     longitude: 126.7544741,
@@ -27045,7 +27045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00040',
-    name: "덕이근린2(한산)",
+    name: "덕이근린2(한산) 근린공원",
     category: 'park',
     latitude: 37.6960163,
     longitude: 126.7494325,
@@ -27061,7 +27061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00039',
-    name: "국제전시장",
+    name: "국제전시장 근린공원",
     category: 'park',
     latitude: 37.6650109,
     longitude: 126.7562768,
@@ -27077,7 +27077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00038',
-    name: "레포츠",
+    name: "레포츠 체육공원",
     category: 'park',
     latitude: 37.6699179,
     longitude: 126.7371001,
@@ -27093,7 +27093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00037',
-    name: "호미걸이",
+    name: "호미걸이 근린공원",
     category: 'park',
     latitude: 37.671903,
     longitude: 126.7346817,
@@ -27109,7 +27109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00036',
-    name: "송포",
+    name: "송포 근린공원",
     category: 'park',
     latitude: 37.6703009,
     longitude: 126.7301278,
@@ -27125,7 +27125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00035',
-    name: "가좌",
+    name: "가좌 근린공원",
     category: 'park',
     latitude: 37.6861974,
     longitude: 126.7216817,
@@ -27141,7 +27141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00034',
-    name: "숯고개",
+    name: "숯고개 근린공원",
     category: 'park',
     latitude: 37.6907101,
     longitude: 126.7649935,
@@ -27157,7 +27157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00033',
-    name: "문화",
+    name: "문화 근린공원",
     category: 'park',
     latitude: 37.677056,
     longitude: 126.7659922,
@@ -27173,7 +27173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00032',
-    name: "후동",
+    name: "후동 근린공원",
     category: 'park',
     latitude: 37.6784201,
     longitude: 126.7669398,
@@ -27189,7 +27189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00031',
-    name: "회화",
+    name: "회화 어린이공원",
     category: 'park',
     latitude: 37.6656804,
     longitude: 126.7638604,
@@ -27205,7 +27205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00030',
-    name: "강선",
+    name: "강선 근린공원",
     category: 'park',
     latitude: 37.671171,
     longitude: 126.7620628,
@@ -27221,7 +27221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00029',
-    name: "궁골",
+    name: "궁골 어린이공원",
     category: 'park',
     latitude: 37.6695506,
     longitude: 126.7690897,
@@ -27237,7 +27237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00028',
-    name: "강재",
+    name: "강재 어린이공원",
     category: 'park',
     latitude: 37.6725486,
     longitude: 126.7633732,
@@ -27253,7 +27253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00027',
-    name: "오마",
+    name: "오마 어린이공원",
     category: 'park',
     latitude: 37.6783072,
     longitude: 126.7609682,
@@ -27269,7 +27269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00026',
-    name: "오거리",
+    name: "오거리 어린이공원",
     category: 'park',
     latitude: 37.6760616,
     longitude: 126.764586,
@@ -27285,7 +27285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00025',
-    name: "백암",
+    name: "백암 어린이공원",
     category: 'park',
     latitude: 37.6695499,
     longitude: 126.7553261,
@@ -27301,7 +27301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00024',
-    name: "주엽",
+    name: "주엽 근린공원",
     category: 'park',
     latitude: 37.668677,
     longitude: 126.7603779,
@@ -27317,7 +27317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00023',
-    name: "문촌",
+    name: "문촌 어린이공원",
     category: 'park',
     latitude: 37.6747456,
     longitude: 126.7584541,
@@ -27333,7 +27333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00022',
-    name: "이물재",
+    name: "이물재 어린이공원",
     category: 'park',
     latitude: 37.6735398,
     longitude: 126.7716033,
@@ -27349,7 +27349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00021',
-    name: "윗말",
+    name: "윗말 어린이공원",
     category: 'park',
     latitude: 37.6772176,
     longitude: 126.7740777,
@@ -27365,7 +27365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00020',
-    name: "도화",
+    name: "도화 어린이공원",
     category: 'park',
     latitude: 37.6822966,
     longitude: 126.7622449,
@@ -27381,7 +27381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00019',
-    name: "강서",
+    name: "강서 어린이공원",
     category: 'park',
     latitude: 37.6721963,
     longitude: 126.7507291,
@@ -27397,7 +27397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00018',
-    name: "장촌",
+    name: "장촌 근린공원",
     category: 'park',
     latitude: 37.6740216,
     longitude: 126.7515073,
@@ -27413,7 +27413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00017',
-    name: "김서",
+    name: "김서 어린이공원",
     category: 'park',
     latitude: 37.6736371,
     longitude: 126.7460472,
@@ -27429,7 +27429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00016',
-    name: "양촌",
+    name: "양촌 어린이공원",
     category: 'park',
     latitude: 37.6781586,
     longitude: 126.7493772,
@@ -27445,7 +27445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00015',
-    name: "대화",
+    name: "대화 근린공원",
     category: 'park',
     latitude: 37.6742656,
     longitude: 126.7538961,
@@ -27461,7 +27461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00014',
-    name: "장성",
+    name: "장성 어린이공원",
     category: 'park',
     latitude: 37.676798,
     longitude: 126.7538503,
@@ -27477,7 +27477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00013',
-    name: "가와지",
+    name: "가와지 어린이공원",
     category: 'park',
     latitude: 37.6798905,
     longitude: 126.7557898,
@@ -27493,7 +27493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00012',
-    name: "성저",
+    name: "성저 근린공원",
     category: 'park',
     latitude: 37.682324,
     longitude: 126.7562364,
@@ -27509,7 +27509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00011',
-    name: "왕산",
+    name: "왕산 어린이공원",
     category: 'park',
     latitude: 37.6821892,
     longitude: 126.7515212,
@@ -27525,7 +27525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00010',
-    name: "토성",
+    name: "토성 어린이공원",
     category: 'park',
     latitude: 37.6841783,
     longitude: 126.7541354,
@@ -27541,7 +27541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00009',
-    name: "새말",
+    name: "새말 어린이공원",
     category: 'park',
     latitude: 37.6844354,
     longitude: 126.7577169,
@@ -27557,7 +27557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00008',
-    name: "중산 10(한뫼)",
+    name: "중산 10(한뫼) 근린공원",
     category: 'park',
     latitude: 37.6935574,
     longitude: 126.7762593,
@@ -27573,7 +27573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00007',
-    name: "탄현 2(황룡산)",
+    name: "탄현 2(황룡산) 어린이공원",
     category: 'park',
     latitude: 37.6975013,
     longitude: 126.7713453,
@@ -27589,7 +27589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00006',
-    name: "탄현 6(탄중)",
+    name: "탄현 6(탄중) 어린이공원",
     category: 'park',
     latitude: 37.694232,
     longitude: 126.7709827,
@@ -27605,7 +27605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00005',
-    name: "탄현 5(탄현)",
+    name: "탄현 5(탄현) 어린이공원",
     category: 'park',
     latitude: 37.6940994,
     longitude: 126.76892,
@@ -27621,7 +27621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00004',
-    name: "탄현 4(숯고개)",
+    name: "탄현 4(숯고개) 어린이공원",
     category: 'park',
     latitude: 37.6939833,
     longitude: 126.7663116,
@@ -27637,7 +27637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00003',
-    name: "탄현 3(현중)",
+    name: "탄현 3(현중) 어린이공원",
     category: 'park',
     latitude: 37.6955912,
     longitude: 126.7675316,
@@ -27653,7 +27653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00002',
-    name: "탄현 1(황룡)",
+    name: "탄현 1(황룡) 어린이공원",
     category: 'park',
     latitude: 37.697663,
     longitude: 126.7673758,
@@ -27669,7 +27669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41287_00001',
-    name: "탄현근린",
+    name: "탄현근린 근린공원",
     category: 'park',
     latitude: 37.699989,
     longitude: 126.7752129,
@@ -27685,7 +27685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00080',
-    name: "모당",
+    name: "모당 근린공원",
     category: 'park',
     latitude: 37.6779174,
     longitude: 126.7805731,
@@ -27701,7 +27701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00079',
-    name: "파란",
+    name: "파란 소공원",
     category: 'park',
     latitude: 37.6793951,
     longitude: 126.7904581,
@@ -27797,7 +27797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00073',
-    name: "식사근린3(방아고개)",
+    name: "식사근린3(방아고개) 근린공원",
     category: 'park',
     latitude: 37.6742365,
     longitude: 126.8110443,
@@ -27813,7 +27813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00072',
-    name: "식사근린2(식사중앙)",
+    name: "식사근린2(식사중앙) 근린공원",
     category: 'park',
     latitude: 37.6777781,
     longitude: 126.8138635,
@@ -27829,7 +27829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00071',
-    name: "식사어린이6(저현)",
+    name: "식사어린이6(저현) 어린이공원",
     category: 'park',
     latitude: 37.675631,
     longitude: 126.8123988,
@@ -27845,7 +27845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00070',
-    name: "식사어린이5(올림푸스놀이)",
+    name: "식사어린이5(올림푸스놀이) 어린이공원",
     category: 'park',
     latitude: 37.6830019,
     longitude: 126.8074054,
@@ -27861,7 +27861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00069',
-    name: "식사어린이4(과학)",
+    name: "식사어린이4(과학) 어린이공원",
     category: 'park',
     latitude: 37.6801852,
     longitude: 126.8153401,
@@ -27877,7 +27877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00068',
-    name: "식사어린이3(바람놀이)",
+    name: "식사어린이3(바람놀이) 어린이공원",
     category: 'park',
     latitude: 37.6816485,
     longitude: 126.8095471,
@@ -27909,7 +27909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00066',
-    name: "식사어린이1(상상)",
+    name: "식사어린이1(상상) 어린이공원",
     category: 'park',
     latitude: 37.6745623,
     longitude: 126.8075159,
@@ -27925,7 +27925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00065',
-    name: "식사근린1(어침이)",
+    name: "식사근린1(어침이) 근린공원",
     category: 'park',
     latitude: 37.6853925,
     longitude: 126.8122132,
@@ -27957,7 +27957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41285_00063',
-    name: "풍동(풍식사2)",
+    name: "풍동(풍식사2) 문화공원",
     category: 'park',
     latitude: 37.6645085,
     longitude: 126.8035678,
@@ -27973,7 +27973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00072',
-    name: "벌말",
+    name: "벌말 어린이공원",
     category: 'park',
     latitude: 37.2601838,
     longitude: 126.9960193,
@@ -27989,7 +27989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00071',
-    name: "버드내",
+    name: "버드내 어린이공원",
     category: 'park',
     latitude: 37.2573526,
     longitude: 127.0096088,
@@ -28005,7 +28005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00070',
-    name: "다정",
+    name: "다정 어린이공원",
     category: 'park',
     latitude: 37.252715,
     longitude: 127.0222966,
@@ -28021,7 +28021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00069',
-    name: "아우름",
+    name: "아우름 어린이공원",
     category: 'park',
     latitude: 37.2520624,
     longitude: 127.0277848,
@@ -28037,7 +28037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00068',
-    name: "권선",
+    name: "권선 어린이공원",
     category: 'park',
     latitude: 37.2534724,
     longitude: 127.0230507,
@@ -28053,7 +28053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00067',
-    name: "우솔",
+    name: "우솔 어린이공원",
     category: 'park',
     latitude: 37.2524472,
     longitude: 127.0287838,
@@ -28069,7 +28069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00066',
-    name: "다솜",
+    name: "다솜 어린이공원",
     category: 'park',
     latitude: 37.2501081,
     longitude: 127.0284402,
@@ -28085,7 +28085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00065',
-    name: "선일",
+    name: "선일 어린이공원",
     category: 'park',
     latitude: 37.2487464,
     longitude: 127.0304415,
@@ -28101,7 +28101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00080',
-    name: "별솔",
+    name: "별솔 어린이공원",
     category: 'park',
     latitude: 37.2785693,
     longitude: 126.9698845,
@@ -28117,7 +28117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00079',
-    name: "하늬",
+    name: "하늬 어린이공원",
     category: 'park',
     latitude: 37.2806795,
     longitude: 126.9723015,
@@ -28133,7 +28133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00078',
-    name: "드림",
+    name: "드림 어린이공원",
     category: 'park',
     latitude: 37.2804878,
     longitude: 126.9703666,
@@ -28149,7 +28149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00077',
-    name: "세모",
+    name: "세모 어린이공원",
     category: 'park',
     latitude: 37.2853036,
     longitude: 126.9724008,
@@ -28165,7 +28165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00076',
-    name: "꽃길",
+    name: "꽃길 어린이공원",
     category: 'park',
     latitude: 37.2825796,
     longitude: 126.9735142,
@@ -28181,7 +28181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00075',
-    name: "다온",
+    name: "다온 어린이공원",
     category: 'park',
     latitude: 37.2843242,
     longitude: 126.9763281,
@@ -28197,7 +28197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00074',
-    name: "갓띠",
+    name: "갓띠 어린이공원",
     category: 'park',
     latitude: 37.2961916,
     longitude: 126.9593666,
@@ -28213,7 +28213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00073',
-    name: "까치",
+    name: "까치 어린이공원",
     category: 'park',
     latitude: 37.2926973,
     longitude: 126.9358111,
@@ -28805,7 +28805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00045',
-    name: "솔빛",
+    name: "솔빛 어린이공원",
     category: 'park',
     latitude: 37.2671388,
     longitude: 127.058579,
@@ -28821,7 +28821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00070',
-    name: "수련",
+    name: "수련 어린이공원",
     category: 'park',
     latitude: 37.2424537,
     longitude: 127.0645009,
@@ -28837,7 +28837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00069',
-    name: "온누리",
+    name: "온누리 어린이공원",
     category: 'park',
     latitude: 37.2387693,
     longitude: 127.059446,
@@ -28853,7 +28853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00068',
-    name: "소문",
+    name: "소문 어린이공원",
     category: 'park',
     latitude: 37.2399014,
     longitude: 127.0573732,
@@ -28869,7 +28869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00067',
-    name: "소담",
+    name: "소담 어린이공원",
     category: 'park',
     latitude: 37.238967,
     longitude: 127.0555283,
@@ -28885,7 +28885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00066',
-    name: "방죽",
+    name: "방죽 어린이공원",
     category: 'park',
     latitude: 37.2398457,
     longitude: 127.0553349,
@@ -28901,7 +28901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00065',
-    name: "샘말",
+    name: "샘말 어린이공원",
     category: 'park',
     latitude: 37.2418275,
     longitude: 127.0536129,
@@ -28917,7 +28917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00064',
-    name: "그린나래",
+    name: "그린나래 어린이공원",
     category: 'park',
     latitude: 37.2550097,
     longitude: 127.0415066,
@@ -28933,7 +28933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00063',
-    name: "풀샘",
+    name: "풀샘 어린이공원",
     category: 'park',
     latitude: 37.2551548,
     longitude: 127.0422868,
@@ -28949,7 +28949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00062',
-    name: "매여울",
+    name: "매여울 어린이공원",
     category: 'park',
     latitude: 37.2583379,
     longitude: 127.0430012,
@@ -28965,7 +28965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00061',
-    name: "매화",
+    name: "매화 어린이공원",
     category: 'park',
     latitude: 37.2602097,
     longitude: 127.046066,
@@ -28981,7 +28981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00060',
-    name: "푸름",
+    name: "푸름 어린이공원",
     category: 'park',
     latitude: 37.2625946,
     longitude: 127.0477359,
@@ -28997,7 +28997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00059',
-    name: "미리내",
+    name: "미리내 어린이공원",
     category: 'park',
     latitude: 37.2453602,
     longitude: 127.0685793,
@@ -29013,7 +29013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00058',
-    name: "한울",
+    name: "한울 어린이공원",
     category: 'park',
     latitude: 37.2492387,
     longitude: 127.0608564,
@@ -29029,7 +29029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00057',
-    name: "박지성",
+    name: "박지성 어린이공원",
     category: 'park',
     latitude: 37.2498985,
     longitude: 127.0660942,
@@ -29045,7 +29045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00056',
-    name: "솔찬",
+    name: "솔찬 어린이공원",
     category: 'park',
     latitude: 37.2530226,
     longitude: 127.0647227,
@@ -29061,7 +29061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00055',
-    name: "보리수",
+    name: "보리수 어린이공원",
     category: 'park',
     latitude: 37.2481381,
     longitude: 127.0671583,
@@ -29077,7 +29077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00054',
-    name: "풀잎",
+    name: "풀잎 어린이공원",
     category: 'park',
     latitude: 37.2485198,
     longitude: 127.0696446,
@@ -29093,7 +29093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00053',
-    name: "으뜸",
+    name: "으뜸 어린이공원",
     category: 'park',
     latitude: 37.2491101,
     longitude: 127.0774793,
@@ -29109,7 +29109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00052',
-    name: "수정",
+    name: "수정 어린이공원",
     category: 'park',
     latitude: 37.2517574,
     longitude: 127.0800835,
@@ -29125,7 +29125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00051',
-    name: "단오",
+    name: "단오 어린이공원",
     category: 'park',
     latitude: 37.2560198,
     longitude: 127.0766658,
@@ -29141,7 +29141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00050',
-    name: "푸른",
+    name: "푸른 어린이공원",
     category: 'park',
     latitude: 37.2590506,
     longitude: 127.0739487,
@@ -29157,7 +29157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00049',
-    name: "달님",
+    name: "달님 어린이공원",
     category: 'park',
     latitude: 37.2627687,
     longitude: 127.084262,
@@ -29173,7 +29173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00048',
-    name: "미로",
+    name: "미로 어린이공원",
     category: 'park',
     latitude: 37.2618581,
     longitude: 127.0781262,
@@ -29189,7 +29189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00047',
-    name: "달래",
+    name: "달래 어린이공원",
     category: 'park',
     latitude: 37.2666377,
     longitude: 127.0830516,
@@ -29205,7 +29205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00046',
-    name: "해오름",
+    name: "해오름 어린이공원",
     category: 'park',
     latitude: 37.2649123,
     longitude: 127.0813304,
@@ -29221,7 +29221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00074',
-    name: "망포",
+    name: "망포 어린이공원",
     category: 'park',
     latitude: 37.2447432,
     longitude: 127.0558023,
@@ -29253,7 +29253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00072',
-    name: "우주",
+    name: "우주 어린이공원",
     category: 'park',
     latitude: 37.2414849,
     longitude: 127.0632755,
@@ -29269,7 +29269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00071',
-    name: "당암",
+    name: "당암 어린이공원",
     category: 'park',
     latitude: 37.243728,
     longitude: 127.0608294,
@@ -29333,7 +29333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00085',
-    name: "물빛",
+    name: "물빛 어린이공원",
     category: 'park',
     latitude: 37.2466075,
     longitude: 127.0418114,
@@ -29349,7 +29349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00084',
-    name: "동그라미",
+    name: "동그라미 어린이공원",
     category: 'park',
     latitude: 37.2478301,
     longitude: 127.0429386,
@@ -29365,7 +29365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00083',
-    name: "틴틴",
+    name: "틴틴 어린이공원",
     category: 'park',
     latitude: 37.2888716,
     longitude: 127.0485014,
@@ -29381,7 +29381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00082',
-    name: "고래등",
+    name: "고래등 어린이공원",
     category: 'park',
     latitude: 37.2978665,
     longitude: 127.0436077,
@@ -29397,7 +29397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00081',
-    name: "신호등",
+    name: "신호등 어린이공원",
     category: 'park',
     latitude: 37.2918563,
     longitude: 127.0702764,
@@ -29413,7 +29413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00080',
-    name: "소꼽놀이",
+    name: "소꼽놀이 어린이공원",
     category: 'park',
     latitude: 37.2934822,
     longitude: 127.0697268,
@@ -29429,7 +29429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00079',
-    name: "동물놀이",
+    name: "동물놀이 어린이공원",
     category: 'park',
     latitude: 37.2744357,
     longitude: 127.0528192,
@@ -29445,7 +29445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00078',
-    name: "꿈틀이",
+    name: "꿈틀이 어린이공원",
     category: 'park',
     latitude: 37.2772832,
     longitude: 127.0502561,
@@ -29461,7 +29461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00077',
-    name: "붐붐",
+    name: "붐붐 어린이공원",
     category: 'park',
     latitude: 37.2859154,
     longitude: 127.0525412,
@@ -29477,7 +29477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00076',
-    name: "물봉선",
+    name: "물봉선 어린이공원",
     category: 'park',
     latitude: 37.2940923,
     longitude: 127.053864,
@@ -29493,7 +29493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00075',
-    name: "다람쥐",
+    name: "다람쥐 어린이공원",
     category: 'park',
     latitude: 37.299545,
     longitude: 127.0461757,
@@ -29701,7 +29701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00020',
-    name: "다산",
+    name: "다산 근린공원",
     category: 'park',
     latitude: 37.2903797,
     longitude: 127.0547563,
@@ -29717,7 +29717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00019',
-    name: "광교중앙",
+    name: "광교중앙 근린공원",
     category: 'park',
     latitude: 37.293898,
     longitude: 127.0603242,
@@ -29733,7 +29733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00018',
-    name: "망포",
+    name: "망포 근린공원",
     category: 'park',
     latitude: 37.2424644,
     longitude: 127.0577196,
@@ -29749,7 +29749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00017',
-    name: "연암",
+    name: "연암 근린공원",
     category: 'park',
     latitude: 37.2945024,
     longitude: 127.0364342,
@@ -29765,7 +29765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00016',
-    name: "솔내",
+    name: "솔내 근린공원",
     category: 'park',
     latitude: 37.3081845,
     longitude: 127.0510224,
@@ -29781,7 +29781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00015',
-    name: "성죽",
+    name: "성죽 근린공원",
     category: 'park',
     latitude: 37.3094739,
     longitude: 127.0480744,
@@ -29797,7 +29797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00014',
-    name: "열림",
+    name: "열림 근린공원",
     category: 'park',
     latitude: 37.3055574,
     longitude: 127.0431528,
@@ -29813,7 +29813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00013',
-    name: "선주리들",
+    name: "선주리들 근린공원",
     category: 'park',
     latitude: 37.2560462,
     longitude: 127.0439958,
@@ -29829,7 +29829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00012',
-    name: "매여울",
+    name: "매여울 근린공원",
     category: 'park',
     latitude: 37.2569794,
     longitude: 127.0438285,
@@ -29845,7 +29845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00011',
-    name: "머내생태",
+    name: "머내생태 근린공원",
     category: 'park',
     latitude: 37.2595236,
     longitude: 127.0490344,
@@ -29861,7 +29861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00010',
-    name: "교통",
+    name: "교통 근린공원",
     category: 'park',
     latitude: 37.2453957,
     longitude: 127.0627739,
@@ -29877,7 +29877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00009',
-    name: "벽적골",
+    name: "벽적골 근린공원",
     category: 'park',
     latitude: 37.2486777,
     longitude: 127.0618933,
@@ -29893,7 +29893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00008',
-    name: "살구골",
+    name: "살구골 근린공원",
     category: 'park',
     latitude: 37.2506634,
     longitude: 127.0716869,
@@ -29909,7 +29909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00007',
-    name: "반달",
+    name: "반달 근린공원",
     category: 'park',
     latitude: 37.2508745,
     longitude: 127.0788585,
@@ -29925,7 +29925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00006',
-    name: "영통중앙",
+    name: "영통중앙 근린공원",
     category: 'park',
     latitude: 37.2571868,
     longitude: 127.0720587,
@@ -29941,7 +29941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00005',
-    name: "영통사",
+    name: "영통사 근린공원",
     category: 'park',
     latitude: 37.2578354,
     longitude: 127.0780384,
@@ -29957,7 +29957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00004',
-    name: "황골",
+    name: "황골 근린공원",
     category: 'park',
     latitude: 37.2663194,
     longitude: 127.0785929,
@@ -29973,7 +29973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00003',
-    name: "청명",
+    name: "청명 근린공원",
     category: 'park',
     latitude: 37.2674791,
     longitude: 127.0830811,
@@ -29989,7 +29989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00002',
-    name: "매봉",
+    name: "매봉 근린공원",
     category: 'park',
     latitude: 37.2696159,
     longitude: 127.0550597,
@@ -30005,7 +30005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00001',
-    name: "매탄",
+    name: "매탄 근린공원",
     category: 'park',
     latitude: 37.2671334,
     longitude: 127.0454804,
@@ -30069,7 +30069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00021',
-    name: "혜령",
+    name: "혜령 근린공원",
     category: 'park',
     latitude: 37.288268,
     longitude: 127.0452351,
@@ -30085,7 +30085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00029',
-    name: "수원광교박물관 인근",
+    name: "수원광교박물관 인근 역사공원",
     category: 'park',
     latitude: 37.2976466,
     longitude: 127.0530962,
@@ -30101,7 +30101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00028',
-    name: "지성",
+    name: "지성 근린공원",
     category: 'park',
     latitude: 37.2388292,
     longitude: 127.0463235,
@@ -30117,7 +30117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00027',
-    name: "방죽",
+    name: "방죽 근린공원",
     category: 'park',
     latitude: 37.2447015,
     longitude: 127.0514803,
@@ -30165,7 +30165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00024',
-    name: "번암가족",
+    name: "번암가족 근린공원",
     category: 'park',
     latitude: 37.2967405,
     longitude: 127.0879704,
@@ -30181,7 +30181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00023',
-    name: "텃밭",
+    name: "텃밭 근린공원",
     category: 'park',
     latitude: 37.2730282,
     longitude: 127.0632063,
@@ -30197,7 +30197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00022',
-    name: "사색",
+    name: "사색 근린공원",
     category: 'park',
     latitude: 37.2832308,
     longitude: 127.0548829,
@@ -30213,7 +30213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00013',
-    name: "장우",
+    name: "장우 어린이공원",
     category: 'park',
     latitude: 37.3073137,
     longitude: 126.9966882,
@@ -30229,7 +30229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00012',
-    name: "세일",
+    name: "세일 어린이공원",
     category: 'park',
     latitude: 37.3100129,
     longitude: 126.9907275,
@@ -30261,7 +30261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00037',
-    name: "청솔",
+    name: "청솔 어린이공원",
     category: 'park',
     latitude: 37.2938589,
     longitude: 126.9844114,
@@ -30277,7 +30277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00036',
-    name: "비단",
+    name: "비단 어린이공원",
     category: 'park',
     latitude: 37.2975165,
     longitude: 126.9833844,
@@ -30293,7 +30293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00035',
-    name: "초록",
+    name: "초록 어린이공원",
     category: 'park',
     latitude: 37.2969384,
     longitude: 126.9870001,
@@ -30309,7 +30309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00034',
-    name: "천천",
+    name: "천천 어린이공원",
     category: 'park',
     latitude: 37.2991634,
     longitude: 126.9818185,
@@ -30325,7 +30325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00033',
-    name: "샘터",
+    name: "샘터 어린이공원",
     category: 'park',
     latitude: 37.2993952,
     longitude: 126.9792424,
@@ -30341,7 +30341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00032',
-    name: "바람",
+    name: "바람 어린이공원",
     category: 'park',
     latitude: 37.3011598,
     longitude: 126.9819739,
@@ -30357,7 +30357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00031',
-    name: "하늘",
+    name: "하늘 어린이공원",
     category: 'park',
     latitude: 37.3036855,
     longitude: 126.9758072,
@@ -30373,7 +30373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00030',
-    name: "달",
+    name: "달 어린이공원",
     category: 'park',
     latitude: 37.3026938,
     longitude: 126.9785128,
@@ -30389,7 +30389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00029',
-    name: "별",
+    name: "별 어린이공원",
     category: 'park',
     latitude: 37.3026786,
     longitude: 126.9776435,
@@ -30405,7 +30405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00028',
-    name: "금당",
+    name: "금당 어린이공원",
     category: 'park',
     latitude: 37.3043905,
     longitude: 127.0178064,
@@ -30421,7 +30421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00027',
-    name: "조원",
+    name: "조원 어린이공원",
     category: 'park',
     latitude: 37.3036802,
     longitude: 127.0172351,
@@ -30437,7 +30437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00026',
-    name: "대추원",
+    name: "대추원 어린이공원",
     category: 'park',
     latitude: 37.3045197,
     longitude: 127.0151755,
@@ -30453,7 +30453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00025',
-    name: "영복",
+    name: "영복 어린이공원",
     category: 'park',
     latitude: 37.2892245,
     longitude: 127.0027517,
@@ -30469,7 +30469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00024',
-    name: "영화",
+    name: "영화 어린이공원",
     category: 'park',
     latitude: 37.2913261,
     longitude: 127.0099231,
@@ -30485,7 +30485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00023',
-    name: "정자",
+    name: "정자 어린이공원",
     category: 'park',
     latitude: 37.2955282,
     longitude: 127.0025669,
@@ -30501,7 +30501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00022',
-    name: "일림",
+    name: "일림 어린이공원",
     category: 'park',
     latitude: 37.3086407,
     longitude: 127.001409,
@@ -30517,7 +30517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00021',
-    name: "쪽박산",
+    name: "쪽박산 어린이공원",
     category: 'park',
     latitude: 37.2931831,
     longitude: 127.0239151,
@@ -30533,7 +30533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00020',
-    name: "창훈",
+    name: "창훈 어린이공원",
     category: 'park',
     latitude: 37.2943782,
     longitude: 127.0274999,
@@ -30549,7 +30549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00019',
-    name: "연무",
+    name: "연무 어린이공원",
     category: 'park',
     latitude: 37.2961515,
     longitude: 127.0301403,
@@ -30565,7 +30565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00018',
-    name: "역마",
+    name: "역마 어린이공원",
     category: 'park',
     latitude: 37.2968621,
     longitude: 127.0163697,
@@ -30581,7 +30581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00017',
-    name: "다람쥐",
+    name: "다람쥐 어린이공원",
     category: 'park',
     latitude: 37.3001623,
     longitude: 127.0141348,
@@ -30597,7 +30597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00016',
-    name: "석산",
+    name: "석산 어린이공원",
     category: 'park',
     latitude: 37.3030995,
     longitude: 127.0156152,
@@ -30613,7 +30613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00015',
-    name: "송죽",
+    name: "송죽 어린이공원",
     category: 'park',
     latitude: 37.3022291,
     longitude: 127.0033486,
@@ -30629,7 +30629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00014',
-    name: "소정",
+    name: "소정 어린이공원",
     category: 'park',
     latitude: 37.3055838,
     longitude: 126.9990299,
@@ -30645,7 +30645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00049',
-    name: "장대산",
+    name: "장대산 어린이공원",
     category: 'park',
     latitude: 37.2590342,
     longitude: 127.0212921,
@@ -30661,7 +30661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00048',
-    name: "기차놀이",
+    name: "기차놀이 어린이공원",
     category: 'park',
     latitude: 37.2598756,
     longitude: 127.0080277,
@@ -30677,7 +30677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00053',
-    name: "오리뜰",
+    name: "오리뜰 어린이공원",
     category: 'park',
     latitude: 37.3054493,
     longitude: 126.983509,
@@ -30693,7 +30693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00052',
-    name: "노루말",
+    name: "노루말 어린이공원",
     category: 'park',
     latitude: 37.309493,
     longitude: 126.9823575,
@@ -30709,7 +30709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00051',
-    name: "해늘찬",
+    name: "해늘찬 어린이공원",
     category: 'park',
     latitude: 37.3141498,
     longitude: 126.9846442,
@@ -30725,7 +30725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00050',
-    name: "해드림",
+    name: "해드림 어린이공원",
     category: 'park',
     latitude: 37.3121818,
     longitude: 126.9830698,
@@ -30741,7 +30741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00049',
-    name: "율전",
+    name: "율전 어린이공원",
     category: 'park',
     latitude: 37.2992499,
     longitude: 126.9643046,
@@ -30757,7 +30757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00048',
-    name: "정천",
+    name: "정천 어린이공원",
     category: 'park',
     latitude: 37.2911566,
     longitude: 126.9805545,
@@ -30773,7 +30773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00047',
-    name: "화산",
+    name: "화산 어린이공원",
     category: 'park',
     latitude: 37.2911566,
     longitude: 126.9805545,
@@ -30789,7 +30789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00046',
-    name: "거북",
+    name: "거북 어린이공원",
     category: 'park',
     latitude: 37.2930621,
     longitude: 127.0148778,
@@ -30805,7 +30805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00045',
-    name: "동신",
+    name: "동신 어린이공원",
     category: 'park',
     latitude: 37.2948322,
     longitude: 126.9901113,
@@ -30821,7 +30821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00044',
-    name: "두견",
+    name: "두견 어린이공원",
     category: 'park',
     latitude: 37.2915024,
     longitude: 126.9974648,
@@ -30837,7 +30837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00043',
-    name: "명인",
+    name: "명인 어린이공원",
     category: 'park',
     latitude: 37.2949711,
     longitude: 126.9955839,
@@ -30853,7 +30853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00042',
-    name: "꽃뫼",
+    name: "꽃뫼 어린이공원",
     category: 'park',
     latitude: 37.2928789,
     longitude: 126.9920965,
@@ -30869,7 +30869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00041',
-    name: "백설",
+    name: "백설 어린이공원",
     category: 'park',
     latitude: 37.2951342,
     longitude: 126.9911147,
@@ -30885,7 +30885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00040',
-    name: "대평",
+    name: "대평 어린이공원",
     category: 'park',
     latitude: 37.2967445,
     longitude: 126.9889194,
@@ -30901,7 +30901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00039',
-    name: "연꽃",
+    name: "연꽃 어린이공원",
     category: 'park',
     latitude: 37.2991499,
     longitude: 126.9946448,
@@ -30917,7 +30917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00038',
-    name: "솔뫼",
+    name: "솔뫼 어린이공원",
     category: 'park',
     latitude: 37.2934661,
     longitude: 126.9869171,
@@ -30933,7 +30933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00064',
-    name: "꽃잎",
+    name: "꽃잎 어린이공원",
     category: 'park',
     latitude: 37.2499119,
     longitude: 127.0320242,
@@ -30949,7 +30949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00063',
-    name: "효정",
+    name: "효정 어린이공원",
     category: 'park',
     latitude: 37.2549473,
     longitude: 127.0333658,
@@ -30965,7 +30965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00062',
-    name: "솔밭",
+    name: "솔밭 어린이공원",
     category: 'park',
     latitude: 37.2536885,
     longitude: 127.0383294,
@@ -30981,7 +30981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00061',
-    name: "안용",
+    name: "안용 어린이공원",
     category: 'park',
     latitude: 37.2434004,
     longitude: 127.0322652,
@@ -30997,7 +30997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00060',
-    name: "용화출",
+    name: "용화출 어린이공원",
     category: 'park',
     latitude: 37.2563209,
     longitude: 127.0339841,
@@ -31013,7 +31013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00059',
-    name: "칙칙폭폭",
+    name: "칙칙폭폭 어린이공원",
     category: 'park',
     latitude: 37.2760094,
     longitude: 126.976222,
@@ -31029,7 +31029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00058',
-    name: "하구운",
+    name: "하구운 어린이공원",
     category: 'park',
     latitude: 37.2763366,
     longitude: 126.9728353,
@@ -31045,7 +31045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00057',
-    name: "은하수",
+    name: "은하수 어린이공원",
     category: 'park',
     latitude: 37.2798219,
     longitude: 126.9734779,
@@ -31061,7 +31061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00056',
-    name: "장승배기",
+    name: "장승배기 어린이공원",
     category: 'park',
     latitude: 37.2559212,
     longitude: 127.0179275,
@@ -31077,7 +31077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00055',
-    name: "재간령",
+    name: "재간령 어린이공원",
     category: 'park',
     latitude: 37.2495163,
     longitude: 127.0143373,
@@ -31093,7 +31093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00054',
-    name: "신곡",
+    name: "신곡 어린이공원",
     category: 'park',
     latitude: 37.2449895,
     longitude: 127.0163291,
@@ -31109,7 +31109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00053',
-    name: "세곡",
+    name: "세곡 어린이공원",
     category: 'park',
     latitude: 37.256449,
     longitude: 127.0273183,
@@ -31125,7 +31125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00052',
-    name: "중앙",
+    name: "중앙 어린이공원",
     category: 'park',
     latitude: 37.2624002,
     longitude: 127.0227361,
@@ -31141,7 +31141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00051',
-    name: "문화",
+    name: "문화 어린이공원",
     category: 'park',
     latitude: 37.2526554,
     longitude: 127.0173046,
@@ -31157,7 +31157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00050',
-    name: "전원",
+    name: "전원 어린이공원",
     category: 'park',
     latitude: 37.2553938,
     longitude: 127.0223372,
@@ -31189,7 +31189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00096',
-    name: "고래의모험",
+    name: "고래의모험 어린이공원",
     category: 'park',
     latitude: 37.2524806,
     longitude: 127.0090813,
@@ -31205,7 +31205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00095',
-    name: "벌터",
+    name: "벌터 어린이공원",
     category: 'park',
     latitude: 37.2636743,
     longitude: 126.9908188,
@@ -31221,7 +31221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00094',
-    name: "장교둑",
+    name: "장교둑 어린이공원",
     category: 'park',
     latitude: 37.2591911,
     longitude: 127.0188716,
@@ -31237,7 +31237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00093',
-    name: "풀잎",
+    name: "풀잎 어린이공원",
     category: 'park',
     latitude: 37.2783374,
     longitude: 126.9518662,
@@ -31253,7 +31253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00092',
-    name: "한주",
+    name: "한주 어린이공원",
     category: 'park',
     latitude: 37.2540799,
     longitude: 127.0134765,
@@ -31269,7 +31269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00091',
-    name: "고색",
+    name: "고색 어린이공원",
     category: 'park',
     latitude: 37.2469422,
     longitude: 126.9788974,
@@ -31285,7 +31285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00090',
-    name: "별빛",
+    name: "별빛 어린이공원",
     category: 'park',
     latitude: 37.2481047,
     longitude: 127.033795,
@@ -31301,7 +31301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00089',
-    name: "산들",
+    name: "산들 어린이공원",
     category: 'park',
     latitude: 37.2486321,
     longitude: 127.0368538,
@@ -31317,7 +31317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00088',
-    name: "상록",
+    name: "상록 어린이공원",
     category: 'park',
     latitude: 37.2500268,
     longitude: 127.0378542,
@@ -31333,7 +31333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00087',
-    name: "온수골",
+    name: "온수골 어린이공원",
     category: 'park',
     latitude: 37.2519014,
     longitude: 127.0363942,
@@ -31349,7 +31349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00086',
-    name: "명당",
+    name: "명당 어린이공원",
     category: 'park',
     latitude: 37.2526448,
     longitude: 127.0399881,
@@ -31365,7 +31365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00085',
-    name: "탑골",
+    name: "탑골 어린이공원",
     category: 'park',
     latitude: 37.2681739,
     longitude: 126.9764008,
@@ -31381,7 +31381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00084',
-    name: "잎새",
+    name: "잎새 어린이공원",
     category: 'park',
     latitude: 37.2709059,
     longitude: 126.9780323,
@@ -31397,7 +31397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00083',
-    name: "푸른지대",
+    name: "푸른지대 어린이공원",
     category: 'park',
     latitude: 37.2702492,
     longitude: 126.9732388,
@@ -31413,7 +31413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00082',
-    name: "탑마루",
+    name: "탑마루 어린이공원",
     category: 'park',
     latitude: 37.2736232,
     longitude: 126.9753258,
@@ -31429,7 +31429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00081',
-    name: "사랑",
+    name: "사랑 어린이공원",
     category: 'park',
     latitude: 37.2771401,
     longitude: 126.9718878,
@@ -31445,7 +31445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00008',
-    name: "당산",
+    name: "당산 어린이공원",
     category: 'park',
     latitude: 37.2870685,
     longitude: 127.0320989,
@@ -31461,7 +31461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00007',
-    name: "아낌없이주는나무",
+    name: "아낌없이주는나무 어린이공원",
     category: 'park',
     latitude: 37.2871669,
     longitude: 127.0278678,
@@ -31493,7 +31493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00119',
-    name: "고사",
+    name: "고사 어린이공원",
     category: 'park',
     latitude: 37.2330465,
     longitude: 126.9774257,
@@ -31509,7 +31509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00118',
-    name: "고금",
+    name: "고금 어린이공원",
     category: 'park',
     latitude: 37.2339378,
     longitude: 126.9742589,
@@ -31525,7 +31525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00117',
-    name: "물이랑",
+    name: "물이랑 어린이공원",
     category: 'park',
     latitude: 37.2441707,
     longitude: 127.0275409,
@@ -31541,7 +31541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00116',
-    name: "꿈이랑",
+    name: "꿈이랑 어린이공원",
     category: 'park',
     latitude: 37.2417769,
     longitude: 127.0181324,
@@ -31557,7 +31557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00115',
-    name: "하늘이랑",
+    name: "하늘이랑 어린이공원",
     category: 'park',
     latitude: 37.2400654,
     longitude: 127.0210479,
@@ -31573,7 +31573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00114',
-    name: "별누리",
+    name: "별누리 어린이공원",
     category: 'park',
     latitude: 37.2978473,
     longitude: 126.9534509,
@@ -31589,7 +31589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00113',
-    name: "해누리",
+    name: "해누리 어린이공원",
     category: 'park',
     latitude: 37.3006826,
     longitude: 126.9538867,
@@ -31605,7 +31605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00112',
-    name: "오누이",
+    name: "오누이 어린이공원",
     category: 'park',
     latitude: 37.2335338,
     longitude: 127.0254139,
@@ -31621,7 +31621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00111',
-    name: "신아",
+    name: "신아 어린이공원",
     category: 'park',
     latitude: 37.2373961,
     longitude: 127.0299682,
@@ -31637,7 +31637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00110',
-    name: "곡반정",
+    name: "곡반정 어린이공원",
     category: 'park',
     latitude: 37.2411625,
     longitude: 127.0310741,
@@ -31669,7 +31669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00108',
-    name: "우주선",
+    name: "우주선 어린이공원",
     category: 'park',
     latitude: 37.2761487,
     longitude: 126.9544608,
@@ -31685,7 +31685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00107',
-    name: "물방울",
+    name: "물방울 어린이공원",
     category: 'park',
     latitude: 37.2703571,
     longitude: 126.9422609,
@@ -31701,7 +31701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00106',
-    name: "크레파스",
+    name: "크레파스 어린이공원",
     category: 'park',
     latitude: 37.2750843,
     longitude: 126.9372468,
@@ -31717,7 +31717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00105',
-    name: "물결",
+    name: "물결 어린이공원",
     category: 'park',
     latitude: 37.265462,
     longitude: 127.0084686,
@@ -31733,7 +31733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00104',
-    name: "여우별",
+    name: "여우별 어린이공원",
     category: 'park',
     latitude: 37.245026,
     longitude: 126.9681128,
@@ -31749,7 +31749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00103',
-    name: "꿈나무",
+    name: "꿈나무 어린이공원",
     category: 'park',
     latitude: 37.2540485,
     longitude: 127.0265616,
@@ -31765,7 +31765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00102',
-    name: "상상나래",
+    name: "상상나래 어린이공원",
     category: 'park',
     latitude: 37.2537759,
     longitude: 127.0242229,
@@ -31781,7 +31781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00101',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.2577467,
     longitude: 127.0252778,
@@ -31797,7 +31797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00100',
-    name: "한터",
+    name: "한터 어린이공원",
     category: 'park',
     latitude: 37.2678735,
     longitude: 126.9961442,
@@ -31813,7 +31813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00099',
-    name: "오색",
+    name: "오색 어린이공원",
     category: 'park',
     latitude: 37.2467414,
     longitude: 126.9675025,
@@ -31829,7 +31829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00098',
-    name: "오목천",
+    name: "오목천 어린이공원",
     category: 'park',
     latitude: 37.2421377,
     longitude: 126.9636059,
@@ -31845,7 +31845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00097',
-    name: "서낭재",
+    name: "서낭재 어린이공원",
     category: 'park',
     latitude: 37.2731632,
     longitude: 126.9783039,
@@ -31861,7 +31861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00033',
-    name: "교동",
+    name: "교동 어린이공원",
     category: 'park',
     latitude: 37.2717474,
     longitude: 127.012064,
@@ -31877,7 +31877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00032',
-    name: "장고개",
+    name: "장고개 어린이공원",
     category: 'park',
     latitude: 37.2786827,
     longitude: 127.0404484,
@@ -31893,7 +31893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00031',
-    name: "솔밭산",
+    name: "솔밭산 어린이공원",
     category: 'park',
     latitude: 37.2779011,
     longitude: 127.0434517,
@@ -31909,7 +31909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00030',
-    name: "네버랜드",
+    name: "네버랜드 어린이공원",
     category: 'park',
     latitude: 37.2813595,
     longitude: 126.9925868,
@@ -31925,7 +31925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00029',
-    name: "숙지",
+    name: "숙지 어린이공원",
     category: 'park',
     latitude: 37.2833784,
     longitude: 126.9925305,
@@ -31941,7 +31941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00028',
-    name: "개구쟁이",
+    name: "개구쟁이 어린이공원",
     category: 'park',
     latitude: 37.2847443,
     longitude: 126.9915651,
@@ -31957,7 +31957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00027',
-    name: "쪽빛",
+    name: "쪽빛 어린이공원",
     category: 'park',
     latitude: 37.2859228,
     longitude: 126.9909966,
@@ -31973,7 +31973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00026',
-    name: "선재미",
+    name: "선재미 어린이공원",
     category: 'park',
     latitude: 37.2876746,
     longitude: 126.9890251,
@@ -31989,7 +31989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00025',
-    name: "산마루",
+    name: "산마루 어린이공원",
     category: 'park',
     latitude: 37.2860414,
     longitude: 126.9876586,
@@ -32005,7 +32005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00024',
-    name: "양지말",
+    name: "양지말 어린이공원",
     category: 'park',
     latitude: 37.2859546,
     longitude: 126.9847311,
@@ -32021,7 +32021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00023',
-    name: "동말",
+    name: "동말 어린이공원",
     category: 'park',
     latitude: 37.277129,
     longitude: 126.9969782,
@@ -32037,7 +32037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00022',
-    name: "화서오거리",
+    name: "화서오거리 어린이공원",
     category: 'park',
     latitude: 37.2796663,
     longitude: 126.9997294,
@@ -32053,7 +32053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00021',
-    name: "나래",
+    name: "나래 어린이공원",
     category: 'park',
     latitude: 37.2750962,
     longitude: 127.0048438,
@@ -32069,7 +32069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00020',
-    name: "고등",
+    name: "고등 어린이공원",
     category: 'park',
     latitude: 37.2705836,
     longitude: 127.0069136,
@@ -32085,7 +32085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00019',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.2794236,
     longitude: 127.0051463,
@@ -32101,7 +32101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00018',
-    name: "백로",
+    name: "백로 어린이공원",
     category: 'park',
     latitude: 37.2858976,
     longitude: 126.9817406,
@@ -32117,7 +32117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00017',
-    name: "버들",
+    name: "버들 어린이공원",
     category: 'park',
     latitude: 37.2894783,
     longitude: 126.9829531,
@@ -32133,7 +32133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00016',
-    name: "작은새",
+    name: "작은새 어린이공원",
     category: 'park',
     latitude: 37.2924007,
     longitude: 127.0358679,
@@ -32149,7 +32149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00015',
-    name: "소만",
+    name: "소만 어린이공원",
     category: 'park',
     latitude: 37.291898,
     longitude: 127.0322859,
@@ -32165,7 +32165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00014',
-    name: "장다리",
+    name: "장다리 어린이공원",
     category: 'park',
     latitude: 37.2655614,
     longitude: 127.0240014,
@@ -32181,7 +32181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00013',
-    name: "미소",
+    name: "미소 어린이공원",
     category: 'park',
     latitude: 37.2746562,
     longitude: 127.0305692,
@@ -32197,7 +32197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00012',
-    name: "드라마센터",
+    name: "드라마센터 어린이공원",
     category: 'park',
     latitude: 37.270191,
     longitude: 127.0292686,
@@ -32213,7 +32213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00011',
-    name: "반달",
+    name: "반달 어린이공원",
     category: 'park',
     latitude: 37.269673,
     longitude: 127.024921,
@@ -32229,7 +32229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00010',
-    name: "청록",
+    name: "청록 어린이공원",
     category: 'park',
     latitude: 37.2809162,
     longitude: 127.0321865,
@@ -32245,7 +32245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00009',
-    name: "못골",
+    name: "못골 어린이공원",
     category: 'park',
     latitude: 37.2834799,
     longitude: 127.027695,
@@ -32261,7 +32261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00044',
-    name: "교통",
+    name: "교통 어린이공원",
     category: 'park',
     latitude: 37.2663026,
     longitude: 127.0574025,
@@ -32277,7 +32277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00043',
-    name: "효원",
+    name: "효원 어린이공원",
     category: 'park',
     latitude: 37.2622329,
     longitude: 127.0415354,
@@ -32293,7 +32293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00042',
-    name: "매미",
+    name: "매미 어린이공원",
     category: 'park',
     latitude: 37.2665188,
     longitude: 127.0517346,
@@ -32309,7 +32309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00041',
-    name: "우정",
+    name: "우정 어린이공원",
     category: 'park',
     latitude: 37.2715628,
     longitude: 127.0538907,
@@ -32325,7 +32325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00040',
-    name: "먼내",
+    name: "먼내 어린이공원",
     category: 'park',
     latitude: 37.2695787,
     longitude: 127.0576438,
@@ -32341,7 +32341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00039',
-    name: "마루터기",
+    name: "마루터기 어린이공원",
     category: 'park',
     latitude: 37.2638565,
     longitude: 127.0487029,
@@ -32357,7 +32357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00038',
-    name: "산샘",
+    name: "산샘 어린이공원",
     category: 'park',
     latitude: 37.2671465,
     longitude: 127.0482123,
@@ -32373,7 +32373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00037',
-    name: "옹달샘",
+    name: "옹달샘 어린이공원",
     category: 'park',
     latitude: 37.2655755,
     longitude: 127.0470885,
@@ -32389,7 +32389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00036',
-    name: "산남",
+    name: "산남 어린이공원",
     category: 'park',
     latitude: 37.2717048,
     longitude: 127.0504251,
@@ -32405,7 +32405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00035',
-    name: "미래",
+    name: "미래 어린이공원",
     category: 'park',
     latitude: 37.2716845,
     longitude: 127.0473854,
@@ -32421,7 +32421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00034',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.2730117,
     longitude: 127.0450275,
@@ -32437,7 +32437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00033',
-    name: "혜성",
+    name: "혜성 어린이공원",
     category: 'park',
     latitude: 37.2548867,
     longitude: 127.0379939,
@@ -32453,7 +32453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00032',
-    name: "참새",
+    name: "참새 어린이공원",
     category: 'park',
     latitude: 37.2570433,
     longitude: 127.0404504,
@@ -32469,7 +32469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41117_00031',
-    name: "매화",
+    name: "매화 어린이공원",
     category: 'park',
     latitude: 37.2700831,
     longitude: 127.0404451,
@@ -32485,7 +32485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00038',
-    name: "인도래",
+    name: "인도래 어린이공원",
     category: 'park',
     latitude: 37.2695273,
     longitude: 127.0338052,
@@ -32501,7 +32501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00037',
-    name: "색동",
+    name: "색동 어린이공원",
     category: 'park',
     latitude: 37.2683212,
     longitude: 127.0349365,
@@ -32517,7 +32517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00036',
-    name: "힘찬",
+    name: "힘찬 어린이공원",
     category: 'park',
     latitude: 37.2888978,
     longitude: 126.99906,
@@ -32549,7 +32549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41115_00034',
-    name: "약수터",
+    name: "약수터 어린이공원",
     category: 'park',
     latitude: 37.2829181,
     longitude: 127.0038746,
@@ -32597,7 +32597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00036',
-    name: "달누리",
+    name: "달누리 수변공원",
     category: 'riverside',
     latitude: 37.3004902,
     longitude: 126.951202,
@@ -32965,7 +32965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00013',
-    name: "고렴",
+    name: "고렴 근린공원",
     category: 'park',
     latitude: 37.24063,
     longitude: 127.0292104,
@@ -32981,7 +32981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00012',
-    name: "들바람",
+    name: "들바람 근린공원",
     category: 'park',
     latitude: 37.2407285,
     longitude: 126.9787184,
@@ -32997,7 +32997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00011',
-    name: "고색중보들",
+    name: "고색중보들 근린공원",
     category: 'park',
     latitude: 37.2482297,
     longitude: 126.9900297,
@@ -33013,7 +33013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00010',
-    name: "솔대",
+    name: "솔대 근린공원",
     category: 'park',
     latitude: 37.2361854,
     longitude: 126.9817029,
@@ -33061,7 +33061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00007',
-    name: "권선늘푸른",
+    name: "권선늘푸른 근린공원",
     category: 'park',
     latitude: 37.2480077,
     longitude: 127.0400804,
@@ -33077,7 +33077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00006',
-    name: "탑동",
+    name: "탑동 근린공원",
     category: 'park',
     latitude: 37.2731179,
     longitude: 126.9720697,
@@ -33093,7 +33093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00005',
-    name: "오목천",
+    name: "오목천 근린공원",
     category: 'park',
     latitude: 37.2410554,
     longitude: 126.973141,
@@ -33109,7 +33109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00004',
-    name: "권선",
+    name: "권선 근린공원",
     category: 'park',
     latitude: 37.2499818,
     longitude: 127.0234851,
@@ -33125,7 +33125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00003',
-    name: "권선중앙",
+    name: "권선중앙 근린공원",
     category: 'park',
     latitude: 37.2513814,
     longitude: 127.0311845,
@@ -33141,7 +33141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00002',
-    name: "구운",
+    name: "구운 근린공원",
     category: 'park',
     latitude: 37.2784956,
     longitude: 126.976192,
@@ -33157,7 +33157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41113_00001',
-    name: "올림픽",
+    name: "올림픽 근린공원",
     category: 'park',
     latitude: 37.2614727,
     longitude: 127.0285798,
@@ -33237,7 +33237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00006',
-    name: "광교",
+    name: "광교 근린공원",
     category: 'park',
     latitude: 37.3015045,
     longitude: 127.0312636,
@@ -33253,7 +33253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00005',
-    name: "샘내",
+    name: "샘내 근린공원",
     category: 'park',
     latitude: 37.2957647,
     longitude: 126.9819051,
@@ -33269,7 +33269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00004',
-    name: "밤밭",
+    name: "밤밭 근린공원",
     category: 'park',
     latitude: 37.3005917,
     longitude: 126.9758041,
@@ -33285,7 +33285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00003',
-    name: "퉁소바위",
+    name: "퉁소바위 근린공원",
     category: 'park',
     latitude: 37.2913394,
     longitude: 127.025709,
@@ -33301,7 +33301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00002',
-    name: "정자",
+    name: "정자 근린공원",
     category: 'park',
     latitude: 37.2976641,
     longitude: 126.9883063,
@@ -33317,7 +33317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41111_00001',
-    name: "만석",
+    name: "만석 근린공원",
     category: 'park',
     latitude: 37.3006424,
     longitude: 127.0042635,
@@ -33333,7 +33333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00026',
-    name: "신창",
+    name: "신창 어린이공원",
     category: 'park',
     latitude: 37.6400501,
     longitude: 127.0408422,
@@ -33349,7 +33349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00025',
-    name: "달내",
+    name: "달내 어린이공원",
     category: 'park',
     latitude: 37.642803,
     longitude: 127.0352563,
@@ -33365,7 +33365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00024',
-    name: "장미",
+    name: "장미 어린이공원",
     category: 'park',
     latitude: 37.638146,
     longitude: 127.036365,
@@ -33381,7 +33381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00023',
-    name: "다람쥐",
+    name: "다람쥐 어린이공원",
     category: 'park',
     latitude: 37.6452035,
     longitude: 127.0349066,
@@ -33397,7 +33397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00022',
-    name: "창고개",
+    name: "창고개 어린이공원",
     category: 'park',
     latitude: 37.6447671,
     longitude: 127.039341,
@@ -33413,7 +33413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00021',
-    name: "창골",
+    name: "창골 어린이공원",
     category: 'park',
     latitude: 37.643075,
     longitude: 127.048626,
@@ -33429,7 +33429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00020',
-    name: "뱃골",
+    name: "뱃골 어린이공원",
     category: 'park',
     latitude: 37.6488182,
     longitude: 127.0455437,
@@ -33445,7 +33445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00019',
-    name: "밤골",
+    name: "밤골 어린이공원",
     category: 'park',
     latitude: 37.6488182,
     longitude: 127.0455437,
@@ -33461,7 +33461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00018',
-    name: "반석",
+    name: "반석 어린이공원",
     category: 'park',
     latitude: 37.6471683,
     longitude: 127.0412891,
@@ -33477,7 +33477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00017',
-    name: "은행나무",
+    name: "은행나무 어린이공원",
     category: 'park',
     latitude: 37.6499981,
     longitude: 127.0433017,
@@ -33509,7 +33509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00015',
-    name: "뒷말",
+    name: "뒷말 어린이공원",
     category: 'park',
     latitude: 37.6649653,
     longitude: 127.0356152,
@@ -33525,7 +33525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00049',
-    name: "서울창포원",
+    name: "서울창포원공원",
     category: 'park',
     latitude: 37.6895,
     longitude: 127.0471623,
@@ -33557,7 +33557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00047',
-    name: "학골",
+    name: "학골 소공원",
     category: 'park',
     latitude: 37.6617965,
     longitude: 127.0367282,
@@ -33573,7 +33573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00046',
-    name: "방학",
+    name: "방학 소공원",
     category: 'park',
     latitude: 37.6630961,
     longitude: 127.0322564,
@@ -33589,7 +33589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00045',
-    name: "무수골",
+    name: "무수골 소공원",
     category: 'park',
     latitude: 37.678725,
     longitude: 127.0395213,
@@ -33605,7 +33605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00044',
-    name: "무수울",
+    name: "무수울 소공원",
     category: 'park',
     latitude: 37.6782326,
     longitude: 127.0361831,
@@ -33653,7 +33653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00041',
-    name: "쌍문1구역",
+    name: "쌍문1구역 소공원",
     category: 'park',
     latitude: 37.6478842,
     longitude: 127.0240704,
@@ -33669,7 +33669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00040',
-    name: "누원",
+    name: "누원 어린이공원",
     category: 'park',
     latitude: 37.6773961,
     longitude: 127.0471641,
@@ -33685,7 +33685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00039',
-    name: "갈대밭",
+    name: "갈대밭 어린이공원",
     category: 'park',
     latitude: 37.6776178,
     longitude: 127.0493276,
@@ -33701,7 +33701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00038',
-    name: "무수",
+    name: "무수 어린이공원",
     category: 'park',
     latitude: 37.6815419,
     longitude: 127.0428342,
@@ -33717,7 +33717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00037',
-    name: "새동네",
+    name: "새동네 어린이공원",
     category: 'park',
     latitude: 37.6888935,
     longitude: 127.0431764,
@@ -33733,7 +33733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00036',
-    name: "서원",
+    name: "서원 어린이공원",
     category: 'park',
     latitude: 37.6838608,
     longitude: 127.0432817,
@@ -33749,7 +33749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00035',
-    name: "해태",
+    name: "해태 어린이공원",
     category: 'park',
     latitude: 37.671958,
     longitude: 127.0411999,
@@ -33765,7 +33765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00034',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.685648,
     longitude: 127.045024,
@@ -33781,7 +33781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00033',
-    name: "창원",
+    name: "창원 어린이공원",
     category: 'park',
     latitude: 37.6529865,
     longitude: 127.0403959,
@@ -33797,7 +33797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00032',
-    name: "미화",
+    name: "미화 어린이공원",
     category: 'park',
     latitude: 37.6550135,
     longitude: 127.0396967,
@@ -33813,7 +33813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00031',
-    name: "대창",
+    name: "대창 어린이공원",
     category: 'park',
     latitude: 37.6443619,
     longitude: 127.0522613,
@@ -33829,7 +33829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00030',
-    name: "모랫",
+    name: "모랫 어린이공원",
     category: 'park',
     latitude: 37.6468319,
     longitude: 127.0517828,
@@ -33845,7 +33845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00029',
-    name: "유만",
+    name: "유만 어린이공원",
     category: 'park',
     latitude: 37.6503821,
     longitude: 127.0529523,
@@ -33861,7 +33861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00028',
-    name: "효자",
+    name: "효자 어린이공원",
     category: 'park',
     latitude: 37.6551106,
     longitude: 127.0508313,
@@ -33877,7 +33877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00027',
-    name: "물방울",
+    name: "물방울 어린이공원",
     category: 'park',
     latitude: 37.6377161,
     longitude: 127.0413394,
@@ -33893,7 +33893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00014',
-    name: "샘말",
+    name: "샘말 어린이공원",
     category: 'park',
     latitude: 37.6681272,
     longitude: 127.0315428,
@@ -33909,7 +33909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00013',
-    name: "개나리",
+    name: "개나리 어린이공원",
     category: 'park',
     latitude: 37.6673316,
     longitude: 127.0371368,
@@ -33925,7 +33925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00012',
-    name: "생잇들",
+    name: "생잇들 어린이공원",
     category: 'park',
     latitude: 37.6690047,
     longitude: 127.039176,
@@ -33941,7 +33941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00011',
-    name: "금성윗들",
+    name: "금성윗들 어린이공원",
     category: 'park',
     latitude: 37.6677308,
     longitude: 127.0449375,
@@ -33957,7 +33957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00010',
-    name: "소망",
+    name: "소망 어린이공원",
     category: 'park',
     latitude: 37.6602918,
     longitude: 127.0222644,
@@ -33973,7 +33973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00009',
-    name: "사슴",
+    name: "사슴 어린이공원",
     category: 'park',
     latitude: 37.6644568,
     longitude: 127.0417367,
@@ -33989,7 +33989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00008',
-    name: "무궁화",
+    name: "무궁화 어린이공원",
     category: 'park',
     latitude: 37.6678,
     longitude: 127.0421,
@@ -34005,7 +34005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00007',
-    name: "둥근달",
+    name: "둥근달 어린이공원",
     category: 'park',
     latitude: 37.6497052,
     longitude: 127.0301301,
@@ -34021,7 +34021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00006',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.648073,
     longitude: 127.029196,
@@ -34037,7 +34037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00005',
-    name: "노해",
+    name: "노해 어린이공원",
     category: 'park',
     latitude: 37.6513298,
     longitude: 127.0335737,
@@ -34053,7 +34053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00004',
-    name: "꽃동네",
+    name: "꽃동네 어린이공원",
     category: 'park',
     latitude: 37.6506036,
     longitude: 127.0229687,
@@ -34085,7 +34085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00002',
-    name: "둘리(쌍문)",
+    name: "둘리(쌍문) 근린공원",
     category: 'park',
     latitude: 37.6524299,
     longitude: 127.0276385,
@@ -34101,7 +34101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11320_00001',
-    name: "초안산",
+    name: "초안산 근린공원",
     category: 'park',
     latitude: 37.647426,
     longitude: 127.0413841,
@@ -34117,7 +34117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00136',
-    name: "가락1(시영아파트)",
+    name: "가락1(시영아파트) 어린이공원",
     category: 'park',
     latitude: 37.4976146,
     longitude: 127.1025318,
@@ -34133,7 +34133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00135',
-    name: "향유(거마재정비)",
+    name: "향유(거마재정비) 근린공원",
     category: 'park',
     latitude: 37.494489,
     longitude: 127.147614,
@@ -34197,7 +34197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00129',
-    name: "문이",
+    name: "문이 근린공원",
     category: 'park',
     latitude: 37.484857,
     longitude: 127.113722,
@@ -34213,7 +34213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00128',
-    name: "가락1(시영아파트)",
+    name: "가락1(시영아파트) 근린공원",
     category: 'park',
     latitude: 37.4976146,
     longitude: 127.1025318,
@@ -34229,7 +34229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00127',
-    name: "풍납타이어",
+    name: "풍납타이어공원",
     category: 'park',
     latitude: 37.535938,
     longitude: 127.121564,
@@ -34277,7 +34277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00123',
-    name: "평화",
+    name: "평화 소공원",
     category: 'park',
     latitude: 37.516291,
     longitude: 127.1119805,
@@ -34293,7 +34293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00122',
-    name: "늘푸른",
+    name: "늘푸른 소공원",
     category: 'park',
     latitude: 37.4986193,
     longitude: 127.1557171,
@@ -34309,7 +34309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00120',
-    name: "훙이",
+    name: "훙이 어린이공원",
     category: 'park',
     latitude: 37.501139,
     longitude: 127.1247542,
@@ -34325,7 +34325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00141',
-    name: "장미아파트1호",
+    name: "장미아파트1호 어린이공원",
     category: 'park',
     latitude: 37.518333,
     longitude: 127.099146,
@@ -34341,7 +34341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00140',
-    name: "잠실진주",
+    name: "잠실진주 어린이공원",
     category: 'park',
     latitude: 37.518792,
     longitude: 127.108557,
@@ -34373,7 +34373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00040',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.6361119,
     longitude: 127.0195804,
@@ -34405,7 +34405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00038',
-    name: "보등골",
+    name: "보등골 어린이공원",
     category: 'park',
     latitude: 37.6350571,
     longitude: 127.0184273,
@@ -34421,7 +34421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00037',
-    name: "흰구름",
+    name: "흰구름 소공원",
     category: 'park',
     latitude: 37.6459856,
     longitude: 127.0204707,
@@ -34437,7 +34437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00036',
-    name: "상산",
+    name: "상산 어린이공원",
     category: 'park',
     latitude: 37.6383561,
     longitude: 127.0240152,
@@ -34453,7 +34453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00035',
-    name: "소귀",
+    name: "소귀 어린이공원",
     category: 'park',
     latitude: 37.6385644,
     longitude: 127.0186984,
@@ -34469,7 +34469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00034',
-    name: "은모루",
+    name: "은모루 어린이공원",
     category: 'park',
     latitude: 37.642469,
     longitude: 127.0267036,
@@ -34485,7 +34485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00033',
-    name: "희망",
+    name: "희망 어린이공원",
     category: 'park',
     latitude: 37.6407466,
     longitude: 127.0243466,
@@ -34501,7 +34501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00032',
-    name: "흰구름",
+    name: "흰구름 어린이공원",
     category: 'park',
     latitude: 37.6455986,
     longitude: 127.0205211,
@@ -34517,7 +34517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00001',
-    name: "우장",
+    name: "우장 근린공원",
     category: 'park',
     latitude: 37.550651,
     longitude: 126.8456037,
@@ -34853,7 +34853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00028',
-    name: "등마루",
+    name: "등마루 어린이공원",
     category: 'park',
     latitude: 37.556036,
     longitude: 126.857412,
@@ -34869,7 +34869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00027',
-    name: "백석",
+    name: "백석 어린이공원",
     category: 'park',
     latitude: 37.5526115,
     longitude: 126.863328,
@@ -34885,7 +34885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00026',
-    name: "등서",
+    name: "등서 어린이공원",
     category: 'park',
     latitude: 37.559235,
     longitude: 126.854759,
@@ -34901,7 +34901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00025',
-    name: "아리수",
+    name: "아리수 어린이공원",
     category: 'park',
     latitude: 37.551693,
     longitude: 126.875286,
@@ -34917,7 +34917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00024',
-    name: "백합",
+    name: "백합 어린이공원",
     category: 'park',
     latitude: 37.551163,
     longitude: 126.869438,
@@ -34933,7 +34933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00023',
-    name: "이수",
+    name: "이수 어린이공원",
     category: 'park',
     latitude: 37.548299,
     longitude: 126.874234,
@@ -34949,7 +34949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00022',
-    name: "마곡하늬",
+    name: "마곡하늬 근린공원",
     category: 'park',
     latitude: 37.556699,
     longitude: 126.812659,
@@ -34965,7 +34965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00021',
-    name: "마곡나루",
+    name: "마곡나루 근린공원",
     category: 'park',
     latitude: 37.566183,
     longitude: 126.813091,
@@ -34981,7 +34981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00020',
-    name: "서울식물원",
+    name: "서울식물원 근린공원",
     category: 'park',
     latitude: 37.569824,
     longitude: 126.83183,
@@ -34997,7 +34997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00019',
-    name: "발산",
+    name: "발산 근린공원",
     category: 'park',
     latitude: 37.5545411,
     longitude: 126.825837,
@@ -35013,7 +35013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00018',
-    name: "수명산",
+    name: "수명산 근린공원",
     category: 'park',
     latitude: 37.550967,
     longitude: 126.829893,
@@ -35029,7 +35029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00017',
-    name: "까치산",
+    name: "까치산 근린공원",
     category: 'park',
     latitude: 37.536938,
     longitude: 126.843936,
@@ -35045,7 +35045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00016',
-    name: "매화",
+    name: "매화 근린공원",
     category: 'park',
     latitude: 37.557535,
     longitude: 126.852151,
@@ -35061,7 +35061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00015',
-    name: "옹기골",
+    name: "옹기골 근린공원",
     category: 'park',
     latitude: 37.573562,
     longitude: 126.821695,
@@ -35077,7 +35077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00014',
-    name: "방화",
+    name: "방화 근린공원",
     category: 'park',
     latitude: 37.580907,
     longitude: 126.8141207,
@@ -35093,7 +35093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00013',
-    name: "서낭당",
+    name: "서낭당 근린공원",
     category: 'park',
     latitude: 37.558865,
     longitude: 126.849984,
@@ -35109,7 +35109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00012',
-    name: "등촌",
+    name: "등촌 근린공원",
     category: 'park',
     latitude: 37.563683,
     longitude: 126.841391,
@@ -35125,7 +35125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00011',
-    name: "원당",
+    name: "원당 근린공원",
     category: 'park',
     latitude: 37.559782,
     longitude: 126.842567,
@@ -35141,7 +35141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00010',
-    name: "황금내",
+    name: "황금내 근린공원",
     category: 'park',
     latitude: 37.561783,
     longitude: 126.864104,
@@ -35157,7 +35157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00009',
-    name: "구암",
+    name: "구암 근린공원",
     category: 'park',
     latitude: 37.567599,
     longitude: 126.853729,
@@ -35173,7 +35173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00008',
-    name: "공암나루",
+    name: "공암나루 근린공원",
     category: 'park',
     latitude: 37.570635,
     longitude: 126.849087,
@@ -35189,7 +35189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00007',
-    name: "등마루",
+    name: "등마루 근린공원",
     category: 'park',
     latitude: 37.552521,
     longitude: 126.855152,
@@ -35205,7 +35205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00006',
-    name: "개화",
+    name: "개화 근린공원",
     category: 'park',
     latitude: 37.588011,
     longitude: 126.805798,
@@ -35221,7 +35221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00005',
-    name: "봉제산",
+    name: "봉제산 근린공원",
     category: 'park',
     latitude: 37.540731,
     longitude: 126.858825,
@@ -35237,7 +35237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00004',
-    name: "꿩고개",
+    name: "꿩고개 근린공원",
     category: 'park',
     latitude: 37.578139,
     longitude: 126.816895,
@@ -35253,7 +35253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00003',
-    name: "염창",
+    name: "염창 근린공원",
     category: 'park',
     latitude: 37.557765,
     longitude: 126.868792,
@@ -35269,7 +35269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00002',
-    name: "궁산",
+    name: "궁산 근린공원",
     category: 'park',
     latitude: 37.574254,
     longitude: 126.841332,
@@ -35301,7 +35301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00158',
-    name: "탄천",
+    name: "탄천공원",
     category: 'park',
     latitude: 37.499063,
     longitude: 127.088061,
@@ -35333,7 +35333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00156',
-    name: "성내천",
+    name: "성내천공원",
     category: 'park',
     latitude: 37.500542,
     longitude: 127.139533,
@@ -35349,7 +35349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00155',
-    name: "백제초기적석총",
+    name: "백제초기적석총 역사공원",
     category: 'park',
     latitude: 37.5021418,
     longitude: 127.102815,
@@ -35365,7 +35365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00154',
-    name: "방이동고분",
+    name: "방이동고분 역사공원",
     category: 'park',
     latitude: 37.5075731,
     longitude: 127.1181634,
@@ -35381,7 +35381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00152',
-    name: "신천어린이교통",
+    name: "신천어린이교통 근린공원",
     category: 'park',
     latitude: 37.516022,
     longitude: 127.101762,
@@ -35445,7 +35445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00148',
-    name: "거여6(거마재정비)",
+    name: "거여6(거마재정비) 소공원",
     category: 'park',
     latitude: 37.497464,
     longitude: 127.154635,
@@ -35461,7 +35461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00147',
-    name: "거여5(거마재정비)",
+    name: "거여5(거마재정비) 소공원",
     category: 'park',
     latitude: 37.491148,
     longitude: 127.157751,
@@ -35477,7 +35477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00146',
-    name: "거여4(거마재정비)",
+    name: "거여4(거마재정비) 소공원",
     category: 'park',
     latitude: 37.494411,
     longitude: 127.156222,
@@ -35493,7 +35493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00145',
-    name: "거여3(거마재정비)",
+    name: "거여3(거마재정비) 소공원",
     category: 'park',
     latitude: 37.494838,
     longitude: 127.155509,
@@ -35509,7 +35509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00144',
-    name: "거여2(거마재정비)",
+    name: "거여2(거마재정비) 소공원",
     category: 'park',
     latitude: 37.491039,
     longitude: 127.156702,
@@ -35525,7 +35525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00142',
-    name: "장미아파트2호",
+    name: "장미아파트2호 어린이공원",
     category: 'park',
     latitude: 37.520392,
     longitude: 127.103546,
@@ -35685,7 +35685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00056',
-    name: "골말",
+    name: "골말 어린이공원",
     category: 'park',
     latitude: 37.533313,
     longitude: 126.8560517,
@@ -35701,7 +35701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00055',
-    name: "곰돌이",
+    name: "곰돌이 어린이공원",
     category: 'park',
     latitude: 37.529614,
     longitude: 126.845017,
@@ -35717,7 +35717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00054',
-    name: "호돌이",
+    name: "호돌이 어린이공원",
     category: 'park',
     latitude: 37.528191,
     longitude: 126.846009,
@@ -35733,7 +35733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00053',
-    name: "다운",
+    name: "다운 어린이공원",
     category: 'park',
     latitude: 37.532101,
     longitude: 126.844653,
@@ -35749,7 +35749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00052',
-    name: "필마",
+    name: "필마 어린이공원",
     category: 'park',
     latitude: 37.531491,
     longitude: 126.8388196,
@@ -35765,7 +35765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00051',
-    name: "버들",
+    name: "버들 어린이공원",
     category: 'park',
     latitude: 37.531101,
     longitude: 126.841222,
@@ -35781,7 +35781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00050',
-    name: "효심",
+    name: "효심 어린이공원",
     category: 'park',
     latitude: 37.529495,
     longitude: 126.840632,
@@ -35797,7 +35797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00049',
-    name: "한글",
+    name: "한글 어린이공원",
     category: 'park',
     latitude: 37.538536,
     longitude: 126.850451,
@@ -35813,7 +35813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00048',
-    name: "참새",
+    name: "참새 어린이공원",
     category: 'park',
     latitude: 37.539725,
     longitude: 126.847003,
@@ -35829,7 +35829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00047',
-    name: "박장",
+    name: "박장 어린이공원",
     category: 'park',
     latitude: 37.540768,
     longitude: 126.849087,
@@ -35845,7 +35845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00046',
-    name: "산새",
+    name: "산새 어린이공원",
     category: 'park',
     latitude: 37.546268,
     longitude: 126.850385,
@@ -35861,7 +35861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00045',
-    name: "소나무",
+    name: "소나무 어린이공원",
     category: 'park',
     latitude: 37.547058,
     longitude: 126.847807,
@@ -35877,7 +35877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00044',
-    name: "꿈돌이",
+    name: "꿈돌이 어린이공원",
     category: 'park',
     latitude: 37.546097,
     longitude: 126.845352,
@@ -35893,7 +35893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00043',
-    name: "큰별",
+    name: "큰별 어린이공원",
     category: 'park',
     latitude: 37.544454,
     longitude: 126.848941,
@@ -35909,7 +35909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00042',
-    name: "비둘기",
+    name: "비둘기 어린이공원",
     category: 'park',
     latitude: 37.541392,
     longitude: 126.846938,
@@ -35925,7 +35925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00041',
-    name: "까치산",
+    name: "까치산 어린이공원",
     category: 'park',
     latitude: 37.5382802,
     longitude: 126.844436,
@@ -35941,7 +35941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00040',
-    name: "노을",
+    name: "노을 어린이공원",
     category: 'park',
     latitude: 37.539837,
     longitude: 126.843928,
@@ -35957,7 +35957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00039',
-    name: "볏골",
+    name: "볏골 어린이공원",
     category: 'park',
     latitude: 37.541815,
     longitude: 126.844354,
@@ -35973,7 +35973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00038',
-    name: "구름",
+    name: "구름 어린이공원",
     category: 'park',
     latitude: 37.543303,
     longitude: 126.844116,
@@ -35989,7 +35989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00037',
-    name: "코끼리",
+    name: "코끼리 어린이공원",
     category: 'park',
     latitude: 37.563238,
     longitude: 126.848535,
@@ -36005,7 +36005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00036',
-    name: "새벗",
+    name: "새벗 어린이공원",
     category: 'park',
     latitude: 37.560711,
     longitude: 126.840304,
@@ -36021,7 +36021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00035',
-    name: "푸르매",
+    name: "푸르매 어린이공원",
     category: 'park',
     latitude: 37.559023,
     longitude: 126.847504,
@@ -36037,7 +36037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00034',
-    name: "채송화",
+    name: "채송화 어린이공원",
     category: 'park',
     latitude: 37.562841,
     longitude: 126.846117,
@@ -36053,7 +36053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00033',
-    name: "백합",
+    name: "백합 어린이공원",
     category: 'park',
     latitude: 37.559219,
     longitude: 126.844996,
@@ -36069,7 +36069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00032',
-    name: "새나라",
+    name: "새나라 어린이공원",
     category: 'park',
     latitude: 37.561557,
     longitude: 126.852004,
@@ -36085,7 +36085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00031',
-    name: "한마음",
+    name: "한마음 어린이공원",
     category: 'park',
     latitude: 37.560521,
     longitude: 126.843248,
@@ -36101,7 +36101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00030',
-    name: "능안",
+    name: "능안 어린이공원",
     category: 'park',
     latitude: 37.546638,
     longitude: 126.859908,
@@ -36117,7 +36117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00029',
-    name: "도림",
+    name: "도림 어린이공원",
     category: 'park',
     latitude: 37.555596,
     longitude: 126.862861,
@@ -36133,7 +36133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00084',
-    name: "배다리",
+    name: "배다리 어린이공원",
     category: 'park',
     latitude: 37.532144,
     longitude: 126.848303,
@@ -36149,7 +36149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00083',
-    name: "까치산",
+    name: "까치산 어린이공원",
     category: 'park',
     latitude: 37.533488,
     longitude: 126.841904,
@@ -36165,7 +36165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00082',
-    name: "은행",
+    name: "은행 어린이공원",
     category: 'park',
     latitude: 37.535821,
     longitude: 126.840511,
@@ -36181,7 +36181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00081',
-    name: "초롱",
+    name: "초롱 어린이공원",
     category: 'park',
     latitude: 37.5381002,
     longitude: 126.836229,
@@ -36197,7 +36197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00080',
-    name: "월정",
+    name: "월정 어린이공원",
     category: 'park',
     latitude: 37.535153,
     longitude: 126.836008,
@@ -36213,7 +36213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00079',
-    name: "솔뫼",
+    name: "솔뫼 어린이공원",
     category: 'park',
     latitude: 37.538112,
     longitude: 126.838674,
@@ -36229,7 +36229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00078',
-    name: "백연",
+    name: "백연 어린이공원",
     category: 'park',
     latitude: 37.550667,
     longitude: 126.851903,
@@ -36245,7 +36245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00077',
-    name: "연지",
+    name: "연지 어린이공원",
     category: 'park',
     latitude: 37.554707,
     longitude: 126.853537,
@@ -36261,7 +36261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00076',
-    name: "새말",
+    name: "새말 어린이공원",
     category: 'park',
     latitude: 37.552035,
     longitude: 126.846474,
@@ -36277,7 +36277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00075',
-    name: "역말",
+    name: "역말 어린이공원",
     category: 'park',
     latitude: 37.549726,
     longitude: 126.848944,
@@ -36293,7 +36293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00074',
-    name: "화곡3주구2",
+    name: "화곡3주구2 어린이공원",
     category: 'park',
     latitude: 37.545177,
     longitude: 126.840547,
@@ -36309,7 +36309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00073',
-    name: "화곡3주구1",
+    name: "화곡3주구1 어린이공원",
     category: 'park',
     latitude: 37.5461395,
     longitude: 126.836964,
@@ -36325,7 +36325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00072',
-    name: "개나리",
+    name: "개나리 어린이공원",
     category: 'park',
     latitude: 37.548372,
     longitude: 126.844024,
@@ -36341,7 +36341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00071',
-    name: "범바위",
+    name: "범바위 어린이공원",
     category: 'park',
     latitude: 37.543234,
     longitude: 126.841377,
@@ -36357,7 +36357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00070',
-    name: "화곡2주구2",
+    name: "화곡2주구2 어린이공원",
     category: 'park',
     latitude: 37.548723,
     longitude: 126.8387004,
@@ -36373,7 +36373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00069',
-    name: "화곡2주구1",
+    name: "화곡2주구1 어린이공원",
     category: 'park',
     latitude: 37.550201,
     longitude: 126.838658,
@@ -36389,7 +36389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00068',
-    name: "종달새",
+    name: "종달새 어린이공원",
     category: 'park',
     latitude: 37.535302,
     longitude: 126.858021,
@@ -36405,7 +36405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00067',
-    name: "능골",
+    name: "능골 어린이공원",
     category: 'park',
     latitude: 37.536752,
     longitude: 126.855316,
@@ -36421,7 +36421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00066',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.533937,
     longitude: 126.861301,
@@ -36437,7 +36437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00065',
-    name: "달빛",
+    name: "달빛 어린이공원",
     category: 'park',
     latitude: 37.531248,
     longitude: 126.862932,
@@ -36453,7 +36453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00064',
-    name: "두레",
+    name: "두레 어린이공원",
     category: 'park',
     latitude: 37.531104,
     longitude: 126.859414,
@@ -36469,7 +36469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00063',
-    name: "천사",
+    name: "천사 어린이공원",
     category: 'park',
     latitude: 37.5468299,
     longitude: 126.833001,
@@ -36485,7 +36485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00062',
-    name: "대원",
+    name: "대원 어린이공원",
     category: 'park',
     latitude: 37.544928,
     longitude: 126.835911,
@@ -36501,7 +36501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00061',
-    name: "수명산",
+    name: "수명산 어린이공원",
     category: 'park',
     latitude: 37.540958,
     longitude: 126.834336,
@@ -36517,7 +36517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00060',
-    name: "미리내",
+    name: "미리내 어린이공원",
     category: 'park',
     latitude: 37.547649,
     longitude: 126.834751,
@@ -36533,7 +36533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00059',
-    name: "바탕골",
+    name: "바탕골 어린이공원",
     category: 'park',
     latitude: 37.5447004,
     longitude: 126.834711,
@@ -36549,7 +36549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00058',
-    name: "하마터",
+    name: "하마터 어린이공원",
     category: 'park',
     latitude: 37.530115,
     longitude: 126.853739,
@@ -36565,7 +36565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00057',
-    name: "뜸부기",
+    name: "뜸부기 어린이공원",
     category: 'park',
     latitude: 37.530115,
     longitude: 126.856902,
@@ -36581,7 +36581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00098',
-    name: "진달래",
+    name: "진달래 어린이공원",
     category: 'park',
     latitude: 37.562375,
     longitude: 126.860979,
@@ -36597,7 +36597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00097',
-    name: "비둘기",
+    name: "비둘기 어린이공원",
     category: 'park',
     latitude: 37.559504,
     longitude: 126.862944,
@@ -36613,7 +36613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00096',
-    name: "곰돌이",
+    name: "곰돌이 어린이공원",
     category: 'park',
     latitude: 37.562311,
     longitude: 126.857433,
@@ -36629,7 +36629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00095',
-    name: "풀피리",
+    name: "풀피리 어린이공원",
     category: 'park',
     latitude: 37.563578,
     longitude: 126.8545999,
@@ -36645,7 +36645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00094',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.565086,
     longitude: 126.851657,
@@ -36661,7 +36661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00093',
-    name: "엄지",
+    name: "엄지 어린이공원",
     category: 'park',
     latitude: 37.56581,
     longitude: 126.854721,
@@ -36677,7 +36677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00092',
-    name: "가양",
+    name: "가양 어린이공원",
     category: 'park',
     latitude: 37.569758,
     longitude: 126.844804,
@@ -36693,7 +36693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00091',
-    name: "꽃동네",
+    name: "꽃동네 어린이공원",
     category: 'park',
     latitude: 37.570095,
     longitude: 126.847132,
@@ -36709,7 +36709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00090',
-    name: "아름",
+    name: "아름 어린이공원",
     category: 'park',
     latitude: 37.568594,
     longitude: 126.848864,
@@ -36725,7 +36725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00089',
-    name: "나들이",
+    name: "나들이 어린이공원",
     category: 'park',
     latitude: 37.571854,
     longitude: 126.844243,
@@ -36741,7 +36741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00088',
-    name: "더부리",
+    name: "더부리 어린이공원",
     category: 'park',
     latitude: 37.534902,
     longitude: 126.846751,
@@ -36757,7 +36757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00087',
-    name: "모태",
+    name: "모태 어린이공원",
     category: 'park',
     latitude: 37.529543,
     longitude: 126.849512,
@@ -36773,7 +36773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00086',
-    name: "대무",
+    name: "대무 어린이공원",
     category: 'park',
     latitude: 37.538002,
     longitude: 126.847506,
@@ -36789,7 +36789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00085',
-    name: "안골",
+    name: "안골 어린이공원",
     category: 'park',
     latitude: 37.535964,
     longitude: 126.850746,
@@ -36805,7 +36805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00106',
-    name: "꿈빛",
+    name: "꿈빛 어린이공원",
     category: 'park',
     latitude: 37.556117,
     longitude: 126.840003,
@@ -36821,7 +36821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00105',
-    name: "가곡",
+    name: "가곡 어린이공원",
     category: 'park',
     latitude: 37.555964,
     longitude: 126.837765,
@@ -36837,7 +36837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00104',
-    name: "원당",
+    name: "원당 어린이공원",
     category: 'park',
     latitude: 37.557413,
     longitude: 126.842084,
@@ -36853,7 +36853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00103',
-    name: "신광명",
+    name: "신광명 어린이공원",
     category: 'park',
     latitude: 37.547313,
     longitude: 126.823007,
@@ -36869,7 +36869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00102',
-    name: "은행나무",
+    name: "은행나무 어린이공원",
     category: 'park',
     latitude: 37.552158,
     longitude: 126.823201,
@@ -36885,7 +36885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00101',
-    name: "수정",
+    name: "수정 어린이공원",
     category: 'park',
     latitude: 37.554043,
     longitude: 126.828743,
@@ -36901,7 +36901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00100',
-    name: "광명",
+    name: "광명 어린이공원",
     category: 'park',
     latitude: 37.546857,
     longitude: 126.822944,
@@ -36917,7 +36917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00099',
-    name: "발음",
+    name: "발음 어린이공원",
     category: 'park',
     latitude: 37.552042,
     longitude: 126.833204,
@@ -36933,7 +36933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00134',
-    name: "다솜",
+    name: "다솜 어린이공원",
     category: 'park',
     latitude: 37.563003,
     longitude: 126.818161,
@@ -36949,7 +36949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00133',
-    name: "꿈자람",
+    name: "꿈자람 어린이공원",
     category: 'park',
     latitude: 37.564793,
     longitude: 126.819154,
@@ -36965,7 +36965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00132',
-    name: "긴등마을",
+    name: "긴등마을 어린이공원",
     category: 'park',
     latitude: 37.563075,
     longitude: 126.818681,
@@ -36981,7 +36981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00131',
-    name: "개화",
+    name: "개화 어린이공원",
     category: 'park',
     latitude: 37.580248,
     longitude: 126.812534,
@@ -36997,7 +36997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00130',
-    name: "꿈나무",
+    name: "꿈나무 어린이공원",
     category: 'park',
     latitude: 37.575194,
     longitude: 126.818941,
@@ -37013,7 +37013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00129',
-    name: "돌샘",
+    name: "돌샘 어린이공원",
     category: 'park',
     latitude: 37.576054,
     longitude: 126.818966,
@@ -37029,7 +37029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00128',
-    name: "느티",
+    name: "느티 어린이공원",
     category: 'park',
     latitude: 37.579421,
     longitude: 126.810313,
@@ -37045,7 +37045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00127',
-    name: "메아리",
+    name: "메아리 어린이공원",
     category: 'park',
     latitude: 37.578615,
     longitude: 126.814351,
@@ -37061,7 +37061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00126',
-    name: "능말",
+    name: "능말 어린이공원",
     category: 'park',
     latitude: 37.577955,
     longitude: 126.810607,
@@ -37077,7 +37077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00125',
-    name: "은하수",
+    name: "은하수 어린이공원",
     category: 'park',
     latitude: 37.570507,
     longitude: 126.806548,
@@ -37093,7 +37093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00124',
-    name: "새싹교통",
+    name: "새싹교통 어린이공원",
     category: 'park',
     latitude: 37.569485,
     longitude: 126.809344,
@@ -37109,7 +37109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00123',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.572732,
     longitude: 126.809505,
@@ -37125,7 +37125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00122',
-    name: "목련",
+    name: "목련 어린이공원",
     category: 'park',
     latitude: 37.564958,
     longitude: 126.807825,
@@ -37141,7 +37141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00121',
-    name: "신대부석",
+    name: "신대부석 어린이공원",
     category: 'park',
     latitude: 37.583724,
     longitude: 126.816494,
@@ -37157,7 +37157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00120',
-    name: "내촌",
+    name: "내촌 어린이공원",
     category: 'park',
     latitude: 37.570073,
     longitude: 126.808687,
@@ -37173,7 +37173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00119',
-    name: "민들레",
+    name: "민들레 어린이공원",
     category: 'park',
     latitude: 37.567221,
     longitude: 126.806731,
@@ -37189,7 +37189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00118',
-    name: "봉선화",
+    name: "봉선화 어린이공원",
     category: 'park',
     latitude: 37.566522,
     longitude: 126.806987,
@@ -37205,7 +37205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00117',
-    name: "들꽃",
+    name: "들꽃 어린이공원",
     category: 'park',
     latitude: 37.570615,
     longitude: 126.821227,
@@ -37221,7 +37221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00116',
-    name: "도레미",
+    name: "도레미 어린이공원",
     category: 'park',
     latitude: 37.571792,
     longitude: 126.819136,
@@ -37237,7 +37237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00115',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.574806,
     longitude: 126.812748,
@@ -37253,7 +37253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00114',
-    name: "문성",
+    name: "문성 어린이공원",
     category: 'park',
     latitude: 37.564839,
     longitude: 126.815435,
@@ -37269,7 +37269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00113',
-    name: "긴등",
+    name: "긴등 어린이공원",
     category: 'park',
     latitude: 37.5680197,
     longitude: 126.816194,
@@ -37285,7 +37285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00112',
-    name: "개나리",
+    name: "개나리 어린이공원",
     category: 'park',
     latitude: 37.573113,
     longitude: 126.812217,
@@ -37301,7 +37301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00111',
-    name: "쌈지",
+    name: "쌈지 어린이공원",
     category: 'park',
     latitude: 37.571268,
     longitude: 126.814976,
@@ -37317,7 +37317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00110',
-    name: "송정",
+    name: "송정 어린이공원",
     category: 'park',
     latitude: 37.560635,
     longitude: 126.811276,
@@ -37333,7 +37333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00109',
-    name: "장미",
+    name: "장미 어린이공원",
     category: 'park',
     latitude: 37.556809,
     longitude: 126.8139434,
@@ -37349,7 +37349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00108',
-    name: "다솔",
+    name: "다솔 어린이공원",
     category: 'park',
     latitude: 37.554428,
     longitude: 126.818292,
@@ -37365,7 +37365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00107',
-    name: "활주로",
+    name: "활주로 어린이공원",
     category: 'park',
     latitude: 37.554212,
     longitude: 126.815978,
@@ -37797,7 +37797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00058',
-    name: "돌무데기",
+    name: "돌무데기 어린이공원",
     category: 'park',
     latitude: 37.492001,
     longitude: 127.155103,
@@ -37813,7 +37813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00057',
-    name: "돌마리",
+    name: "돌마리 어린이공원",
     category: 'park',
     latitude: 37.5006205,
     longitude: 127.103249,
@@ -37829,7 +37829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00056',
-    name: "도담",
+    name: "도담 어린이공원",
     category: 'park',
     latitude: 37.499621,
     longitude: 127.159557,
@@ -37845,7 +37845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00055',
-    name: "대건",
+    name: "대건 어린이공원",
     category: 'park',
     latitude: 37.4971171,
     longitude: 127.1320317,
@@ -37861,7 +37861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00054',
-    name: "능골",
+    name: "능골 어린이공원",
     category: 'park',
     latitude: 37.493129,
     longitude: 127.133207,
@@ -37877,7 +37877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00053',
-    name: "늘봄",
+    name: "늘봄 어린이공원",
     category: 'park',
     latitude: 37.487571,
     longitude: 127.133988,
@@ -37893,7 +37893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00052',
-    name: "남천",
+    name: "남천 어린이공원",
     category: 'park',
     latitude: 37.501303,
     longitude: 127.1527103,
@@ -37941,7 +37941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00066',
-    name: "홍은2구역(힐스테이트홍은포레스트)",
+    name: "홍은2구역(힐스테이트홍은포레스트) 어린이공원",
     category: 'park',
     latitude: 37.579199,
     longitude: 126.950407,
@@ -37957,7 +37957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00035',
-    name: "홍은동",
+    name: "홍은동 어린이공원",
     category: 'park',
     latitude: 37.585383,
     longitude: 126.923769,
@@ -37973,7 +37973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00020',
-    name: "홍연",
+    name: "홍연 어린이공원",
     category: 'park',
     latitude: 37.5801271,
     longitude: 126.9268015,
@@ -37989,7 +37989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00019',
-    name: "홍남",
+    name: "홍남 어린이공원",
     category: 'park',
     latitude: 37.5779913,
     longitude: 126.9291887,
@@ -38005,7 +38005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00015',
-    name: "해담는",
+    name: "해담는 어린이공원",
     category: 'park',
     latitude: 37.5824248,
     longitude: 126.9104653,
@@ -38021,7 +38021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00049',
-    name: "한성",
+    name: "한성 어린이공원",
     category: 'park',
     latitude: 37.582423,
     longitude: 126.910475,
@@ -38037,7 +38037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00007',
-    name: "은가",
+    name: "은가 어린이공원",
     category: 'park',
     latitude: 37.5828051,
     longitude: 126.9194629,
@@ -38053,7 +38053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00084',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.497957,
     longitude: 127.121754,
@@ -38069,7 +38069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00083',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.5048235,
     longitude: 127.112722,
@@ -38085,7 +38085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00082',
-    name: "새말",
+    name: "새말 어린이공원",
     category: 'park',
     latitude: 37.494731,
     longitude: 127.125727,
@@ -38101,7 +38101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00081',
-    name: "새마을",
+    name: "새마을 어린이공원",
     category: 'park',
     latitude: 37.508222,
     longitude: 127.086579,
@@ -38117,7 +38117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00080',
-    name: "삼학사",
+    name: "삼학사 어린이공원",
     category: 'park',
     latitude: 37.506232,
     longitude: 127.095323,
@@ -38133,7 +38133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00079',
-    name: "삼전",
+    name: "삼전 어린이공원",
     category: 'park',
     latitude: 37.5018109,
     longitude: 127.090203,
@@ -38149,7 +38149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00078',
-    name: "삼밭나루",
+    name: "삼밭나루 어린이공원",
     category: 'park',
     latitude: 37.505115,
     longitude: 127.091718,
@@ -38165,7 +38165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00077',
-    name: "삼밭",
+    name: "삼밭 어린이공원",
     category: 'park',
     latitude: 37.4995186,
     longitude: 127.092841,
@@ -38181,7 +38181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00076',
-    name: "뽕밭",
+    name: "뽕밭 어린이공원",
     category: 'park',
     latitude: 37.507773,
     longitude: 127.081067,
@@ -38197,7 +38197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00075',
-    name: "비석거리",
+    name: "비석거리 어린이공원",
     category: 'park',
     latitude: 37.494525,
     longitude: 127.117497,
@@ -38213,7 +38213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00074',
-    name: "비둘기",
+    name: "비둘기 어린이공원",
     category: 'park',
     latitude: 37.512742,
     longitude: 127.123352,
@@ -38229,7 +38229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00073',
-    name: "부렴",
+    name: "부렴 어린이공원",
     category: 'park',
     latitude: 37.505621,
     longitude: 127.079254,
@@ -38245,7 +38245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00072',
-    name: "봉우리",
+    name: "봉우리 어린이공원",
     category: 'park',
     latitude: 37.496495,
     longitude: 127.119238,
@@ -38261,7 +38261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00071',
-    name: "복숭아",
+    name: "복숭아 어린이공원",
     category: 'park',
     latitude: 37.506812,
     longitude: 127.131379,
@@ -38277,7 +38277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00070',
-    name: "벌말",
+    name: "벌말 어린이공원",
     category: 'park',
     latitude: 37.501638,
     longitude: 127.140281,
@@ -38293,7 +38293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00069',
-    name: "버들",
+    name: "버들 어린이공원",
     category: 'park',
     latitude: 37.478761,
     longitude: 127.133147,
@@ -38309,7 +38309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00068',
-    name: "배밭",
+    name: "배밭 어린이공원",
     category: 'park',
     latitude: 37.5016067,
     longitude: 127.115347,
@@ -38325,7 +38325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00067',
-    name: "배미골",
+    name: "배미골 어린이공원",
     category: 'park',
     latitude: 37.490834,
     longitude: 127.1471347,
@@ -38341,7 +38341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00066',
-    name: "방죽",
+    name: "방죽 어린이공원",
     category: 'park',
     latitude: 37.500653,
     longitude: 127.122796,
@@ -38357,7 +38357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00065',
-    name: "방잇골",
+    name: "방잇골 어린이공원",
     category: 'park',
     latitude: 37.5134111,
     longitude: 127.110304,
@@ -38373,7 +38373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00064',
-    name: "반딧불",
+    name: "반딧불 어린이공원",
     category: 'park',
     latitude: 37.487888,
     longitude: 127.1241012,
@@ -38389,7 +38389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00063',
-    name: "문현",
+    name: "문현 어린이공원",
     category: 'park',
     latitude: 37.481238,
     longitude: 127.128143,
@@ -38405,7 +38405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00062',
-    name: "무궁화",
+    name: "무궁화 어린이공원",
     category: 'park',
     latitude: 37.493194,
     longitude: 127.127074,
@@ -38421,7 +38421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00061',
-    name: "몽촌",
+    name: "몽촌 어린이공원",
     category: 'park',
     latitude: 37.5129339,
     longitude: 127.114841,
@@ -38437,7 +38437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00060',
-    name: "모슬",
+    name: "모슬 어린이공원",
     category: 'park',
     latitude: 37.492376,
     longitude: 127.145466,
@@ -38453,7 +38453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00059',
-    name: "동호수",
+    name: "동호수 어린이공원",
     category: 'park',
     latitude: 37.5099191,
     longitude: 127.1070996,
@@ -38469,7 +38469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00045',
-    name: "송록",
+    name: "송록 어린이공원",
     category: 'park',
     latitude: 37.4613402,
     longitude: 126.906169,
@@ -38485,7 +38485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00044',
-    name: "효봉",
+    name: "효봉 어린이공원",
     category: 'park',
     latitude: 37.4606991,
     longitude: 126.910507,
@@ -38501,7 +38501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00043',
-    name: "신흥",
+    name: "신흥 어린이공원",
     category: 'park',
     latitude: 37.4599074,
     longitude: 126.907849,
@@ -38517,7 +38517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00042',
-    name: "장미",
+    name: "장미 어린이공원",
     category: 'park',
     latitude: 37.4616333,
     longitude: 126.912238,
@@ -38533,7 +38533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00041',
-    name: "산장",
+    name: "산장 어린이공원",
     category: 'park',
     latitude: 37.4608926,
     longitude: 126.9124998,
@@ -38549,7 +38549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00040',
-    name: "단군",
+    name: "단군 어린이공원",
     category: 'park',
     latitude: 37.4556972,
     longitude: 126.9086585,
@@ -38565,7 +38565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00039',
-    name: "진달래",
+    name: "진달래 어린이공원",
     category: 'park',
     latitude: 37.434878,
     longitude: 126.904883,
@@ -38581,7 +38581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00038',
-    name: "까치",
+    name: "까치 어린이공원",
     category: 'park',
     latitude: 37.439645,
     longitude: 126.904994,
@@ -38597,7 +38597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00037',
-    name: "비둘기",
+    name: "비둘기 어린이공원",
     category: 'park',
     latitude: 37.441597,
     longitude: 126.906264,
@@ -38613,7 +38613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00036',
-    name: "꾸러기",
+    name: "꾸러기 어린이공원",
     category: 'park',
     latitude: 37.4431699,
     longitude: 126.905877,
@@ -38629,7 +38629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00035',
-    name: "중앙",
+    name: "중앙 어린이공원",
     category: 'park',
     latitude: 37.4464113,
     longitude: 126.9016027,
@@ -38645,7 +38645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00034',
-    name: "풍림",
+    name: "풍림 어린이공원",
     category: 'park',
     latitude: 37.4478341,
     longitude: 126.9017969,
@@ -38661,7 +38661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00033',
-    name: "부장천",
+    name: "부장천 어린이공원",
     category: 'park',
     latitude: 37.4526679,
     longitude: 126.9044062,
@@ -38677,7 +38677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00032',
-    name: "해태",
+    name: "해태 어린이공원",
     category: 'park',
     latitude: 37.457773,
     longitude: 126.901866,
@@ -38693,7 +38693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00031',
-    name: "새재미",
+    name: "새재미 어린이공원",
     category: 'park',
     latitude: 37.4588458,
     longitude: 126.904239,
@@ -38709,7 +38709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00030',
-    name: "남서울",
+    name: "남서울 어린이공원",
     category: 'park',
     latitude: 37.448336,
     longitude: 126.902123,
@@ -38725,7 +38725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00029',
-    name: "소망",
+    name: "소망 어린이공원",
     category: 'park',
     latitude: 37.4693683,
     longitude: 126.9016706,
@@ -38741,7 +38741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00028',
-    name: "쌈지",
+    name: "쌈지 어린이공원",
     category: 'park',
     latitude: 37.4709049,
     longitude: 126.9039831,
@@ -38757,7 +38757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00027',
-    name: "한사랑",
+    name: "한사랑 어린이공원",
     category: 'park',
     latitude: 37.467716,
     longitude: 126.904573,
@@ -38773,7 +38773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00026',
-    name: "반수",
+    name: "반수 어린이공원",
     category: 'park',
     latitude: 37.4740151,
     longitude: 126.902233,
@@ -38789,7 +38789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00025',
-    name: "구룡",
+    name: "구룡 어린이공원",
     category: 'park',
     latitude: 37.477891,
     longitude: 126.9027669,
@@ -38805,7 +38805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00024',
-    name: "남문",
+    name: "남문 어린이공원",
     category: 'park',
     latitude: 37.472321,
     longitude: 126.900396,
@@ -38837,7 +38837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00022',
-    name: "목화",
+    name: "목화 어린이공원",
     category: 'park',
     latitude: 37.477455,
     longitude: 126.907262,
@@ -38853,7 +38853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00052',
-    name: "독산",
+    name: "독산 문화공원",
     category: 'park',
     latitude: 37.4639174,
     longitude: 126.8926887,
@@ -38869,7 +38869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00051',
-    name: "박미사랑",
+    name: "박미사랑 소공원",
     category: 'park',
     latitude: 37.43763,
     longitude: 126.904519,
@@ -38885,7 +38885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00050',
-    name: "도하",
+    name: "도하 소공원",
     category: 'park',
     latitude: 37.458753,
     longitude: 126.8953896,
@@ -38901,7 +38901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00049',
-    name: "금나래중앙",
+    name: "금나래중앙 문화공원",
     category: 'park',
     latitude: 37.4580753,
     longitude: 126.8949359,
@@ -38917,7 +38917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00048',
-    name: "별장길",
+    name: "별장길 어린이공원",
     category: 'park',
     latitude: 37.448147,
     longitude: 126.908596,
@@ -38933,7 +38933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00047',
-    name: "은행",
+    name: "은행 어린이공원",
     category: 'park',
     latitude: 37.4520437,
     longitude: 126.9071079,
@@ -38949,7 +38949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00046',
-    name: "느티나무",
+    name: "느티나무 어린이공원",
     category: 'park',
     latitude: 37.4561338,
     longitude: 126.906735,
@@ -39029,7 +39029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00057',
-    name: "마실길",
+    name: "마실길 근린공원",
     category: 'park',
     latitude: 37.6411847,
     longitude: 126.9428673,
@@ -39045,7 +39045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00056',
-    name: "신도",
+    name: "신도 근린공원",
     category: 'park',
     latitude: 37.594288,
     longitude: 126.919595,
@@ -39061,7 +39061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00055',
-    name: "우물골",
+    name: "우물골 근린공원",
     category: 'park',
     latitude: 37.6351345,
     longitude: 126.9253782,
@@ -39077,7 +39077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00054',
-    name: "마고정",
+    name: "마고정 근린공원",
     category: 'park',
     latitude: 37.6325294,
     longitude: 126.9191135,
@@ -39093,7 +39093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00053',
-    name: "덕수천",
+    name: "덕수천 근린공원",
     category: 'park',
     latitude: 37.6447552,
     longitude: 126.9239666,
@@ -39109,7 +39109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00052',
-    name: "못자리골",
+    name: "못자리골 근린공원",
     category: 'park',
     latitude: 37.6465344,
     longitude: 126.9269594,
@@ -39125,7 +39125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00051',
-    name: "상림",
+    name: "상림 근린공원",
     category: 'park',
     latitude: 37.6486642,
     longitude: 126.9295653,
@@ -39141,7 +39141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00050',
-    name: "구  산",
+    name: "구  산 근린공원",
     category: 'park',
     latitude: 37.6073333,
     longitude: 126.9077646,
@@ -39157,7 +39157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00049',
-    name: "거 북 골",
+    name: "거 북 골 근린공원",
     category: 'park',
     latitude: 37.6101326,
     longitude: 126.9070389,
@@ -39173,7 +39173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00048',
-    name: "녹번동",
+    name: "녹번동 근린공원",
     category: 'park',
     latitude: 37.6032512,
     longitude: 126.9322993,
@@ -39189,7 +39189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00047',
-    name: "녹번동서",
+    name: "녹번동서 근린공원",
     category: 'park',
     latitude: 37.6037226,
     longitude: 126.9272021,
@@ -39205,7 +39205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00046',
-    name: "기 자 촌",
+    name: "기 자 촌 근린공원",
     category: 'park',
     latitude: 37.6339239,
     longitude: 126.9143248,
@@ -39221,7 +39221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00045',
-    name: "물 푸 레",
+    name: "물 푸 레 근린공원",
     category: 'park',
     latitude: 37.63784,
     longitude: 126.9165117,
@@ -39285,7 +39285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00095',
-    name: "세양",
+    name: "세양 어린이공원",
     category: 'park',
     latitude: 37.506814,
     longitude: 126.864025,
@@ -39301,7 +39301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00094',
-    name: "호돌이",
+    name: "호돌이 어린이공원",
     category: 'park',
     latitude: 37.512426,
     longitude: 126.861336,
@@ -39317,7 +39317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00093',
-    name: "목련",
+    name: "목련 어린이공원",
     category: 'park',
     latitude: 37.511439,
     longitude: 126.858322,
@@ -39333,7 +39333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00092',
-    name: "갈산",
+    name: "갈산 근린공원",
     category: 'park',
     latitude: 37.508129,
     longitude: 126.869032,
@@ -39349,7 +39349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00091',
-    name: "사슴",
+    name: "사슴 어린이공원",
     category: 'park',
     latitude: 37.515672,
     longitude: 126.873427,
@@ -39365,7 +39365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00090',
-    name: "기린",
+    name: "기린 어린이공원",
     category: 'park',
     latitude: 37.516283,
     longitude: 126.869774,
@@ -39381,7 +39381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00089',
-    name: "꿈나래",
+    name: "꿈나래 어린이공원",
     category: 'park',
     latitude: 37.516283,
     longitude: 126.869774,
@@ -39397,7 +39397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00088',
-    name: "까치",
+    name: "까치 어린이공원",
     category: 'park',
     latitude: 37.514958,
     longitude: 126.868243,
@@ -39413,7 +39413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00087',
-    name: "다람쥐",
+    name: "다람쥐 어린이공원",
     category: 'park',
     latitude: 37.513482,
     longitude: 126.866021,
@@ -39445,7 +39445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00085',
-    name: "양천",
+    name: "양천 근린공원",
     category: 'park',
     latitude: 37.518124,
     longitude: 126.867861,
@@ -39461,7 +39461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00084',
-    name: "아랫말",
+    name: "아랫말 어린이공원",
     category: 'park',
     latitude: 37.525063,
     longitude: 126.861828,
@@ -39477,7 +39477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00083',
-    name: "은행정",
+    name: "은행정 어린이공원",
     category: 'park',
     latitude: 37.522027,
     longitude: 126.855022,
@@ -39493,7 +39493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00082',
-    name: "새뚝",
+    name: "새뚝 어린이공원",
     category: 'park',
     latitude: 37.524029,
     longitude: 126.857728,
@@ -39509,7 +39509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00081',
-    name: "안산",
+    name: "안산 어린이공원",
     category: 'park',
     latitude: 37.524593,
     longitude: 126.856172,
@@ -39525,7 +39525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00080',
-    name: "음골",
+    name: "음골 어린이공원",
     category: 'park',
     latitude: 37.527336,
     longitude: 126.851231,
@@ -39541,7 +39541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00079',
-    name: "진주",
+    name: "진주 어린이공원",
     category: 'park',
     latitude: 37.526494,
     longitude: 126.855036,
@@ -39557,7 +39557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00078',
-    name: "앞산",
+    name: "앞산 어린이공원",
     category: 'park',
     latitude: 37.526441,
     longitude: 126.858307,
@@ -39573,7 +39573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00077',
-    name: "홍익",
+    name: "홍익 어린이공원",
     category: 'park',
     latitude: 37.528547,
     longitude: 126.862274,
@@ -39589,7 +39589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00076',
-    name: "오구",
+    name: "오구 어린이공원",
     category: 'park',
     latitude: 37.527272,
     longitude: 126.861874,
@@ -39605,7 +39605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00075',
-    name: "동개울",
+    name: "동개울 어린이공원",
     category: 'park',
     latitude: 37.527916,
     longitude: 126.856519,
@@ -39637,7 +39637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00073',
-    name: "넓은들",
+    name: "넓은들 어린이공원",
     category: 'park',
     latitude: 37.511317,
     longitude: 126.839385,
@@ -40421,7 +40421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11140_00030',
-    name: "신당제11구역2(가칭)",
+    name: "신당제11구역2(가칭) 소공원",
     category: 'park',
     latitude: 37.5631203,
     longitude: 127.0255232,
@@ -40437,7 +40437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11140_00029',
-    name: "신당제11구역1(가칭)",
+    name: "신당제11구역1(가칭) 소공원",
     category: 'park',
     latitude: 37.5622148,
     longitude: 127.0255059,
@@ -40453,7 +40453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11140_00028',
-    name: "서소문구역 제5지구(가칭)",
+    name: "서소문구역 제5지구(가칭) 소공원",
     category: 'park',
     latitude: 37.5628823,
     longitude: 126.9754281,
@@ -40469,7 +40469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11140_00027',
-    name: "만리2구역3(가칭)_만리1",
+    name: "만리2구역3(가칭)_만리1 소공원",
     category: 'park',
     latitude: 37.5544617,
     longitude: 126.9658367,
@@ -40661,7 +40661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00061',
-    name: "푸른수목원",
+    name: "푸른수목원 근린공원",
     category: 'park',
     latitude: 37.4819684,
     longitude: 126.8236695,
@@ -40677,7 +40677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00060',
-    name: "연지마을",
+    name: "연지마을 소공원",
     category: 'park',
     latitude: 37.482231,
     longitude: 126.843715,
@@ -40709,7 +40709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00058',
-    name: "개명",
+    name: "개명 소공원",
     category: 'park',
     latitude: 37.4829294,
     longitude: 126.8481689,
@@ -40725,7 +40725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00057',
-    name: "천왕역",
+    name: "천왕역 소공원",
     category: 'park',
     latitude: 37.4853051,
     longitude: 126.8400322,
@@ -40741,7 +40741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00056',
-    name: "개봉",
+    name: "개봉 소공원",
     category: 'park',
     latitude: 37.4995876,
     longitude: 126.849609,
@@ -40757,7 +40757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00055',
-    name: "현화",
+    name: "현화 소공원",
     category: 'park',
     latitude: 37.5043242,
     longitude: 126.8600969,
@@ -40773,7 +40773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00054',
-    name: "구로동(다울)",
+    name: "구로동(다울) 소공원",
     category: 'park',
     latitude: 37.4925358,
     longitude: 126.888217,
@@ -40789,7 +40789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00053',
-    name: "무궁화",
+    name: "무궁화 소공원",
     category: 'park',
     latitude: 37.5049592,
     longitude: 126.8650559,
@@ -40805,7 +40805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00052',
-    name: "개봉동과장미",
+    name: "개봉동과장미 소공원",
     category: 'park',
     latitude: 37.4881012,
     longitude: 126.854735,
@@ -40821,7 +40821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00051',
-    name: "갈매",
+    name: "갈매 소공원",
     category: 'park',
     latitude: 37.4966997,
     longitude: 126.8228085,
@@ -40837,7 +40837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00050',
-    name: "와룡",
+    name: "와룡 소공원",
     category: 'park',
     latitude: 37.4979921,
     longitude: 126.8214922,
@@ -40853,7 +40853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00049',
-    name: "이펜시아",
+    name: "이펜시아 어린이공원",
     category: 'park',
     latitude: 37.483092,
     longitude: 126.8473137,
@@ -40869,7 +40869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00048',
-    name: "버들",
+    name: "버들 어린이공원",
     category: 'park',
     latitude: 37.4815502,
     longitude: 126.8406417,
@@ -40885,7 +40885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00047',
-    name: "오동나무",
+    name: "오동나무 어린이공원",
     category: 'park',
     latitude: 37.485594,
     longitude: 126.838383,
@@ -41605,7 +41605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00020',
-    name: "항동",
+    name: "항동 근린공원",
     category: 'park',
     latitude: 37.4892532,
     longitude: 126.8273745,
@@ -41621,7 +41621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00020',
-    name: "항동 4호",
+    name: "항동 4호 근린공원",
     category: 'park',
     latitude: 37.4741811,
     longitude: 126.8176643,
@@ -41637,7 +41637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00019',
-    name: "항동 3호",
+    name: "항동 3호 근린공원",
     category: 'park',
     latitude: 37.4751259,
     longitude: 126.8154416,
@@ -41653,7 +41653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00018',
-    name: "항동 2호",
+    name: "항동 2호 근린공원",
     category: 'park',
     latitude: 37.4819251,
     longitude: 126.826833,
@@ -41669,7 +41669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00017',
-    name: "덕의",
+    name: "덕의 근린공원",
     category: 'park',
     latitude: 37.5070257,
     longitude: 126.8558381,
@@ -41685,7 +41685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00177',
-    name: "한아름",
+    name: "한아름 어린이공원",
     category: 'park',
     latitude: 37.4962618,
     longitude: 126.7511739,
@@ -41701,7 +41701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00176',
-    name: "한마음",
+    name: "한마음 어린이공원",
     category: 'park',
     latitude: 37.4941323,
     longitude: 126.7775203,
@@ -41717,7 +41717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00175',
-    name: "한림",
+    name: "한림 어린이공원",
     category: 'park',
     latitude: 37.4831401,
     longitude: 126.8145669,
@@ -41733,7 +41733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00174',
-    name: "하얀마을",
+    name: "하얀마을 어린이공원",
     category: 'park',
     latitude: 37.4976694,
     longitude: 126.7552214,
@@ -41749,7 +41749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00173',
-    name: "푸른솔",
+    name: "푸른솔 어린이공원",
     category: 'park',
     latitude: 37.5135949,
     longitude: 126.7518591,
@@ -41765,7 +41765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00172',
-    name: "푸른",
+    name: "푸른 어린이공원",
     category: 'park',
     latitude: 37.4961969,
     longitude: 126.7726105,
@@ -41781,7 +41781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00171',
-    name: "편한",
+    name: "편한 어린이공원",
     category: 'park',
     latitude: 37.4789527,
     longitude: 126.7665136,
@@ -41797,7 +41797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00170',
-    name: "펄벅",
+    name: "펄벅 근린공원",
     category: 'park',
     latitude: 37.474069,
     longitude: 126.7786682,
@@ -41813,7 +41813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00169',
-    name: "태양",
+    name: "태양 어린이공원",
     category: 'park',
     latitude: 37.4897297,
     longitude: 126.7594041,
@@ -41829,7 +41829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00168',
-    name: "최희섭",
+    name: "최희섭 근린공원",
     category: 'park',
     latitude: 37.5039738,
     longitude: 126.8035195,
@@ -41845,7 +41845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00167',
-    name: "청포도",
+    name: "청포도 어린이공원",
     category: 'park',
     latitude: 37.5096615,
     longitude: 126.8082809,
@@ -41861,7 +41861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00166',
-    name: "청실",
+    name: "청실 어린이공원",
     category: 'park',
     latitude: 37.494003,
     longitude: 126.7694372,
@@ -41877,7 +41877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00165',
-    name: "찬들",
+    name: "찬들 근린공원",
     category: 'park',
     latitude: 37.5309888,
     longitude: 126.7663133,
@@ -41893,7 +41893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00164',
-    name: "진말",
+    name: "진말 어린이공원",
     category: 'park',
     latitude: 37.4909987,
     longitude: 126.7798906,
@@ -41909,7 +41909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00163',
-    name: "진달래",
+    name: "진달래 근린공원",
     category: 'park',
     latitude: 37.5100499,
     longitude: 126.7558496,
@@ -41925,7 +41925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00162',
-    name: "지석",
+    name: "지석 근린공원",
     category: 'park',
     latitude: 37.4661017,
     longitude: 126.8156301,
@@ -41941,7 +41941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00161',
-    name: "중흥",
+    name: "중흥 어린이공원",
     category: 'park',
     latitude: 37.5069093,
     longitude: 126.7722814,
@@ -41957,7 +41957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00160',
-    name: "중앙",
+    name: "중앙 근린공원",
     category: 'park',
     latitude: 37.5006043,
     longitude: 126.7637161,
@@ -41973,7 +41973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00010',
-    name: "나말",
+    name: "나말 어린이공원",
     category: 'park',
     latitude: 37.538689,
     longitude: 126.864464,
@@ -41989,7 +41989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00009',
-    name: "목동누리",
+    name: "목동누리 어린이공원",
     category: 'park',
     latitude: 37.546104,
     longitude: 126.865222,
@@ -42005,7 +42005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00008',
-    name: "무궁화",
+    name: "무궁화 어린이공원",
     category: 'park',
     latitude: 37.541877,
     longitude: 126.864247,
@@ -42021,7 +42021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00007',
-    name: "백석",
+    name: "백석 어린이공원",
     category: 'park',
     latitude: 37.545356,
     longitude: 126.864912,
@@ -42037,7 +42037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00006',
-    name: "한두",
+    name: "한두 어린이공원",
     category: 'park',
     latitude: 37.549391,
     longitude: 126.865352,
@@ -42053,7 +42053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00005',
-    name: "달마을",
+    name: "달마을 근린공원",
     category: 'park',
     latitude: 37.543331,
     longitude: 126.868045,
@@ -42069,7 +42069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00004',
-    name: "목동",
+    name: "목동 근린공원",
     category: 'park',
     latitude: 37.546529,
     longitude: 126.879301,
@@ -42085,7 +42085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00003',
-    name: "용왕산",
+    name: "용왕산 근린공원",
     category: 'park',
     latitude: 37.541663,
     longitude: 126.875061,
@@ -42101,7 +42101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00002',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.528935,
     longitude: 126.867044,
@@ -42117,7 +42117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00001',
-    name: "오목",
+    name: "오목 근린공원",
     category: 'park',
     latitude: 37.527761,
     longitude: 126.873091,
@@ -42133,7 +42133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00195',
-    name: "351호",
+    name: "351호 어린이공원",
     category: 'park',
     latitude: 37.473317,
     longitude: 126.8119916,
@@ -42149,7 +42149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00194',
-    name: "세모",
+    name: "세모 소공원",
     category: 'park',
     latitude: 37.4910192,
     longitude: 126.770658,
@@ -42165,7 +42165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00193',
-    name: "198호",
+    name: "198호 근린공원",
     category: 'park',
     latitude: 37.4699196,
     longitude: 126.8114711,
@@ -42181,7 +42181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00192',
-    name: "장안",
+    name: "장안 근린공원",
     category: 'park',
     latitude: 37.522453,
     longitude: 126.8195973,
@@ -42197,7 +42197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00191',
-    name: "289호",
+    name: "289호 어린이공원",
     category: 'park',
     latitude: 37.4740933,
     longitude: 126.7744102,
@@ -42213,7 +42213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00190',
-    name: "돌내",
+    name: "돌내 어린이공원",
     category: 'park',
     latitude: 37.4822307,
     longitude: 126.763356,
@@ -42229,7 +42229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00189',
-    name: "한별",
+    name: "한별 어린이공원",
     category: 'park',
     latitude: 37.4890238,
     longitude: 126.820366,
@@ -42245,7 +42245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00188',
-    name: "강남",
+    name: "강남 어린이공원",
     category: 'park',
     latitude: 37.5088514,
     longitude: 126.7816837,
@@ -42261,7 +42261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00187',
-    name: "은행나무",
+    name: "은행나무 소공원",
     category: 'park',
     latitude: 37.5073267,
     longitude: 126.8048875,
@@ -42277,7 +42277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00186',
-    name: "새텃말",
+    name: "새텃말 소공원",
     category: 'park',
     latitude: 37.5185632,
     longitude: 126.7986224,
@@ -42293,7 +42293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00185',
-    name: "흥천",
+    name: "흥천 어린이공원",
     category: 'park',
     latitude: 37.4891881,
     longitude: 126.7847181,
@@ -42309,7 +42309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00184',
-    name: "활터",
+    name: "활터 어린이공원",
     category: 'park',
     latitude: 37.4794622,
     longitude: 126.7850631,
@@ -42325,7 +42325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00183',
-    name: "화목한",
+    name: "화목한 어린이공원",
     category: 'park',
     latitude: 37.4695656,
     longitude: 126.8129017,
@@ -42341,7 +42341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00182',
-    name: "행운",
+    name: "행운 어린이공원",
     category: 'park',
     latitude: 37.4877193,
     longitude: 126.7616778,
@@ -42357,7 +42357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00181',
-    name: "행복한",
+    name: "행복한 어린이공원",
     category: 'park',
     latitude: 37.50128,
     longitude: 126.7495194,
@@ -42373,7 +42373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00180',
-    name: "행복",
+    name: "행복 어린이공원",
     category: 'park',
     latitude: 37.4917338,
     longitude: 126.7598388,
@@ -42389,7 +42389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00179',
-    name: "햇살",
+    name: "햇살 어린이공원",
     category: 'park',
     latitude: 37.4680776,
     longitude: 126.814545,
@@ -42405,7 +42405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00178',
-    name: "함박",
+    name: "함박 근린공원",
     category: 'park',
     latitude: 37.4636507,
     longitude: 126.823002,
@@ -42485,7 +42485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00034',
-    name: "태양",
+    name: "태양 어린이공원",
     category: 'park',
     latitude: 37.524353,
     longitude: 126.838614,
@@ -42501,7 +42501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00033',
-    name: "경인",
+    name: "경인 어린이공원",
     category: 'park',
     latitude: 37.532106,
     longitude: 126.828788,
@@ -42517,7 +42517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00032',
-    name: "남부",
+    name: "남부 어린이공원",
     category: 'park',
     latitude: 37.534821,
     longitude: 126.826044,
@@ -42549,7 +42549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00030',
-    name: "신장",
+    name: "신장 어린이공원",
     category: 'park',
     latitude: 37.524231,
     longitude: 126.842737,
@@ -42581,7 +42581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00028',
-    name: "신곡",
+    name: "신곡 어린이공원",
     category: 'park',
     latitude: 37.526252,
     longitude: 126.845112,
@@ -42597,7 +42597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00027',
-    name: "신월",
+    name: "신월 어린이공원",
     category: 'park',
     latitude: 37.527015,
     longitude: 126.838167,
@@ -42613,7 +42613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00026',
-    name: "곰달래",
+    name: "곰달래 어린이공원",
     category: 'park',
     latitude: 37.528711,
     longitude: 126.837905,
@@ -42629,7 +42629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00025',
-    name: "반곡",
+    name: "반곡 어린이공원",
     category: 'park',
     latitude: 37.529181,
     longitude: 126.835481,
@@ -42645,7 +42645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00024',
-    name: "돌다리",
+    name: "돌다리 어린이공원",
     category: 'park',
     latitude: 37.531941,
     longitude: 126.835812,
@@ -42661,7 +42661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00023',
-    name: "신대",
+    name: "신대 어린이공원",
     category: 'park',
     latitude: 37.534828,
     longitude: 126.832752,
@@ -42677,7 +42677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00022',
-    name: "은하수",
+    name: "은하수 어린이공원",
     category: 'park',
     latitude: 37.533387,
     longitude: 126.878583,
@@ -42693,7 +42693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00021',
-    name: "장미",
+    name: "장미 어린이공원",
     category: 'park',
     latitude: 37.534427,
     longitude: 126.882744,
@@ -42709,7 +42709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00020',
-    name: "달님",
+    name: "달님 어린이공원",
     category: 'park',
     latitude: 37.535171,
     longitude: 126.885482,
@@ -42725,7 +42725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00019',
-    name: "진달래",
+    name: "진달래 어린이공원",
     category: 'park',
     latitude: 37.531972,
     longitude: 126.870154,
@@ -42741,7 +42741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00018',
-    name: "영도",
+    name: "영도 어린이공원",
     category: 'park',
     latitude: 37.535067,
     longitude: 126.872941,
@@ -42757,7 +42757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00017',
-    name: "별님",
+    name: "별님 어린이공원",
     category: 'park',
     latitude: 37.537814,
     longitude: 126.875231,
@@ -42773,7 +42773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00016',
-    name: "햇님",
+    name: "햇님 어린이공원",
     category: 'park',
     latitude: 37.539933,
     longitude: 126.879386,
@@ -42789,7 +42789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00015',
-    name: "목마",
+    name: "목마 근린공원",
     category: 'park',
     latitude: 37.538161,
     longitude: 126.885426,
@@ -42805,7 +42805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00014',
-    name: "파리",
+    name: "파리 문화공원",
     category: 'park',
     latitude: 37.534645,
     longitude: 126.877186,
@@ -42821,7 +42821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00013',
-    name: "마장",
+    name: "마장 어린이공원",
     category: 'park',
     latitude: 37.533508,
     longitude: 126.864686,
@@ -42837,7 +42837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00012',
-    name: "모세미",
+    name: "모세미 어린이공원",
     category: 'park',
     latitude: 37.535262,
     longitude: 126.868644,
@@ -42853,7 +42853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00011',
-    name: "정목",
+    name: "정목 어린이공원",
     category: 'park',
     latitude: 37.536923,
     longitude: 126.868305,
@@ -42901,7 +42901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00077',
-    name: "도덕산",
+    name: "도덕산 근린공원",
     category: 'park',
     latitude: 37.469467,
     longitude: 126.8579,
@@ -42965,7 +42965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00073',
-    name: "덕 안",
+    name: "덕 안 근린공원",
     category: 'park',
     latitude: 37.427343,
     longitude: 126.8833,
@@ -42981,7 +42981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00072',
-    name: "영당말",
+    name: "영당말 근린공원",
     category: 'park',
     latitude: 37.433803,
     longitude: 126.8823,
@@ -42997,7 +42997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00071',
-    name: "한 내",
+    name: "한 내 근린공원",
     category: 'park',
     latitude: 37.451193,
     longitude: 126.8867,
@@ -43013,7 +43013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00070',
-    name: "소 하",
+    name: "소 하 근린공원",
     category: 'park',
     latitude: 37.435724,
     longitude: 126.8757,
@@ -43045,7 +43045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00068',
-    name: "가림2",
+    name: "가림2 어린이공원",
     category: 'park',
     latitude: 37.466666,
     longitude: 126.864,
@@ -43077,7 +43077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00067',
-    name: "철망산",
+    name: "철망산 근린공원",
     category: 'park',
     latitude: 37.465103,
     longitude: 126.8699854,
@@ -43093,7 +43093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00066',
-    name: "광 덕",
+    name: "광 덕 근린공원",
     category: 'park',
     latitude: 37.470453,
     longitude: 126.8729645,
@@ -43109,7 +43109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00065',
-    name: "광덕산",
+    name: "광덕산 근린공원",
     category: 'park',
     latitude: 37.472142,
     longitude: 126.871,
@@ -43125,7 +43125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00064',
-    name: "왕재산",
+    name: "왕재산 근린공원",
     category: 'park',
     latitude: 37.476078,
     longitude: 126.8725,
@@ -43141,7 +43141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00063',
-    name: "현 충",
+    name: "현 충 근린공원",
     category: 'park',
     latitude: 37.4837847,
     longitude: 126.865242,
@@ -43157,7 +43157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00062',
-    name: "너부대",
+    name: "너부대 근린공원",
     category: 'park',
     latitude: 37.478924,
     longitude: 126.8466,
@@ -43173,7 +43173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00061',
-    name: "자경제2",
+    name: "자경제2 어린이공원",
     category: 'park',
     latitude: 37.4211995,
     longitude: 126.8912723,
@@ -43189,7 +43189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00060',
-    name: "자경제1",
+    name: "자경제1 어린이공원",
     category: 'park',
     latitude: 37.421193,
     longitude: 126.8899841,
@@ -43205,7 +43205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00059',
-    name: "꽃향기",
+    name: "꽃향기 어린이공원",
     category: 'park',
     latitude: 37.432319,
     longitude: 126.8861503,
@@ -43221,7 +43221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00058',
-    name: "과일나라",
+    name: "과일나라 어린이공원",
     category: 'park',
     latitude: 37.431767,
     longitude: 126.8772,
@@ -43237,7 +43237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00057',
-    name: "오리",
+    name: "오리 어린이공원",
     category: 'park',
     latitude: 37.434214,
     longitude: 126.8764,
@@ -43253,7 +43253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00056',
-    name: "개운",
+    name: "개운 어린이공원",
     category: 'park',
     latitude: 37.436971,
     longitude: 126.8775,
@@ -43269,7 +43269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00055',
-    name: "한솔",
+    name: "한솔 어린이공원",
     category: 'park',
     latitude: 37.437001,
     longitude: 126.883378,
@@ -43285,7 +43285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00054',
-    name: "선경",
+    name: "선경 어린이공원",
     category: 'park',
     latitude: 37.435705,
     longitude: 126.8819609,
@@ -43301,7 +43301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00053',
-    name: "성화",
+    name: "성화 어린이공원",
     category: 'park',
     latitude: 37.434551,
     longitude: 126.8839759,
@@ -43317,7 +43317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00052',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.434417,
     longitude: 126.8801,
@@ -43333,7 +43333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00051',
-    name: "해오름",
+    name: "해오름 어린이공원",
     category: 'park',
     latitude: 37.442952,
     longitude: 126.8938,
@@ -43349,7 +43349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00050',
-    name: "둔벙",
+    name: "둔벙 어린이공원",
     category: 'park',
     latitude: 37.444536,
     longitude: 126.8916969,
@@ -43365,7 +43365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00049',
-    name: "금빛",
+    name: "금빛 어린이공원",
     category: 'park',
     latitude: 37.446186,
     longitude: 126.8905,
@@ -43381,7 +43381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00048',
-    name: "그루터기",
+    name: "그루터기 어린이공원",
     category: 'park',
     latitude: 37.448535,
     longitude: 126.8885,
@@ -43397,7 +43397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00047',
-    name: "물결",
+    name: "물결 어린이공원",
     category: 'park',
     latitude: 37.450874,
     longitude: 126.8825858,
@@ -43413,7 +43413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00046',
-    name: "하평",
+    name: "하평 어린이공원",
     category: 'park',
     latitude: 37.453006,
     longitude: 126.8828837,
@@ -43429,7 +43429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00045',
-    name: "새터",
+    name: "새터 어린이공원",
     category: 'park',
     latitude: 37.448687,
     longitude: 126.8916,
@@ -43445,7 +43445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00044',
-    name: "달맞이",
+    name: "달맞이 어린이공원",
     category: 'park',
     latitude: 37.455721,
     longitude: 126.8843,
@@ -43461,7 +43461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00043',
-    name: "백합",
+    name: "백합 어린이공원",
     category: 'park',
     latitude: 37.458521,
     longitude: 126.8861908,
@@ -43477,7 +43477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00042',
-    name: "병아리",
+    name: "병아리 어린이공원",
     category: 'park',
     latitude: 37.459211,
     longitude: 126.8848,
@@ -43493,7 +43493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00041',
-    name: "초록",
+    name: "초록 어린이공원",
     category: 'park',
     latitude: 37.456195,
     longitude: 126.8850615,
@@ -43509,7 +43509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00040',
-    name: "개나리",
+    name: "개나리 어린이공원",
     category: 'park',
     latitude: 37.461532,
     longitude: 126.8826,
@@ -43525,7 +43525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00039',
-    name: "서편",
+    name: "서편 어린이공원",
     category: 'park',
     latitude: 37.464341,
     longitude: 126.8817,
@@ -43541,7 +43541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00038',
-    name: "푸른",
+    name: "푸른 어린이공원",
     category: 'park',
     latitude: 37.463593,
     longitude: 126.8822,
@@ -43557,7 +43557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00037',
-    name: "노봉애",
+    name: "노봉애 어린이공원",
     category: 'park',
     latitude: 37.466655,
     longitude: 126.8777828,
@@ -43573,7 +43573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00036',
-    name: "무궁화",
+    name: "무궁화 어린이공원",
     category: 'park',
     latitude: 37.464706,
     longitude: 126.8797,
@@ -43589,7 +43589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00035',
-    name: "꿈나무",
+    name: "꿈나무 어린이공원",
     category: 'park',
     latitude: 37.457519,
     longitude: 126.8818,
@@ -43605,7 +43605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00034',
-    name: "나래",
+    name: "나래 어린이공원",
     category: 'park',
     latitude: 37.459691,
     longitude: 126.8803707,
@@ -43621,7 +43621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00033',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.460083,
     longitude: 126.8784987,
@@ -43637,7 +43637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00032',
-    name: "평화",
+    name: "평화 어린이공원",
     category: 'park',
     latitude: 37.464919,
     longitude: 126.8745,
@@ -43653,7 +43653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00031',
-    name: "소망",
+    name: "소망 어린이공원",
     category: 'park',
     latitude: 37.463546,
     longitude: 126.8752603,
@@ -43669,7 +43669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00030',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.462805,
     longitude: 126.8766835,
@@ -43685,7 +43685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00029',
-    name: "안현",
+    name: "안현 어린이공원",
     category: 'park',
     latitude: 37.460107,
     longitude: 126.8724704,
@@ -43701,7 +43701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00028',
-    name: "가림",
+    name: "가림 어린이공원",
     category: 'park',
     latitude: 37.464803,
     longitude: 126.8662895,
@@ -43717,7 +43717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00027',
-    name: "현대",
+    name: "현대 어린이공원",
     category: 'park',
     latitude: 37.467601,
     longitude: 126.8645827,
@@ -43733,7 +43733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00026',
-    name: "햇빛",
+    name: "햇빛 어린이공원",
     category: 'park',
     latitude: 37.472991,
     longitude: 126.8753805,
@@ -43765,7 +43765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00024',
-    name: "철산13단지",
+    name: "철산13단지 어린이공원",
     category: 'park',
     latitude: 37.478692,
     longitude: 126.8703731,
@@ -43781,7 +43781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00023',
-    name: "연서",
+    name: "연서 어린이공원",
     category: 'park',
     latitude: 37.481614,
     longitude: 126.8634,
@@ -43797,7 +43797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00022',
-    name: "철산",
+    name: "철산 어린이공원",
     category: 'park',
     latitude: 37.488716,
     longitude: 126.8644627,
@@ -43813,7 +43813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00021',
-    name: "희망찬",
+    name: "희망찬 어린이공원",
     category: 'park',
     latitude: 37.472275,
     longitude: 126.857,
@@ -43829,7 +43829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00020',
-    name: "신나는",
+    name: "신나는 어린이공원",
     category: 'park',
     latitude: 37.468133,
     longitude: 126.8544806,
@@ -43845,7 +43845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00019',
-    name: "우리또래",
+    name: "우리또래 어린이공원",
     category: 'park',
     latitude: 37.467274,
     longitude: 126.8501,
@@ -43877,7 +43877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00017',
-    name: "우리",
+    name: "우리 어린이공원",
     category: 'park',
     latitude: 37.472066,
     longitude: 126.8458,
@@ -43893,7 +43893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00016',
-    name: "둥지",
+    name: "둥지 어린이공원",
     category: 'park',
     latitude: 37.471327,
     longitude: 126.8487,
@@ -43909,7 +43909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00015',
-    name: "너부대",
+    name: "너부대 어린이공원",
     category: 'park',
     latitude: 37.478599,
     longitude: 126.8481752,
@@ -43925,7 +43925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00014',
-    name: "광이제2(다솜)",
+    name: "광이제2(다솜) 어린이공원",
     category: 'park',
     latitude: 37.48244,
     longitude: 126.8541,
@@ -43973,7 +43973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00063',
-    name: "꽃사슴",
+    name: "꽃사슴 어린이공원",
     category: 'park',
     latitude: 37.521702,
     longitude: 126.848443,
@@ -43989,7 +43989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00062',
-    name: "신세계",
+    name: "신세계 어린이공원",
     category: 'park',
     latitude: 37.521691,
     longitude: 126.875895,
@@ -44005,7 +44005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00061',
-    name: "신정",
+    name: "신정 어린이공원",
     category: 'park',
     latitude: 37.520437,
     longitude: 126.874778,
@@ -44021,7 +44021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00060',
-    name: "단지",
+    name: "단지 어린이공원",
     category: 'park',
     latitude: 37.519694,
     longitude: 126.854131,
@@ -44037,7 +44037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00059',
-    name: "꽃사과",
+    name: "꽃사과 어린이공원",
     category: 'park',
     latitude: 37.520069,
     longitude: 126.864623,
@@ -44053,7 +44053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00058',
-    name: "개나리",
+    name: "개나리 어린이공원",
     category: 'park',
     latitude: 37.517709,
     longitude: 126.862844,
@@ -44069,7 +44069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00057',
-    name: "꿈나무",
+    name: "꿈나무 어린이공원",
     category: 'park',
     latitude: 37.517641,
     longitude: 126.858518,
@@ -44085,7 +44085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00056',
-    name: "신트리",
+    name: "신트리 근린공원",
     category: 'park',
     latitude: 37.514686,
     longitude: 126.856359,
@@ -44101,7 +44101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00055',
-    name: "양명",
+    name: "양명 어린이공원",
     category: 'park',
     latitude: 37.519271,
     longitude: 126.854392,
@@ -44117,7 +44117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00054',
-    name: "해태",
+    name: "해태 어린이공원",
     category: 'park',
     latitude: 37.521748,
     longitude: 126.862147,
@@ -44149,7 +44149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00052',
-    name: "양지",
+    name: "양지 근린공원",
     category: 'park',
     latitude: 37.522204,
     longitude: 126.830867,
@@ -44165,7 +44165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00051',
-    name: "곰달래",
+    name: "곰달래 근린공원",
     category: 'park',
     latitude: 37.524918,
     longitude: 126.833053,
@@ -44181,7 +44181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00050',
-    name: "신월",
+    name: "신월 근린공원",
     category: 'park',
     latitude: 37.517521,
     longitude: 126.833892,
@@ -44197,7 +44197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00049',
-    name: "독서",
+    name: "독서 근린공원",
     category: 'park',
     latitude: 37.519783,
     longitude: 126.834992,
@@ -44213,7 +44213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00048',
-    name: "금실",
+    name: "금실 어린이공원",
     category: 'park',
     latitude: 37.518409,
     longitude: 126.837199,
@@ -44229,7 +44229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00047',
-    name: "오솔길",
+    name: "오솔길 근린공원",
     category: 'park',
     latitude: 37.521068,
     longitude: 126.836526,
@@ -44245,7 +44245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00046',
-    name: "한울",
+    name: "한울 근린공원",
     category: 'park',
     latitude: 37.519698,
     longitude: 126.832681,
@@ -44261,7 +44261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00045',
-    name: "아동",
+    name: "아동 어린이공원",
     category: 'park',
     latitude: 37.523024,
     longitude: 126.833504,
@@ -44277,7 +44277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00044',
-    name: "강신",
+    name: "강신 어린이공원",
     category: 'park',
     latitude: 37.515669,
     longitude: 126.838421,
@@ -44293,7 +44293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00043',
-    name: "강월",
+    name: "강월 어린이공원",
     category: 'park',
     latitude: 37.515639,
     longitude: 126.836422,
@@ -44309,7 +44309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00042',
-    name: "신오",
+    name: "신오 어린이공원",
     category: 'park',
     latitude: 37.538178,
     longitude: 126.831469,
@@ -44325,7 +44325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00041',
-    name: "송죽",
+    name: "송죽 어린이공원",
     category: 'park',
     latitude: 37.539399,
     longitude: 126.833858,
@@ -44341,7 +44341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00040',
-    name: "방아다리",
+    name: "방아다리 어린이공원",
     category: 'park',
     latitude: 37.538641,
     longitude: 126.828308,
@@ -44357,7 +44357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00039',
-    name: "당뒤",
+    name: "당뒤 어린이공원",
     category: 'park',
     latitude: 37.541496,
     longitude: 126.828616,
@@ -44373,7 +44373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00038',
-    name: "당곡",
+    name: "당곡 어린이공원",
     category: 'park',
     latitude: 37.518649,
     longitude: 126.840006,
@@ -44389,7 +44389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00037',
-    name: "꿀벌",
+    name: "꿀벌 어린이공원",
     category: 'park',
     latitude: 37.519986,
     longitude: 126.842014,
@@ -44405,7 +44405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00036',
-    name: "문화",
+    name: "문화 어린이공원",
     category: 'park',
     latitude: 37.521202,
     longitude: 126.842733,
@@ -44421,7 +44421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00035',
-    name: "남도",
+    name: "남도 어린이공원",
     category: 'park',
     latitude: 37.524405,
     longitude: 126.840798,
@@ -44437,7 +44437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00070',
-    name: "하늘마루",
+    name: "하늘마루 어린이공원",
     category: 'park',
     latitude: 37.512571,
     longitude: 126.831703,
@@ -44453,7 +44453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00069',
-    name: "넘은들",
+    name: "넘은들 근린공원",
     category: 'park',
     latitude: 37.512951,
     longitude: 126.840441,
@@ -44469,7 +44469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00068',
-    name: "신이",
+    name: "신이 어린이공원",
     category: 'park',
     latitude: 37.512521,
     longitude: 126.837529,
@@ -44485,7 +44485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00067',
-    name: "푸른",
+    name: "푸른 어린이공원",
     category: 'park',
     latitude: 37.511603,
     longitude: 126.837445,
@@ -44501,7 +44501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00066',
-    name: "계남",
+    name: "계남 근린공원",
     category: 'park',
     latitude: 37.513745,
     longitude: 126.844816,
@@ -44517,7 +44517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00065',
-    name: "신기",
+    name: "신기 어린이공원",
     category: 'park',
     latitude: 37.514092,
     longitude: 126.854244,
@@ -44533,7 +44533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00064',
-    name: "학마을",
+    name: "학마을 어린이공원",
     category: 'park',
     latitude: 37.508919,
     longitude: 126.843669,
@@ -45365,7 +45365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00030',
-    name: "오현",
+    name: "오현 어린이공원",
     category: 'park',
     latitude: 37.6245294,
     longitude: 127.0466034,
@@ -45381,7 +45381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00029',
-    name: "벌말",
+    name: "벌말 어린이공원",
     category: 'park',
     latitude: 37.6296813,
     longitude: 127.0396722,
@@ -45397,7 +45397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00028',
-    name: "벌리",
+    name: "벌리 어린이공원",
     category: 'park',
     latitude: 37.6275219,
     longitude: 127.0445034,
@@ -45413,7 +45413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00027',
-    name: "오얏골",
+    name: "오얏골 어린이공원",
     category: 'park',
     latitude: 37.6341439,
     longitude: 127.0344484,
@@ -45445,7 +45445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00025',
-    name: "샛강",
+    name: "샛강 어린이공원",
     category: 'park',
     latitude: 37.6395202,
     longitude: 127.0329966,
@@ -45461,7 +45461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00024',
-    name: "논골",
+    name: "논골 어린이공원",
     category: 'park',
     latitude: 37.6386856,
     longitude: 127.0279086,
@@ -45477,7 +45477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00023',
-    name: "번남",
+    name: "번남 어린이공원",
     category: 'park',
     latitude: 37.6357586,
     longitude: 127.0247969,
@@ -45493,7 +45493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00022',
-    name: "미",
+    name: "미 소공원",
     category: 'park',
     latitude: 37.6137937,
     longitude: 127.0305656,
@@ -45509,7 +45509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00021',
-    name: "미아",
+    name: "미아 어린이공원",
     category: 'park',
     latitude: 37.6152567,
     longitude: 127.0375807,
@@ -45525,7 +45525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00020',
-    name: "고갯마루",
+    name: "고갯마루 어린이공원",
     category: 'park',
     latitude: 37.6164203,
     longitude: 127.0169389,
@@ -45541,7 +45541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00019',
-    name: "테두리",
+    name: "테두리 어린이공원",
     category: 'park',
     latitude: 37.6186251,
     longitude: 127.0176915,
@@ -45557,7 +45557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00018',
-    name: "꼭지",
+    name: "꼭지 소공원",
     category: 'park',
     latitude: 37.6188024,
     longitude: 127.017338,
@@ -45573,7 +45573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00017',
-    name: "폭포",
+    name: "폭포 소공원",
     category: 'park',
     latitude: 37.612576,
     longitude: 127.021656,
@@ -45589,7 +45589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00016',
-    name: "늘푸른",
+    name: "늘푸른 소공원",
     category: 'park',
     latitude: 37.6254089,
     longitude: 127.0197435,
@@ -45605,7 +45605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00015',
-    name: "미래",
+    name: "미래 소공원",
     category: 'park',
     latitude: 37.6246182,
     longitude: 127.0145881,
@@ -45621,7 +45621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00014',
-    name: "소망",
+    name: "소망 소공원",
     category: 'park',
     latitude: 37.6258055,
     longitude: 127.0154221,
@@ -45637,7 +45637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00013',
-    name: "송월",
+    name: "송월 어린이공원",
     category: 'park',
     latitude: 37.6163653,
     longitude: 127.0321067,
@@ -45653,7 +45653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00012',
-    name: "하늘",
+    name: "하늘 어린이공원",
     category: 'park',
     latitude: 37.6247032,
     longitude: 127.012899,
@@ -45669,7 +45669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00011',
-    name: "응달마을",
+    name: "응달마을 어린이공원",
     category: 'park',
     latitude: 37.618455,
     longitude: 127.024343,
@@ -45685,7 +45685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00010',
-    name: "청암",
+    name: "청암 어린이공원",
     category: 'park',
     latitude: 37.6241079,
     longitude: 127.0171437,
@@ -45717,7 +45717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00008',
-    name: "세일",
+    name: "세일 어린이공원",
     category: 'park',
     latitude: 37.6338794,
     longitude: 127.0252746,
@@ -45733,7 +45733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00007',
-    name: "으뜸",
+    name: "으뜸 어린이공원",
     category: 'park',
     latitude: 37.6236134,
     longitude: 127.0262421,
@@ -45749,7 +45749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00006',
-    name: "솔샘",
+    name: "솔샘 어린이공원",
     category: 'park',
     latitude: 37.6184142,
     longitude: 127.0270508,
@@ -45765,7 +45765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00005',
-    name: "운산",
+    name: "운산 어린이공원",
     category: 'park',
     latitude: 37.6321329,
     longitude: 127.025456,
@@ -45781,7 +45781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00004',
-    name: "한빛",
+    name: "한빛 어린이공원",
     category: 'park',
     latitude: 37.6275981,
     longitude: 127.0229662,
@@ -45797,7 +45797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00003',
-    name: "오패",
+    name: "오패 어린이공원",
     category: 'park',
     latitude: 37.6223139,
     longitude: 127.0323129,
@@ -45813,7 +45813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00002',
-    name: "미아도심소",
+    name: "미아도심소 어린이공원",
     category: 'park',
     latitude: 37.6254456,
     longitude: 127.0313106,
@@ -45829,7 +45829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00001',
-    name: "벽오산",
+    name: "벽오산 어린이공원",
     category: 'park',
     latitude: 37.6275862,
     longitude: 127.0302734,
@@ -46245,7 +46245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00099',
-    name: "오손길마을마당",
+    name: "오손길마을마당 기타공원",
     category: 'park',
     latitude: 37.5918725,
     longitude: 126.9182665,
@@ -46261,7 +46261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00098',
-    name: "신사동2동 공공공지",
+    name: "신사동2동 공공공지 기타공원",
     category: 'park',
     latitude: 37.593894,
     longitude: 126.908112,
@@ -46293,7 +46293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00096',
-    name: "구산초교앞마을마당",
+    name: "구산초교앞마을마당 기타공원",
     category: 'park',
     latitude: 37.6118044,
     longitude: 126.9100287,
@@ -46341,7 +46341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00093',
-    name: "연신초교옆마을마당",
+    name: "연신초교옆마을마당 기타공원",
     category: 'park',
     latitude: 37.610501,
     longitude: 126.918888,
@@ -46357,7 +46357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00092',
-    name: "녹번동마을마당",
+    name: "녹번동마을마당 기타공원",
     category: 'park',
     latitude: 37.6060932,
     longitude: 126.9276124,
@@ -46373,7 +46373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00091',
-    name: "구현초교 앞마을마당",
+    name: "구현초교 앞마을마당 기타공원",
     category: 'park',
     latitude: 37.6093936,
     longitude: 126.9065788,
@@ -46389,7 +46389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00090',
-    name: "응암동3동마을마당",
+    name: "응암동3동마을마당 기타공원",
     category: 'park',
     latitude: 37.605954,
     longitude: 126.927616,
@@ -46405,7 +46405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00089',
-    name: "도원극장옆마을마당",
+    name: "도원극장옆마을마당 기타공원",
     category: 'park',
     latitude: 37.6015302,
     longitude: 126.9299051,
@@ -46437,7 +46437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00087',
-    name: "연천초교앞마을마당",
+    name: "연천초교앞마을마당 기타공원",
     category: 'park',
     latitude: 37.605192,
     longitude: 126.923387,
@@ -46453,7 +46453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00086',
-    name: "대조동동청사옆마을마당",
+    name: "대조동동청사옆마을마당 기타공원",
     category: 'park',
     latitude: 37.614095,
     longitude: 126.9205228,
@@ -46485,7 +46485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00084',
-    name: "응암동1동마을마당",
+    name: "응암동1동마을마당 기타공원",
     category: 'park',
     latitude: 37.5999422,
     longitude: 126.9260053,
@@ -46501,7 +46501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00083',
-    name: "역촌동2동마을마당",
+    name: "역촌동2동마을마당 기타공원",
     category: 'park',
     latitude: 37.616903,
     longitude: 126.928972,
@@ -46517,7 +46517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00082',
-    name: "신사동2동마을마당",
+    name: "신사동2동마을마당 기타공원",
     category: 'park',
     latitude: 37.5939695,
     longitude: 126.9081274,
@@ -46533,7 +46533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00081',
-    name: "갈현동동마을마당",
+    name: "갈현동동마을마당 기타공원",
     category: 'park',
     latitude: 37.6150267,
     longitude: 126.910338,
@@ -46549,7 +46549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00080',
-    name: "역촌동동마을마당",
+    name: "역촌동동마을마당 기타공원",
     category: 'park',
     latitude: 37.6083934,
     longitude: 126.9195025,
@@ -46565,7 +46565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00079',
-    name: "불광동마을마당",
+    name: "불광동마을마당 기타공원",
     category: 'park',
     latitude: 37.6187498,
     longitude: 126.9271212,
@@ -46581,7 +46581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00078',
-    name: "자투리(신사동)마을마당",
+    name: "자투리(신사동)마을마당 기타공원",
     category: 'park',
     latitude: 37.618267,
     longitude: 126.932812,
@@ -46597,7 +46597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00077',
-    name: "자투리(녹번동)마을마당",
+    name: "자투리(녹번동)마을마당 기타공원",
     category: 'park',
     latitude: 37.6059128,
     longitude: 126.9269063,
@@ -46613,7 +46613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00076',
-    name: "대조동마을마당",
+    name: "대조동마을마당 기타공원",
     category: 'park',
     latitude: 37.6105411,
     longitude: 126.9189024,
@@ -46629,7 +46629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00075',
-    name: "신사동마을마당",
+    name: "신사동마을마당 기타공원",
     category: 'park',
     latitude: 37.594385,
     longitude: 126.908643,
@@ -46645,7 +46645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00074',
-    name: "구산마을마당",
+    name: "구산마을마당 기타공원",
     category: 'park',
     latitude: 37.595561,
     longitude: 126.904347,
@@ -46661,7 +46661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00073',
-    name: "불광동위령탑마을마당",
+    name: "불광동위령탑마을마당 기타공원",
     category: 'park',
     latitude: 37.61362,
     longitude: 126.929777,
@@ -46917,7 +46917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00002',
-    name: "노을",
+    name: "노을 소공원",
     category: 'park',
     latitude: 37.4949573,
     longitude: 126.7788737,
@@ -46933,7 +46933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00001',
-    name: "163호",
+    name: "163호 소공원",
     category: 'park',
     latitude: 37.5101355,
     longitude: 126.770524,
@@ -46949,7 +46949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00030',
-    name: "꽃구지",
+    name: "꽃구지 어린이공원",
     category: 'park',
     latitude: 37.509801,
     longitude: 126.7746541,
@@ -46965,7 +46965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00029',
-    name: "깊은샘",
+    name: "깊은샘 어린이공원",
     category: 'park',
     latitude: 37.5094588,
     longitude: 126.8113446,
@@ -46981,7 +46981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00028',
-    name: "길주",
+    name: "길주 근린공원",
     category: 'park',
     latitude: 37.5081188,
     longitude: 126.7726873,
@@ -46997,7 +46997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00027',
-    name: "금강",
+    name: "금강 어린이공원",
     category: 'park',
     latitude: 37.5066649,
     longitude: 126.7630642,
@@ -47013,7 +47013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00026',
-    name: "구지",
+    name: "구지 근린공원",
     category: 'park',
     latitude: 37.4918656,
     longitude: 126.7538802,
@@ -47029,7 +47029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00025',
-    name: "괴안체육",
+    name: "괴안체육 체육공원",
     category: 'park',
     latitude: 37.4762263,
     longitude: 126.8110247,
@@ -47045,7 +47045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00024',
-    name: "고리울",
+    name: "고리울 어린이공원",
     category: 'park',
     latitude: 37.5266987,
     longitude: 126.8208159,
@@ -47061,7 +47061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00023',
-    name: "고라개",
+    name: "고라개 어린이공원",
     category: 'park',
     latitude: 37.5269657,
     longitude: 126.7720155,
@@ -47077,7 +47077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00022',
-    name: "고강취락",
+    name: "고강취락 소공원",
     category: 'park',
     latitude: 37.5317703,
     longitude: 126.8227869,
@@ -47093,7 +47093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00021',
-    name: "고강선사유적",
+    name: "고강선사유적 근린공원",
     category: 'park',
     latitude: 37.5243765,
     longitude: 126.81865,
@@ -47109,7 +47109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00020',
-    name: "계남",
+    name: "계남 근린공원",
     category: 'park',
     latitude: 37.5065796,
     longitude: 126.7592023,
@@ -47125,7 +47125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00019',
-    name: "가마골",
+    name: "가마골 어린이공원",
     category: 'park',
     latitude: 37.5159003,
     longitude: 126.8004156,
@@ -47141,7 +47141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00018',
-    name: "306호",
+    name: "306호 근린공원",
     category: 'park',
     latitude: 37.4886334,
     longitude: 126.7706577,
@@ -47157,7 +47157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00017',
-    name: "301호",
+    name: "301호 어린이공원",
     category: 'park',
     latitude: 37.5205569,
     longitude: 126.776273,
@@ -47173,7 +47173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00016',
-    name: "300호",
+    name: "300호 어린이공원",
     category: 'park',
     latitude: 37.5222601,
     longitude: 126.7894539,
@@ -47189,7 +47189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00015',
-    name: "299호",
+    name: "299호 어린이공원",
     category: 'park',
     latitude: 37.5163915,
     longitude: 126.7746023,
@@ -47205,7 +47205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00014',
-    name: "고리울모퉁이",
+    name: "고리울모퉁이 어린이공원",
     category: 'park',
     latitude: 37.5224564,
     longitude: 126.8122875,
@@ -47221,7 +47221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00013',
-    name: "297호",
+    name: "297호 어린이공원",
     category: 'park',
     latitude: 37.485696,
     longitude: 126.7469322,
@@ -47237,7 +47237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00012',
-    name: "송내철길",
+    name: "송내철길 어린이공원",
     category: 'park',
     latitude: 37.4850521,
     longitude: 126.7736312,
@@ -47253,7 +47253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00011',
-    name: "송내연못",
+    name: "송내연못 어린이공원",
     category: 'park',
     latitude: 37.4816176,
     longitude: 126.7728995,
@@ -47269,7 +47269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00010',
-    name: "으뜸",
+    name: "으뜸 어린이공원",
     category: 'park',
     latitude: 37.5144845,
     longitude: 126.7748681,
@@ -47285,7 +47285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00009',
-    name: "293호",
+    name: "293호 어린이공원",
     category: 'park',
     latitude: 37.4847366,
     longitude: 126.8063972,
@@ -47301,7 +47301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00008',
-    name: "여우",
+    name: "여우 어린이공원",
     category: 'park',
     latitude: 37.471517,
     longitude: 126.7927479,
@@ -47317,7 +47317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00007',
-    name: "유일한",
+    name: "유일한 어린이공원",
     category: 'park',
     latitude: 37.4822888,
     longitude: 126.8018687,
@@ -47333,7 +47333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00006',
-    name: "아롱별",
+    name: "아롱별 어린이공원",
     category: 'park',
     latitude: 37.4899131,
     longitude: 126.7876817,
@@ -47349,7 +47349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00005',
-    name: "범박양지",
+    name: "범박양지 체육공원",
     category: 'park',
     latitude: 37.4731545,
     longitude: 126.8155002,
@@ -47381,7 +47381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00003',
-    name: "251호",
+    name: "251호 소공원",
     category: 'park',
     latitude: 37.4777915,
     longitude: 126.7740213,
@@ -48117,7 +48117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11470_00071',
-    name: "연의",
+    name: "연의 근린공원",
     category: 'park',
     latitude: 37.514067,
     longitude: 126.830401,
@@ -48133,7 +48133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00029',
-    name: "창천",
+    name: "창천 근린공원",
     category: 'park',
     latitude: 37.5578737,
     longitude: 126.9402803,
@@ -48149,7 +48149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00037',
-    name: "중앙",
+    name: "중앙 근린공원",
     category: 'park',
     latitude: 37.5751431,
     longitude: 126.9133826,
@@ -48165,7 +48165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00051',
-    name: "복주산",
+    name: "복주산 근린공원",
     category: 'park',
     latitude: 37.574878,
     longitude: 126.913075,
@@ -48181,7 +48181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00008',
-    name: "백련",
+    name: "백련 근린공원",
     category: 'park',
     latitude: 37.5906223,
     longitude: 126.9333664,
@@ -48197,7 +48197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00026',
-    name: "독립",
+    name: "독립 근린공원",
     category: 'park',
     latitude: 37.5746085,
     longitude: 126.9556118,
@@ -48213,7 +48213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00002',
-    name: "궁동",
+    name: "궁동 근린공원",
     category: 'park',
     latitude: 37.5686129,
     longitude: 126.9196524,
@@ -48405,7 +48405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41480_00045',
-    name: "성혼선생의묘(선유지구)",
+    name: "성혼선생의묘(선유지구) 묘지공원",
     category: 'park',
     latitude: 37.8564497,
     longitude: 126.8060077,
@@ -48965,7 +48965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41480_00066',
-    name: "문산산업단지 당동지구",
+    name: "문산산업단지 당동지구 소공원",
     category: 'park',
     latitude: 37.8698089,
     longitude: 126.7818891,
@@ -49077,7 +49077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41480_00059',
-    name: "당동지구",
+    name: "당동지구 문화공원",
     category: 'park',
     latitude: 37.8632006,
     longitude: 126.7808004,
@@ -49477,7 +49477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00019',
-    name: "무궁화",
+    name: "무궁화 어린이공원",
     category: 'park',
     latitude: 37.4644265,
     longitude: 126.9044106,
@@ -49493,7 +49493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00018',
-    name: "옥계",
+    name: "옥계 어린이공원",
     category: 'park',
     latitude: 37.460149,
     longitude: 126.900302,
@@ -49509,7 +49509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00017',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.4628227,
     longitude: 126.9009392,
@@ -49525,7 +49525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00016',
-    name: "푸른골",
+    name: "푸른골 어린이공원",
     category: 'park',
     latitude: 37.466546,
     longitude: 126.9032037,
@@ -49541,7 +49541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00015',
-    name: "다람쥐",
+    name: "다람쥐 어린이공원",
     category: 'park',
     latitude: 37.4682452,
     longitude: 126.8908193,
@@ -49557,7 +49557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00014',
-    name: "두산",
+    name: "두산 어린이공원",
     category: 'park',
     latitude: 37.4730326,
     longitude: 126.8942618,
@@ -49573,7 +49573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00013',
-    name: "철쭉",
+    name: "철쭉 어린이공원",
     category: 'park',
     latitude: 37.4528891,
     longitude: 126.8896337,
@@ -49589,7 +49589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00012',
-    name: "파랑새",
+    name: "파랑새 어린이공원",
     category: 'park',
     latitude: 37.454889,
     longitude: 126.8888743,
@@ -49605,7 +49605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00011',
-    name: "참새",
+    name: "참새 어린이공원",
     category: 'park',
     latitude: 37.4569547,
     longitude: 126.8871937,
@@ -49621,7 +49621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00010',
-    name: "골말",
+    name: "골말 어린이공원",
     category: 'park',
     latitude: 37.482876,
     longitude: 126.884528,
@@ -49637,7 +49637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00009',
-    name: "무아래",
+    name: "무아래 어린이공원",
     category: 'park',
     latitude: 37.473337,
     longitude: 126.893278,
@@ -49653,7 +49653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00008',
-    name: "조마",
+    name: "조마 어린이공원",
     category: 'park',
     latitude: 37.4756148,
     longitude: 126.8955477,
@@ -49797,7 +49797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00003',
-    name: "무학봉",
+    name: "무학봉 근린공원",
     category: 'park',
     latitude: 37.5612312,
     longitude: 127.0259523,
@@ -49813,7 +49813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00002',
-    name: "달맞이",
+    name: "달맞이 근린공원",
     category: 'park',
     latitude: 37.5433496,
     longitude: 127.0193024,
@@ -49829,7 +49829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00001',
-    name: "응봉",
+    name: "응봉 근린공원",
     category: 'park',
     latitude: 37.5537419,
     longitude: 127.0273495,
@@ -50085,7 +50085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00026',
-    name: "금동",
+    name: "금동 어린이공원",
     category: 'park',
     latitude: 37.5494223,
     longitude: 127.0256915,
@@ -50101,7 +50101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00025',
-    name: "살구골",
+    name: "살구골 어린이공원",
     category: 'park',
     latitude: 37.5557301,
     longitude: 127.0335764,
@@ -50117,7 +50117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00024',
-    name: "도선",
+    name: "도선 어린이공원",
     category: 'park',
     latitude: 37.5655047,
     longitude: 127.031418,
@@ -50133,7 +50133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00032',
-    name: "도장골",
+    name: "도장골 소공원",
     category: 'park',
     latitude: 37.5548089,
     longitude: 127.0273997,
@@ -50149,7 +50149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00023',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.5415739,
     longitude: 127.0534386,
@@ -50165,7 +50165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00022',
-    name: "보람",
+    name: "보람 어린이공원",
     category: 'park',
     latitude: 37.5661373,
     longitude: 127.0381819,
@@ -50181,7 +50181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00021',
-    name: "상원",
+    name: "상원 어린이공원",
     category: 'park',
     latitude: 37.547533,
     longitude: 127.0483982,
@@ -50197,7 +50197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00020',
-    name: "응삼",
+    name: "응삼 어린이공원",
     category: 'park',
     latitude: 37.5543398,
     longitude: 127.0348842,
@@ -50213,7 +50213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00019',
-    name: "미소",
+    name: "미소 어린이공원",
     category: 'park',
     latitude: 37.5605101,
     longitude: 127.0235037,
@@ -50229,7 +50229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00018',
-    name: "송정",
+    name: "송정 어린이공원",
     category: 'park',
     latitude: 37.5551917,
     longitude: 127.0703837,
@@ -50245,7 +50245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00017',
-    name: "서마장",
+    name: "서마장 어린이공원",
     category: 'park',
     latitude: 37.571523,
     longitude: 127.0374347,
@@ -50261,7 +50261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00016',
-    name: "응봉개나리",
+    name: "응봉개나리 어린이공원",
     category: 'park',
     latitude: 37.5486697,
     longitude: 127.0318722,
@@ -50277,7 +50277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00015',
-    name: "열림",
+    name: "열림 어린이공원",
     category: 'park',
     latitude: 37.5396222,
     longitude: 127.056782,
@@ -50293,7 +50293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00014',
-    name: "아남",
+    name: "아남 어린이공원",
     category: 'park',
     latitude: 37.547326,
     longitude: 127.0646691,
@@ -50309,7 +50309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00013',
-    name: "은행나무터",
+    name: "은행나무터 어린이공원",
     category: 'park',
     latitude: 37.5436944,
     longitude: 127.0537509,
@@ -50325,7 +50325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00012',
-    name: "성삼",
+    name: "성삼 어린이공원",
     category: 'park',
     latitude: 37.5419531,
     longitude: 127.0606155,
@@ -50341,7 +50341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00011',
-    name: "마장",
+    name: "마장 어린이공원",
     category: 'park',
     latitude: 37.5623346,
     longitude: 127.0415003,
@@ -50357,7 +50357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00010',
-    name: "사근",
+    name: "사근 어린이공원",
     category: 'park',
     latitude: 37.563417,
     longitude: 127.0475948,
@@ -50373,7 +50373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00009',
-    name: "응봉새말",
+    name: "응봉새말 어린이공원",
     category: 'park',
     latitude: 37.5518659,
     longitude: 127.035857,
@@ -50389,7 +50389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00008',
-    name: "동마장",
+    name: "동마장 어린이공원",
     category: 'park',
     latitude: 37.566228,
     longitude: 127.0456969,
@@ -50405,7 +50405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00007',
-    name: "성원",
+    name: "성원 어린이공원",
     category: 'park',
     latitude: 37.5501156,
     longitude: 127.0499031,
@@ -50421,7 +50421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00006',
-    name: "성수",
+    name: "성수 근린공원",
     category: 'park',
     latitude: 37.5447709,
     longitude: 127.0518411,
@@ -50437,7 +50437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00005',
-    name: "용답휴식",
+    name: "용답휴식 근린공원",
     category: 'park',
     latitude: 37.5699911,
     longitude: 127.0468202,
@@ -50453,7 +50453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00004',
-    name: "금호",
+    name: "금호 근린공원",
     category: 'park',
     latitude: 37.5490412,
     longitude: 127.0190199,
@@ -50533,7 +50533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00048',
-    name: "행당4구역",
+    name: "행당4구역 소공원",
     category: 'park',
     latitude: 37.5555693,
     longitude: 127.0320798,
@@ -50549,7 +50549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00047',
-    name: "하왕1-5구역",
+    name: "하왕1-5구역 소공원",
     category: 'park',
     latitude: 37.5600754,
     longitude: 127.0241246,
@@ -50565,7 +50565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00046',
-    name: "트리마제",
+    name: "트리마제 소공원",
     category: 'park',
     latitude: 37.5392382,
     longitude: 127.0446715,
@@ -50581,7 +50581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00045',
-    name: "직녀",
+    name: "직녀 어린이공원",
     category: 'park',
     latitude: 37.5667467,
     longitude: 127.0278177,
@@ -50597,7 +50597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00044',
-    name: "견우",
+    name: "견우 어린이공원",
     category: 'park',
     latitude: 37.5665905,
     longitude: 127.0240825,
@@ -50613,7 +50613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00027',
-    name: "푸른",
+    name: "푸른 어린이공원",
     category: 'park',
     latitude: 37.5473328,
     longitude: 127.0235968,
@@ -50629,7 +50629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00028',
-    name: "청계꿈나무",
+    name: "청계꿈나무 어린이공원",
     category: 'park',
     latitude: 37.5678193,
     longitude: 127.0278905,
@@ -50645,7 +50645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00043',
-    name: "뉴타운1구역",
+    name: "뉴타운1구역공원",
     category: 'park',
     latitude: 37.567825,
     longitude: 127.0250536,
@@ -50661,7 +50661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00042',
-    name: "뉴타운2구역",
+    name: "뉴타운2구역공원",
     category: 'park',
     latitude: 37.567825,
     longitude: 127.0250536,
@@ -50677,7 +50677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00041',
-    name: "왕십리 KCC스위첸",
+    name: "왕십리 KCC스위첸 소공원",
     category: 'park',
     latitude: 37.5606786,
     longitude: 127.0268748,
@@ -50693,7 +50693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00040',
-    name: "매봉",
+    name: "매봉 소공원",
     category: 'park',
     latitude: 37.5472955,
     longitude: 127.0121475,
@@ -50709,7 +50709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00039',
-    name: "옥정",
+    name: "옥정 소공원",
     category: 'park',
     latitude: 37.5458337,
     longitude: 127.0153489,
@@ -50725,7 +50725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00038',
-    name: "금남",
+    name: "금남 소공원",
     category: 'park',
     latitude: 37.5505481,
     longitude: 127.0213924,
@@ -50741,7 +50741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00037',
-    name: "금옥",
+    name: "금옥 소공원",
     category: 'park',
     latitude: 37.5530605,
     longitude: 127.0214356,
@@ -50757,7 +50757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00036',
-    name: "장미",
+    name: "장미 소공원",
     category: 'park',
     latitude: 37.5522684,
     longitude: 127.0694222,
@@ -50773,7 +50773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00035',
-    name: "향림",
+    name: "향림 소공원",
     category: 'park',
     latitude: 37.5470367,
     longitude: 127.0533154,
@@ -50789,7 +50789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00034',
-    name: "청송",
+    name: "청송 소공원",
     category: 'park',
     latitude: 37.5459959,
     longitude: 127.0587894,
@@ -50805,7 +50805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00033',
-    name: "동부",
+    name: "동부 소공원",
     category: 'park',
     latitude: 37.5452458,
     longitude: 127.0474356,
@@ -50821,7 +50821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00031',
-    name: "전관원",
+    name: "전관원 어린이공원",
     category: 'park',
     latitude: 37.5546745,
     longitude: 127.0404902,
@@ -50837,7 +50837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00030',
-    name: "꽃재",
+    name: "꽃재 어린이공원",
     category: 'park',
     latitude: 37.5678193,
     longitude: 127.0278897,
@@ -50853,7 +50853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11200_00029',
-    name: "논골새싹",
+    name: "논골새싹 어린이공원",
     category: 'park',
     latitude: 37.5575113,
     longitude: 127.0250458,
@@ -51125,7 +51125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00053',
-    name: "삼청",
+    name: "삼청 근린공원",
     category: 'park',
     latitude: 37.5955589,
     longitude: 126.9864035,
@@ -51141,7 +51141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00052',
-    name: "북한산",
+    name: "북한산 근린공원",
     category: 'park',
     latitude: 37.6190688,
     longitude: 127.0054953,
@@ -51157,7 +51157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00051',
-    name: "북악산",
+    name: "북악산 근린공원",
     category: 'park',
     latitude: 37.5955589,
     longitude: 126.9864035,
@@ -51173,7 +51173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00050',
-    name: "상길례",
+    name: "상길례 문화공원",
     category: 'park',
     latitude: 37.6197214,
     longitude: 127.0453689,
@@ -51189,7 +51189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00049',
-    name: "도란도란",
+    name: "도란도란 소공원",
     category: 'park',
     latitude: 37.6056705,
     longitude: 127.0653636,
@@ -51205,7 +51205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00048',
-    name: "돌이음",
+    name: "돌이음 소공원",
     category: 'park',
     latitude: 37.6069043,
     longitude: 127.0652173,
@@ -51221,7 +51221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00047',
-    name: "별빛누리",
+    name: "별빛누리 소공원",
     category: 'park',
     latitude: 37.607602,
     longitude: 127.0161349,
@@ -51237,7 +51237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00046',
-    name: "맑은소리",
+    name: "맑은소리 소공원",
     category: 'park',
     latitude: 37.610253,
     longitude: 127.0270613,
@@ -51253,7 +51253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00015',
-    name: "향기",
+    name: "향기 어린이공원",
     category: 'park',
     latitude: 37.6091216,
     longitude: 127.0447354,
@@ -51269,7 +51269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00014',
-    name: "햇살",
+    name: "햇살 어린이공원",
     category: 'park',
     latitude: 37.605913,
     longitude: 127.0485162,
@@ -51285,7 +51285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00013',
-    name: "밤골",
+    name: "밤골 어린이공원",
     category: 'park',
     latitude: 37.607541,
     longitude: 127.039921,
@@ -51317,7 +51317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00011',
-    name: "배밭골",
+    name: "배밭골 어린이공원",
     category: 'park',
     latitude: 37.6081258,
     longitude: 126.9986863,
@@ -51333,7 +51333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00010',
-    name: "꿈나라",
+    name: "꿈나라 어린이공원",
     category: 'park',
     latitude: 37.5802972,
     longitude: 127.023018,
@@ -51349,7 +51349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00009',
-    name: "범바위",
+    name: "범바위 어린이공원",
     category: 'park',
     latitude: 37.5854904,
     longitude: 127.0214092,
@@ -51365,7 +51365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00008',
-    name: "삼선",
+    name: "삼선 어린이공원",
     category: 'park',
     latitude: 37.5832359,
     longitude: 127.01039,
@@ -51381,7 +51381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00006',
-    name: "숭인",
+    name: "숭인 근린공원",
     category: 'park',
     latitude: 37.5828731,
     longitude: 127.0178911,
@@ -51397,7 +51397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00006',
-    name: "아름드리",
+    name: "아름드리 근린공원",
     category: 'park',
     latitude: 37.6099234,
     longitude: 127.037977,
@@ -51413,7 +51413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00005',
-    name: "모랫말",
+    name: "모랫말 근린공원",
     category: 'park',
     latitude: 37.604825,
     longitude: 127.032787,
@@ -51429,7 +51429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00004',
-    name: "청량",
+    name: "청량 근린공원",
     category: 'park',
     latitude: 37.6063581,
     longitude: 127.0539954,
@@ -51445,7 +51445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00003',
-    name: "개운산",
+    name: "개운산 근린공원",
     category: 'park',
     latitude: 37.5972067,
     longitude: 127.0257184,
@@ -51461,7 +51461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00002',
-    name: "오동",
+    name: "오동 근린공원",
     category: 'park',
     latitude: 37.6106463,
     longitude: 127.0404131,
@@ -51477,7 +51477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00016',
-    name: "동방",
+    name: "동방 어린이공원",
     category: 'park',
     latitude: 37.616643,
     longitude: 127.0435038,
@@ -51493,7 +51493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00045',
-    name: "자주바위",
+    name: "자주바위 어린이공원",
     category: 'park',
     latitude: 37.5828715,
     longitude: 127.0178925,
@@ -51509,7 +51509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00044',
-    name: "정릉동",
+    name: "정릉동 근린공원",
     category: 'park',
     latitude: 37.6184619,
     longitude: 127.0045308,
@@ -51525,7 +51525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00043',
-    name: "길빛",
+    name: "길빛 근린공원",
     category: 'park',
     latitude: 37.6097601,
     longitude: 127.0265188,
@@ -51541,7 +51541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00042',
-    name: "꿈빛",
+    name: "꿈빛 소공원",
     category: 'park',
     latitude: 37.6022408,
     longitude: 127.0116561,
@@ -51557,7 +51557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00041',
-    name: "되너미",
+    name: "되너미 소공원",
     category: 'park',
     latitude: 37.5992171,
     longitude: 127.0137028,
@@ -51589,7 +51589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00040',
-    name: "돌마루",
+    name: "돌마루 소공원",
     category: 'park',
     latitude: 37.5880187,
     longitude: 127.012142,
@@ -51605,7 +51605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00039',
-    name: "두레",
+    name: "두레 소공원",
     category: 'park',
     latitude: 37.6065585,
     longitude: 127.0176651,
@@ -51621,7 +51621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00038',
-    name: "행복한",
+    name: "행복한 소공원",
     category: 'park',
     latitude: 37.6082251,
     longitude: 127.0195532,
@@ -51637,7 +51637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00037',
-    name: "잔월",
+    name: "잔월 소공원",
     category: 'park',
     latitude: 37.6040624,
     longitude: 127.031506,
@@ -51653,7 +51653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00036',
-    name: "길섶",
+    name: "길섶 소공원",
     category: 'park',
     latitude: 37.610575,
     longitude: 127.0186126,
@@ -51669,7 +51669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00035',
-    name: "길음골",
+    name: "길음골 소공원",
     category: 'park',
     latitude: 37.6094418,
     longitude: 127.0193237,
@@ -51685,7 +51685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00034',
-    name: "일신",
+    name: "일신 어린이공원",
     category: 'park',
     latitude: 37.5999907,
     longitude: 127.0395876,
@@ -51701,7 +51701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00033',
-    name: "벌집",
+    name: "벌집 어린이공원",
     category: 'park',
     latitude: 37.599625,
     longitude: 127.0367262,
@@ -51717,7 +51717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00032',
-    name: "아름",
+    name: "아름 어린이공원",
     category: 'park',
     latitude: 37.6075976,
     longitude: 127.0164324,
@@ -51733,7 +51733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00031',
-    name: "늘푸른",
+    name: "늘푸른 어린이공원",
     category: 'park',
     latitude: 37.6085057,
     longitude: 127.0204223,
@@ -51749,7 +51749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00001',
-    name: "성북",
+    name: "성북 근린공원",
     category: 'park',
     latitude: 37.595122,
     longitude: 127.0072875,
@@ -51765,7 +51765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00030',
-    name: "옛시장",
+    name: "옛시장 어린이공원",
     category: 'park',
     latitude: 37.6023255,
     longitude: 127.0339269,
@@ -51781,7 +51781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00029',
-    name: "고암",
+    name: "고암 어린이공원",
     category: 'park',
     latitude: 37.5999872,
     longitude: 127.0318095,
@@ -51797,7 +51797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00028',
-    name: "매화",
+    name: "매화 어린이공원",
     category: 'park',
     latitude: 37.6001196,
     longitude: 127.0207412,
@@ -51813,7 +51813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00027',
-    name: "화랑",
+    name: "화랑 어린이공원",
     category: 'park',
     latitude: 37.6071576,
     longitude: 127.0547542,
@@ -51845,7 +51845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00025',
-    name: "동망봉",
+    name: "동망봉 어린이공원",
     category: 'park',
     latitude: 37.5838591,
     longitude: 127.017073,
@@ -51877,7 +51877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00023',
-    name: "한울",
+    name: "한울 어린이공원",
     category: 'park',
     latitude: 37.605709,
     longitude: 127.013709,
@@ -51893,7 +51893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00022',
-    name: "해맑은",
+    name: "해맑은 어린이공원",
     category: 'park',
     latitude: 37.6085186,
     longitude: 127.020925,
@@ -51909,7 +51909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00021',
-    name: "솔향기",
+    name: "솔향기 어린이공원",
     category: 'park',
     latitude: 37.608108,
     longitude: 127.0213064,
@@ -51925,7 +51925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00020',
-    name: "종암",
+    name: "종암 어린이공원",
     category: 'park',
     latitude: 37.6001257,
     longitude: 127.0372515,
@@ -51941,7 +51941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00019',
-    name: "새소리",
+    name: "새소리 어린이공원",
     category: 'park',
     latitude: 37.600751,
     longitude: 127.0254039,
@@ -51957,7 +51957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00018',
-    name: "돌뫼",
+    name: "돌뫼 어린이공원",
     category: 'park',
     latitude: 37.6051003,
     longitude: 127.0528072,
@@ -51973,7 +51973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11290_00017',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.614016,
     longitude: 127.0642987,
@@ -52933,7 +52933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00027',
-    name: "풍산지구근린4호",
+    name: "풍산지구근린4호 근린공원",
     category: 'park',
     latitude: 37.5467846,
     longitude: 127.2098866,
@@ -52949,7 +52949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00026',
-    name: "풍산지구근린3호",
+    name: "풍산지구근린3호 근린공원",
     category: 'park',
     latitude: 37.5533767,
     longitude: 127.2084378,
@@ -52965,7 +52965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00025',
-    name: "풍산지구근린2호",
+    name: "풍산지구근린2호 근린공원",
     category: 'park',
     latitude: 37.5505284,
     longitude: 127.2012278,
@@ -52981,7 +52981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00024',
-    name: "풍산지구근린1호",
+    name: "풍산지구근린1호 근린공원",
     category: 'park',
     latitude: 37.5543847,
     longitude: 127.2013921,
@@ -53045,7 +53045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00020',
-    name: "풍산지구 어린이8호",
+    name: "풍산지구 어린이8호 어린이공원",
     category: 'park',
     latitude: 37.5477187,
     longitude: 127.2101297,
@@ -53061,7 +53061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00019',
-    name: "풍산지구 어린이7호",
+    name: "풍산지구 어린이7호 어린이공원",
     category: 'park',
     latitude: 37.5485583,
     longitude: 127.209193,
@@ -53077,7 +53077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00018',
-    name: "풍산지구 어린이6호",
+    name: "풍산지구 어린이6호 어린이공원",
     category: 'park',
     latitude: 37.5515994,
     longitude: 127.2108421,
@@ -53093,7 +53093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00017',
-    name: "풍산지구 어린이5호",
+    name: "풍산지구 어린이5호 어린이공원",
     category: 'park',
     latitude: 37.5514892,
     longitude: 127.2087956,
@@ -53109,7 +53109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00016',
-    name: "풍산지구 어린이4호",
+    name: "풍산지구 어린이4호 어린이공원",
     category: 'park',
     latitude: 37.5454604,
     longitude: 127.2060842,
@@ -53125,7 +53125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00015',
-    name: "풍산지구 어린이3호",
+    name: "풍산지구 어린이3호 어린이공원",
     category: 'park',
     latitude: 37.5548326,
     longitude: 127.2007147,
@@ -53317,7 +53317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41480_00149',
-    name: "당동리어린이집",
+    name: "당동리어린이집 어린이공원",
     category: 'park',
     latitude: 37.8627359,
     longitude: 126.7717539,
@@ -53333,7 +53333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00117',
-    name: "향나무",
+    name: "향나무 어린이공원",
     category: 'park',
     latitude: 37.4897917,
     longitude: 127.1442044,
@@ -53349,7 +53349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00116',
-    name: "한샘",
+    name: "한샘 어린이공원",
     category: 'park',
     latitude: 37.484765,
     longitude: 127.1250089,
@@ -53365,7 +53365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00114',
-    name: "팔각정",
+    name: "팔각정 어린이공원",
     category: 'park',
     latitude: 37.492637,
     longitude: 127.124131,
@@ -53381,7 +53381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00113',
-    name: "투구봉",
+    name: "투구봉 어린이공원",
     category: 'park',
     latitude: 37.494001,
     longitude: 127.135365,
@@ -53397,7 +53397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00111',
-    name: "큰바위",
+    name: "큰바위 어린이공원",
     category: 'park',
     latitude: 37.4981102,
     longitude: 127.142529,
@@ -53413,7 +53413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00110',
-    name: "초록",
+    name: "초록 어린이공원",
     category: 'park',
     latitude: 37.495639,
     longitude: 127.156954,
@@ -53429,7 +53429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00109',
-    name: "천상",
+    name: "천상 어린이공원",
     category: 'park',
     latitude: 37.494277,
     longitude: 127.1590674,
@@ -53445,7 +53445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00108',
-    name: "진달래",
+    name: "진달래 어린이공원",
     category: 'park',
     latitude: 37.503675,
     longitude: 127.086313,
@@ -53461,7 +53461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00107',
-    name: "중대",
+    name: "중대 어린이공원",
     category: 'park',
     latitude: 37.499678,
     longitude: 127.115427,
@@ -53477,7 +53477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00106',
-    name: "잔버들",
+    name: "잔버들 어린이공원",
     category: 'park',
     latitude: 37.497372,
     longitude: 127.144299,
@@ -53493,7 +53493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00105',
-    name: "임금샘",
+    name: "임금샘 어린이공원",
     category: 'park',
     latitude: 37.5112097,
     longitude: 127.125048,
@@ -53509,7 +53509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00104',
-    name: "윗바람",
+    name: "윗바람 어린이공원",
     category: 'park',
     latitude: 37.5343706,
     longitude: 127.112122,
@@ -53525,7 +53525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00103',
-    name: "용마",
+    name: "용마 어린이공원",
     category: 'park',
     latitude: 37.4998404,
     longitude: 127.148556,
@@ -53541,7 +53541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00102',
-    name: "오봉산",
+    name: "오봉산 어린이공원",
     category: 'park',
     latitude: 37.5061283,
     longitude: 127.1023092,
@@ -53557,7 +53557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00101',
-    name: "오동나무",
+    name: "오동나무 어린이공원",
     category: 'park',
     latitude: 37.506227,
     longitude: 127.1339065,
@@ -53589,7 +53589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00099',
-    name: "영풍",
+    name: "영풍 어린이공원",
     category: 'park',
     latitude: 37.4951323,
     longitude: 127.142498,
@@ -53605,7 +53605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00098',
-    name: "어사",
+    name: "어사 어린이공원",
     category: 'park',
     latitude: 37.5073137,
     longitude: 127.113002,
@@ -53621,7 +53621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00097',
-    name: "안산골",
+    name: "안산골 어린이공원",
     category: 'park',
     latitude: 37.497609,
     longitude: 127.1266918,
@@ -53637,7 +53637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00096',
-    name: "안골",
+    name: "안골 어린이공원",
     category: 'park',
     latitude: 37.502813,
     longitude: 127.135319,
@@ -53653,7 +53653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00095',
-    name: "아름",
+    name: "아름 어린이공원",
     category: 'park',
     latitude: 37.5033675,
     longitude: 127.107059,
@@ -53669,7 +53669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00094',
-    name: "아랫바람",
+    name: "아랫바람 어린이공원",
     category: 'park',
     latitude: 37.532301,
     longitude: 127.112232,
@@ -53685,7 +53685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00093',
-    name: "아랫말",
+    name: "아랫말 어린이공원",
     category: 'park',
     latitude: 37.5048625,
     longitude: 127.137384,
@@ -53701,7 +53701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00090',
-    name: "수정",
+    name: "수정 어린이공원",
     category: 'park',
     latitude: 37.4889204,
     longitude: 127.126227,
@@ -53717,7 +53717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00089',
-    name: "솔밭",
+    name: "솔밭 어린이공원",
     category: 'park',
     latitude: 37.509068,
     longitude: 127.1236308,
@@ -53733,7 +53733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00088',
-    name: "솔바람",
+    name: "솔바람 어린이공원",
     category: 'park',
     latitude: 37.4788427,
     longitude: 127.129415,
@@ -53749,7 +53749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00087',
-    name: "섬굴",
+    name: "섬굴 어린이공원",
     category: 'park',
     latitude: 37.496925,
     longitude: 127.149266,
@@ -53765,7 +53765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00086',
-    name: "석촌",
+    name: "석촌 어린이공원",
     category: 'park',
     latitude: 37.505901,
     longitude: 127.0998172,
@@ -53781,7 +53781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00085',
-    name: "샛팽이",
+    name: "샛팽이 어린이공원",
     category: 'park',
     latitude: 37.496755,
     longitude: 127.1339104,
@@ -53797,7 +53797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00043',
-    name: "다솜",
+    name: "다솜 어린이공원",
     category: 'park',
     latitude: 37.4673475,
     longitude: 126.8001232,
@@ -53813,7 +53813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00042',
-    name: "다산",
+    name: "다산 어린이공원",
     category: 'park',
     latitude: 37.4858079,
     longitude: 126.7657029,
@@ -53829,7 +53829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00041',
-    name: "다복한",
+    name: "다복한 어린이공원",
     category: 'park',
     latitude: 37.500951,
     longitude: 126.7541505,
@@ -53845,7 +53845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00040',
-    name: "누른말",
+    name: "누른말 근린공원",
     category: 'park',
     latitude: 37.5308269,
     longitude: 126.781213,
@@ -53861,7 +53861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00039',
-    name: "넘말",
+    name: "넘말 어린이공원",
     category: 'park',
     latitude: 37.4951612,
     longitude: 126.7622004,
@@ -53877,7 +53877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00038',
-    name: "내촌",
+    name: "내촌 어린이공원",
     category: 'park',
     latitude: 37.5225149,
     longitude: 126.784963,
@@ -53893,7 +53893,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00037',
-    name: "내동",
+    name: "내동 어린이공원",
     category: 'park',
     latitude: 37.5204109,
     longitude: 126.7848622,
@@ -53909,7 +53909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00036',
-    name: "낙타",
+    name: "낙타 어린이공원",
     category: 'park',
     latitude: 37.5148225,
     longitude: 126.7671984,
@@ -53925,7 +53925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00035',
-    name: "꿈자람",
+    name: "꿈자람 어린이공원",
     category: 'park',
     latitude: 37.5331252,
     longitude: 126.7866327,
@@ -53941,7 +53941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00034',
-    name: "꿈빛",
+    name: "꿈빛 소공원",
     category: 'park',
     latitude: 37.5084852,
     longitude: 126.7752198,
@@ -53957,7 +53957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00033',
-    name: "꿈마을",
+    name: "꿈마을 어린이공원",
     category: 'park',
     latitude: 37.4987412,
     longitude: 126.7819755,
@@ -53973,7 +53973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00043',
-    name: "향   림",
+    name: "향   림 근린공원",
     category: 'park',
     latitude: 37.6293322,
     longitude: 126.9273554,
@@ -53989,7 +53989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00042',
-    name: "진  관",
+    name: "진  관 근린공원",
     category: 'park',
     latitude: 37.61634,
     longitude: 126.931455,
@@ -54005,7 +54005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00041',
-    name: "백  련",
+    name: "백  련 근린공원",
     category: 'park',
     latitude: 37.5994102,
     longitude: 126.9357364,
@@ -54021,7 +54021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00040',
-    name: "불  광",
+    name: "불  광 근린공원",
     category: 'park',
     latitude: 37.6211742,
     longitude: 126.9310166,
@@ -54037,7 +54037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00039',
-    name: "서오능",
+    name: "서오능 근린공원",
     category: 'park',
     latitude: 37.6384026,
     longitude: 126.9138099,
@@ -54053,7 +54053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00038',
-    name: "봉산",
+    name: "봉산 근린공원",
     category: 'park',
     latitude: 37.6172014,
     longitude: 126.9032419,
@@ -54069,7 +54069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00037',
-    name: "북한산",
+    name: "북한산 근린공원",
     category: 'park',
     latitude: 37.611297,
     longitude: 126.9400901,
@@ -54149,7 +54149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00053',
-    name: "동화",
+    name: "동화 어린이공원",
     category: 'park',
     latitude: 37.5205712,
     longitude: 126.7896871,
@@ -54181,7 +54181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00051',
-    name: "도원",
+    name: "도원 어린이공원",
     category: 'park',
     latitude: 37.4764453,
     longitude: 126.7734359,
@@ -54197,7 +54197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00050',
-    name: "도요새",
+    name: "도요새 어린이공원",
     category: 'park',
     latitude: 37.4885505,
     longitude: 126.8148803,
@@ -54213,7 +54213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00049',
-    name: "도당",
+    name: "도당 근린공원",
     category: 'park',
     latitude: 37.5170495,
     longitude: 126.7931946,
@@ -54229,7 +54229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00048',
-    name: "도담",
+    name: "도담 어린이공원",
     category: 'park',
     latitude: 37.4892549,
     longitude: 126.769689,
@@ -54245,7 +54245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00047',
-    name: "덕유",
+    name: "덕유 어린이공원",
     category: 'park',
     latitude: 37.5084554,
     longitude: 126.7672912,
@@ -54261,7 +54261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00046',
-    name: "덕산",
+    name: "덕산 어린이공원",
     category: 'park',
     latitude: 37.5289222,
     longitude: 126.7921401,
@@ -54277,7 +54277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00045',
-    name: "달빛",
+    name: "달빛 근린공원",
     category: 'park',
     latitude: 37.4963419,
     longitude: 126.7792216,
@@ -54293,7 +54293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00044',
-    name: "다정한",
+    name: "다정한 어린이공원",
     category: 'park',
     latitude: 37.5119599,
     longitude: 126.7591652,
@@ -54917,7 +54917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41310_00075',
-    name: "주공1단지",
+    name: "주공1단지 어린이공원",
     category: 'park',
     latitude: 37.6105341,
     longitude: 127.1397086,
@@ -54981,7 +54981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00075',
-    name: "보배",
+    name: "보배 어린이공원",
     category: 'park',
     latitude: 37.5018338,
     longitude: 126.7810488,
@@ -54997,7 +54997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00074',
-    name: "보람",
+    name: "보람 어린이공원",
     category: 'park',
     latitude: 37.497557,
     longitude: 126.75958,
@@ -55013,7 +55013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00073',
-    name: "벌말",
+    name: "벌말 어린이공원",
     category: 'park',
     latitude: 37.4730237,
     longitude: 126.8022154,
@@ -55029,7 +55029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00072',
-    name: "벌막",
+    name: "벌막 근린공원",
     category: 'park',
     latitude: 37.4953983,
     longitude: 126.7802607,
@@ -55045,7 +55045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00071',
-    name: "버들",
+    name: "버들 근린공원",
     category: 'park',
     latitude: 37.4610589,
     longitude: 126.8255451,
@@ -55061,7 +55061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00070',
-    name: "백송마을",
+    name: "백송마을 어린이공원",
     category: 'park',
     latitude: 37.4977531,
     longitude: 126.7483605,
@@ -55077,7 +55077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00069',
-    name: "백동단지",
+    name: "백동단지 소공원",
     category: 'park',
     latitude: 37.475604,
     longitude: 126.7999202,
@@ -55093,7 +55093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00068',
-    name: "반달",
+    name: "반달 어린이공원",
     category: 'park',
     latitude: 37.4903531,
     longitude: 126.7483671,
@@ -55109,7 +55109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00067',
-    name: "바람모퉁이",
+    name: "바람모퉁이 어린이공원",
     category: 'park',
     latitude: 37.5120411,
     longitude: 126.8076781,
@@ -55125,7 +55125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00066',
-    name: "바람개비",
+    name: "바람개비 소공원",
     category: 'park',
     latitude: 37.4733804,
     longitude: 126.8122247,
@@ -55141,7 +55141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00065',
-    name: "미소",
+    name: "미소 소공원",
     category: 'park',
     latitude: 37.4668203,
     longitude: 126.8131485,
@@ -55157,7 +55157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00064',
-    name: "미리내",
+    name: "미리내 어린이공원",
     category: 'park',
     latitude: 37.4995776,
     longitude: 126.7722067,
@@ -55173,7 +55173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00063',
-    name: "물모퉁이",
+    name: "물모퉁이 소공원",
     category: 'park',
     latitude: 37.4695472,
     longitude: 126.8190659,
@@ -55189,7 +55189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00062',
-    name: "무지개",
+    name: "무지개 어린이공원",
     category: 'park',
     latitude: 37.4975947,
     longitude: 126.7642492,
@@ -55205,7 +55205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00061',
-    name: "목일신",
+    name: "목일신 근린공원",
     category: 'park',
     latitude: 37.4813834,
     longitude: 126.8182852,
@@ -55221,7 +55221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00060',
-    name: "먼마루",
+    name: "먼마루 어린이공원",
     category: 'park',
     latitude: 37.5265987,
     longitude: 126.8076181,
@@ -55237,7 +55237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00059',
-    name: "먹적골",
+    name: "먹적골 어린이공원",
     category: 'park',
     latitude: 37.490871,
     longitude: 126.7732007,
@@ -55253,7 +55253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00058',
-    name: "라일락",
+    name: "라일락 어린이공원",
     category: 'park',
     latitude: 37.5102008,
     longitude: 126.7513637,
@@ -55269,7 +55269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00057',
-    name: "뜰안",
+    name: "뜰안 어린이공원",
     category: 'park',
     latitude: 37.4704234,
     longitude: 126.8013098,
@@ -55285,7 +55285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00056',
-    name: "뒷골취락",
+    name: "뒷골취락 소공원",
     category: 'park',
     latitude: 37.5345287,
     longitude: 126.8187498,
@@ -55301,7 +55301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00055',
-    name: "둥지",
+    name: "둥지 어린이공원",
     category: 'park',
     latitude: 37.5103555,
     longitude: 126.8025253,
@@ -55317,7 +55317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00054',
-    name: "두리",
+    name: "두리 어린이공원",
     category: 'park',
     latitude: 37.4849485,
     longitude: 126.7513285,
@@ -55333,7 +55333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00100',
-    name: "성주",
+    name: "성주 어린이공원",
     category: 'park',
     latitude: 37.4781739,
     longitude: 126.7699064,
@@ -55365,7 +55365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00098',
-    name: "성곡",
+    name: "성곡 어린이공원",
     category: 'park',
     latitude: 37.5177221,
     longitude: 126.8162976,
@@ -55381,7 +55381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00097',
-    name: "설악",
+    name: "설악 어린이공원",
     category: 'park',
     latitude: 37.5087004,
     longitude: 126.7706825,
@@ -55397,7 +55397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00096',
-    name: "석천",
+    name: "석천 근린공원",
     category: 'park',
     latitude: 37.4957304,
     longitude: 126.7598453,
@@ -55413,7 +55413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00095',
-    name: "서촌말",
+    name: "서촌말 어린이공원",
     category: 'park',
     latitude: 37.4870075,
     longitude: 126.7437418,
@@ -55429,7 +55429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00094',
-    name: "서촌",
+    name: "서촌 근린공원",
     category: 'park',
     latitude: 37.4882496,
     longitude: 126.751048,
@@ -55445,7 +55445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00093',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.5071688,
     longitude: 126.7760795,
@@ -55461,7 +55461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00092',
-    name: "새터",
+    name: "새터 어린이공원",
     category: 'park',
     latitude: 37.5265607,
     longitude: 126.7838364,
@@ -55477,7 +55477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00091',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.4928984,
     longitude: 126.7705263,
@@ -55493,7 +55493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00090',
-    name: "상산",
+    name: "상산 어린이공원",
     category: 'park',
     latitude: 37.5187594,
     longitude: 126.7678798,
@@ -55509,7 +55509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00089',
-    name: "상동호수",
+    name: "상동호수 근린공원",
     category: 'park',
     latitude: 37.5061237,
     longitude: 126.7441496,
@@ -55525,7 +55525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00088',
-    name: "상동",
+    name: "상동 어린이공원",
     category: 'park',
     latitude: 37.4904109,
     longitude: 126.7610281,
@@ -55541,7 +55541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00087',
-    name: "살말",
+    name: "살말 어린이공원",
     category: 'park',
     latitude: 37.5117835,
     longitude: 126.7674321,
@@ -55557,7 +55557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00086',
-    name: "산우물",
+    name: "산우물 어린이공원",
     category: 'park',
     latitude: 37.4862064,
     longitude: 126.7725923,
@@ -55573,7 +55573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00085',
-    name: "산새체육",
+    name: "산새체육 체육공원",
     category: 'park',
     latitude: 37.4739056,
     longitude: 126.7894458,
@@ -55589,7 +55589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00084',
-    name: "산들역사",
+    name: "산들역사 문화공원",
     category: 'park',
     latitude: 37.4626624,
     longitude: 126.8138408,
@@ -55605,7 +55605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00083',
-    name: "산끝",
+    name: "산끝 어린이공원",
     category: 'park',
     latitude: 37.4824155,
     longitude: 126.756526,
@@ -55621,7 +55621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00082',
-    name: "산골",
+    name: "산골 어린이공원",
     category: 'park',
     latitude: 37.4816639,
     longitude: 126.7598262,
@@ -55637,7 +55637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00081',
-    name: "사태말별빛",
+    name: "사태말별빛 소공원",
     category: 'park',
     latitude: 37.4675882,
     longitude: 126.8197004,
@@ -55653,7 +55653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00080',
-    name: "사루개",
+    name: "사루개 어린이공원",
     category: 'park',
     latitude: 37.5107962,
     longitude: 126.8068061,
@@ -55669,7 +55669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00079',
-    name: "사래울",
+    name: "사래울 어린이공원",
     category: 'park',
     latitude: 37.4861758,
     longitude: 126.8082479,
@@ -55685,7 +55685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00078',
-    name: "비둘기",
+    name: "비둘기 어린이공원",
     category: 'park',
     latitude: 37.4882596,
     longitude: 126.7750246,
@@ -55701,7 +55701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00077',
-    name: "봄비",
+    name: "봄비 어린이공원",
     category: 'park',
     latitude: 37.492137,
     longitude: 126.7828788,
@@ -55717,7 +55717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00076',
-    name: "복사골",
+    name: "복사골 근린공원",
     category: 'park',
     latitude: 37.4931403,
     longitude: 126.7759044,
@@ -55957,7 +55957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00016',
-    name: "신도림테크노",
+    name: "신도림테크노 근린공원",
     category: 'park',
     latitude: 37.5081175,
     longitude: 126.8908707,
@@ -55973,7 +55973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00015',
-    name: "구로",
+    name: "구로 근린공원",
     category: 'park',
     latitude: 37.4974828,
     longitude: 126.8896027,
@@ -55989,7 +55989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00014',
-    name: "봉화대",
+    name: "봉화대 근린공원",
     category: 'park',
     latitude: 37.4846986,
     longitude: 126.8424192,
@@ -56005,7 +56005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00013',
-    name: "연지",
+    name: "연지 근린공원",
     category: 'park',
     latitude: 37.4796577,
     longitude: 126.8379653,
@@ -56021,7 +56021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00012',
-    name: "천왕(구)",
+    name: "천왕(구) 근린공원",
     category: 'park',
     latitude: 37.4764232,
     longitude: 126.8417584,
@@ -56037,7 +56037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00011',
-    name: "천왕(시)(항골)",
+    name: "천왕(시)(항골) 근린공원",
     category: 'park',
     latitude: 37.4785497,
     longitude: 126.8290997,
@@ -56053,7 +56053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00010',
-    name: "천왕(시)(천왕골)",
+    name: "천왕(시)(천왕골) 근린공원",
     category: 'park',
     latitude: 37.4826151,
     longitude: 126.8337054,
@@ -56069,7 +56069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00009',
-    name: "개웅산",
+    name: "개웅산 근린공원",
     category: 'park',
     latitude: 37.4869036,
     longitude: 126.8471261,
@@ -56085,7 +56085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00008',
-    name: "계남",
+    name: "계남 근린공원",
     category: 'park',
     latitude: 37.509285,
     longitude: 126.850122,
@@ -56101,7 +56101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00007',
-    name: "고척",
+    name: "고척 근린공원",
     category: 'park',
     latitude: 37.5065824,
     longitude: 126.8532783,
@@ -56117,7 +56117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00006',
-    name: "온수(온수체육지구)",
+    name: "온수(온수체육지구) 근린공원",
     category: 'park',
     latitude: 37.4933039,
     longitude: 126.8193736,
@@ -56133,7 +56133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00005',
-    name: "온수(온수골지구)",
+    name: "온수(온수골지구) 근린공원",
     category: 'park',
     latitude: 37.4940823,
     longitude: 126.821833,
@@ -56149,7 +56149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00004',
-    name: "온수(벽산지구)",
+    name: "온수(벽산지구) 근린공원",
     category: 'park',
     latitude: 37.4945986,
     longitude: 126.8244691,
@@ -56165,7 +56165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00003',
-    name: "온수(궁동지구)",
+    name: "온수(궁동지구) 근린공원",
     category: 'park',
     latitude: 37.4978009,
     longitude: 126.8375987,
@@ -56181,7 +56181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00002',
-    name: "온수(반달지구)",
+    name: "온수(반달지구) 근린공원",
     category: 'park',
     latitude: 37.4994785,
     longitude: 126.8418368,
@@ -56197,7 +56197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00001',
-    name: "온수(잣절지구)",
+    name: "온수(잣절지구) 근린공원",
     category: 'park',
     latitude: 37.5019962,
     longitude: 126.8397231,
@@ -56229,7 +56229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00102',
-    name: "세치",
+    name: "세치 어린이공원",
     category: 'park',
     latitude: 37.4729078,
     longitude: 126.80526,
@@ -57269,7 +57269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00013',
-    name: "연희",
+    name: "연희 어린이공원",
     category: 'park',
     latitude: 37.5677223,
     longitude: 126.9214883,
@@ -57285,7 +57285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00033',
-    name: "연서",
+    name: "연서 어린이공원",
     category: 'park',
     latitude: 37.572106,
     longitude: 126.9233003,
@@ -57301,7 +57301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00023',
-    name: "연남",
+    name: "연남 어린이공원",
     category: 'park',
     latitude: 37.5782157,
     longitude: 126.9253083,
@@ -57317,7 +57317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00024',
-    name: "실락",
+    name: "실락 어린이공원",
     category: 'park',
     latitude: 37.5944984,
     longitude: 126.9433887,
@@ -57333,7 +57333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00014',
-    name: "신가",
+    name: "신가 어린이공원",
     category: 'park',
     latitude: 37.5801637,
     longitude: 126.908353,
@@ -57349,7 +57349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00038',
-    name: "솟대",
+    name: "솟대 어린이공원",
     category: 'park',
     latitude: 37.5727336,
     longitude: 126.9128368,
@@ -57365,7 +57365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00018',
-    name: "상암곡",
+    name: "상암곡 어린이공원",
     category: 'park',
     latitude: 37.5828753,
     longitude: 126.9422298,
@@ -57381,7 +57381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00006',
-    name: "불천",
+    name: "불천 어린이공원",
     category: 'park',
     latitude: 37.5974413,
     longitude: 126.9481431,
@@ -57397,7 +57397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00064',
-    name: "북성",
+    name: "북성 어린이공원",
     category: 'park',
     latitude: 37.5585349,
     longitude: 126.9516608,
@@ -57413,7 +57413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00034',
-    name: "북가좌정원지구",
+    name: "북가좌정원지구 어린이공원",
     category: 'park',
     latitude: 37.5797906,
     longitude: 126.9167807,
@@ -57429,7 +57429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00021',
-    name: "백련",
+    name: "백련 어린이공원",
     category: 'park',
     latitude: 37.5822747,
     longitude: 126.9240161,
@@ -57445,7 +57445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00025',
-    name: "바람산",
+    name: "바람산 어린이공원",
     category: 'park',
     latitude: 37.5582622,
     longitude: 126.9402044,
@@ -57461,7 +57461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00005',
-    name: "문화촌",
+    name: "문화촌 어린이공원",
     category: 'park',
     latitude: 37.5951283,
     longitude: 126.9473904,
@@ -57477,7 +57477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00017',
-    name: "모랫재",
+    name: "모랫재 어린이공원",
     category: 'park',
     latitude: 37.5829894,
     longitude: 126.9447011,
@@ -57493,7 +57493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00046',
-    name: "모래내",
+    name: "모래내 어린이공원",
     category: 'park',
     latitude: 37.5723808,
     longitude: 126.9137262,
@@ -57509,7 +57509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00003',
-    name: "명수",
+    name: "명수 어린이공원",
     category: 'park',
     latitude: 37.5600994,
     longitude: 126.9507473,
@@ -57525,7 +57525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00009',
-    name: "동구물",
+    name: "동구물 어린이공원",
     category: 'park',
     latitude: 37.5713589,
     longitude: 126.9280647,
@@ -57541,7 +57541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00012',
-    name: "대궐재",
+    name: "대궐재 어린이공원",
     category: 'park',
     latitude: 37.5740323,
     longitude: 126.9370981,
@@ -57557,7 +57557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00016',
-    name: "다람쥐",
+    name: "다람쥐 어린이공원",
     category: 'park',
     latitude: 37.5760875,
     longitude: 126.9344228,
@@ -57573,7 +57573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00050',
-    name: "너른바위",
+    name: "너른바위 어린이공원",
     category: 'park',
     latitude: 37.576082,
     longitude: 126.93442,
@@ -57589,7 +57589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00022',
-    name: "남이마을",
+    name: "남이마을 어린이공원",
     category: 'park',
     latitude: 37.5790427,
     longitude: 126.9196433,
@@ -57605,7 +57605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00054',
-    name: "남가좌동",
+    name: "남가좌동 어린이공원",
     category: 'park',
     latitude: 37.579075,
     longitude: 126.919683,
@@ -57621,7 +57621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00039',
-    name: "나비울",
+    name: "나비울 어린이공원",
     category: 'park',
     latitude: 37.5748097,
     longitude: 126.9096221,
@@ -57637,7 +57637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00011',
-    name: "궁말",
+    name: "궁말 어린이공원",
     category: 'park',
     latitude: 37.5710871,
     longitude: 126.9336096,
@@ -60133,7 +60133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00002',
-    name: "우산각",
+    name: "우산각 어린이공원",
     category: 'park',
     latitude: 37.5738566,
     longitude: 127.0241852,
@@ -60149,7 +60149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00001',
-    name: "청량",
+    name: "청량 근린공원",
     category: 'park',
     latitude: 37.5957317,
     longitude: 127.0448296,
@@ -60645,7 +60645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11170_00042',
-    name: "이태원부군당",
+    name: "이태원부군당 역사공원",
     category: 'park',
     latitude: 37.535801,
     longitude: 126.989755,
@@ -60789,7 +60789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41131_00021',
-    name: "위례 제3호(서일로)(미인수)",
+    name: "위례 제3호(서일로)(미인수) 어린이공원",
     category: 'park',
     latitude: 37.46768,
     longitude: 127.138408,
@@ -60805,7 +60805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41131_00020',
-    name: "위례 제2호(한빛)",
+    name: "위례 제2호(한빛) 어린이공원",
     category: 'park',
     latitude: 37.464589,
     longitude: 127.147789,
@@ -61381,7 +61381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41131_00147',
-    name: "영장산",
+    name: "영장산 소공원",
     category: 'park',
     latitude: 37.455494,
     longitude: 127.149252,
@@ -61669,7 +61669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41133_00032',
-    name: "금상(금광1주택재개발 정비사업)",
+    name: "금상(금광1주택재개발 정비사업) 소공원",
     category: 'park',
     latitude: 37.441761,
     longitude: 127.163492,
@@ -61685,7 +61685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41133_00031',
-    name: "힐스",
+    name: "힐스 소공원",
     category: 'park',
     latitude: 37.437373,
     longitude: 127.14903,
@@ -61797,7 +61797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41133_00022',
-    name: "도란도란",
+    name: "도란도란 어린이공원",
     category: 'park',
     latitude: 37.430318,
     longitude: 127.126383,
@@ -62117,7 +62117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00010',
-    name: "궁뜰",
+    name: "궁뜰 어린이공원",
     category: 'park',
     latitude: 37.5690194,
     longitude: 126.9304024,
@@ -62133,7 +62133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00041',
-    name: "거꾸로",
+    name: "거꾸로 어린이공원",
     category: 'park',
     latitude: 37.5850347,
     longitude: 126.9132171,
@@ -62149,7 +62149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00028',
-    name: "갈매연",
+    name: "갈매연 어린이공원",
     category: 'park',
     latitude: 37.5784941,
     longitude: 126.9173896,
@@ -62165,7 +62165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00027',
-    name: "가좌",
+    name: "가좌 어린이공원",
     category: 'park',
     latitude: 37.57585,
     longitude: 126.9205374,
@@ -62181,7 +62181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00047',
-    name: "가재울",
+    name: "가재울 어린이공원",
     category: 'park',
     latitude: 37.5730923,
     longitude: 126.9191177,
@@ -62213,7 +62213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00062',
-    name: "홍제2구역",
+    name: "홍제2구역 소공원",
     category: 'park',
     latitude: 37.589198,
     longitude: 126.946179,
@@ -62229,7 +62229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00061',
-    name: "홍은6구역2",
+    name: "홍은6구역2 소공원",
     category: 'park',
     latitude: 37.5994338,
     longitude: 126.9443681,
@@ -62245,7 +62245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00060',
-    name: "홍은6구역1",
+    name: "홍은6구역1 소공원",
     category: 'park',
     latitude: 37.6006212,
     longitude: 126.9444938,
@@ -62261,7 +62261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00059',
-    name: "홍은1구역",
+    name: "홍은1구역 소공원",
     category: 'park',
     latitude: 37.5927649,
     longitude: 126.9407005,
@@ -62277,7 +62277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00058',
-    name: "홍은14구역",
+    name: "홍은14구역 소공원",
     category: 'park',
     latitude: 37.59278,
     longitude: 126.940705,
@@ -62293,7 +62293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00040',
-    name: "홍은3",
+    name: "홍은3 소공원",
     category: 'park',
     latitude: 37.5996593,
     longitude: 126.9433995,
@@ -62309,7 +62309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00043',
-    name: "한울",
+    name: "한울 소공원",
     category: 'park',
     latitude: 37.570844,
     longitude: 126.9165656,
@@ -62325,7 +62325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00045',
-    name: "하늘",
+    name: "하늘 소공원",
     category: 'park',
     latitude: 37.571701,
     longitude: 126.91542,
@@ -62341,7 +62341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00057',
-    name: "연가",
+    name: "연가 소공원",
     category: 'park',
     latitude: 37.5807094,
     longitude: 126.9196879,
@@ -62357,7 +62357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00052',
-    name: "아현역",
+    name: "아현역 소공원",
     category: 'park',
     latitude: 37.58076,
     longitude: 126.919715,
@@ -62373,7 +62373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00036',
-    name: "아름다운",
+    name: "아름다운 소공원",
     category: 'park',
     latitude: 37.5848519,
     longitude: 126.9471888,
@@ -62389,7 +62389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00042',
-    name: "문화",
+    name: "문화 소공원",
     category: 'park',
     latitude: 37.5946706,
     longitude: 126.948759,
@@ -62405,7 +62405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00044',
-    name: "무궁화",
+    name: "무궁화 소공원",
     category: 'park',
     latitude: 37.594565,
     longitude: 126.94881,
@@ -62437,7 +62437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00031',
-    name: "기차길옆",
+    name: "기차길옆 소공원",
     category: 'park',
     latitude: 37.5622254,
     longitude: 126.9653523,
@@ -62453,7 +62453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00056',
-    name: "구청3별관",
+    name: "구청3별관 소공원",
     category: 'park',
     latitude: 37.579441,
     longitude: 126.9359587,
@@ -62469,7 +62469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00001',
-    name: "창천",
+    name: "창천 문화공원",
     category: 'park',
     latitude: 37.5568597,
     longitude: 126.935118,
@@ -62485,7 +62485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00032',
-    name: "독립문",
+    name: "독립문 문화공원",
     category: 'park',
     latitude: 37.556869,
     longitude: 126.935113,
@@ -62501,7 +62501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00004',
-    name: "대현",
+    name: "대현 문화공원",
     category: 'park',
     latitude: 37.5577977,
     longitude: 126.9454775,
@@ -62517,7 +62517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11410_00030',
-    name: "홍제",
+    name: "홍제 근린공원",
     category: 'park',
     latitude: 37.5948548,
     longitude: 126.9530472,
@@ -62533,7 +62533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00084',
-    name: "새빛",
+    name: "새빛 근린공원",
     category: 'park',
     latitude: 37.4155,
     longitude: 126.8879,
@@ -62549,7 +62549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00083',
-    name: "햇무리",
+    name: "햇무리 어린이공원",
     category: 'park',
     latitude: 37.480108,
     longitude: 126.8651,
@@ -62565,7 +62565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41210_00082',
-    name: "광덕",
+    name: "광덕 어린이공원",
     category: 'park',
     latitude: 37.4724186,
     longitude: 126.8658,
@@ -62613,7 +62613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00029',
-    name: "텃골",
+    name: "텃골 근린공원",
     category: 'park',
     latitude: 37.5775463,
     longitude: 127.051609,
@@ -62629,7 +62629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00028',
-    name: "용두",
+    name: "용두 근린공원",
     category: 'park',
     latitude: 37.5732457,
     longitude: 127.0401114,
@@ -62645,7 +62645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00027',
-    name: "방아다리",
+    name: "방아다리 어린이공원",
     category: 'park',
     latitude: 37.5851297,
     longitude: 127.034885,
@@ -62661,7 +62661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00026',
-    name: "용두희망",
+    name: "용두희망 어린이공원",
     category: 'park',
     latitude: 37.5801827,
     longitude: 127.0267395,
@@ -62693,7 +62693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00024',
-    name: "아름",
+    name: "아름 어린이공원",
     category: 'park',
     latitude: 37.5868279,
     longitude: 127.0693157,
@@ -62709,7 +62709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00023',
-    name: "장일",
+    name: "장일 어린이공원",
     category: 'park',
     latitude: 37.5698546,
     longitude: 127.0651081,
@@ -62725,7 +62725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00022',
-    name: "용머리",
+    name: "용머리 어린이공원",
     category: 'park',
     latitude: 37.5727691,
     longitude: 127.0365661,
@@ -62741,7 +62741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00021',
-    name: "이슬",
+    name: "이슬 어린이공원",
     category: 'park',
     latitude: 37.5678099,
     longitude: 127.0635673,
@@ -62757,7 +62757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00020',
-    name: "미리내",
+    name: "미리내 어린이공원",
     category: 'park',
     latitude: 37.5806911,
     longitude: 127.0717358,
@@ -62773,7 +62773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00019',
-    name: "배봉산",
+    name: "배봉산 근린공원",
     category: 'park',
     latitude: 37.5812123,
     longitude: 127.0675943,
@@ -62789,7 +62789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00018',
-    name: "답십리",
+    name: "답십리 근린공원",
     category: 'park',
     latitude: 37.5733201,
     longitude: 127.0638172,
@@ -62805,7 +62805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00017',
-    name: "홍릉",
+    name: "홍릉 근린공원",
     category: 'park',
     latitude: 37.5895838,
     longitude: 127.0435376,
@@ -62821,7 +62821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00016',
-    name: "천장",
+    name: "천장 어린이공원",
     category: 'park',
     latitude: 37.5988944,
     longitude: 127.0538436,
@@ -62837,7 +62837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00015',
-    name: "샛별",
+    name: "샛별 어린이공원",
     category: 'park',
     latitude: 37.5678428,
     longitude: 127.0674928,
@@ -62853,7 +62853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00014',
-    name: "장미",
+    name: "장미 어린이공원",
     category: 'park',
     latitude: 37.5716162,
     longitude: 127.0691872,
@@ -62869,7 +62869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00013',
-    name: "미나리",
+    name: "미나리 어린이공원",
     category: 'park',
     latitude: 37.5638584,
     longitude: 127.067902,
@@ -62885,7 +62885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00012',
-    name: "장평",
+    name: "장평 근린공원",
     category: 'park',
     latitude: 37.5674881,
     longitude: 127.0737398,
@@ -62901,7 +62901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00011',
-    name: "장안",
+    name: "장안 근린공원",
     category: 'park',
     latitude: 37.5771653,
     longitude: 127.0709026,
@@ -62933,7 +62933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00009',
-    name: "이삭",
+    name: "이삭 어린이공원",
     category: 'park',
     latitude: 37.5787497,
     longitude: 127.0495026,
@@ -62949,7 +62949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00008',
-    name: "한내",
+    name: "한내 어린이공원",
     category: 'park',
     latitude: 37.5678946,
     longitude: 127.0711623,
@@ -62965,7 +62965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00007',
-    name: "늘봄",
+    name: "늘봄 어린이공원",
     category: 'park',
     latitude: 37.5713224,
     longitude: 127.0725893,
@@ -62981,7 +62981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00006',
-    name: "늘푸른",
+    name: "늘푸른 어린이공원",
     category: 'park',
     latitude: 37.5761896,
     longitude: 127.0715754,
@@ -62997,7 +62997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00005',
-    name: "마로니에",
+    name: "마로니에 어린이공원",
     category: 'park',
     latitude: 37.5749393,
     longitude: 127.0737198,
@@ -63013,7 +63013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00004',
-    name: "안골",
+    name: "안골 어린이공원",
     category: 'park',
     latitude: 37.5652644,
     longitude: 127.0643819,
@@ -63029,7 +63029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00003',
-    name: "느티나무",
+    name: "느티나무 어린이공원",
     category: 'park',
     latitude: 37.5789855,
     longitude: 127.032565,
@@ -63045,7 +63045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00046',
-    name: "용두6구역",
+    name: "용두6구역 소공원",
     category: 'park',
     latitude: 37.5789782,
     longitude: 127.026565,
@@ -63061,7 +63061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00045',
-    name: "용두5구역",
+    name: "용두5구역 어린이공원",
     category: 'park',
     latitude: 37.5711466,
     longitude: 127.0285473,
@@ -63077,7 +63077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00044',
-    name: "휘경마당",
+    name: "휘경마당 소공원",
     category: 'park',
     latitude: 37.5910822,
     longitude: 127.0611301,
@@ -63093,7 +63093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00043',
-    name: "장이",
+    name: "장이 소공원",
     category: 'park',
     latitude: 37.5744181,
     longitude: 127.0705664,
@@ -63109,7 +63109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00042',
-    name: "휘경",
+    name: "휘경 어린이공원",
     category: 'park',
     latitude: 37.5935109,
     longitude: 127.0678028,
@@ -63125,7 +63125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00041',
-    name: "새움",
+    name: "새움 어린이공원",
     category: 'park',
     latitude: 37.5707602,
     longitude: 127.0486741,
@@ -63141,7 +63141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00040',
-    name: "샛말",
+    name: "샛말 어린이공원",
     category: 'park',
     latitude: 37.57749,
     longitude: 127.0501308,
@@ -63157,7 +63157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00039',
-    name: "솔바람",
+    name: "솔바람 소공원",
     category: 'park',
     latitude: 37.5799176,
     longitude: 127.030411,
@@ -63173,7 +63173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00038',
-    name: "진달래",
+    name: "진달래 어린이공원",
     category: 'park',
     latitude: 37.5844985,
     longitude: 127.0686626,
@@ -63189,7 +63189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00037',
-    name: "내길",
+    name: "내길 소공원",
     category: 'park',
     latitude: 37.5902903,
     longitude: 127.0650995,
@@ -63205,7 +63205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00036',
-    name: "선농단",
+    name: "선농단 역사공원",
     category: 'park',
     latitude: 37.5811838,
     longitude: 127.0318885,
@@ -63221,7 +63221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00035',
-    name: "아름드리",
+    name: "아름드리 어린이공원",
     category: 'park',
     latitude: 37.5790248,
     longitude: 127.0596823,
@@ -63237,7 +63237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00034',
-    name: "작은언덕",
+    name: "작은언덕 소공원",
     category: 'park',
     latitude: 37.5893275,
     longitude: 127.0540547,
@@ -63269,7 +63269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00032',
-    name: "휘봉",
+    name: "휘봉 어린이공원",
     category: 'park',
     latitude: 37.5868939,
     longitude: 127.069321,
@@ -63285,7 +63285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00031',
-    name: "장령당",
+    name: "장령당 소공원",
     category: 'park',
     latitude: 37.5697319,
     longitude: 127.0534939,
@@ -63301,7 +63301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00030',
-    name: "새샘",
+    name: "새샘 근린공원",
     category: 'park',
     latitude: 37.5689696,
     longitude: 127.0549292,
@@ -63317,7 +63317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00109',
-    name: "소일",
+    name: "소일 어린이공원",
     category: 'park',
     latitude: 37.4688127,
     longitude: 126.8037243,
@@ -63333,7 +63333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00108',
-    name: "소원",
+    name: "소원 어린이공원",
     category: 'park',
     latitude: 37.4849045,
     longitude: 126.7969642,
@@ -63349,7 +63349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00107',
-    name: "소안",
+    name: "소안 어린이공원",
     category: 'park',
     latitude: 37.4756638,
     longitude: 126.8003564,
@@ -63365,7 +63365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00106',
-    name: "소새울",
+    name: "소새울 근린공원",
     category: 'park',
     latitude: 37.4766553,
     longitude: 126.7986998,
@@ -63397,7 +63397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00104',
-    name: "소망",
+    name: "소망 어린이공원",
     category: 'park',
     latitude: 37.4920502,
     longitude: 126.7629374,
@@ -63413,7 +63413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00134',
-    name: "용못내",
+    name: "용못내 근린공원",
     category: 'park',
     latitude: 37.4679895,
     longitude: 126.8261054,
@@ -63429,7 +63429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00133',
-    name: "옥산",
+    name: "옥산 어린이공원",
     category: 'park',
     latitude: 37.5040007,
     longitude: 126.7783727,
@@ -63445,7 +63445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00132',
-    name: "오정대",
+    name: "오정대 근린공원",
     category: 'park',
     latitude: 37.5297829,
     longitude: 126.7961418,
@@ -63461,7 +63461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00131',
-    name: "연꽃",
+    name: "연꽃 어린이공원",
     category: 'park',
     latitude: 37.4970277,
     longitude: 126.7819354,
@@ -63477,7 +63477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00130',
-    name: "역곡",
+    name: "역곡 문화공원",
     category: 'park',
     latitude: 37.488286,
     longitude: 126.8034296,
@@ -63493,7 +63493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00129',
-    name: "여월체육",
+    name: "여월체육 체육공원",
     category: 'park',
     latitude: 37.5143396,
     longitude: 126.8045264,
@@ -63509,7 +63509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00128',
-    name: "여월근린",
+    name: "여월근린 근린공원",
     category: 'park',
     latitude: 37.513641,
     longitude: 126.8017452,
@@ -63525,7 +63525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00127',
-    name: "억새",
+    name: "억새 어린이공원",
     category: 'park',
     latitude: 37.5153714,
     longitude: 126.7693176,
@@ -63541,7 +63541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00126',
-    name: "어울마당",
+    name: "어울마당 어린이공원",
     category: 'park',
     latitude: 37.5281462,
     longitude: 126.8044156,
@@ -63557,7 +63557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00125',
-    name: "어울림",
+    name: "어울림 근린공원",
     category: 'park',
     latitude: 37.4998675,
     longitude: 126.7782659,
@@ -63573,7 +63573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00124',
-    name: "양지",
+    name: "양지 어린이공원",
     category: 'park',
     latitude: 37.4765628,
     longitude: 126.8135362,
@@ -63589,7 +63589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00123',
-    name: "양은리",
+    name: "양은리 어린이공원",
     category: 'park',
     latitude: 37.4804708,
     longitude: 126.7738681,
@@ -63605,7 +63605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00122',
-    name: "양안",
+    name: "양안 어린이공원",
     category: 'park',
     latitude: 37.4843636,
     longitude: 126.7676647,
@@ -63621,7 +63621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00121',
-    name: "약수",
+    name: "약수 어린이공원",
     category: 'park',
     latitude: 37.5170627,
     longitude: 126.7663362,
@@ -63637,7 +63637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00120',
-    name: "약대",
+    name: "약대 근린공원",
     category: 'park',
     latitude: 37.5110861,
     longitude: 126.7677408,
@@ -63669,7 +63669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00118',
-    name: "안중근",
+    name: "안중근 근린공원",
     category: 'park',
     latitude: 37.5044416,
     longitude: 126.7590373,
@@ -63685,7 +63685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00117',
-    name: "안곡",
+    name: "안곡 어린이공원",
     category: 'park',
     latitude: 37.4906842,
     longitude: 126.8161954,
@@ -63701,7 +63701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00116',
-    name: "심곡천",
+    name: "심곡천 문화공원",
     category: 'park',
     latitude: 37.493691,
     longitude: 126.7799284,
@@ -63717,7 +63717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00115',
-    name: "수주",
+    name: "수주 근린공원",
     category: 'park',
     latitude: 37.5300469,
     longitude: 126.8125369,
@@ -63733,7 +63733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00114',
-    name: "송내",
+    name: "송내 근린공원",
     category: 'park',
     latitude: 37.4778082,
     longitude: 126.7644203,
@@ -63749,7 +63749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00113',
-    name: "솔안말",
+    name: "솔안말 어린이공원",
     category: 'park',
     latitude: 37.4858057,
     longitude: 126.7587106,
@@ -63765,7 +63765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00112',
-    name: "솔안",
+    name: "솔안 근린공원",
     category: 'park',
     latitude: 37.4880783,
     longitude: 126.7572853,
@@ -63781,7 +63781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00111',
-    name: "소향",
+    name: "소향 근린공원",
     category: 'park',
     latitude: 37.497595,
     longitude: 126.7728867,
@@ -63797,7 +63797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00110',
-    name: "소중",
+    name: "소중 어린이공원",
     category: 'park',
     latitude: 37.4697874,
     longitude: 126.7945122,
@@ -63957,7 +63957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00046',
-    name: "솔길",
+    name: "솔길 어린이공원",
     category: 'park',
     latitude: 37.489184,
     longitude: 126.8804792,
@@ -63973,7 +63973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00045',
-    name: "미래사랑",
+    name: "미래사랑 어린이공원",
     category: 'park',
     latitude: 37.509847,
     longitude: 126.8890762,
@@ -63989,7 +63989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00044',
-    name: "애경",
+    name: "애경 어린이공원",
     category: 'park',
     latitude: 37.500156,
     longitude: 126.8846598,
@@ -64005,7 +64005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00043',
-    name: "구로리",
+    name: "구로리 어린이공원",
     category: 'park',
     latitude: 37.4904165,
     longitude: 126.891578,
@@ -64021,7 +64021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00042',
-    name: "신도림",
+    name: "신도림 어린이공원",
     category: 'park',
     latitude: 37.5107092,
     longitude: 126.8883753,
@@ -64037,7 +64037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00041',
-    name: "화원",
+    name: "화원 어린이공원",
     category: 'park',
     latitude: 37.4979165,
     longitude: 126.8804405,
@@ -64053,7 +64053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00040',
-    name: "온수",
+    name: "온수 어린이공원",
     category: 'park',
     latitude: 37.494631,
     longitude: 126.8177077,
@@ -64069,7 +64069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00039',
-    name: "수른",
+    name: "수른 어린이공원",
     category: 'park',
     latitude: 37.4979441,
     longitude: 126.829601,
@@ -64085,7 +64085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00038',
-    name: "삭새",
+    name: "삭새 어린이공원",
     category: 'park',
     latitude: 37.496337,
     longitude: 126.825012,
@@ -64101,7 +64101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00037',
-    name: "삼각",
+    name: "삼각 어린이공원",
     category: 'park',
     latitude: 37.5013577,
     longitude: 126.8920128,
@@ -64117,7 +64117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00036',
-    name: "희망",
+    name: "희망 어린이공원",
     category: 'park',
     latitude: 37.4870381,
     longitude: 126.886243,
@@ -64133,7 +64133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00035',
-    name: "환경",
+    name: "환경 어린이공원",
     category: 'park',
     latitude: 37.4850219,
     longitude: 126.888408,
@@ -64149,7 +64149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00034',
-    name: "꿈마을",
+    name: "꿈마을 어린이공원",
     category: 'park',
     latitude: 37.487173,
     longitude: 126.8901545,
@@ -64165,7 +64165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00033',
-    name: "도레미",
+    name: "도레미 어린이공원",
     category: 'park',
     latitude: 37.508017,
     longitude: 126.852322,
@@ -64181,7 +64181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00032',
-    name: "골목",
+    name: "골목 어린이공원",
     category: 'park',
     latitude: 37.507017,
     longitude: 126.853545,
@@ -64197,7 +64197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00031',
-    name: "능골",
+    name: "능골 어린이공원",
     category: 'park',
     latitude: 37.506852,
     longitude: 126.854254,
@@ -64213,7 +64213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00030',
-    name: "오금",
+    name: "오금 어린이공원",
     category: 'park',
     latitude: 37.505038,
     longitude: 126.866221,
@@ -64229,7 +64229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00029',
-    name: "가린열",
+    name: "가린열 어린이공원",
     category: 'park',
     latitude: 37.500611,
     longitude: 126.8542042,
@@ -64245,7 +64245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00028',
-    name: "절골",
+    name: "절골 어린이공원",
     category: 'park',
     latitude: 37.482821,
     longitude: 126.851652,
@@ -64261,7 +64261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00027',
-    name: "소막골",
+    name: "소막골 어린이공원",
     category: 'park',
     latitude: 37.4885312,
     longitude: 126.852386,
@@ -64277,7 +64277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00026',
-    name: "개웅",
+    name: "개웅 어린이공원",
     category: 'park',
     latitude: 37.489928,
     longitude: 126.852866,
@@ -64293,7 +64293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00025',
-    name: "개봉",
+    name: "개봉공원",
     category: 'park',
     latitude: 37.4995876,
     longitude: 126.849609,
@@ -64309,7 +64309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00024',
-    name: "항동",
+    name: "항동 체육공원",
     category: 'park',
     latitude: 37.4761351,
     longitude: 126.8220008,
@@ -64325,7 +64325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00023',
-    name: "고척",
+    name: "고척 문화공원",
     category: 'park',
     latitude: 37.4981309,
     longitude: 126.8585712,
@@ -64341,7 +64341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00022',
-    name: "오류역",
+    name: "오류역 문화공원",
     category: 'park',
     latitude: 37.4946322,
     longitude: 126.8455221,
@@ -64357,7 +64357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11530_00021',
-    name: "대성디큐브시티",
+    name: "대성디큐브시티 문화공원",
     category: 'park',
     latitude: 37.5092379,
     longitude: 126.8902377,
@@ -64565,7 +64565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00024',
-    name: "송파",
+    name: "송파 근린공원",
     category: 'park',
     latitude: 37.5063335,
     longitude: 127.110451,
@@ -64581,7 +64581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00022',
-    name: "소리",
+    name: "소리 근린공원",
     category: 'park',
     latitude: 37.4816116,
     longitude: 127.1199678,
@@ -64597,7 +64597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00020',
-    name: "삼전",
+    name: "삼전 근린공원",
     category: 'park',
     latitude: 37.5017929,
     longitude: 127.0933328,
@@ -64613,7 +64613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00019',
-    name: "뽕나무",
+    name: "뽕나무 근린공원",
     category: 'park',
     latitude: 37.5139764,
     longitude: 127.0816397,
@@ -64629,7 +64629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00017',
-    name: "백토",
+    name: "백토 근린공원",
     category: 'park',
     latitude: 37.5081169,
     longitude: 127.132113,
@@ -64645,7 +64645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00016',
-    name: "방이",
+    name: "방이 근린공원",
     category: 'park',
     latitude: 37.5143532,
     longitude: 127.1136443,
@@ -64661,7 +64661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00015',
-    name: "문정",
+    name: "문정 근린공원",
     category: 'park',
     latitude: 37.486486,
     longitude: 127.128916,
@@ -64677,7 +64677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00014',
-    name: "목련",
+    name: "목련 근린공원",
     category: 'park',
     latitude: 37.499035,
     longitude: 127.138842,
@@ -64693,7 +64693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00013',
-    name: "매미",
+    name: "매미 근린공원",
     category: 'park',
     latitude: 37.5093435,
     longitude: 127.0887161,
@@ -64709,7 +64709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00012',
-    name: "마천",
+    name: "마천 근린공원",
     category: 'park',
     latitude: 37.5012858,
     longitude: 127.1456483,
@@ -64741,7 +64741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00009',
-    name: "누에머리",
+    name: "누에머리 근린공원",
     category: 'park',
     latitude: 37.5038103,
     longitude: 127.141799,
@@ -64757,7 +64757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00007',
-    name: "글샘작은",
+    name: "글샘작은 근린공원",
     category: 'park',
     latitude: 37.477494,
     longitude: 127.1212146,
@@ -64773,7 +64773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00006',
-    name: "글샘",
+    name: "글샘 근린공원",
     category: 'park',
     latitude: 37.4804452,
     longitude: 127.1205075,
@@ -64789,7 +64789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00005',
-    name: "건너말",
+    name: "건너말 근린공원",
     category: 'park',
     latitude: 37.491603,
     longitude: 127.123473,
@@ -64805,7 +64805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00004',
-    name: "거여",
+    name: "거여 근린공원",
     category: 'park',
     latitude: 37.497007,
     longitude: 127.140981,
@@ -64821,7 +64821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00003',
-    name: "개롱",
+    name: "개롱 근린공원",
     category: 'park',
     latitude: 37.493407,
     longitude: 127.130026,
@@ -64837,7 +64837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00002',
-    name: "개나리",
+    name: "개나리 근린공원",
     category: 'park',
     latitude: 37.507553,
     longitude: 127.0941112,
@@ -64853,7 +64853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00001',
-    name: "가락",
+    name: "가락 근린공원",
     category: 'park',
     latitude: 37.498469,
     longitude: 127.125124,
@@ -64869,7 +64869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00049',
-    name: "한별",
+    name: "한별 어린이공원",
     category: 'park',
     latitude: 37.571552,
     longitude: 127.0281015,
@@ -64885,7 +64885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00049',
-    name: "푸르미르",
+    name: "푸르미르 기타(가로공원)",
     category: 'park',
     latitude: 37.5778642,
     longitude: 127.0431956,
@@ -64901,7 +64901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11230_00048',
-    name: "간데메",
+    name: "간데메 근린공원",
     category: 'park',
     latitude: 37.572781,
     longitude: 127.0490643,
@@ -66261,7 +66261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00014',
-    name: "풍산지구 어린이2호",
+    name: "풍산지구 어린이2호 어린이공원",
     category: 'park',
     latitude: 37.5465191,
     longitude: 127.1984291,
@@ -66277,7 +66277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00014',
-    name: "하남해터지구",
+    name: "하남해터지구 어린이공원",
     category: 'park',
     latitude: 37.5436567,
     longitude: 127.2039837,
@@ -66293,7 +66293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00013',
-    name: "풍산지구 어린이1호",
+    name: "풍산지구 어린이1호 어린이공원",
     category: 'park',
     latitude: 37.555292,
     longitude: 127.2011636,
@@ -66341,7 +66341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00010',
-    name: "새 싹 공 원",
+    name: "새 싹 공 원 어린이공원",
     category: 'park',
     latitude: 37.5427172,
     longitude: 127.2127507,
@@ -66357,7 +66357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41450_00009',
-    name: "한 솔 공 원",
+    name: "한 솔 공 원 어린이공원",
     category: 'park',
     latitude: 37.5356058,
     longitude: 127.1955107,
@@ -68421,7 +68421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00051',
-    name: "나루터",
+    name: "나루터 어린이공원",
     category: 'park',
     latitude: 37.501606,
     longitude: 127.0867436,
@@ -68437,7 +68437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00050',
-    name: "꿈나무",
+    name: "꿈나무 어린이공원",
     category: 'park',
     latitude: 37.5032386,
     longitude: 127.141109,
@@ -68453,7 +68453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00049',
-    name: "굴렁쇠",
+    name: "굴렁쇠 어린이공원",
     category: 'park',
     latitude: 37.490223,
     longitude: 127.1124333,
@@ -68469,7 +68469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00048',
-    name: "곰말",
+    name: "곰말 어린이공원",
     category: 'park',
     latitude: 37.5119092,
     longitude: 127.1177088,
@@ -68485,7 +68485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00047',
-    name: "거여",
+    name: "거여 어린이공원",
     category: 'park',
     latitude: 37.492626,
     longitude: 127.1428082,
@@ -68501,7 +68501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00046',
-    name: "거북이",
+    name: "거북이 어린이공원",
     category: 'park',
     latitude: 37.501703,
     longitude: 127.119522,
@@ -68517,7 +68517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00045',
-    name: "개미",
+    name: "개미 어린이공원",
     category: 'park',
     latitude: 37.4921999,
     longitude: 127.146735,
@@ -68533,7 +68533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00044',
-    name: "개나리",
+    name: "개나리 어린이공원",
     category: 'park',
     latitude: 37.482425,
     longitude: 127.1283131,
@@ -68549,7 +68549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00043',
-    name: "가야금",
+    name: "가야금 어린이공원",
     category: 'park',
     latitude: 37.508629,
     longitude: 127.1293119,
@@ -68581,7 +68581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00041',
-    name: "훼밀리",
+    name: "훼밀리 근린공원",
     category: 'park',
     latitude: 37.4907588,
     longitude: 127.1140908,
@@ -68597,7 +68597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00040',
-    name: "한우물",
+    name: "한우물 근린공원",
     category: 'park',
     latitude: 37.479138,
     longitude: 127.1244919,
@@ -68613,7 +68613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00039',
-    name: "한양",
+    name: "한양 근린공원",
     category: 'park',
     latitude: 37.504076,
     longitude: 127.1153987,
@@ -68629,7 +68629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00038',
-    name: "하늘가람",
+    name: "하늘가람 근린공원",
     category: 'park',
     latitude: 37.519327,
     longitude: 127.106703,
@@ -68645,7 +68645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00037',
-    name: "풍납",
+    name: "풍납 근린공원",
     category: 'park',
     latitude: 37.538093,
     longitude: 127.1217719,
@@ -68661,7 +68661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00036',
-    name: "태양",
+    name: "태양 근린공원",
     category: 'park',
     latitude: 37.5254429,
     longitude: 127.1152157,
@@ -68677,7 +68677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00035',
-    name: "천마",
+    name: "천마 근린공원",
     category: 'park',
     latitude: 37.500386,
     longitude: 127.158815,
@@ -68693,7 +68693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00034',
-    name: "장지",
+    name: "장지 근린공원",
     category: 'park',
     latitude: 37.484721,
     longitude: 127.134551,
@@ -68709,7 +68709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00033',
-    name: "장수",
+    name: "장수 근린공원",
     category: 'park',
     latitude: 37.480889,
     longitude: 127.1304766,
@@ -68725,7 +68725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00032',
-    name: "잠실",
+    name: "잠실 근린공원",
     category: 'park',
     latitude: 37.5062183,
     longitude: 127.084165,
@@ -68741,7 +68741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00031',
-    name: "웃말",
+    name: "웃말 근린공원",
     category: 'park',
     latitude: 37.5016767,
     longitude: 127.123153,
@@ -68757,7 +68757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00030',
-    name: "온조마루",
+    name: "온조마루 근린공원",
     category: 'park',
     latitude: 37.5199244,
     longitude: 127.1100846,
@@ -68773,7 +68773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00029',
-    name: "오금",
+    name: "오금 근린공원",
     category: 'park',
     latitude: 37.499994,
     longitude: 127.134853,
@@ -68789,7 +68789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00028',
-    name: "연화",
+    name: "연화 근린공원",
     category: 'park',
     latitude: 37.48516,
     longitude: 127.1297174,
@@ -68805,7 +68805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00027',
-    name: "아시아",
+    name: "아시아 근린공원",
     category: 'park',
     latitude: 37.510682,
     longitude: 127.0759347,
@@ -68821,7 +68821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00026',
-    name: "숯내",
+    name: "숯내 근린공원",
     category: 'park',
     latitude: 37.4897038,
     longitude: 127.111231,
@@ -68837,7 +68837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11710_00025',
-    name: "송파나루",
+    name: "송파나루 근린공원",
     category: 'park',
     latitude: 37.5121042,
     longitude: 127.1077049,
@@ -70101,7 +70101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00012',
-    name: "색동",
+    name: "색동 어린이공원",
     category: 'park',
     latitude: 37.486533,
     longitude: 126.932555,
@@ -70117,7 +70117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00011',
-    name: "새들",
+    name: "새들 어린이공원",
     category: 'park',
     latitude: 37.4886323,
     longitude: 126.925741,
@@ -70133,7 +70133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00010',
-    name: "남부",
+    name: "남부 어린이공원",
     category: 'park',
     latitude: 37.4848091,
     longitude: 126.920679,
@@ -70149,7 +70149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00009',
-    name: "난우",
+    name: "난우 어린이공원",
     category: 'park',
     latitude: 37.466402,
     longitude: 126.921869,
@@ -70165,7 +70165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00008',
-    name: "예촌",
+    name: "예촌 어린이공원",
     category: 'park',
     latitude: 37.4745344,
     longitude: 126.9768782,
@@ -70181,7 +70181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00007',
-    name: "남현",
+    name: "남현 어린이공원",
     category: 'park',
     latitude: 37.4719119,
     longitude: 126.981333,
@@ -70197,7 +70197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00006',
-    name: "상록",
+    name: "상록 어린이공원",
     category: 'park',
     latitude: 37.472906,
     longitude: 126.980544,
@@ -70213,7 +70213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00005',
-    name: "군아파트",
+    name: "군아파트 어린이공원",
     category: 'park',
     latitude: 37.471823,
     longitude: 126.978932,
@@ -70229,7 +70229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00004',
-    name: "당곡",
+    name: "당곡 어린이공원",
     category: 'park',
     latitude: 37.4887267,
     longitude: 126.9335718,
@@ -70245,7 +70245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00003',
-    name: "해태",
+    name: "해태 어린이공원",
     category: 'park',
     latitude: 37.472323,
     longitude: 126.940612,
@@ -70261,7 +70261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00002',
-    name: "호박골",
+    name: "호박골 어린이공원",
     category: 'park',
     latitude: 37.4819759,
     longitude: 126.923932,
@@ -70485,7 +70485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00053',
-    name: "학다리",
+    name: "학다리 어린이공원",
     category: 'park',
     latitude: 37.488732,
     longitude: 126.937591,
@@ -70501,7 +70501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00052',
-    name: "신라",
+    name: "신라 어린이공원",
     category: 'park',
     latitude: 37.4736097,
     longitude: 126.912623,
@@ -70517,7 +70517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00051',
-    name: "새빛",
+    name: "새빛 어린이공원",
     category: 'park',
     latitude: 37.486319,
     longitude: 126.915149,
@@ -70533,7 +70533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00050',
-    name: "난곡",
+    name: "난곡 어린이공원",
     category: 'park',
     latitude: 37.4741159,
     longitude: 126.9152598,
@@ -70549,7 +70549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00049',
-    name: "쑥고개",
+    name: "쑥고개 어린이공원",
     category: 'park',
     latitude: 37.475822,
     longitude: 126.940794,
@@ -70565,7 +70565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00048',
-    name: "봉림",
+    name: "봉림 어린이공원",
     category: 'park',
     latitude: 37.482721,
     longitude: 126.935717,
@@ -70597,7 +70597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00046',
-    name: "새싹",
+    name: "새싹 어린이공원",
     category: 'park',
     latitude: 37.484451,
     longitude: 126.949378,
@@ -70613,7 +70613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00045',
-    name: "중앙",
+    name: "중앙 어린이공원",
     category: 'park',
     latitude: 37.484446,
     longitude: 126.948278,
@@ -70629,7 +70629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00044',
-    name: "국사봉",
+    name: "국사봉 어린이공원",
     category: 'park',
     latitude: 37.4899946,
     longitude: 126.934035,
@@ -70645,7 +70645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00043',
-    name: "선봉",
+    name: "선봉 어린이공원",
     category: 'park',
     latitude: 37.485144,
     longitude: 126.939678,
@@ -70661,7 +70661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00027',
-    name: "비안",
+    name: "비안 어린이공원",
     category: 'park',
     latitude: 37.480767,
     longitude: 126.9401567,
@@ -70677,7 +70677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00026',
-    name: "문성",
+    name: "문성 어린이공원",
     category: 'park',
     latitude: 37.482015,
     longitude: 126.9028913,
@@ -70725,7 +70725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00023',
-    name: "무궁화",
+    name: "무궁화 어린이공원",
     category: 'park',
     latitude: 37.4696317,
     longitude: 126.9235717,
@@ -70741,7 +70741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00022',
-    name: "미도",
+    name: "미도 어린이공원",
     category: 'park',
     latitude: 37.462803,
     longitude: 126.915263,
@@ -70757,7 +70757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00021',
-    name: "신화",
+    name: "신화 어린이공원",
     category: 'park',
     latitude: 37.4767276,
     longitude: 126.935702,
@@ -70773,7 +70773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00020',
-    name: "백설",
+    name: "백설 어린이공원",
     category: 'park',
     latitude: 37.476236,
     longitude: 126.953512,
@@ -70789,7 +70789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00019',
-    name: "송학",
+    name: "송학 어린이공원",
     category: 'park',
     latitude: 37.480272,
     longitude: 126.9493248,
@@ -70805,7 +70805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00018',
-    name: "서원",
+    name: "서원 어린이공원",
     category: 'park',
     latitude: 37.476815,
     longitude: 126.933237,
@@ -70821,7 +70821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00017',
-    name: "국지",
+    name: "국지 어린이공원",
     category: 'park',
     latitude: 37.490053,
     longitude: 126.940606,
@@ -70837,7 +70837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00016',
-    name: "국회단지",
+    name: "국회단지 어린이공원",
     category: 'park',
     latitude: 37.4903156,
     longitude: 126.9431126,
@@ -70853,7 +70853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00015',
-    name: "은천",
+    name: "은천 어린이공원",
     category: 'park',
     latitude: 37.488223,
     longitude: 126.942996,
@@ -70869,7 +70869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00014',
-    name: "장군봉",
+    name: "장군봉 소공원",
     category: 'park',
     latitude: 37.4781262,
     longitude: 126.939008,
@@ -70901,7 +70901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00067',
-    name: "난우",
+    name: "난우 어린이공원",
     category: 'park',
     latitude: 37.4803999,
     longitude: 126.913959,
@@ -70917,7 +70917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00066',
-    name: "미림",
+    name: "미림 어린이공원",
     category: 'park',
     latitude: 37.466517,
     longitude: 126.935286,
@@ -70933,7 +70933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00065',
-    name: "오성",
+    name: "오성 어린이공원",
     category: 'park',
     latitude: 37.467908,
     longitude: 126.920805,
@@ -70949,7 +70949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00064',
-    name: "영락",
+    name: "영락 어린이공원",
     category: 'park',
     latitude: 37.4768273,
     longitude: 126.943804,
@@ -70965,7 +70965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00063',
-    name: "해바라기",
+    name: "해바라기 어린이공원",
     category: 'park',
     latitude: 37.461967,
     longitude: 126.930214,
@@ -70981,7 +70981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00062',
-    name: "충효",
+    name: "충효 어린이공원",
     category: 'park',
     latitude: 37.4810191,
     longitude: 126.941048,
@@ -70997,7 +70997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00061',
-    name: "인헌",
+    name: "인헌 어린이공원",
     category: 'park',
     latitude: 37.475334,
     longitude: 126.962545,
@@ -71013,7 +71013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00060',
-    name: "대협",
+    name: "대협 어린이공원",
     category: 'park',
     latitude: 37.4748245,
     longitude: 126.913364,
@@ -71029,7 +71029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00059',
-    name: "목화",
+    name: "목화 어린이공원",
     category: 'park',
     latitude: 37.4679153,
     longitude: 126.942282,
@@ -71045,7 +71045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00058',
-    name: "남강",
+    name: "남강 어린이공원",
     category: 'park',
     latitude: 37.4735047,
     longitude: 126.924653,
@@ -71061,7 +71061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00057',
-    name: "도덕",
+    name: "도덕 문화공원",
     category: 'park',
     latitude: 37.469331,
     longitude: 126.938168,
@@ -71077,7 +71077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00056',
-    name: "서광",
+    name: "서광 어린이공원",
     category: 'park',
     latitude: 37.4752126,
     longitude: 126.9427449,
@@ -71093,7 +71093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00055',
-    name: "한라",
+    name: "한라 어린이공원",
     category: 'park',
     latitude: 37.475633,
     longitude: 126.914788,
@@ -71109,7 +71109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00042',
-    name: "장미",
+    name: "장미 어린이공원",
     category: 'park',
     latitude: 37.4791452,
     longitude: 126.9624068,
@@ -71125,7 +71125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00041',
-    name: "탑골",
+    name: "탑골 어린이공원",
     category: 'park',
     latitude: 37.4745199,
     longitude: 126.9611358,
@@ -71141,7 +71141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00039',
-    name: "사우촌",
+    name: "사우촌 어린이공원",
     category: 'park',
     latitude: 37.467506,
     longitude: 126.934163,
@@ -71157,7 +71157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00038',
-    name: "태양",
+    name: "태양 어린이공원",
     category: 'park',
     latitude: 37.468445,
     longitude: 126.936475,
@@ -71173,7 +71173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00037',
-    name: "연주대",
+    name: "연주대 소공원",
     category: 'park',
     latitude: 37.469214,
     longitude: 126.9420007,
@@ -71189,7 +71189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00036',
-    name: "약수암",
+    name: "약수암 어린이공원",
     category: 'park',
     latitude: 37.459512,
     longitude: 126.932978,
@@ -71205,7 +71205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00035',
-    name: "밤골",
+    name: "밤골 어린이공원",
     category: 'park',
     latitude: 37.473919,
     longitude: 126.967365,
@@ -71221,7 +71221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00033',
-    name: "까치",
+    name: "까치 어린이공원",
     category: 'park',
     latitude: 37.479924,
     longitude: 126.959507,
@@ -71237,7 +71237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00032',
-    name: "청룡",
+    name: "청룡 어린이공원",
     category: 'park',
     latitude: 37.477619,
     longitude: 126.944732,
@@ -71253,7 +71253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00031',
-    name: "일선",
+    name: "일선 어린이공원",
     category: 'park',
     latitude: 37.477823,
     longitude: 126.949514,
@@ -71269,7 +71269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00030',
-    name: "보명",
+    name: "보명 어린이공원",
     category: 'park',
     latitude: 37.475841,
     longitude: 126.925639,
@@ -71285,7 +71285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00029',
-    name: "교체",
+    name: "교체 어린이공원",
     category: 'park',
     latitude: 37.4733206,
     longitude: 126.9640439,
@@ -71301,7 +71301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00028',
-    name: "원당",
+    name: "원당 어린이공원",
     category: 'park',
     latitude: 37.474839,
     longitude: 126.963329,
@@ -71317,7 +71317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00054',
-    name: "용담",
+    name: "용담 어린이공원",
     category: 'park',
     latitude: 37.4755004,
     longitude: 126.9436117,
@@ -71605,7 +71605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00077',
-    name: "남현",
+    name: "남현 소공원",
     category: 'park',
     latitude: 37.4756778,
     longitude: 126.9792771,
@@ -71621,7 +71621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00076',
-    name: "남태령제2",
+    name: "남태령제2 소공원",
     category: 'park',
     latitude: 37.471931,
     longitude: 126.982172,
@@ -71637,7 +71637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00075',
-    name: "까치산",
+    name: "까치산 소공원",
     category: 'park',
     latitude: 37.483119,
     longitude: 126.960301,
@@ -71653,7 +71653,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00074',
-    name: "봉천",
+    name: "봉천 어린이공원",
     category: 'park',
     latitude: 37.4693117,
     longitude: 126.9643575,
@@ -71669,7 +71669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00073',
-    name: "행운동",
+    name: "행운동 소공원",
     category: 'park',
     latitude: 37.483375,
     longitude: 126.959752,
@@ -71685,7 +71685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00072',
-    name: "합실",
+    name: "합실 어린이공원",
     category: 'park',
     latitude: 37.4651415,
     longitude: 126.927068,
@@ -71701,7 +71701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00071',
-    name: "양산",
+    name: "양산 어린이공원",
     category: 'park',
     latitude: 37.473626,
     longitude: 126.932549,
@@ -71717,7 +71717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00070',
-    name: "삼육",
+    name: "삼육 소공원",
     category: 'park',
     latitude: 37.487922,
     longitude: 126.934307,
@@ -71733,7 +71733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00069',
-    name: "약수",
+    name: "약수 어린이공원",
     category: 'park',
     latitude: 37.473131,
     longitude: 126.912442,
@@ -71749,7 +71749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11620_00068',
-    name: "미성",
+    name: "미성 소공원",
     category: 'park',
     latitude: 37.477136,
     longitude: 126.9137588,
@@ -72629,7 +72629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11380_00044',
-    name: "신  사",
+    name: "신  사 근린공원",
     category: 'park',
     latitude: 37.604686,
     longitude: 126.915235,
@@ -74181,7 +74181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00159',
-    name: "종점",
+    name: "종점 어린이공원",
     category: 'park',
     latitude: 37.5180871,
     longitude: 126.8196658,
@@ -74197,7 +74197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00158',
-    name: "정명",
+    name: "정명 어린이공원",
     category: 'park',
     latitude: 37.4761149,
     longitude: 126.774793,
@@ -74213,7 +74213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00157',
-    name: "점말",
+    name: "점말 어린이공원",
     category: 'park',
     latitude: 37.5110533,
     longitude: 126.7995059,
@@ -74229,7 +74229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00156',
-    name: "전원4단지",
+    name: "전원4단지 어린이공원",
     category: 'park',
     latitude: 37.5074956,
     longitude: 126.8110247,
@@ -74245,7 +74245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00155',
-    name: "전원3단지",
+    name: "전원3단지 어린이공원",
     category: 'park',
     latitude: 37.5076707,
     longitude: 126.8124199,
@@ -74261,7 +74261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00154',
-    name: "전원2단지",
+    name: "전원2단지 어린이공원",
     category: 'park',
     latitude: 37.5107493,
     longitude: 126.8098951,
@@ -74277,7 +74277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00153',
-    name: "전원1단지",
+    name: "전원1단지 어린이공원",
     category: 'park',
     latitude: 37.51136,
     longitude: 126.8133078,
@@ -74293,7 +74293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00152',
-    name: "전원",
+    name: "전원 어린이공원",
     category: 'park',
     latitude: 37.4935913,
     longitude: 126.7431171,
@@ -74309,7 +74309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00151',
-    name: "장승백이",
+    name: "장승백이 소공원",
     category: 'park',
     latitude: 37.4606379,
     longitude: 126.8174657,
@@ -74325,7 +74325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00150',
-    name: "장말",
+    name: "장말 어린이공원",
     category: 'park',
     latitude: 37.4943548,
     longitude: 126.7650916,
@@ -74341,7 +74341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00149',
-    name: "작동",
+    name: "작동 어린이공원",
     category: 'park',
     latitude: 37.519366,
     longitude: 126.8152776,
@@ -74357,7 +74357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00148',
-    name: "은혜",
+    name: "은혜 어린이공원",
     category: 'park',
     latitude: 37.4925872,
     longitude: 126.7755416,
@@ -74373,7 +74373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00147',
-    name: "은행",
+    name: "은행 어린이공원",
     category: 'park',
     latitude: 37.4961833,
     longitude: 126.7908677,
@@ -74389,7 +74389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00146',
-    name: "은하수",
+    name: "은하수 어린이공원",
     category: 'park',
     latitude: 37.4776582,
     longitude: 126.7967783,
@@ -74405,7 +74405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00145',
-    name: "은하",
+    name: "은하 어린이공원",
     category: 'park',
     latitude: 37.507371,
     longitude: 126.7654099,
@@ -74421,7 +74421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00144',
-    name: "은빛",
+    name: "은빛 어린이공원",
     category: 'park',
     latitude: 37.484073,
     longitude: 126.8022151,
@@ -74437,7 +74437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00143',
-    name: "은데미",
+    name: "은데미 근린공원",
     category: 'park',
     latitude: 37.5205273,
     longitude: 126.8116148,
@@ -74453,7 +74453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00142',
-    name: "율곡",
+    name: "율곡 어린이공원",
     category: 'park',
     latitude: 37.4804248,
     longitude: 126.7788935,
@@ -74469,7 +74469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00141',
-    name: "윗소사",
+    name: "윗소사 어린이공원",
     category: 'park',
     latitude: 37.47406,
     longitude: 126.7945736,
@@ -74485,7 +74485,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00140',
-    name: "원천",
+    name: "원천 근린공원",
     category: 'park',
     latitude: 37.4899042,
     longitude: 126.7456056,
@@ -74501,7 +74501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00139',
-    name: "원종",
+    name: "원종 어린이공원",
     category: 'park',
     latitude: 37.5182216,
     longitude: 126.8080743,
@@ -74517,7 +74517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00138',
-    name: "원미별빛",
+    name: "원미별빛 어린이공원",
     category: 'park',
     latitude: 37.4922669,
     longitude: 126.7876698,
@@ -74533,7 +74533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00137',
-    name: "원미",
+    name: "원미 문화공원",
     category: 'park',
     latitude: 37.4979854,
     longitude: 126.7990398,
@@ -74549,7 +74549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00136',
-    name: "원골",
+    name: "원골 어린이공원",
     category: 'park',
     latitude: 37.5107983,
     longitude: 126.7721797,
@@ -74565,7 +74565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00135',
-    name: "웃고얀",
+    name: "웃고얀 근린공원",
     category: 'park',
     latitude: 37.4759179,
     longitude: 126.8099646,
@@ -75797,7 +75797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41463_00052',
-    name: "소공언(금호어울림아파트 옆)",
+    name: "소공언(금호어울림아파트 옆) 소공원",
     category: 'park',
     latitude: 37.2368116,
     longitude: 127.1978445,
@@ -78613,7 +78613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41465_00083',
-    name: "무진이",
+    name: "무진이 어린이공원",
     category: 'park',
     latitude: 37.3176541,
     longitude: 127.0859569,
@@ -78661,7 +78661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41465_00080',
-    name: "임진",
+    name: "임진 어린이공원",
     category: 'park',
     latitude: 37.3180006,
     longitude: 127.0938102,
@@ -79925,7 +79925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00003',
-    name: "방아다리2",
+    name: "방아다리2 근린공원",
     category: 'park',
     latitude: 37.4780474,
     longitude: 127.0352143,
@@ -79941,7 +79941,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00002',
-    name: "방아다리1",
+    name: "방아다리1 근린공원",
     category: 'park',
     latitude: 37.4783359,
     longitude: 127.0355876,
@@ -79957,7 +79957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00001',
-    name: "반  포",
+    name: "반  포 근린공원",
     category: 'park',
     latitude: 37.4988532,
     longitude: 126.9905157,
@@ -79973,7 +79973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00031',
-    name: "색동",
+    name: "색동 어린이공원",
     category: 'park',
     latitude: 37.6331377,
     longitude: 127.0205711,
@@ -79989,7 +79989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00032',
-    name: "방  현",
+    name: "방  현 어린이공원",
     category: 'park',
     latitude: 37.4784997,
     longitude: 126.9916733,
@@ -80005,7 +80005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00031',
-    name: "안  산",
+    name: "안  산 어린이공원",
     category: 'park',
     latitude: 37.480099,
     longitude: 126.9924823,
@@ -80021,7 +80021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00030',
-    name: "정  문",
+    name: "정  문 어린이공원",
     category: 'park',
     latitude: 37.4811567,
     longitude: 126.9996186,
@@ -80037,7 +80037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00029',
-    name: "너른골",
+    name: "너른골 어린이공원",
     category: 'park',
     latitude: 37.4875533,
     longitude: 126.9947018,
@@ -80053,7 +80053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00028',
-    name: "새  말",
+    name: "새  말 어린이공원",
     category: 'park',
     latitude: 37.4933154,
     longitude: 126.9886123,
@@ -80069,7 +80069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00027',
-    name: "가  꿀",
+    name: "가  꿀 어린이공원",
     category: 'park',
     latitude: 37.4879703,
     longitude: 126.9875858,
@@ -80085,7 +80085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00026',
-    name: "청  두",
+    name: "청  두 어린이공원",
     category: 'park',
     latitude: 37.4806264,
     longitude: 126.9850072,
@@ -80101,7 +80101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00025',
-    name: "뒷  벌",
+    name: "뒷  벌 어린이공원",
     category: 'park',
     latitude: 37.4909076,
     longitude: 126.9869296,
@@ -80117,7 +80117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00024',
-    name: "도구머리",
+    name: "도구머리 근린공원",
     category: 'park',
     latitude: 37.4795576,
     longitude: 126.9881614,
@@ -80133,7 +80133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00023',
-    name: "서리풀",
+    name: "서리풀 근린공원",
     category: 'park',
     latitude: 37.4846545,
     longitude: 127.0004196,
@@ -80149,7 +80149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00022',
-    name: "세  빛",
+    name: "세  빛 근린공원",
     category: 'park',
     latitude: 37.5049091,
     longitude: 126.9921285,
@@ -80165,7 +80165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00021',
-    name: "송  동",
+    name: "송  동 근린공원",
     category: 'park',
     latitude: 37.4587945,
     longitude: 127.0203373,
@@ -80181,7 +80181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00020',
-    name: "망  루",
+    name: "망  루 근린공원",
     category: 'park',
     latitude: 37.4641051,
     longitude: 127.0203438,
@@ -80197,7 +80197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00019',
-    name: "섬  들",
+    name: "섬  들 근린공원",
     category: 'park',
     latitude: 37.4627497,
     longitude: 127.0264455,
@@ -80213,7 +80213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00018',
-    name: "태  봉",
+    name: "태  봉 근린공원",
     category: 'park',
     latitude: 37.4638204,
     longitude: 127.0227555,
@@ -80229,7 +80229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00017',
-    name: "원  촌",
+    name: "원  촌 근린공원",
     category: 'park',
     latitude: 37.5059173,
     longitude: 127.0102449,
@@ -80245,7 +80245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00016',
-    name: "신반포",
+    name: "신반포 근린공원",
     category: 'park',
     latitude: 37.5016446,
     longitude: 126.998977,
@@ -80261,7 +80261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00015',
-    name: "명  주",
+    name: "명  주 근린공원",
     category: 'park',
     latitude: 37.517175,
     longitude: 127.0151419,
@@ -80277,7 +80277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00014',
-    name: "서래골",
+    name: "서래골 근린공원",
     category: 'park',
     latitude: 37.5016296,
     longitude: 127.0030008,
@@ -80293,7 +80293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00013',
-    name: "바우뫼",
+    name: "바우뫼 근린공원",
     category: 'park',
     latitude: 37.4745667,
     longitude: 127.0344603,
@@ -80309,7 +80309,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00012',
-    name: "고인돌",
+    name: "고인돌 근린공원",
     category: 'park',
     latitude: 37.4712537,
     longitude: 127.0467744,
@@ -80325,7 +80325,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00011',
-    name: "신  동",
+    name: "신  동 근린공원",
     category: 'park',
     latitude: 37.514362,
     longitude: 127.0145571,
@@ -80341,7 +80341,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00010',
-    name: "잠  원",
+    name: "잠  원 근린공원",
     category: 'park',
     latitude: 37.5129242,
     longitude: 127.010142,
@@ -80357,7 +80357,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00009',
-    name: "사평리",
+    name: "사평리 근린공원",
     category: 'park',
     latitude: 37.5198769,
     longitude: 127.0147323,
@@ -80373,7 +80373,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00008',
-    name: "명  달",
+    name: "명  달 근린공원",
     category: 'park',
     latitude: 37.4990529,
     longitude: 127.0211215,
@@ -80389,7 +80389,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00007',
-    name: "용허리",
+    name: "용허리 근린공원",
     category: 'park',
     latitude: 37.4942807,
     longitude: 127.0230154,
@@ -80405,7 +80405,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00006',
-    name: "양  재",
+    name: "양  재 근린공원",
     category: 'park',
     latitude: 37.4718934,
     longitude: 127.0424301,
@@ -80421,7 +80421,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00005',
-    name: "마  방",
+    name: "마  방 근린공원",
     category: 'park',
     latitude: 37.4723091,
     longitude: 127.0382419,
@@ -80437,7 +80437,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00004',
-    name: "양재천",
+    name: "양재천 근린공원",
     category: 'park',
     latitude: 37.4766194,
     longitude: 127.0422083,
@@ -80453,7 +80453,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00060',
-    name: "염  곡",
+    name: "염  곡 어린이공원",
     category: 'park',
     latitude: 37.4631546,
     longitude: 127.0543869,
@@ -80469,7 +80469,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00059',
-    name: "새쟁이",
+    name: "새쟁이 어린이공원",
     category: 'park',
     latitude: 37.4355855,
     longitude: 127.068648,
@@ -80501,7 +80501,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00057',
-    name: "원  터",
+    name: "원  터 어린이공원",
     category: 'park',
     latitude: 37.443589,
     longitude: 127.0552647,
@@ -80517,7 +80517,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00056',
-    name: "본마을",
+    name: "본마을 어린이공원",
     category: 'park',
     latitude: 37.4545419,
     longitude: 127.0531677,
@@ -80533,7 +80533,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00055',
-    name: "세  원",
+    name: "세  원 어린이공원",
     category: 'park',
     latitude: 37.455944,
     longitude: 127.0499506,
@@ -80549,7 +80549,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00054',
-    name: "송  동",
+    name: "송  동 어린이공원",
     category: 'park',
     latitude: 37.4611117,
     longitude: 127.0155507,
@@ -80565,7 +80565,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00053',
-    name: "식유촌",
+    name: "식유촌 어린이공원",
     category: 'park',
     latitude: 37.4578878,
     longitude: 127.013385,
@@ -80581,7 +80581,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00052',
-    name: "성형촌",
+    name: "성형촌 어린이공원",
     category: 'park',
     latitude: 37.4663296,
     longitude: 127.0199789,
@@ -80597,7 +80597,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00051',
-    name: "암  산",
+    name: "암  산 어린이공원",
     category: 'park',
     latitude: 37.4732748,
     longitude: 127.0256786,
@@ -80613,7 +80613,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00050',
-    name: "종  열",
+    name: "종  열 어린이공원",
     category: 'park',
     latitude: 37.4740451,
     longitude: 127.0337157,
@@ -80629,7 +80629,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00049',
-    name: "서  래",
+    name: "서  래 어린이공원",
     category: 'park',
     latitude: 37.4982725,
     longitude: 127.0003099,
@@ -80645,7 +80645,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00048',
-    name: "청  룡",
+    name: "청  룡 어린이공원",
     category: 'park',
     latitude: 37.4958718,
     longitude: 126.9997213,
@@ -80661,7 +80661,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00047',
-    name: "언구비",
+    name: "언구비 어린이공원",
     category: 'park',
     latitude: 37.5089341,
     longitude: 127.0201712,
@@ -80677,7 +80677,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00046',
-    name: "주  흥",
+    name: "주  흥 어린이공원",
     category: 'park',
     latitude: 37.5121331,
     longitude: 127.0166762,
@@ -80693,7 +80693,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00045',
-    name: "싸리재",
+    name: "싸리재 어린이공원",
     category: 'park',
     latitude: 37.5134223,
     longitude: 127.0182498,
@@ -80709,7 +80709,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00044',
-    name: "고무래",
+    name: "고무래 어린이공원",
     category: 'park',
     latitude: 37.5035405,
     longitude: 127.0154238,
@@ -80725,7 +80725,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00043',
-    name: "당  골",
+    name: "당  골 어린이공원",
     category: 'park',
     latitude: 37.4854576,
     longitude: 127.022509,
@@ -80741,7 +80741,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00042',
-    name: "하명달",
+    name: "하명달 어린이공원",
     category: 'park',
     latitude: 37.485835,
     longitude: 127.0054546,
@@ -80757,7 +80757,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00041',
-    name: "궁  현",
+    name: "궁  현 어린이공원",
     category: 'park',
     latitude: 37.4883428,
     longitude: 127.0103823,
@@ -80773,7 +80773,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00040',
-    name: "상명달",
+    name: "상명달 어린이공원",
     category: 'park',
     latitude: 37.4821552,
     longitude: 127.0056396,
@@ -80789,7 +80789,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00039',
-    name: "분토골",
+    name: "분토골 어린이공원",
     category: 'park',
     latitude: 37.4883789,
     longitude: 127.017457,
@@ -80805,7 +80805,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00038',
-    name: "마산말",
+    name: "마산말 어린이공원",
     category: 'park',
     latitude: 37.4871948,
     longitude: 127.0267204,
@@ -80821,7 +80821,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00037',
-    name: "장  안",
+    name: "장  안 어린이공원",
     category: 'park',
     latitude: 37.4916995,
     longitude: 127.011444,
@@ -80837,7 +80837,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00036',
-    name: "신  중",
+    name: "신  중 어린이공원",
     category: 'park',
     latitude: 37.4823708,
     longitude: 127.010693,
@@ -80853,7 +80853,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00035',
-    name: "예  술",
+    name: "예  술 어린이공원",
     category: 'park',
     latitude: 37.4833043,
     longitude: 127.0146705,
@@ -80869,7 +80869,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00034',
-    name: "사도감",
+    name: "사도감 어린이공원",
     category: 'park',
     latitude: 37.4857832,
     longitude: 127.0312471,
@@ -80885,7 +80885,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00033',
-    name: "동  덕",
+    name: "동  덕 어린이공원",
     category: 'park',
     latitude: 37.4755627,
     longitude: 126.9937092,
@@ -80901,7 +80901,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00089',
-    name: "새  터",
+    name: "새  터 어린이공원",
     category: 'park',
     latitude: 37.5080907,
     longitude: 127.0068092,
@@ -80917,7 +80917,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00088',
-    name: "용  말",
+    name: "용  말 어린이공원",
     category: 'park',
     latitude: 37.4628349,
     longitude: 127.0346811,
@@ -80933,7 +80933,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00087',
-    name: "횃  불",
+    name: "횃  불 어린이공원",
     category: 'park',
     latitude: 37.4783029,
     longitude: 127.0375087,
@@ -80949,7 +80949,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00086',
-    name: "두둑재",
+    name: "두둑재 어린이공원",
     category: 'park',
     latitude: 37.4679422,
     longitude: 127.0440433,
@@ -80965,7 +80965,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00085',
-    name: "샛  별",
+    name: "샛  별 어린이공원",
     category: 'park',
     latitude: 37.4703106,
     longitude: 127.0446122,
@@ -80981,7 +80981,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00084',
-    name: "버  들",
+    name: "버  들 어린이공원",
     category: 'park',
     latitude: 37.4737867,
     longitude: 127.0457123,
@@ -80997,7 +80997,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00083',
-    name: "개  뜰",
+    name: "개  뜰 어린이공원",
     category: 'park',
     latitude: 37.4739907,
     longitude: 127.0411988,
@@ -81013,7 +81013,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00082',
-    name: "미  도",
+    name: "미  도 어린이공원",
     category: 'park',
     latitude: 37.5017906,
     longitude: 127.0107365,
@@ -81029,7 +81029,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00081',
-    name: "코  아",
+    name: "코  아 어린이공원",
     category: 'park',
     latitude: 37.5089194,
     longitude: 127.0040224,
@@ -81045,7 +81045,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00080',
-    name: "교  대",
+    name: "교  대 어린이공원",
     category: 'park',
     latitude: 37.4943024,
     longitude: 127.0115431,
@@ -81061,7 +81061,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00079',
-    name: "구  룡",
+    name: "구  룡 어린이공원",
     category: 'park',
     latitude: 37.4716396,
     longitude: 127.0485047,
@@ -81077,7 +81077,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00078',
-    name: "비  석",
+    name: "비  석 어린이공원",
     category: 'park',
     latitude: 37.4787666,
     longitude: 127.0410897,
@@ -81093,7 +81093,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00077',
-    name: "장  미",
+    name: "장  미 어린이공원",
     category: 'park',
     latitude: 37.5052815,
     longitude: 126.9890691,
@@ -81109,7 +81109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00076',
-    name: "반  원",
+    name: "반  원 어린이공원",
     category: 'park',
     latitude: 37.5091728,
     longitude: 127.0036765,
@@ -81125,7 +81125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00075',
-    name: "파랑새",
+    name: "파랑새 어린이공원",
     category: 'park',
     latitude: 37.5051177,
     longitude: 126.9948227,
@@ -81141,7 +81141,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00074',
-    name: "한  수",
+    name: "한  수 어린이공원",
     category: 'park',
     latitude: 37.5015912,
     longitude: 126.9857678,
@@ -81157,7 +81157,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00073',
-    name: "초  롱",
+    name: "초  롱 어린이공원",
     category: 'park',
     latitude: 37.500711,
     longitude: 126.9912369,
@@ -81173,7 +81173,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00072',
-    name: "푸  른",
+    name: "푸  른 어린이공원",
     category: 'park',
     latitude: 37.500711,
     longitude: 126.9912369,
@@ -81189,7 +81189,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00071',
-    name: "만  남",
+    name: "만  남 어린이공원",
     category: 'park',
     latitude: 37.5015912,
     longitude: 126.9857678,
@@ -81205,7 +81205,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00070',
-    name: "나  리",
+    name: "나  리 어린이공원",
     category: 'park',
     latitude: 37.5052815,
     longitude: 126.9890691,
@@ -81221,7 +81221,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00069',
-    name: "계  리",
+    name: "계  리 어린이공원",
     category: 'park',
     latitude: 37.4696655,
     longitude: 127.0405693,
@@ -81237,7 +81237,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00068',
-    name: "잔  디",
+    name: "잔  디 어린이공원",
     category: 'park',
     latitude: 37.4662437,
     longitude: 127.0354769,
@@ -81253,7 +81253,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00067',
-    name: "동  산",
+    name: "동  산 어린이공원",
     category: 'park',
     latitude: 37.4713609,
     longitude: 127.0450508,
@@ -81269,7 +81269,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00066',
-    name: "양  재",
+    name: "양  재 어린이공원",
     category: 'park',
     latitude: 37.4833596,
     longitude: 127.0392923,
@@ -81285,7 +81285,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00065',
-    name: "남태령",
+    name: "남태령 어린이공원",
     category: 'park',
     latitude: 37.4664255,
     longitude: 126.9883749,
@@ -81301,7 +81301,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00064',
-    name: "윗  샘",
+    name: "윗  샘 어린이공원",
     category: 'park',
     latitude: 37.4584886,
     longitude: 127.0716789,
@@ -81317,7 +81317,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00063',
-    name: "아랫샘",
+    name: "아랫샘 어린이공원",
     category: 'park',
     latitude: 37.4607102,
     longitude: 127.0720756,
@@ -81333,7 +81333,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00062',
-    name: "홍씨마을",
+    name: "홍씨마을 어린이공원",
     category: 'park',
     latitude: 37.4531672,
     longitude: 127.0656582,
@@ -81349,7 +81349,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00061',
-    name: "안  골",
+    name: "안  골 어린이공원",
     category: 'park',
     latitude: 37.4561949,
     longitude: 127.063186,
@@ -81365,7 +81365,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00118',
-    name: "햇  살",
+    name: "햇  살 소공원",
     category: 'park',
     latitude: 37.4547722,
     longitude: 127.0648718,
@@ -81381,7 +81381,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00117',
-    name: "새  봄",
+    name: "새  봄 소공원",
     category: 'park',
     latitude: 37.4792378,
     longitude: 127.0023586,
@@ -81397,7 +81397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00116',
-    name: "누  에",
+    name: "누  에 소공원",
     category: 'park',
     latitude: 37.5091713,
     longitude: 127.00843,
@@ -81413,7 +81413,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00115',
-    name: "서릿개",
+    name: "서릿개 소공원",
     category: 'park',
     latitude: 37.5132007,
     longitude: 127.0057007,
@@ -81429,7 +81429,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00114',
-    name: "잠  원",
+    name: "잠  원 소공원",
     category: 'park',
     latitude: 37.5157962,
     longitude: 127.0118739,
@@ -81445,7 +81445,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00113',
-    name: "달  님",
+    name: "달  님 소공원",
     category: 'park',
     latitude: 37.4835872,
     longitude: 126.9864631,
@@ -81461,7 +81461,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00112',
-    name: "솔  말",
+    name: "솔  말 소공원",
     category: 'park',
     latitude: 37.4597298,
     longitude: 127.0259861,
@@ -81477,7 +81477,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00111',
-    name: "꽃마을2",
+    name: "꽃마을2 소공원",
     category: 'park',
     latitude: 37.4909417,
     longitude: 127.0056374,
@@ -81493,7 +81493,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00110',
-    name: "꽃마을1",
+    name: "꽃마을1 소공원",
     category: 'park',
     latitude: 37.490488,
     longitude: 127.0071046,
@@ -81509,7 +81509,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00109',
-    name: "큰마을",
+    name: "큰마을 소공원",
     category: 'park',
     latitude: 37.4669491,
     longitude: 127.0212331,
@@ -81525,7 +81525,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00108',
-    name: "오솔길",
+    name: "오솔길 소공원",
     category: 'park',
     latitude: 37.5033516,
     longitude: 127.014708,
@@ -81541,7 +81541,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00107',
-    name: "느티나무",
+    name: "느티나무 소공원",
     category: 'park',
     latitude: 37.4639707,
     longitude: 127.0545626,
@@ -81557,7 +81557,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00106',
-    name: "언  남",
+    name: "언  남 소공원",
     category: 'park',
     latitude: 37.4638716,
     longitude: 127.0547305,
@@ -81573,7 +81573,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00105',
-    name: "서초무지개",
+    name: "서초무지개 어린이공원",
     category: 'park',
     latitude: 37.4835872,
     longitude: 127.0326987,
@@ -81589,7 +81589,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00104',
-    name: "으  뜸",
+    name: "으  뜸 어린이공원",
     category: 'park',
     latitude: 37.4889304,
     longitude: 127.0284191,
@@ -81605,7 +81605,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00103',
-    name: "가  온",
+    name: "가  온 어린이공원",
     category: 'park',
     latitude: 37.4538506,
     longitude: 127.0590231,
@@ -81621,7 +81621,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00102',
-    name: "아  람",
+    name: "아  람 어린이공원",
     category: 'park',
     latitude: 37.4514195,
     longitude: 127.0650828,
@@ -81637,7 +81637,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00101',
-    name: "햇  님",
+    name: "햇  님 어린이공원",
     category: 'park',
     latitude: 37.4829734,
     longitude: 126.9851406,
@@ -81669,7 +81669,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00099',
-    name: "샛  말",
+    name: "샛  말 어린이공원",
     category: 'park',
     latitude: 37.4619375,
     longitude: 127.0245635,
@@ -81685,7 +81685,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00098',
-    name: "섶다리",
+    name: "섶다리 어린이공원",
     category: 'park',
     latitude: 37.46369,
     longitude: 127.0275358,
@@ -81701,7 +81701,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00097',
-    name: "새  싹",
+    name: "새  싹 어린이공원",
     category: 'park',
     latitude: 37.4975074,
     longitude: 127.0182664,
@@ -81717,7 +81717,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00096',
-    name: "효  령",
+    name: "효  령 어린이공원",
     category: 'park',
     latitude: 37.4836597,
     longitude: 126.9883999,
@@ -81733,7 +81733,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00095',
-    name: "능  안",
+    name: "능  안 어린이공원",
     category: 'park',
     latitude: 37.4545086,
     longitude: 127.0657519,
@@ -81749,7 +81749,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00094',
-    name: "효  자",
+    name: "효  자 어린이공원",
     category: 'park',
     latitude: 37.4735199,
     longitude: 127.0244307,
@@ -81765,7 +81765,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00093',
-    name: "동  문",
+    name: "동  문 어린이공원",
     category: 'park',
     latitude: 37.4725723,
     longitude: 127.0266908,
@@ -81781,7 +81781,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00092',
-    name: "바우뫼",
+    name: "바우뫼 어린이공원",
     category: 'park',
     latitude: 37.4706524,
     longitude: 127.0234499,
@@ -81797,7 +81797,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00091',
-    name: "아  름",
+    name: "아  름 어린이공원",
     category: 'park',
     latitude: 37.5074306,
     longitude: 127.0047589,
@@ -81813,7 +81813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00090',
-    name: "늘푸른",
+    name: "늘푸른 어린이공원",
     category: 'park',
     latitude: 37.5083037,
     longitude: 127.0055352,
@@ -82005,7 +82005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00127',
-    name: "청  계",
+    name: "청  계 수변공원",
     category: 'riverside',
     latitude: 37.451649,
     longitude: 127.0529397,
@@ -82021,7 +82021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00126',
-    name: "신원천",
+    name: "신원천 수변공원",
     category: 'riverside',
     latitude: 37.4835872,
     longitude: 127.0326987,
@@ -82037,7 +82037,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00125',
-    name: "우  면",
+    name: "우  면 수변공원",
     category: 'riverside',
     latitude: 37.4561306,
     longitude: 127.0109898,
@@ -82053,7 +82053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00124',
-    name: "원베일리",
+    name: "원베일리 소공원",
     category: 'park',
     latitude: 37.5075056,
     longitude: 126.9996531,
@@ -82069,7 +82069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00123',
-    name: "방배경남",
+    name: "방배경남 소공원",
     category: 'park',
     latitude: 37.4773471,
     longitude: 126.9996235,
@@ -82085,7 +82085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00122',
-    name: "잠원흥동",
+    name: "잠원흥동 소공원",
     category: 'park',
     latitude: 37.507743,
     longitude: 127.0004471,
@@ -82101,7 +82101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00121',
-    name: "잠원성심",
+    name: "잠원성심 소공원",
     category: 'park',
     latitude: 37.5178266,
     longitude: 127.0135614,
@@ -82117,7 +82117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00120',
-    name: "벌  말",
+    name: "벌  말 소공원",
     category: 'park',
     latitude: 37.4491585,
     longitude: 127.0578674,
@@ -82133,7 +82133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11650_00119',
-    name: "산  새",
+    name: "산  새 소공원",
     category: 'park',
     latitude: 37.4459696,
     longitude: 127.0576452,
@@ -83109,7 +83109,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00020',
-    name: "정훈",
+    name: "정훈 어린이공원",
     category: 'park',
     latitude: 37.4656773,
     longitude: 126.9063221,
@@ -83125,7 +83125,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11545_00021',
-    name: "꿈나무",
+    name: "꿈나무 어린이공원",
     category: 'park',
     latitude: 37.4634698,
     longitude: 126.9049179,
@@ -83397,7 +83397,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00031',
-    name: "꽃마을",
+    name: "꽃마을 어린이공원",
     category: 'park',
     latitude: 37.4867056,
     longitude: 126.767188,
@@ -83813,7 +83813,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00054',
-    name: "미아5구역",
+    name: "미아5구역 소공원",
     category: 'park',
     latitude: 37.6125192,
     longitude: 127.0267764,
@@ -83829,7 +83829,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00053',
-    name: "어울림",
+    name: "어울림 소공원",
     category: 'park',
     latitude: 37.6168529,
     longitude: 127.0355326,
@@ -83845,7 +83845,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00052',
-    name: "미아9-1",
+    name: "미아9-1 어린이공원",
     category: 'park',
     latitude: 37.6207197,
     longitude: 127.0335003,
@@ -83861,7 +83861,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00051',
-    name: "미아12-2",
+    name: "미아12-2 소공원",
     category: 'park',
     latitude: 37.6167822,
     longitude: 127.0214537,
@@ -83877,7 +83877,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00050',
-    name: "미아12-1",
+    name: "미아12-1 소공원",
     category: 'park',
     latitude: 37.616283,
     longitude: 127.0195237,
@@ -83909,7 +83909,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00047',
-    name: "소귀",
+    name: "소귀 어린이공원",
     category: 'park',
     latitude: 37.6385644,
     longitude: 127.0186984,
@@ -83925,7 +83925,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00046',
-    name: "송중동",
+    name: "송중동 어린이공원",
     category: 'park',
     latitude: 37.6225901,
     longitude: 127.0286277,
@@ -83957,7 +83957,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00044',
-    name: "장미원",
+    name: "장미원 어린이공원",
     category: 'park',
     latitude: 37.6464688,
     longitude: 127.0157277,
@@ -83973,7 +83973,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00043',
-    name: "빨래골",
+    name: "빨래골 어린이공원",
     category: 'park',
     latitude: 37.6294229,
     longitude: 127.0148533,
@@ -83989,7 +83989,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00042',
-    name: "무너미",
+    name: "무너미 어린이공원",
     category: 'park',
     latitude: 37.6460654,
     longitude: 127.0127414,
@@ -84005,7 +84005,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11305_00041',
-    name: "푸른",
+    name: "푸른 어린이공원",
     category: 'park',
     latitude: 37.6384972,
     longitude: 127.0084905,
@@ -84021,7 +84021,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_41190_00032',
-    name: "꽃별",
+    name: "꽃별 어린이공원",
     category: 'park',
     latitude: 37.466637,
     longitude: 126.8020315,
@@ -84053,7 +84053,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00150',
-    name: "한다리",
+    name: "한다리 문화공원",
     category: 'park',
     latitude: 37.56106,
     longitude: 126.830369,
@@ -84069,7 +84069,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00149',
-    name: "선두암",
+    name: "선두암 문화공원",
     category: 'park',
     latitude: 37.5672962,
     longitude: 126.8382088,
@@ -84085,7 +84085,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00148',
-    name: "똘고랑",
+    name: "똘고랑 문화공원",
     category: 'park',
     latitude: 37.570725,
     longitude: 126.8279071,
@@ -84101,7 +84101,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00147',
-    name: "놋다리",
+    name: "놋다리 문화공원",
     category: 'park',
     latitude: 37.562055,
     longitude: 126.8363266,
@@ -84117,7 +84117,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00146',
-    name: "새개",
+    name: "새개 문화공원",
     category: 'park',
     latitude: 37.558287,
     longitude: 126.8301253,
@@ -84133,7 +84133,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00145',
-    name: "탑산(가양동)",
+    name: "탑산(가양동) 문화공원",
     category: 'park',
     latitude: 37.566194,
     longitude: 126.846336,
@@ -84149,7 +84149,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00144',
-    name: "염창2",
+    name: "염창2 소공원",
     category: 'park',
     latitude: 37.551722,
     longitude: 126.873857,
@@ -84165,7 +84165,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00143',
-    name: "염창",
+    name: "염창 소공원",
     category: 'park',
     latitude: 37.549839,
     longitude: 126.8706462,
@@ -84181,7 +84181,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00142',
-    name: "마곡",
+    name: "마곡 소공원",
     category: 'park',
     latitude: 37.567586,
     longitude: 126.8219651,
@@ -84197,7 +84197,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00141',
-    name: "푸른수명산",
+    name: "푸른수명산 소공원",
     category: 'park',
     latitude: 37.544175,
     longitude: 126.830269,
@@ -84213,7 +84213,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00140',
-    name: "마곡지구4호",
+    name: "마곡지구4호 근린공원",
     category: 'park',
     latitude: 37.568317,
     longitude: 126.826463,
@@ -84229,7 +84229,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00139',
-    name: "햇빛",
+    name: "햇빛 어린이공원",
     category: 'park',
     latitude: 37.555822,
     longitude: 126.826886,
@@ -84245,7 +84245,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00138',
-    name: "솔",
+    name: "솔 어린이공원",
     category: 'park',
     latitude: 37.555856,
     longitude: 126.825767,
@@ -84261,7 +84261,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00137',
-    name: "예솔",
+    name: "예솔 어린이공원",
     category: 'park',
     latitude: 37.563629,
     longitude: 126.822694,
@@ -84277,7 +84277,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00136',
-    name: "푸르미",
+    name: "푸르미 어린이공원",
     category: 'park',
     latitude: 37.570478,
     longitude: 126.825219,
@@ -84293,7 +84293,7 @@ export const seedParkSpots: Spot[] = [
   },
   {
     spot_id: 'spot_pk_11500_00135',
-    name: "풀잎",
+    name: "풀잎 어린이공원",
     category: 'park',
     latitude: 37.556989,
     longitude: 126.816565,

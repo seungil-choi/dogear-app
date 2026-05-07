@@ -169,13 +169,78 @@ export default function HomeScreen() {
   const savedSpots     = useAppStore(s => s.savedSpots);
   const toggleSaveSpot = useAppStore(s => s.toggleSaveSpot);
   const getHomeCards   = useAppStore(s => s.getHomeCards);
+  const spots          = useAppStore(s => s.spots);
+  const currentLocation = useAppStore(s => s.currentLocation);
 
   const cards    = useMemo(() => getHomeCards(), [getHomeCards]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const multiDog = dogs.length > 1;
 
   // ── 오늘의 추천 스팟 ──────────────────────────────────────────────
-  const featuredCard = cards[0] ?? null;
+  // 규칙:
+  //   1) 발도장이 있으면 → 가장 최근 발도장 위치 중심으로 2km 이내, 미방문 장소 중 최우선
+  //   2) 발도장이 없고 currentLocation이 있으면 → 현 위치 기준 2km 이내 미방문 장소
+  //   3) 둘 다 없으면 → cards 배열 첫 번째 (기본 홈 베이스)
+  const featuredCard = useMemo(() => {
+    if (cards.length === 0) return null;
+
+    // 거리 계산 함수 (Haversine)
+    const dist = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+      const R = 6371000;
+      const phi1 = (lat1 * Math.PI) / 180;
+      const phi2 = (lat2 * Math.PI) / 180;
+      const dPhi = ((lat2 - lat1) * Math.PI) / 180;
+      const dLng = ((lng2 - lng1) * Math.PI) / 180;
+      const a = Math.sin(dPhi/2)**2 + Math.cos(phi1)*Math.cos(phi2)*Math.sin(dLng/2)**2;
+      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    };
+
+    // 1) 활성 강아지의 가장 최근 발도장 위치 추출
+    let center: { lat: number; lng: number } | null = null;
+    if (dog) {
+      const mine = visitSummaries.filter(vs => vs.dog_id === dog.dog_id);
+      if (mine.length > 0) {
+        const latest = mine.reduce((a, b) =>
+          new Date(a.last_visit_at) > new Date(b.last_visit_at) ? a : b
+        );
+        const lastSpot = spots.find(sp => sp.spot_id === latest.spot_id);
+        if (lastSpot) center = { lat: lastSpot.latitude, lng: lastSpot.longitude };
+      }
+    }
+    // 2) 발도장 없으면 currentLocation
+    if (!center && currentLocation) {
+      center = { lat: currentLocation.latitude, lng: currentLocation.longitude };
+    }
+    // 3) 둘 다 없으면 fallback: cards[0]
+    if (!center) return cards[0] ?? null;
+
+    // 2km 이내 + 미방문 장소 중 거리 가까운 것 + (우선) 분위기 좋은 것 선택
+    const candidates = cards
+      .map(c => {
+        const sp = spots.find(s => s.spot_id === c.spot_id);
+        if (!sp) return null;
+        const d = dist(center!.lat, center!.lng, sp.latitude, sp.longitude);
+        if (d > 2000 || d < 30) return null;  // 너무 가깝거나 멀면 제외
+        return { card: c, dist: d };
+      })
+      .filter((x): x is { card: typeof cards[0]; dist: number } => x !== null)
+      .filter(({ card }) => !card.has_visited)  // 미방문 우선
+      .sort((a, b) => a.dist - b.dist);
+
+    if (candidates.length > 0) return candidates[0].card;
+    // 없으면 2km 이내에서 미방문 무관하게 가장 가까운 곳
+    const fallback = cards
+      .map(c => {
+        const sp = spots.find(s => s.spot_id === c.spot_id);
+        if (!sp) return null;
+        const d = dist(center!.lat, center!.lng, sp.latitude, sp.longitude);
+        if (d > 2000) return null;
+        return { card: c, dist: d };
+      })
+      .filter((x): x is { card: typeof cards[0]; dist: number } => x !== null)
+      .sort((a, b) => a.dist - b.dist);
+    return fallback[0]?.card ?? cards[0] ?? null;
+  }, [cards, dog, visitSummaries, spots, currentLocation]);
   const isFeaturedSaved = useMemo(() =>
     featuredCard ? savedSpots.some(sv => sv.spot_id === featuredCard.spot_id && sv.dog_id === dog?.dog_id) : false,
   [featuredCard, savedSpots, dog]);

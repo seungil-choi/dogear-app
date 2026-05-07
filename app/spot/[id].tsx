@@ -148,7 +148,7 @@ export default function SpotDetailScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* ── 상단 헤더: 한눈 요약 영역 ── */}
-        <View style={[s.spotHeader, { paddingTop: insets.top + 56 }]}>
+        <View style={s.spotHeader}>
           <View style={s.spotHeaderContent}>
             {/* 장소 유형 뱃지 */}
             <View style={s.categoryBadge}>
@@ -496,13 +496,13 @@ const s = StyleSheet.create({
   // ── 스크롤 ───────────────────────────────────────────────────────
   scroll: { flex: 1 },
 
-  // ── 상단 헤더: 한눈 요약 영역 ─────────────────────────────────────
+  // ── 상단 헤더: 한눈 요약 영역 (compact) ────────────────────────────
   spotHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     paddingHorizontal: Spacing[16],
-    paddingBottom: Spacing[20],
-    paddingTop: Spacing[16],
+    paddingTop: Spacing[14],
+    paddingBottom: Spacing[14],
     backgroundColor: Colors.bg.primary,
     gap: Spacing[12],
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -510,7 +510,7 @@ const s = StyleSheet.create({
   },
   spotHeaderContent: {
     flex: 1,
-    gap: Spacing[6],
+    gap: Spacing[4],
   },
   categoryBadge: {
     flexDirection: 'row',
@@ -518,36 +518,37 @@ const s = StyleSheet.create({
     gap: Spacing[4],
     alignSelf: 'flex-start',
     backgroundColor: Colors.brand.subtle,
-    paddingHorizontal: Spacing[10],
-    paddingVertical: 4,
+    paddingHorizontal: Spacing[8],
+    paddingVertical: 2,
     borderRadius: Radius.round,
     borderWidth: 1,
     borderColor: Colors.border.brand,
   },
   categoryBadgeText: {
-    ...Typography.label.s,
+    ...Typography.caption,
     color: Colors.brand.primary,
     fontWeight: '600',
   },
   spotName: {
-    ...Typography.display.s,
+    ...Typography.title.l,
     color: Colors.text.primary,
     fontWeight: '800',
-    lineHeight: 30,
+    lineHeight: 26,
+    marginTop: 2,
   },
   spotMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing[6],
+    gap: Spacing[4],
   },
   spotMetaText: {
-    ...Typography.body.s,
+    ...Typography.caption,
     color: Colors.text.tertiary,
   },
 
-  // 지도 썸네일 — 실제 미니맵 (KakaoMap 임베드)
+  // 지도 썸네일 — 컴팩트 미니맵
   mapThumb: {
-    width: 110, height: 110,
+    width: 88, height: 88,
     borderRadius: Radius.card,
     backgroundColor: Colors.bg.tertiary,
     borderWidth: 1,

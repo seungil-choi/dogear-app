@@ -97,13 +97,14 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* ──────────────────────────────────────────
-            1) 권한 — 시스템 권한 (알림 토글 + 위치)
+            1) 권한 — 시스템 권한 (알림 OS 설정 + 위치)
+              알림 자체는 마이의 활동 섹션에서 관리, 여기는 OS 권한 토글
         ────────────────────────────────────────── */}
         <SectionTitle label="권한" />
         <View style={s.card}>
           <SettingsRow
             icon="bell"
-            label="알림 받기"
+            label="알림 권한"
             rightEl={
               <Switch
                 value={notifEnabled}
@@ -123,15 +124,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ──────────────────────────────────────────
-            2) 안전 · 모더레이션
-        ────────────────────────────────────────── */}
-        <SectionTitle label="안전" />
-        <View style={s.card}>
-          <SettingsRow icon="person" label="차단한 사용자" onPress={() => router.push('/blocked-users' as any)} />
-        </View>
-
-        {/* ──────────────────────────────────────────
-            3) 약관 및 정책 — 모두 한 곳에 통합
+            2) 약관 및 정책 — 한 번 보고 마는 항목들
         ────────────────────────────────────────── */}
         <SectionTitle label="약관 및 정책" />
         <View style={s.card}>
@@ -143,7 +136,7 @@ export default function SettingsScreen() {
         </View>
 
         {/* ──────────────────────────────────────────
-            4) 도움말
+            3) 도움말
         ────────────────────────────────────────── */}
         <SectionTitle label="도움말" />
         <View style={s.card}>
@@ -151,13 +144,12 @@ export default function SettingsScreen() {
         </View>
 
         {/* ──────────────────────────────────────────
-            5) 계정 — 로그아웃 + 계정 관리/삭제
+            4) 계정 관리 — 회원 탈퇴 등 드물지만 시스템 영역
+              로그아웃은 마이 탭 직관 노출 (중복 제거)
         ────────────────────────────────────────── */}
-        <SectionTitle label="계정" />
+        <SectionTitle label="계정 관리" />
         <View style={s.card}>
-          <SettingsRow icon="logout" label="로그아웃"  onPress={handleLogout} />
-          <View style={s.divider} />
-          <SettingsRow icon="person" label="계정 관리" onPress={handleDeleteAccount} />
+          <SettingsRow icon="person" label="계정 관리 / 회원 탈퇴" onPress={handleDeleteAccount} />
         </View>
 
         {/* 앱 버전 */}

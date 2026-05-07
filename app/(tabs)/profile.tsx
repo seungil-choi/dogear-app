@@ -309,27 +309,41 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            3) 알림 (도그이어 핵심 — 발도장/관계 알림)
+            3) 활동 — 자주 쓰는 기능들 (알림 / 차단)
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
             <Icon name="bell" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>알림</Text>
+            <Text style={s.sectionTitle}>활동</Text>
           </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="bell" label="발도장 · 관계 알림" onPress={() => router.push('/notifications')} />
+            <SettingsRow icon="bell"   label="알림"           onPress={() => router.push('/notifications')} />
+            <SettingsRow icon="person" label="차단한 사용자"   onPress={() => router.push('/blocked-users' as any)} />
           </View>
         </View>
 
         {/* ══════════════════════════════════════
-            4) 설정 진입 (시스템/약관/계정 통합 — Instagram/Threads 패턴)
+            4) 계정 — 로그아웃은 마이에서 직관 노출 (자주는 아니지만 중요)
+        ══════════════════════════════════════ */}
+        <View style={s.section}>
+          <View style={s.sectionTitleRow}>
+            <Icon name="person" size={15} color={Colors.text.secondary} />
+            <Text style={s.sectionTitle}>계정</Text>
+          </View>
+          <View style={s.settingsCard}>
+            <SettingsRow icon="logout"   label="로그아웃" onPress={logout} danger />
+          </View>
+        </View>
+
+        {/* ══════════════════════════════════════
+            5) 설정 진입 (권한/약관/도움말/계정관리)
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.settingsCard}>
             <SettingsRow icon="settings" label="설정"  onPress={() => router.push('/settings' as any)} />
           </View>
           <Text style={s.sectionFootnote}>
-            약관 · 차단 · 로그아웃 · 계정 관리는 설정에서 한 번에 관리할 수 있어요.
+            권한 · 약관 · 도움말 · 계정 관리는 설정에서 확인할 수 있어요.
           </Text>
         </View>
 
