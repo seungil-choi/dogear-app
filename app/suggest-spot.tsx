@@ -60,6 +60,8 @@ export default function SuggestSpotScreen() {
   const getNearbyDuplicates = useAppStore(s => s.getNearbyDuplicates);
   const suggestSpot         = useAppStore(s => s.suggestSpot);
   const user                = useAppStore(s => s.activeDog);
+  const getHomeCards       = useAppStore(s => s.getHomeCards);
+  const setPawSpot         = useAppStore(s => s.setPawSpot);
 
   const location = currentLocation ?? DEFAULT_LOCATION;
 
@@ -67,6 +69,7 @@ export default function SuggestSpotScreen() {
   const [step, setStep] = useState<Step>('checking');
   const [duplicates, setDuplicates] = useState<NearbyDuplicate[]>([]);
   const [hasHardBlock, setHasHardBlock] = useState(false);
+  const [createdSpotId, setCreatedSpotId] = useState<string | null>(null);
 
   // Form state
   const [name,        setName]        = useState('');
@@ -141,8 +144,9 @@ export default function SuggestSpotScreen() {
       }
     }
 
-    // 로컬 store에도 반영 (즉각적인 UI 피드백)
-    suggestSpot(payload);
+    // 로컬 store에도 반영 (즉각적인 UI 피드백) — spot_id 반환됨
+    const newSpotId = suggestSpot(payload);
+    setCreatedSpotId(newSpotId);
     setStep('done');
   }, [name, description, category, selectedTags, pinLocation, suggestSpot, user]);
 
@@ -150,12 +154,14 @@ export default function SuggestSpotScreen() {
   const handleUseExistingSpot = useCallback((spotId: string) => {
     if (from === 'paw') {
       // 발도장 플로우로 해당 장소를 선택한 상태로 이동
-      // 실제 구현에서는 pawFlow에 spot 세팅 후 이동 필요
+      // pawFlow.selectedSpot 세팅 → paw-checkin이 step 1 건너뛰고 step 2로 시작
+      const card = getHomeCards().find(c => c.spot_id === spotId);
+      if (card) setPawSpot(card);
       router.replace('/paw-checkin');
     } else {
       router.replace(`/spot/${spotId}`);
     }
-  }, [from, router]);
+  }, [from, router, getHomeCards, setPawSpot]);
 
   return (
     <SafeAreaView style={s.safe}>
@@ -448,6 +454,12 @@ export default function SuggestSpotScreen() {
               <Button
                 label="발도장 찍기로 이어가기"
                 onPress={() => {
+                  // 새로 생성된 임시 spot을 pawFlow.selectedSpot 으로 세팅 →
+                  // paw-checkin이 step 1(장소 선택) 건너뛰고 step 2부터 시작
+                  if (createdSpotId) {
+                    const card = getHomeCards().find(c => c.spot_id === createdSpotId);
+                    if (card) setPawSpot(card);
+                  }
                   router.replace('/paw-checkin');
                 }}
                 variant="primary"

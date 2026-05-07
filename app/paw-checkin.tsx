@@ -14,7 +14,7 @@
  *   Step 4. 완료 확인
  */
 
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { AppImage } from '../src/components/common/AppImage';
 import {
   View, Text, TouchableOpacity, ScrollView,
@@ -84,6 +84,19 @@ export default function PawCheckinModal() {
   const { step, selectedSpot, selectedTags, visibility } = pawFlow;
   const cards = getHomeCards();
 
+  // ── 진입 경로 감지 ────────────────────────────────────────
+  // spot 상세에서 진입(setPawSpot 후 push)한 경우 selectedSpot이 이미 세팅됨
+  // → step 1(장소 선택) 건너뛰고 step 2(느낌)부터 시작
+  // 마운트 시점 한 번만 판정 (이후 사용자가 step 1 변경하더라도 이 플래그는 유지)
+  const isPresetSpot = useRef<boolean>(!!selectedSpot).current;
+
+  useEffect(() => {
+    if (isPresetSpot && pawFlow.step === 1) {
+      setPawStep(2);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleClose = useCallback(() => {
     resetPawFlow();
     router.back();
@@ -91,9 +104,14 @@ export default function PawCheckinModal() {
 
   const handleNext = useCallback(() => setPawStep(step + 1), [step, setPawStep]);
   const handleBack = useCallback(() => {
-    if (step === 1) handleClose();
-    else setPawStep(step - 1);
-  }, [step, setPawStep, handleClose]);
+    // 미리 선택된 장소로 진입 → step 2 에서 뒤로가기는 모달 닫음
+    // (장소 자체를 바꾸려면 상세 페이지로 돌아가서 다시 진입)
+    if (step === 1 || (isPresetSpot && step === 2)) {
+      handleClose();
+    } else {
+      setPawStep(step - 1);
+    }
+  }, [step, setPawStep, handleClose, isPresetSpot]);
 
   const handleSubmit = useCallback(async () => {
     if (IS_REAL_AUTH) {
@@ -204,9 +222,14 @@ export default function PawCheckinModal() {
     );
   }
 
-  // 단계 레이블
-  const STEP_LABELS = ['장소', '느낌', '공개 범위', '완료'];
-  const totalSteps  = 4;
+  // 단계 레이블 — 진입 경로에 따라 다름
+  // preset (spot 상세 진입): 장소 선택 단계 생략 → 3단계 인디케이터
+  const STEP_LABELS = isPresetSpot
+    ? ['느낌', '공개 범위', '완료']
+    : ['장소', '느낌', '공개 범위', '완료'];
+  const totalSteps  = STEP_LABELS.length;
+  // 내부 step(1~4) → 인디케이터 표시용 인덱스(1~totalSteps) 변환
+  const indicatorStep = isPresetSpot ? Math.max(1, step - 1) : step;
 
   return (
     <SafeAreaView style={s.safe}>
@@ -219,8 +242,8 @@ export default function PawCheckinModal() {
         <View style={s.stepIndicator}>
           {STEP_LABELS.map((label, i) => {
             const n = i + 1;
-            const done   = n < step;
-            const active = n === step;
+            const done   = n < indicatorStep;
+            const active = n === indicatorStep;
             return (
               <React.Fragment key={n}>
                 <View style={[s.stepNode, done && s.stepNodeDone, active && s.stepNodeActive]}>
@@ -248,8 +271,8 @@ export default function PawCheckinModal() {
         showsVerticalScrollIndicator={false}
       >
 
-        {/* ── STEP 1: 장소 확인 ── */}
-        {step === 1 && (() => {
+        {/* ── STEP 1: 장소 확인 (preset 진입 시 즉시 step 2로 advance, 깜박임 방지) ── */}
+        {step === 1 && !isPresetSpot && (() => {
           const nearbyCards = cards.slice(0, 5);
           const otherCards  = cards.slice(5);
           return (

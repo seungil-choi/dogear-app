@@ -141,6 +141,8 @@ interface AppState {
   setFamiliarSignals: (signals: FamiliarDogSignal[]) => void;
 
   // Spot 제안 actions
+  // 임시 반영: suggestedSpots 와 spots 양쪽에 모두 추가하여 제안 직후
+  // 발도장 찍기 / 저장 등이 가능하도록 함. 새 spot_id를 반환.
   suggestSpot: (data: {
     name: string;
     description: string;
@@ -148,7 +150,7 @@ interface AppState {
     additional_tags: string[];
     latitude: number;
     longitude: number;
-  }) => void;
+  }) => string;
   getNearbyDuplicates: (lat: number, lng: number, name: string, category: SpotCategory) => NearbyDuplicate[];
 
   // Computed helpers
@@ -440,10 +442,12 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   // ─── 장소 제안 ────────────────────────────────────────────────
   suggestSpot: ({ name, description, category, additional_tags, latitude, longitude }) => {
-    const { dog, suggestedSpots } = get();
-    if (!dog) return;
+    const { dog, suggestedSpots, spots } = get();
+    if (!dog) return '';
+    const now = new Date().toISOString();
+    const ts = Date.now();
     const newSuggestion: SuggestedSpot = {
-      suggestion_id: `sug_${Date.now()}`,
+      suggestion_id: `sug_${ts}`,
       name,
       description,
       category,
@@ -452,9 +456,27 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       longitude,
       suggested_by_dog_id: dog.dog_id,
       status: 'proposed',
-      suggested_at: new Date().toISOString(),
+      suggested_at: now,
     };
-    set({ suggestedSpots: [...suggestedSpots, newSuggestion] });
+    // 임시 반영 — 실제 spots 에도 active 로 추가하여
+    // 발도장 찍기/저장 등 후속 액션이 가능하도록 함
+    const tempSpot: Spot = {
+      spot_id: `spot_user_${ts}`,
+      name,
+      category,
+      latitude,
+      longitude,
+      description,
+      features: additional_tags,
+      status: 'active',
+      created_source: 'user_suggested',
+      created_at: now,
+    };
+    set({
+      suggestedSpots: [...suggestedSpots, newSuggestion],
+      spots: [...spots, tempSpot],
+    });
+    return tempSpot.spot_id;
   },
 
   getNearbyDuplicates: (lat, lng, name, category) => {
