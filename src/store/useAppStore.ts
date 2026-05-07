@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 
 const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 import type {
-  User, Dog, Spot, PawCheckin, SavedSpot, SpotVisitSummary,
+  User, Dog, Spot, PawCheckin, SavedSpot, SavedType, SpotVisitSummary,
   FamiliarDogSignal, PrivacySetting, VisibilityLevel, FeelingTag,
   HomeSpotCardViewModel, SuggestedSpot, NearbyDuplicate, SpotCategory,
   Report, BlockedUser, ConsentRecord, ReportTargetType, ReportReason,
@@ -232,7 +232,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   selectSpot: (spotId) => set({ selectedSpotId: spotId }),
 
   toggleSaveSpot: (spotId) => {
-    const { savedSpots, dog } = get();
+    const { savedSpots, dog, visitSummaries } = get();
     if (!dog) return;
     const existing = savedSpots.find(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
     if (existing) {
@@ -246,18 +246,21 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
           .then(({ error }) => { if (error) console.error('saved_spots delete failed:', error); });
       }
     } else {
+      // 이미 방문한 적 있는 장소면 "다시 가고 싶다", 없으면 "가보고 싶다"
+      const hasVisited = visitSummaries.some(v => v.spot_id === spotId && v.dog_id === dog.dog_id);
+      const savedType: SavedType = hasVisited ? 'go_again' : 'want_to_go';
       const newSaved: SavedSpot = {
         saved_spot_id: `sav_${Date.now()}`,
         dog_id: dog.dog_id,
         spot_id: spotId,
-        saved_type: 'want_to_go',
+        saved_type: savedType,
         saved_at: new Date().toISOString(),
       };
       set({ savedSpots: [...savedSpots, newSaved] });
       // 실 환경: DB에 저장 (fire-and-forget)
       if (IS_REAL_AUTH) {
         supabase.from('saved_spots')
-          .insert({ dog_id: dog.dog_id, spot_id: spotId, saved_type: 'want_to_go' })
+          .insert({ dog_id: dog.dog_id, spot_id: spotId, saved_type: savedType })
           .then(({ error }) => { if (error) console.error('saved_spots insert failed:', error); });
       }
     }

@@ -193,13 +193,47 @@ export default function MySpotsScreen() {
             />
           ) : (
             <>
-              {mySavedSpots.map(({ saved, spot, card }) => (
+              {/* "가보고 싶다" 그룹 */}
+              {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').length > 0 && (
+                <View style={s.savedGroupHead}>
+                  <Icon name="bookmark" size={13} color={Colors.text.secondary} />
+                  <Text style={s.savedGroupTitle}>가보고 싶은 곳</Text>
+                  <Text style={s.savedGroupCount}>
+                    {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').length}곳
+                  </Text>
+                </View>
+              )}
+              {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').map(({ saved, spot, card }) => (
                 <ListSpotCard
                   key={saved.saved_spot_id}
                   name={spot.name}
                   categoryLabel={catLabel[spot.category]}
                   distanceText={card?.distance_text ?? '—'}
                   atmosphereSummary={card?.atmosphere_badges.join(' · ')}
+                  isSaved={true}
+                  coverImageUrl={spot.cover_image_url}
+                  onPress={() => router.push(`/spot/${spot.spot_id}`)}
+                />
+              ))}
+
+              {/* "다시 가고 싶다" 그룹 */}
+              {mySavedSpots.filter(x => x.saved.saved_type === 'go_again').length > 0 && (
+                <View style={s.savedGroupHead}>
+                  <Icon name="star-filled" size={13} color={Colors.brand.primary} />
+                  <Text style={s.savedGroupTitle}>다시 가고 싶은 곳</Text>
+                  <Text style={s.savedGroupCount}>
+                    {mySavedSpots.filter(x => x.saved.saved_type === 'go_again').length}곳
+                  </Text>
+                </View>
+              )}
+              {mySavedSpots.filter(x => x.saved.saved_type === 'go_again').map(({ saved, spot, card }) => (
+                <ListSpotCard
+                  key={saved.saved_spot_id}
+                  name={spot.name}
+                  categoryLabel={catLabel[spot.category]}
+                  distanceText={card?.distance_text ?? '—'}
+                  atmosphereSummary={card?.atmosphere_badges.join(' · ')}
+                  relationSummary="다시 가고 싶은 곳"
                   isSaved={true}
                   coverImageUrl={spot.cover_image_url}
                   onPress={() => router.push(`/spot/${spot.spot_id}`)}
@@ -290,4 +324,26 @@ const s = StyleSheet.create({
 
   scroll:        { flex: 1 },
   scrollContent: { paddingBottom: 24 },
+
+  // 저장한 곳 그룹 헤더
+  savedGroupHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[6],
+    paddingHorizontal: Spacing[16],
+    paddingTop: Spacing[16],
+    paddingBottom: Spacing[8],
+    backgroundColor: Colors.bg.primary,
+  },
+  savedGroupTitle: {
+    flex: 1,
+    ...Typography.label.m,
+    color: Colors.text.secondary,
+    fontWeight: '700',
+  },
+  savedGroupCount: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    fontWeight: '600',
+  },
 });

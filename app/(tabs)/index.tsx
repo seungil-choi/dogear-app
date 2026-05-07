@@ -520,18 +520,57 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ── 지도 탐색 배너 ── */}
-        <TouchableOpacity
-          style={s.mapBtn}
-          onPress={() => router.push('/(tabs)/map')}
-          activeOpacity={0.82}
-        >
-          <View style={s.mapBtnIconWrap}>
-            <Icon name="map" size={16} color={Colors.brand.onPrimary} />
+        {/* ── 첫 사용자 가이드 — 발도장 0개 + 자주 가는 장소 0개일 때 ── */}
+        {dog && cards.length > 0 && recentCards.length === 0 && regularCards.length === 0 && (
+          <View style={s.starterCard}>
+            <View style={s.starterHeader}>
+              <View style={s.starterIconWrap}>
+                <Icon name="paw-filled" size={20} color={Colors.brand.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.starterTitle}>{dog.name}와 함께 시작해볼까요?</Text>
+                <Text style={s.starterSub}>3단계로 첫 발도장을 남길 수 있어요</Text>
+              </View>
+            </View>
+            <View style={s.starterSteps}>
+              <View style={s.starterStep}>
+                <View style={s.starterStepNum}><Text style={s.starterStepNumText}>1</Text></View>
+                <Text style={s.starterStepText}>주변 추천 장소 또는 지도에서 산책할 곳 고르기</Text>
+              </View>
+              <View style={s.starterStep}>
+                <View style={s.starterStepNum}><Text style={s.starterStepNumText}>2</Text></View>
+                <Text style={s.starterStepText}>장소 상세에서 [발도장 남기기] 누르기</Text>
+              </View>
+              <View style={s.starterStep}>
+                <View style={s.starterStepNum}><Text style={s.starterStepNumText}>3</Text></View>
+                <Text style={s.starterStepText}>오늘의 느낌과 공개 범위 선택 → 완료!</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={s.starterCta}
+              onPress={() => router.push('/(tabs)/map')}
+              activeOpacity={0.88}
+            >
+              <Icon name="map" size={16} color="#fff" />
+              <Text style={s.starterCtaText}>지도에서 첫 장소 찾기</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={s.mapBtnText}>지도에서 주변 장소 탐색하기</Text>
-          <Icon name="forward" size={14} color={Colors.brand.primary} />
-        </TouchableOpacity>
+        )}
+
+        {/* ── 지도 탐색 배너 (재방문 사용자 — 발도장 있는 경우에만) ── */}
+        {(recentCards.length > 0 || regularCards.length > 0) && (
+          <TouchableOpacity
+            style={s.mapBtn}
+            onPress={() => router.push('/(tabs)/map')}
+            activeOpacity={0.82}
+          >
+            <View style={s.mapBtnIconWrap}>
+              <Icon name="map" size={16} color={Colors.brand.onPrimary} />
+            </View>
+            <Text style={s.mapBtnText}>지도에서 주변 장소 탐색하기</Text>
+            <Icon name="forward" size={14} color={Colors.brand.primary} />
+          </TouchableOpacity>
+        )}
 
       </ScrollView>
     </SafeAreaView>
@@ -886,6 +925,83 @@ const s = StyleSheet.create({
     flex: 1,
     ...Typography.label.m,
     color: Colors.brand.accent,
+    fontWeight: '700',
+  },
+
+  // ── 첫 사용자 시작 가이드 카드 ──
+  starterCard: {
+    marginHorizontal: Spacing[16],
+    marginTop: Spacing[24],
+    marginBottom: Spacing[8],
+    backgroundColor: Colors.brand.subtle,
+    borderRadius: Radius.card,
+    borderWidth: 1.5,
+    borderColor: Colors.border.brand,
+    padding: Spacing[16],
+  },
+  starterHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[12],
+    marginBottom: Spacing[14],
+  },
+  starterIconWrap: {
+    width: 40, height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.surface.default,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+  },
+  starterTitle: {
+    ...Typography.title.s,
+    color: Colors.text.primary,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  starterSub: {
+    ...Typography.caption,
+    color: Colors.text.secondary,
+  },
+  starterSteps: {
+    gap: Spacing[10],
+    marginBottom: Spacing[14],
+  },
+  starterStep: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[10],
+  },
+  starterStepNum: {
+    width: 22, height: 22, borderRadius: 11,
+    backgroundColor: Colors.brand.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  starterStepNumText: {
+    ...Typography.caption,
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
+  starterStepText: {
+    flex: 1,
+    ...Typography.body.s,
+    color: Colors.text.primary,
+    lineHeight: 20,
+  },
+  starterCta: {
+    height: 46,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[6],
+    backgroundColor: Colors.brand.primary,
+    borderRadius: Radius.round,
+  },
+  starterCtaText: {
+    ...Typography.label.l,
+    color: '#FFFFFF',
     fontWeight: '700',
   },
 });

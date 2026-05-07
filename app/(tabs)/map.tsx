@@ -480,8 +480,23 @@ export default function ExploreScreen() {
 
             {sortedCards.length === 0 ? (
               <View style={s.peekEmpty}>
-                <Icon name="map" size={28} color={Colors.text.tertiary} />
-                <Text style={s.peekEmptyText}>해당하는 장소가 없어요</Text>
+                <Icon name={isSearching ? 'search' : 'map'} size={28} color={Colors.text.tertiary} />
+                <Text style={s.peekEmptyText}>
+                  {isSearching
+                    ? `'${searchQuery.trim()}' 결과가 없어요`
+                    : (activeFilter === 'saved'   ? '저장한 장소가 없어요'
+                     : activeFilter === 'visited' ? '발도장 남긴 장소가 없어요'
+                     : '반경 내 장소가 없어요')}
+                </Text>
+                <Text style={s.peekEmptySub}>
+                  {isSearching
+                    ? '다른 키워드로 검색하거나 지도를 옮겨보세요'
+                    : (activeFilter === 'saved'
+                       ? '마음에 드는 장소를 저장해보세요'
+                       : activeFilter === 'visited'
+                       ? '산책하면서 발도장을 남겨보세요'
+                       : '지도를 다른 지역으로 옮겨보세요')}
+                </Text>
               </View>
             ) : (
               <ScrollView
@@ -751,7 +766,8 @@ const s = StyleSheet.create({
   peekEmpty: {
     alignItems: 'center', gap: Spacing[8], paddingVertical: Spacing[40],
   },
-  peekEmptyText: { ...Typography.body.m, color: Colors.text.tertiary },
+  peekEmptyText: { ...Typography.body.m, color: Colors.text.secondary, fontWeight: '600' },
+  peekEmptySub: { ...Typography.caption, color: Colors.text.tertiary, marginTop: 2, textAlign: 'center' },
   peekScroll: { flex: 1 },
   peekScrollContent: { paddingTop: Spacing[4] },
   peekCardWrap: {

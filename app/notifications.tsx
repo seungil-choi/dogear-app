@@ -9,7 +9,11 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Icon } from '../src/components/common/Icon';
+import { EmptyState } from '../src/components/common/EmptyState';
 import { Colors, Typography, Spacing, Layout } from '../src/constants/tokens';
+
+// DEV_SEED 모드에서만 데모 알림 노출 (실 환경에서는 빈 상태로 시작)
+const SHOW_MOCK = process.env.EXPO_PUBLIC_DEV_SEED === 'true';
 
 // ─── 타입 정의 ──────────────────────────────────────────────────
 type NotificationGroup = '오늘' | '어제' | '이번 주';
@@ -85,7 +89,7 @@ const GROUP_ORDER: NotificationGroup[] = ['오늘', '어제', '이번 주'];
 export default function NotificationsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(SHOW_MOCK ? MOCK_NOTIFICATIONS : []);
 
   // 모두 읽음 처리
   const handleMarkAllRead = () => {
@@ -139,6 +143,16 @@ export default function NotificationsScreen() {
       </View>
 
       {/* 콘텐츠 */}
+      {notifications.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <EmptyState
+            headline="아직 도착한 알림이 없어요"
+            description="발도장이 쌓이고 익숙한 강아지가 등장하면 여기로 알려드릴게요."
+            ctaLabel="지도에서 산책 시작하기"
+            onCta={() => router.replace('/(tabs)/map' as any)}
+          />
+        </View>
+      ) : (
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
@@ -195,6 +209,7 @@ export default function NotificationsScreen() {
           );
         })}
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 }
