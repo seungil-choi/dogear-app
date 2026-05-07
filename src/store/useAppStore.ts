@@ -560,11 +560,23 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         ? `${Math.round(distanceMeters / 10) * 10}m`
         : `${(distanceMeters / 1000).toFixed(1)}km`;
 
+    // 시/도·구 수준 위치 요약 (주소에서 추출)
+    const addr = spot.address_text || '';
+    const addrParts = addr.split(' ');
+    const sidoRaw = addrParts[0] ?? '';
+    const sidoShort = sidoRaw === '서울특별시' ? '서울'
+      : sidoRaw === '경기도' ? '경기'
+      : sidoRaw.replace(/특별시|광역시|도$/, '');
+    const sigunguRaw = addrParts[1] ?? (spot.neighborhood ?? '');
+    const regionSummary = sigunguRaw ? `${sidoShort} ${sigunguRaw}` : sidoShort;
+
     return {
       spot_id: spotId,
       name: spot.name,
       category_label: categoryLabel[spot.category],
       distance_text: distanceText,
+      neighborhood: spot.neighborhood,
+      region_summary: regionSummary || undefined,
       cover_image_url: spot.cover_image_url,
       is_saved: isSaved,
       atmosphere_summary: atmosphereLabel[agg.atmosphere_state],

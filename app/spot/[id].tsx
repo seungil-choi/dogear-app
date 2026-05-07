@@ -20,7 +20,6 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { EmptyState } from '../../src/components/common/EmptyState';
@@ -116,132 +115,130 @@ export default function SpotDetailScreen() {
     <View style={s.safe}>
 
       {/* ════════════════════════════════════
-          스크롤 본문 (히어로 포함, 함께 스크롤)
+          고정 상단 네비 바 (뒤로가기 · 저장 · 공유 · 더보기)
+      ════════════════════════════════════ */}
+      <View style={[s.topNav, { paddingTop: insets.top + 4 }]}>
+        <TouchableOpacity
+          style={s.topNavBtn}
+          onPress={() => router.back()}
+          hitSlop={8}
+          accessibilityLabel="뒤로 가기"
+        >
+          <Icon name="back" size={22} color={Colors.text.primary} />
+        </TouchableOpacity>
+        <View style={s.topNavRight}>
+          <TouchableOpacity
+            style={s.topNavBtn}
+            onPress={handleSave}
+            hitSlop={8}
+            accessibilityLabel={vm.is_saved ? '저장 해제' : '저장'}
+          >
+            <Icon
+              name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
+              size={20}
+              color={vm.is_saved ? Colors.brand.primary : Colors.text.secondary}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={s.topNavBtn} onPress={handleShare} hitSlop={8} accessibilityLabel="공유">
+            <Icon name="share" size={20} color={Colors.text.secondary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={s.topNavBtn} onPress={handleMore} hitSlop={8} accessibilityLabel="더보기">
+            <Icon name="more" size={20} color={Colors.text.secondary} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* ════════════════════════════════════
+          스크롤 본문
       ════════════════════════════════════ */}
       <ScrollView
         style={s.scroll}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── 히어로 이미지 ── */}
-        <View style={[s.heroWrap, { height: HERO_H + insets.top }]}>
-          {vm.cover_image_url ? (
-            <AppImage
-              source={{ uri: vm.cover_image_url }}
-              style={StyleSheet.absoluteFill}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={[StyleSheet.absoluteFill, s.heroPlaceholder]}>
-              <Icon name="leaf-filled" size={56} color={Colors.brand.primary} />
+        {/* ── 상단 헤더: 한눈 요약 영역 ── */}
+        <View style={[s.spotHeader, { paddingTop: insets.top + 56 }]}>
+          <View style={s.spotHeaderContent}>
+            {/* 장소 유형 뱃지 */}
+            <View style={s.categoryBadge}>
+              <Icon name="leaf" size={11} color={Colors.brand.primary} />
+              <Text style={s.categoryBadgeText}>{vm.category_label}</Text>
+            </View>
+            {/* 장소명 */}
+            <Text style={s.spotName} numberOfLines={2}>{vm.name}</Text>
+            {/* 지역 · 거리 */}
+            <View style={s.spotMetaRow}>
+              <Icon name="location" size={13} color={Colors.text.tertiary} />
+              <Text style={s.spotMetaText} numberOfLines={1}>
+                {[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
+              </Text>
+            </View>
+          </View>
+
+          {/* 지도 썸네일 — 위치 맥락 프리뷰 (이미지 대체 식별 장치) */}
+          <View style={s.mapThumb}>
+            <Icon name="map" size={22} color={Colors.brand.primary} />
+            <Text style={s.mapThumbLabel} numberOfLines={1}>
+              {vm.neighborhood || vm.region_summary || '지도'}
+            </Text>
+          </View>
+        </View>
+
+        {/* ── 관계 요약 카드 ── */}
+        <View style={s.statsCard}>
+          <View style={s.statItem}>
+            <Text style={s.statValue}>{vm.unique_visitor_count}</Text>
+            <Text style={s.statLabel}>방문한 강아지</Text>
+          </View>
+          <View style={s.statDivider} />
+          <View style={s.statItem}>
+            <Text style={s.statValue}>{vm.recent_trace_count}</Text>
+            <Text style={s.statLabel}>최근 발도장</Text>
+          </View>
+          <View style={s.statDivider} />
+          <View style={s.statItem}>
+            <Text style={s.statValue}>{vm.user_relation?.visit_count ?? 0}회</Text>
+            <Text style={s.statLabel}>내 방문</Text>
+          </View>
+        </View>
+
+        {/* ── 장소 정보 섹션 (설명용 상세 정보) ── */}
+        <View style={s.section}>
+          {/* 태그 */}
+          {vm.features && vm.features.length > 0 && (
+            <View style={s.featureChips}>
+              {vm.features.slice(0, 6).map(f => (
+                <View key={f} style={s.featureChip}>
+                  <Text style={s.featureChipText}>{f}</Text>
+                </View>
+              ))}
             </View>
           )}
 
-          {/* 하단 그라디언트 dim */}
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.62)']}
-            style={s.heroGradient}
-          />
+          {/* 설명 */}
+          {vm.description ? (
+            <Text style={s.descriptionText}>{vm.description}</Text>
+          ) : (
+            <Text style={s.descriptionEmpty}>장소 설명이 아직 없어요.</Text>
+          )}
 
-          {/* 장소명 + 메타 (이미지 위 오버레이) */}
-          <View style={s.heroBottom}>
-            <View style={s.heroTitleRow}>
-              <Text style={s.heroName} numberOfLines={2}>{vm.name}</Text>
-              <TouchableOpacity onPress={handleSave}>
-                <Icon
-                  name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
-                  size={20}
-                  color={vm.is_saved ? Colors.brand.primaryLight : '#fff'}
-                />
+          {/* 주소 + 복사 */}
+          {vm.address_text && (
+            <View style={s.addressRow}>
+              <Icon name="location" size={13} color={Colors.text.tertiary} />
+              <Text style={s.addressText} numberOfLines={2}>{vm.address_text}</Text>
+              <TouchableOpacity
+                style={s.copyAddrBtn}
+                onPress={() => handleCopyAddress(vm.address_text!)}
+                activeOpacity={0.75}
+                accessibilityLabel="주소 복사"
+                hitSlop={6}
+              >
+                <Icon name="copy" size={13} color={Colors.brand.primary} />
+                <Text style={s.copyAddrLabel}>복사</Text>
               </TouchableOpacity>
             </View>
-            <View style={s.heroMeta}>
-              <Icon name="location" size={13} color="rgba(255,255,255,0.85)" />
-              <Text style={s.heroMetaText}>{vm.distance_text}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* ── 현황 카드 (정보 전용, 터치 불가) ── */}
-        <View style={s.statusCard}>
-          <View style={s.statsRow}>
-            {/* 방문한 강아지 — 첫 번째 */}
-            <View style={s.statItem}>
-              <Icon name="leaf" size={16} color={Colors.brand.primary} />
-              <Text style={s.statValue}>{vm.unique_visitor_count}</Text>
-              <Text style={s.statLabel}>방문한 강아지</Text>
-            </View>
-            <View style={s.statDivider} />
-            {/* 최근 발도장 — 두 번째 */}
-            <View style={s.statItem}>
-              <Icon name="paw-filled" size={16} color={Colors.brand.primary} />
-              <Text style={s.statValue}>{vm.recent_trace_count}</Text>
-              <Text style={s.statLabel}>최근 발도장</Text>
-            </View>
-            <View style={s.statDivider} />
-            <View style={s.statItem}>
-              <Icon name="star" size={16} color={Colors.brand.primary} />
-              <Text style={s.statValue}>{vm.user_relation?.visit_count ?? 0}회</Text>
-              <Text style={s.statLabel}>내 방문 횟수</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* ── P2: 장소 정보 ── */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>장소 정보</Text>
-
-          <View style={s.infoTable}>
-            <View style={s.infoRow}>
-              <Text style={s.infoKey}>장소 유형</Text>
-              <Text style={s.infoVal}>{vm.category_label}</Text>
-            </View>
-            {vm.features && vm.features.length > 0 && (
-              <>
-                <View style={s.infoSep} />
-                <View style={s.infoRow}>
-                  <Text style={s.infoKey}>주요 태그</Text>
-                  <View style={s.featureChips}>
-                    {vm.features.map(f => (
-                      <View key={f} style={s.featureChip}>
-                        <Text style={s.featureChipText}>{f}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-              </>
-            )}
-            {vm.description && (
-              <>
-                <View style={s.infoSep} />
-                <View style={s.infoRow}>
-                  <Text style={s.infoKey}>설명</Text>
-                  <Text style={s.infoVal}>{vm.description}</Text>
-                </View>
-              </>
-            )}
-            {vm.address_text && (
-              <>
-                <View style={s.infoSep} />
-                <View style={s.infoRow}>
-                  <Text style={s.infoKey}>주소</Text>
-                  <View style={s.infoAddressRow}>
-                    <Text style={s.infoAddressText}>{vm.address_text}</Text>
-                    <TouchableOpacity
-                      style={s.copyAddrBtn}
-                      onPress={() => handleCopyAddress(vm.address_text!)}
-                      activeOpacity={0.75}
-                      accessibilityLabel="주소 복사"
-                      hitSlop={6}
-                    >
-                      <Icon name="copy" size={14} color={Colors.brand.primary} />
-                      <Text style={s.copyAddrLabel}>복사</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </>
-            )}
-          </View>
+          )}
         </View>
 
         {/* ── P3: 자주 찾는 강아지 ── */}
@@ -429,33 +426,15 @@ export default function SpotDetailScreen() {
         </Pressable>
       </Modal>
 
-      {/* 네비 바 — ScrollView 이후에 렌더링해야 터치 이벤트가 최상단에서 잡힘 */}
-      <View style={[s.heroNavFixed, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
-        <TouchableOpacity style={s.heroNavBtn} onPress={() => router.back()}>
-          <Icon name="back" size={22} color="#fff" />
-        </TouchableOpacity>
-        <View style={s.heroNavRight}>
-          <TouchableOpacity style={s.heroNavBtn} onPress={handleShare}>
-            <Icon name="share" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* ── 하단 고정 액션 바 — 저장 + 발도장 ── */}
+      {/* ── 하단 고정 액션 바 — 길찾기 + 발도장 ── */}
       <View style={[s.bottomBar, { paddingBottom: insets.bottom + Spacing[8] }]}>
         <TouchableOpacity
-          style={[s.bottomBtnDirections, vm.is_saved && s.bottomBtnSaveActive]}
-          onPress={handleSave}
+          style={s.bottomBtnDirections}
+          onPress={handleDirections}
           activeOpacity={0.85}
         >
-          <Icon
-            name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
-            size={18}
-            color={Colors.brand.primary}
-          />
-          <Text style={s.bottomBtnDirectionsText}>
-            {vm.is_saved ? '저장됨' : '저장하기'}
-          </Text>
+          <Icon name="location" size={18} color={Colors.brand.primary} />
+          <Text style={s.bottomBtnDirectionsText}>길찾기</Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.bottomBtnPaw} onPress={handlePawCheckin} activeOpacity={0.88}>
           <Icon name="paw-filled" size={18} color="#fff" />
@@ -467,93 +446,106 @@ export default function SpotDetailScreen() {
   );
 }
 
-// ─────────────────────────────────────────
-const HERO_H = 260;
-
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: Colors.bg.primary },
 
-  // ── 히어로 ────────────────────────────────────────────────────────
-  heroWrap: {
-    position: 'relative',
-    backgroundColor: Colors.brand.subtle,
-    overflow: 'hidden',
-  },
-  heroPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.brand.subtle,
-  },
-  heroGradient: {
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    height: 160,
-  },
-  // 네비 바 — 화면 최상단에 absolute 고정 (스크롤 위에 떠 있음)
-  heroNavFixed: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0,
-    zIndex: 10,
+  // ── 상단 네비 바 (고정) ───────────────────────────────────────────
+  topNav: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: Spacing[4],
+    paddingBottom: Spacing[4],
+    backgroundColor: Colors.bg.primary,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.border.subtle,
   },
-  heroNavBtn: {
+  topNavBtn: {
     width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
     borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.28)',
   },
-  heroNavRight: { flexDirection: 'row' },
+  topNavRight: { flexDirection: 'row' },
 
-  heroBottom: {
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    paddingHorizontal: Spacing[16],
-    paddingBottom: Spacing[16],
-    gap: Spacing[6],
-  },
-  heroTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: Spacing[8],
-  },
-  heroName: {
-    flex: 1,
-    ...Typography.display.s,
-    color: '#FFFFFF',
-    lineHeight: 32,
-    textShadowColor: 'rgba(0,0,0,0.4)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  heroMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[6],
-  },
-  heroMetaText: {
-    ...Typography.label.s,
-    color: 'rgba(255,255,255,0.90)',
-  },
   // ── 스크롤 ───────────────────────────────────────────────────────
   scroll: { flex: 1 },
 
-  // ── 현황 카드 ─────────────────────────────────────────────────────
-  statusCard: {
-    backgroundColor: Colors.surface.default,
+  // ── 상단 헤더: 한눈 요약 영역 ─────────────────────────────────────
+  spotHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     paddingHorizontal: Spacing[16],
-    paddingVertical: Spacing[20],
+    paddingBottom: Spacing[20],
+    paddingTop: Spacing[16],
+    backgroundColor: Colors.bg.primary,
+    gap: Spacing[12],
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.border.subtle,
   },
-  statsRow: {
+  spotHeaderContent: {
+    flex: 1,
+    gap: Spacing[6],
+  },
+  categoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.bg.secondary,
-    borderRadius: Radius.card,
-    paddingVertical: Spacing[16],
+    gap: Spacing[4],
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.brand.subtle,
+    paddingHorizontal: Spacing[10],
+    paddingVertical: 4,
+    borderRadius: Radius.round,
     borderWidth: 1,
-    borderColor: Colors.border.default,
+    borderColor: Colors.border.brand,
+  },
+  categoryBadgeText: {
+    ...Typography.label.s,
+    color: Colors.brand.primary,
+    fontWeight: '600',
+  },
+  spotName: {
+    ...Typography.display.s,
+    color: Colors.text.primary,
+    fontWeight: '800',
+    lineHeight: 30,
+  },
+  spotMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[6],
+  },
+  spotMetaText: {
+    ...Typography.body.s,
+    color: Colors.text.tertiary,
+  },
+
+  // 지도 썸네일 — 위치 프리뷰
+  mapThumb: {
+    width: 80, height: 80,
+    borderRadius: Radius.card,
+    backgroundColor: Colors.brand.subtle,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[4],
+    flexShrink: 0,
+  },
+  mapThumbLabel: {
+    ...Typography.caption,
+    color: Colors.brand.primary,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+
+  // ── 관계 요약 카드 ────────────────────────────────────────────────
+  statsCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface.default,
+    paddingVertical: Spacing[16],
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.border.subtle,
   },
   statItem: {
     flex: 1,
@@ -573,56 +565,8 @@ const s = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    height: 36,
+    height: 32,
     backgroundColor: Colors.border.default,
-  },
-
-  // ── 저장/발도장 2분할 CTA ─────────────────────────────────────────
-  ctaRow: {
-    flexDirection: 'row',
-    gap: Spacing[10],
-    paddingHorizontal: Spacing[16],
-    paddingVertical: Spacing[12],
-    backgroundColor: Colors.surface.default,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.border.default,
-  },
-  btnSave: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[6],
-    backgroundColor: Colors.surface.default,
-    borderRadius: Radius.round,
-    paddingVertical: Spacing[14],
-    borderWidth: 1.5,
-    borderColor: Colors.border.default,
-  },
-  btnSaveActive: {
-    borderColor: Colors.brand.primary,
-    backgroundColor: Colors.brand.subtle,
-  },
-  btnSaveText: {
-    ...Typography.label.m,
-    color: Colors.text.secondary,
-    fontWeight: '600',
-  },
-  btnSaveTextActive: { color: Colors.brand.primary },
-  btnPawInline: {
-    flex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[6],
-    backgroundColor: Colors.brand.primary,
-    borderRadius: Radius.round,
-    paddingVertical: Spacing[14],
-  },
-  btnPawInlineText: {
-    ...Typography.label.m,
-    color: '#fff',
-    fontWeight: '700',
   },
 
   // ── 공통 섹션 래퍼 ───────────────────────────────────────────────
@@ -905,40 +849,8 @@ const s = StyleSheet.create({
   },
   noTraceText: { ...Typography.body.s, color: Colors.text.tertiary },
 
-  // ── 장소 정보 테이블 ─────────────────────────────────────────────
-  infoTable: {
-    borderRadius: Radius.card,
-    borderWidth: 1,
-    borderColor: Colors.border.default,
-    overflow: 'hidden',
-    backgroundColor: Colors.surface.default,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: Spacing[14],
-    paddingHorizontal: Spacing[16],
-    gap: Spacing[16],
-  },
-  infoSep: {
-    height: 1,
-    backgroundColor: Colors.border.subtle,
-    marginHorizontal: Spacing[16],
-  },
-  infoKey: {
-    ...Typography.label.m,
-    color: Colors.text.tertiary,
-    width: 56,
-    flexShrink: 0,
-  },
-  infoVal: {
-    flex: 1,
-    ...Typography.label.m,
-    color: Colors.text.primary,
-    lineHeight: 20,
-  },
+  // ── 장소 정보 (설명·태그·주소) ───────────────────────────────────
   featureChips: {
-    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing[6],
@@ -953,18 +865,31 @@ const s = StyleSheet.create({
   },
   featureChipText: { ...Typography.label.s, color: Colors.text.secondary },
 
-  // 주소 + 복사 버튼 — 한 줄 인라인
-  infoAddressRow: {
-    flex: 1,
+  descriptionText: {
+    ...Typography.body.m,
+    color: Colors.text.secondary,
+    lineHeight: 22,
+  },
+  descriptionEmpty: {
+    ...Typography.body.s,
+    color: Colors.text.tertiary,
+    fontStyle: 'italic',
+  },
+
+  // 주소 행
+  addressRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: Spacing[10],
+    gap: Spacing[8],
+    paddingTop: Spacing[4],
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: Colors.border.subtle,
   },
-  infoAddressText: {
+  addressText: {
     flex: 1,
-    ...Typography.label.m,
-    color: Colors.text.primary,
-    lineHeight: 20,
+    ...Typography.body.s,
+    color: Colors.text.tertiary,
+    lineHeight: 18,
   },
   copyAddrBtn: {
     flexDirection: 'row',
@@ -997,21 +922,17 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing[8],
+    gap: Spacing[6],
     paddingVertical: Spacing[14],
     borderRadius: Radius.round,
     borderWidth: 1.5,
-    borderColor: Colors.border.default,
+    borderColor: Colors.brand.primary,
     backgroundColor: Colors.surface.default,
   },
   bottomBtnDirectionsText: {
     ...Typography.label.l,
     color: Colors.brand.primary,
     fontWeight: '700',
-  },
-  bottomBtnSaveActive: {
-    backgroundColor: Colors.brand.subtle,
-    borderColor: Colors.brand.primary,
   },
   bottomBtnPaw: {
     flex: 2,

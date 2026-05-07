@@ -175,23 +175,6 @@ export default function ExploreScreen() {
     return result;
   }, [homeCards, spots, activeFilter, searchQuery, isSaved]);
 
-  // ── 카카오 마커 데이터 (컴포넌트 본체에서 메모화 — Hook 규칙) ──
-  const kakaoMarkers = useMemo<KakaoMarker[]>(() => {
-    return filteredCards
-      .map(card => {
-        const spot = spots.find(sp => sp.spot_id === card.spot_id);
-        if (!spot) return null;
-        return {
-          id: card.spot_id,
-          latitude: spot.latitude,
-          longitude: spot.longitude,
-          label: card.name,
-          variant: card.is_regular ? 'regular' : (card.has_visited ? 'visited' : 'default'),
-        } as KakaoMarker;
-      })
-      .filter(Boolean) as KakaoMarker[];
-  }, [filteredCards, spots]);
-
   // ── 페이지 진입 시 선택 상태 초기화 ──
   useEffect(() => {
     setSelectedId(null);
@@ -205,21 +188,24 @@ export default function ExploreScreen() {
     }
   }, [currentLocation]);
 
-  // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 ──
-  // 사용자가 지도를 옮기면 mapCenter가 바뀌고, filteredCards가 mapCenter 기준으로 재정렬된다.
+  // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 + 2km 반경 제한 ──
+  // 반경 2km 초과 장소는 목록과 마커에서 모두 제외 (렌더 성능 + UX)
+  const NEARBY_RADIUS_M = 2000;
+
   const sortedCards = useMemo(() => {
     return filteredCards
       .map(card => {
         const spot = spots.find(s => s.spot_id === card.spot_id);
-        if (!spot) return { card, dist: Number.MAX_SAFE_INTEGER };
+        if (!spot) return null;
         const dist = haversineMeters(mapCenter.lat, mapCenter.lng, spot.latitude, spot.longitude);
+        if (dist > NEARBY_RADIUS_M) return null;   // 2km 초과 제외
         return { card, dist };
       })
+      .filter((x): x is { card: typeof filteredCards[0]; dist: number } => x !== null)
       .sort((a, b) => a.dist - b.dist)
       .map(({ card, dist }) => ({
         ...card,
-        // 카드 표시용 거리 텍스트를 mapCenter 기준으로 갱신
-        distance_text: dist === Number.MAX_SAFE_INTEGER ? card.distance_text : distanceText(dist),
+        distance_text: distanceText(dist),
       }));
   }, [filteredCards, spots, mapCenter]);
 
@@ -251,6 +237,23 @@ export default function ExploreScreen() {
       cardListRef.current.scrollTo({ y: 0, animated: true });
     }
   }, [spots, selectSpot, snapState, snapToHeight]);
+
+  // ── 카카오 마커 데이터 — sortedCards(2km 이내)만 렌더 (성능 및 정확도 보장) ──
+  const kakaoMarkers = useMemo<KakaoMarker[]>(() => {
+    return sortedCards
+      .map(card => {
+        const spot = spots.find(sp => sp.spot_id === card.spot_id);
+        if (!spot) return null;
+        return {
+          id: card.spot_id,
+          latitude: spot.latitude,
+          longitude: spot.longitude,
+          label: card.name,
+          variant: card.is_regular ? 'regular' : (card.has_visited ? 'visited' : 'default'),
+        } as KakaoMarker;
+      })
+      .filter(Boolean) as KakaoMarker[];
+  }, [sortedCards, spots]);
 
   const [isLocating, setIsLocating] = useState(false);
 
@@ -443,7 +446,9 @@ export default function ExploreScreen() {
                 </Text>
                 <View style={s.panelCountBadge}>
                   <Text style={s.panelCount}>
-                    {selectedHeroCard ? `+ 주변 ${restCards.length}곳` : `${sortedCards.length}곳`}
+                    {selectedHeroCard
+                      ? (restCards.length > 0 ? `반경 내 ${restCards.length}곳` : '근처 장소')
+                      : `2km 내 ${sortedCards.length}곳`}
                   </Text>
                 </View>
                 <TouchableOpacity
