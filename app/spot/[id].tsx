@@ -24,6 +24,7 @@ import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens'
 import { useAppStore } from '../../src/store/useAppStore';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
+import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
 import type { FamiliarDogCardViewModel } from '../../src/types';
 
 
@@ -175,12 +176,21 @@ export default function SpotDetailScreen() {
             </View>
           </View>
 
-          {/* 지도 썸네일 — 위치 맥락 프리뷰 (이미지 대체 식별 장치) */}
-          <View style={s.mapThumb}>
-            <Icon name="map" size={22} color={Colors.brand.primary} />
-            <Text style={s.mapThumbLabel} numberOfLines={1}>
-              {vm.neighborhood || vm.region_summary || '지도'}
-            </Text>
+          {/* 지도 썸네일 — 실제 위치 미니맵 (이미지 대체 식별 장치) */}
+          <View style={s.mapThumb} pointerEvents="none">
+            <KakaoMap
+              initialLatitude={vm.latitude}
+              initialLongitude={vm.longitude}
+              initialLevel={4}
+              markers={[{
+                id: vm.spot_id,
+                latitude: vm.latitude,
+                longitude: vm.longitude,
+                label: vm.name,
+                variant: 'default',
+              }] as KakaoMarker[]}
+              style={{ flex: 1, borderRadius: Radius.card }}
+            />
           </View>
         </View>
 
@@ -519,23 +529,15 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
   },
 
-  // 지도 썸네일 — 위치 프리뷰
+  // 지도 썸네일 — 실제 미니맵 (KakaoMap 임베드)
   mapThumb: {
-    width: 80, height: 80,
+    width: 110, height: 110,
     borderRadius: Radius.card,
-    backgroundColor: Colors.brand.subtle,
+    backgroundColor: Colors.bg.tertiary,
     borderWidth: 1,
-    borderColor: Colors.border.brand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[4],
+    borderColor: Colors.border.default,
+    overflow: 'hidden',
     flexShrink: 0,
-  },
-  mapThumbLabel: {
-    ...Typography.caption,
-    color: Colors.brand.primary,
-    fontWeight: '600',
-    textAlign: 'center',
   },
 
   // ── 관계 요약 카드 ────────────────────────────────────────────────

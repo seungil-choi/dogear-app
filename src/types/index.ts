@@ -197,6 +197,8 @@ export interface SpotDetailViewModel {
   name: string;
   category_label: string;
   distance_text: string;
+  latitude: number;        // 미니맵 썸네일용 좌표
+  longitude: number;
   neighborhood?: string;   // 동/구 수준 위치 (예: '마포구', '망원')
   region_summary?: string; // 시/도·구 수준 요약 (예: '서울 마포구')
   cover_image_url?: string;

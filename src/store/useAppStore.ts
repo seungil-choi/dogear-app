@@ -575,6 +575,8 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       name: spot.name,
       category_label: categoryLabel[spot.category],
       distance_text: distanceText,
+      latitude: spot.latitude,
+      longitude: spot.longitude,
       neighborhood: spot.neighborhood,
       region_summary: regionSummary || undefined,
       cover_image_url: spot.cover_image_url,
