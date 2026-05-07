@@ -12,8 +12,9 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import {
   View, Text, StyleSheet, SafeAreaView,
   TouchableOpacity, ScrollView, TextInput, Dimensions,
-  Animated, PanResponder,
+  Animated, PanResponder, Alert, Linking, Platform,
 } from 'react-native';
+import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
@@ -64,7 +65,8 @@ export default function ExploreScreen() {
   const spots           = useAppStore(s => s.spots);
   const isSaved         = useAppStore(s => s.isSaved);
   const selectSpot      = useAppStore(s => s.selectSpot);
-  const currentLocation = useAppStore(s => s.currentLocation);
+  const currentLocation     = useAppStore(s => s.currentLocation);
+  const setCurrentLocation  = useAppStore(s => s.setCurrentLocation);
 
   const insets = useSafeAreaInsets();
 
@@ -226,40 +228,125 @@ export default function ExploreScreen() {
     }
   }, [spots, selectSpot]);
 
-  const handleMyLocation = useCallback(() => {
-    const next = !isTracking;
-    setIsTracking(next);
-    if (next && currentLocation) {
-      mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
-    } else if (next) {
-      mapRef.current?.setCenter(INITIAL_CENTER.latitude, INITIAL_CENTER.longitude, INITIAL_CENTER.level);
+  const [isLocating, setIsLocating] = useState(false);
+
+  /**
+   * 핀(현재 위치) 버튼 핸들러
+   *
+   * 1. 추적 중이면 → 추적 해제 (토글)
+   * 2. 캐시된 위치가 있으면 → 즉시 그 위치로 이동 + 백그라운드로 fresh fetch
+   * 3. 없으면 → 권한 요청 + 위치 fetch 후 이동
+   *    - 권한 거부 시 안내 알림
+   */
+  const handleMyLocation = useCallback(async () => {
+    // 추적 해제
+    if (isTracking) {
+      setIsTracking(false);
+      return;
     }
-  }, [isTracking, currentLocation]);
+
+    setIsLocating(true);
+    try {
+      const existing = await Location.getForegroundPermissionsAsync();
+      let status = existing.status;
+      if (status !== 'granted') {
+        const req = await Location.requestForegroundPermissionsAsync();
+        status = req.status;
+      }
+      if (status !== 'granted') {
+        Alert.alert(
+          '위치 권한이 필요해요',
+          '내 위치를 보려면 설정에서 위치 권한을 허용해 주세요.',
+          [
+            { text: '닫기', style: 'cancel' },
+            { text: '설정 열기', onPress: () => Linking.openSettings() },
+          ],
+        );
+        return;
+      }
+
+      const result = await Location.getCurrentPositionAsync({
+        accuracy: Platform.OS === 'web'
+          ? Location.Accuracy.Balanced
+          : Location.Accuracy.High,
+      });
+      const fresh = {
+        latitude: result.coords.latitude,
+        longitude: result.coords.longitude,
+        accuracy: result.coords.accuracy ?? undefined,
+      };
+      setCurrentLocation(fresh);
+      setIsTracking(true);
+      mapRef.current?.setCenter(fresh.latitude, fresh.longitude, 4);
+    } catch (e) {
+      // fallback: 캐시된 위치라도 사용
+      if (currentLocation) {
+        setIsTracking(true);
+        mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
+      } else {
+        Alert.alert('위치를 가져올 수 없어요', '잠시 후 다시 시도해 주세요.');
+      }
+    } finally {
+      setIsLocating(false);
+    }
+  }, [isTracking, currentLocation, setCurrentLocation]);
 
   return (
     <SafeAreaView style={s.safe}>
 
       {/* ── 상단 헤더 ── */}
       <View style={s.topBar}>
-        {/* 검색바 — 항상 노출 */}
-        <View style={s.searchRow}>
-          <Text style={s.searchLeadIcon}>🔍</Text>
-          <TextInput
-            style={s.searchInput}
-            placeholder="장소명으로 검색"
-            placeholderTextColor={Colors.text.tertiary}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')} accessibilityLabel="검색어 지우기">
-              <Text style={s.searchCloseIcon}>✕</Text>
+        {/* 검색바 + 지도/목록 토글 — 한 줄 */}
+        <View style={s.searchToggleRow}>
+          <View style={s.searchRow}>
+            <Icon name="search" size={16} color={Colors.text.tertiary} />
+            <TextInput
+              style={s.searchInput}
+              placeholder="장소명으로 검색"
+              placeholderTextColor={Colors.text.tertiary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              returnKeyType="search"
+            />
+            {searchQuery.length > 0 && (
+              <TouchableOpacity
+                onPress={() => setSearchQuery('')}
+                accessibilityLabel="검색어 지우기"
+                hitSlop={8}
+              >
+                <Icon name="close" size={16} color={Colors.text.tertiary} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* 지도/목록 토글 — 검색바 옆, 라인 아이콘 */}
+          <View style={s.viewToggle}>
+            <TouchableOpacity
+              style={[s.toggleBtn, viewMode === 'map' && s.toggleBtnActive]}
+              onPress={() => setViewMode('map')}
+              accessibilityLabel="지도 뷰"
+            >
+              <Icon
+                name="map"
+                size={18}
+                color={viewMode === 'map' ? Colors.brand.onPrimary : Colors.text.secondary}
+              />
             </TouchableOpacity>
-          )}
+            <TouchableOpacity
+              style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
+              onPress={() => setViewMode('list')}
+              accessibilityLabel="목록 뷰"
+            >
+              <Icon
+                name="list"
+                size={18}
+                color={viewMode === 'list' ? Colors.brand.onPrimary : Colors.text.secondary}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* 필터 + 뷰 토글 — 한 줄에 함께 */}
+        {/* 필터 칩 — 한 줄 */}
         <View style={s.filterToggleRow}>
           <ScrollView
             horizontal showsHorizontalScrollIndicator={false}
@@ -282,24 +369,6 @@ export default function ExploreScreen() {
             );
           })}
           </ScrollView>
-
-          {/* 지도/목록 토글 — 필터 옆 */}
-          <View style={s.viewToggle}>
-            <TouchableOpacity
-              style={[s.toggleBtn, viewMode === 'map' && s.toggleBtnActive]}
-              onPress={() => setViewMode('map')}
-              accessibilityLabel="지도 뷰"
-            >
-              <Text style={[s.toggleBtnText, viewMode === 'map' && s.toggleBtnTextActive]}>지도</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
-              onPress={() => setViewMode('list')}
-              accessibilityLabel="목록 뷰"
-            >
-              <Text style={[s.toggleBtnText, viewMode === 'list' && s.toggleBtnTextActive]}>목록</Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </View>
 
@@ -328,8 +397,13 @@ export default function ExploreScreen() {
               onPress={handleMyLocation}
               activeOpacity={0.8}
               accessibilityLabel="현재 위치"
+              disabled={isLocating}
             >
-              <Text style={[s.myLocIcon, isTracking && s.myLocIconActive]}>📍</Text>
+              <Icon
+                name={isTracking ? 'location-filled' : 'location'}
+                size={20}
+                color={isTracking ? Colors.brand.onPrimary : Colors.text.primary}
+              />
             </TouchableOpacity>
           </Animated.View>
 
@@ -346,8 +420,13 @@ export default function ExploreScreen() {
                 <TouchableOpacity
                   style={s.panelExpandBtn}
                   onPress={() => snapToHeight(snapState === 'full' ? 'peek' : 'full')}
+                  accessibilityLabel={snapState === 'full' ? '패널 접기' : '패널 펼치기'}
                 >
-                  <Text style={s.panelExpandIcon}>{snapState === 'full' ? '⌄' : '⌃'}</Text>
+                  <Icon
+                    name={snapState === 'full' ? 'down' : 'up'}
+                    size={18}
+                    color={Colors.text.tertiary}
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -439,10 +518,19 @@ const s = StyleSheet.create({
     borderBottomColor: Colors.border.subtle,
     paddingBottom: Spacing[8],
   },
+  // 검색바 + 지도/목록 토글 한 줄
+  searchToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[8],
+    paddingHorizontal: Spacing[12],
+    paddingTop: Spacing[12],
+    paddingBottom: Spacing[8],
+  },
+
   filterToggleRow: {
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: Spacing[16], paddingBottom: Spacing[8],
-    gap: Spacing[8],
+    paddingBottom: Spacing[8],
   },
   filterScroll: { flex: 1 },
 
@@ -452,29 +540,23 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.secondary,
     overflow: 'hidden',
     borderWidth: 1, borderColor: Colors.border.default,
+    flexShrink: 0,
   },
-  toggleBtn:       { paddingHorizontal: Spacing[12], paddingVertical: Spacing[6] },
+  toggleBtn: {
+    width: 36, height: 36,
+    alignItems: 'center', justifyContent: 'center',
+  },
   toggleBtnActive: { backgroundColor: Colors.brand.primary },
-  toggleBtnText: {
-    ...Typography.label.s,
-    color: Colors.text.secondary,
-    fontWeight: '600',
-  },
-  toggleBtnTextActive: {
-    color: Colors.brand.onPrimary,
-  },
 
   searchRow: {
+    flex: 1,
     flexDirection: 'row', alignItems: 'center',
-    margin: Spacing[12],
     paddingHorizontal: Spacing[14], paddingVertical: Spacing[10],
     backgroundColor: Colors.surface.default,
     borderRadius: Radius.round,
     gap: Spacing[8],
     borderWidth: 1.5, borderColor: Colors.brand.primary,
   },
-  searchLeadIcon: { fontSize: 14 },
-  searchCloseIcon: { fontSize: 14, color: Colors.text.tertiary, paddingHorizontal: 4 },
   searchInput: { flex: 1, ...Typography.body.m, color: Colors.text.primary, padding: 0 },
 
   filterList:       { paddingHorizontal: Spacing[16], gap: Spacing[8], paddingBottom: 2 },
@@ -529,7 +611,6 @@ const s = StyleSheet.create({
     marginLeft: 'auto',
     width: 28, height: 28, alignItems: 'center', justifyContent: 'center',
   },
-  panelExpandIcon: { fontSize: 18, color: Colors.text.tertiary, lineHeight: 18 },
 
   // 내 위치 버튼 — 패널 위쪽으로 떠 있음
   myLocFloating: {
@@ -537,9 +618,6 @@ const s = StyleSheet.create({
     marginBottom: Spacing[12],
     zIndex: 11,
   },
-  myLocIcon: { fontSize: 18 },
-  myLocIconActive: { },
-
   myLocBtn: {
     position: 'absolute', top: 12, right: Spacing[16],
     width: 44, height: 44, borderRadius: 22,

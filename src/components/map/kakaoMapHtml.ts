@@ -114,8 +114,12 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         });
       }
 
+      // 라인 스타일 마커 아이콘 SVG (이모지 대체)
+      var PAW_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="16" rx="5" ry="4"/><circle cx="6" cy="9" r="1.7"/><circle cx="9.5" cy="5.5" r="1.7"/><circle cx="14.5" cy="5.5" r="1.7"/><circle cx="18" cy="9" r="1.7"/></svg>';
+      var STAR_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18.5 5.5 22 7 14.5 2 9.5 9 9 12 2"/></svg>';
+
       function pinHtml(id, label, variant, selected) {
-        var icon = variant === 'regular' ? '★' : '🐾';
+        var icon = variant === 'regular' ? STAR_SVG : PAW_SVG;
         var cls = 'pin-dot pin-' + (variant || 'default') + (selected ? ' pin-selected' : '');
         return '<div class="pin" data-marker-id="' + escapeHtml(id) + '">' +
                  '<div class="' + cls + '">' + icon + '</div>' +

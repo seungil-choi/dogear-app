@@ -44,14 +44,18 @@ function escapeHtml(s: string): string {
   })[c] as string);
 }
 
+// 라인 스타일 마커 아이콘 SVG (이모지 대체)
+const PAW_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="16" rx="5" ry="4"/><circle cx="6" cy="9" r="1.7"/><circle cx="9.5" cy="5.5" r="1.7"/><circle cx="14.5" cy="5.5" r="1.7"/><circle cx="18" cy="9" r="1.7"/></svg>`;
+const STAR_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18.5 5.5 22 7 14.5 2 9.5 9 9 12 2"/></svg>`;
+
 function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], selected: boolean): string {
-  const icon = variant === 'regular' ? '★' : '🐾';
+  const icon = variant === 'regular' ? STAR_SVG : PAW_SVG;
   const sizeStyle = selected
     ? 'width:36px;height:36px;box-shadow:0 4px 10px rgba(196,120,72,0.4);transform:scale(1.15);'
     : 'width:28px;height:28px;box-shadow:0 2px 6px rgba(0,0,0,0.25);';
   return `
     <div data-marker-id="${escapeHtml(id)}" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;transform:translateY(-100%);pointer-events:auto;">
-      <div style="${sizeStyle}border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;border:2px solid #fff;background:${VARIANT_BG[variant]}">${icon}</div>
+      <div style="${sizeStyle}border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;border:2px solid #fff;background:${VARIANT_BG[variant]}">${icon}</div>
       <div style="margin-top:4px;max-width:110px;padding:3px 8px;background:rgba(255,255,255,0.95);border-radius:12px;color:#1A1612;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 3px rgba(0,0,0,0.1)">${escapeHtml(label)}</div>
     </div>
   `;

@@ -15,6 +15,7 @@ import {
   View,
 } from 'react-native';
 import { Colors, Typography, Spacing, Radius } from '@/constants/tokens';
+import { Icon } from '@/components/common/Icon';
 
 interface LocationPermissionGateProps {
   onRequestPermission: () => void;
@@ -32,7 +33,9 @@ export function LocationPermissionGate({ onRequestPermission }: LocationPermissi
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.emoji}>📍</Text>
+        <View style={styles.iconWrap}>
+          <Icon name="location" size={44} color={Colors.brand.primary} />
+        </View>
         <Text style={styles.title}>위치 권한이 필요해요</Text>
         <Text style={styles.description}>
           근처 반려견 산책 스팟을 보려면{'\n'}
@@ -81,8 +84,13 @@ const styles = StyleSheet.create({
     maxWidth: 360,
     gap: Spacing[12],
   },
-  emoji: {
-    fontSize: 48,
+  iconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacing[4],
   },
   title: {

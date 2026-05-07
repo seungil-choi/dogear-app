@@ -49,6 +49,9 @@ const ICON_MAP: Record<string, IconDef> = {
   filter:         { source: 'ion', name: 'options-outline' },
   share:          { source: 'ion', name: 'share-outline' },
   more:           { source: 'ion', name: 'ellipsis-horizontal' },
+  copy:           { source: 'ion', name: 'copy-outline' },
+  chat:           { source: 'ion', name: 'chatbubble-outline' },
+  'chat-filled':  { source: 'ion', name: 'chatbubble' },
 
   // ─ UI 요소 ─
   bell:           { source: 'ion', name: 'notifications-outline' },

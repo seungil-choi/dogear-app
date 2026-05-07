@@ -250,7 +250,7 @@ export default function HomeScreen() {
     return (
       <SafeAreaView style={s.safe}>
         <View style={s.noDogWrap}>
-          <Text style={s.noDogEmoji}>🐾</Text>
+          <Icon name="paw" size={56} color={Colors.brand.primary} />
           <Text style={s.noDogTitle}>반려견을 등록해주세요</Text>
           <Text style={s.noDogDesc}>산책 스팟 추천과 발도장 기록을{'\n'}시작하려면 강아지 프로필이 필요해요.</Text>
           <TouchableOpacity style={s.noDogBtn} onPress={() => router.push('/(auth)/dog-setup' as any)}>
@@ -502,7 +502,6 @@ const s = StyleSheet.create({
     flex: 1, alignItems: 'center', justifyContent: 'center',
     padding: Spacing[32], gap: Spacing[16],
   },
-  noDogEmoji: { fontSize: 64 },
   noDogTitle: { ...Typography.display.s, color: Colors.text.primary, textAlign: 'center' },
   noDogDesc:  { ...Typography.body.m, color: Colors.text.secondary, textAlign: 'center', lineHeight: 24 },
   noDogBtn: {

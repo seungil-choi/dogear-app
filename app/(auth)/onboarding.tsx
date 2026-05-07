@@ -6,31 +6,44 @@ import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { Button } from '../../src/components/common/Button';
-const SLIDES = [
+import { Icon, type IconName } from '../../src/components/common/Icon';
+
+const SLIDES: {
+  key: string;
+  icon: IconName;
+  iconColor: string;
+  bg: string;
+  title: string;
+  desc: string;
+}[] = [
   {
     key: 'discover',
-    emoji: '🗺️',
+    icon: 'map-filled',
+    iconColor: '#3B82F6',
     bg: '#EBF4FF',
     title: '우리 동네 산책 지도',
     desc: '강아지 친화적인 장소를\n지도에서 한눈에 찾아봐요.',
   },
   {
     key: 'paw',
-    emoji: '🐾',
+    icon: 'paw-filled',
+    iconColor: Colors.brand.primary,
     bg: Colors.brand.subtle,
     title: '발도장으로 기억 쌓기',
     desc: '산책한 장소마다 발도장을 남기면\n우리 아이만의 산책 기록이 쌓여요.',
   },
   {
     key: 'familiar',
-    emoji: '🐶',
+    icon: 'dog',
+    iconColor: '#E76F35',
     bg: '#FDF0EB',
     title: '산책 친구 찾기',
     desc: '같은 장소를 자주 찾는 강아지를 자연스럽게 발견하고\n편안하고 안전한 인연을 이어가요.',
   },
   {
     key: 'privacy',
-    emoji: '🔒',
+    icon: 'lock',
+    iconColor: '#3B5BA9',
     bg: '#EEF3FA',
     title: '내 정보는 내가 조절해요',
     desc: '공개 범위를 내가 직접 정할 수 있어요.\n안전 조건을 충족한 강아지에게만\n우리 아이가 보여져요.',
@@ -74,7 +87,7 @@ export default function OnboardingScreen() {
       <View style={s.slideArea}>
         {/* 아이콘 원 */}
         <View style={[s.iconCircle, { backgroundColor: slide.bg }]}>
-          <Text style={s.emoji}>{slide.emoji}</Text>
+          <Icon name={slide.icon} size={84} color={slide.iconColor} />
         </View>
 
         {/* 텍스트 */}

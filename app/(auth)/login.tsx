@@ -248,9 +248,9 @@ export default function LoginScreen() {
           {/* 배경 원 */}
           <View style={s.bgCircle} />
 
-          {/* 메인 아이콘 — dog은 MCI 폰트 의존, 웹 fallback으로 paw 이중 보장 */}
+          {/* 메인 아이콘 — 라인 스타일 강아지 */}
           <View style={s.mainIconWrap}>
-            <Text style={s.dogEmoji}>🐶</Text>
+            <Icon name="dog" size={88} color={Colors.brand.primary} />
           </View>
 
           {/* 플로팅 배지들 */}
@@ -310,7 +310,7 @@ export default function LoginScreen() {
             textColor="#191919"
             label="카카오로 계속하기"
             icon={
-              <Text style={{ fontSize: 18, color: '#191919', lineHeight: 22 }}>💬</Text>
+              <Icon name="chat-filled" size={18} color="#191919" />
             }
           />
 

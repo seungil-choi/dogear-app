@@ -226,9 +226,16 @@ export default function SpotDetailScreen() {
                 <View style={s.infoRow}>
                   <Text style={s.infoKey}>주소</Text>
                   <View style={s.infoAddressRow}>
-                    <Text style={[s.infoVal, { flex: 1 }]}>{vm.address_text}</Text>
-                    <TouchableOpacity onPress={() => handleCopyAddress(vm.address_text!)} activeOpacity={0.75}>
-                      <Text style={s.mapTextLink}>복사</Text>
+                    <Text style={s.infoAddressText}>{vm.address_text}</Text>
+                    <TouchableOpacity
+                      style={s.copyAddrBtn}
+                      onPress={() => handleCopyAddress(vm.address_text!)}
+                      activeOpacity={0.75}
+                      accessibilityLabel="주소 복사"
+                      hitSlop={6}
+                    >
+                      <Icon name="copy" size={14} color={Colors.brand.primary} />
+                      <Text style={s.copyAddrLabel}>복사</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -946,12 +953,30 @@ const s = StyleSheet.create({
   },
   featureChipText: { ...Typography.label.s, color: Colors.text.secondary },
 
-  // 주소 + 지도 링크 행
+  // 주소 + 복사 버튼 — 한 줄 인라인
   infoAddressRow: {
     flex: 1,
-    gap: Spacing[4],
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing[10],
   },
-  mapTextLink: {
+  infoAddressText: {
+    flex: 1,
+    ...Typography.label.m,
+    color: Colors.text.primary,
+    lineHeight: 20,
+  },
+  copyAddrBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: Spacing[8],
+    paddingVertical: 4,
+    borderRadius: Radius.s,
+    backgroundColor: Colors.brand.subtle,
+    flexShrink: 0,
+  },
+  copyAddrLabel: {
     ...Typography.label.s,
     color: Colors.brand.primary,
     fontWeight: '600',
