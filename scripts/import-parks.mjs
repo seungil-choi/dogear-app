@@ -37,6 +37,8 @@ const SUBCAT = {
   neighborhood_park: 'park',
   small_park:        'park',
   park_other:        'park',
+  children_park:     'park',
+  nature_park:       'park',
 };
 
 function pick(p, keys) {
@@ -46,14 +48,22 @@ function pick(p, keys) {
 
 function describe(p, cat) {
   const n = p.region_sigungu || '';
-  if (cat === 'riverside') return `${n} 한강변 공원`;
-  if (cat === 'trail')     return `${n} 산책로형 공원`;
-  return `${n} 소재 공식 등록 공원`;
+  const sido = p.region_sido || '';
+  const prefix = sido === '경기도' ? n : n;
+  if (cat === 'riverside') return `${prefix} 수변 공원`;
+  if (cat === 'trail')     return `${prefix} 산책로형 공원`;
+  const subcat = p.subcategory || '';
+  if (subcat === 'nature_park') return `${prefix} 도시자연공원`;
+  if (subcat === 'small_park')  return `${prefix} 어린이공원`;
+  return `${prefix} 소재 공식 등록 공원`;
 }
 
 function features(p, cat) {
   const f = [];
-  if (cat === 'riverside') f.push('한강 인근');
+  const subcat = p.subcategory || '';
+  if (cat === 'riverside') f.push('수변 인근');
+  if (subcat === 'nature_park') f.push('자연 트레일');
+  if (subcat === 'small_park')  f.push('어린이 친화');
   if (p.subcategory && p.subcategory.includes('trail')) f.push('산책로 연결');
   const area = p.raw_metadata?.area_m2;
   if (area) {
@@ -72,14 +82,17 @@ function main() {
   }
 
   const parks = JSON.parse(fs.readFileSync(SRC, 'utf-8'));
-  // 1차 범위: 서울 (이후 region 옵션 추가 가능)
-  const seoul = parks.filter(p => p.region_sido === '서울특별시');
-  console.log(`📥 ${parks.length}개 → 서울 ${seoul.length}개 변환`);
+  // 서울특별시 + 경기도 포함
+  const TARGET_SIDOS = ['서울특별시', '경기도'];
+  const filtered = parks.filter(p => TARGET_SIDOS.includes(p.region_sido));
+  const seoulCnt = filtered.filter(p => p.region_sido === '서울특별시').length;
+  const gyeonggiCnt = filtered.filter(p => p.region_sido === '경기도').length;
+  console.log(`📥 ${parks.length}개 → 서울 ${seoulCnt}개 + 경기 ${gyeonggiCnt}개 = 총 ${filtered.length}개 변환`);
 
-  const NOW = '2026-05-01T00:00:00+09:00';
+  const NOW = '2026-05-07T00:00:00+09:00';
   const stringify = (s) => JSON.stringify(s ?? '');
 
-  const items = seoul.map(p => {
+  const items = filtered.map(p => {
     const cat = SUBCAT[p.subcategory] ?? 'park';
     const addr = pick(p, ['address_road', 'address_lot']);
     const id = String(p.external_id || p.place_name).toLowerCase().replace(/-/g, '_');
@@ -110,7 +123,7 @@ function main() {
     `export const seedParkSpots: Spot[] = [\n${items.join(',\n')}\n];\n`;
 
   fs.writeFileSync(TARGET, out);
-  console.log(`✅ ${TARGET} 작성 완료 (${seoul.length} parks)`);
+  console.log(`✅ ${TARGET} 작성 완료 (${filtered.length} parks)`);
 }
 
 main();
