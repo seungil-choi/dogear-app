@@ -42,42 +42,27 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
   <style>
     html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#F5F3EF; }
     #map { width:100%; height:100%; }
-    .pin {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transform: translateY(-100%);
-    }
-    .pin-dot {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 13px;
-      border: 2px solid #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-    }
-    .pin-default { background: #9C9B97; }
-    .pin-visited { background: #7BA08B; }
-    .pin-regular { background: #C47848; }
-    .pin-selected {
-      width: 36px; height: 36px;
-      transform: scale(1.15);
-      box-shadow: 0 4px 10px rgba(196,120,72,0.4);
-    }
+    /* tail-pin SVG: 꼬리 끝이 좌표(yAnchor:1) */
+    .pin { position: relative; cursor: pointer; pointer-events: auto; }
+    .pin-svg { display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.28)); }
+    .pin-svg-selected { filter: drop-shadow(0 4px 8px rgba(196,120,72,0.45)); }
     .pin-label {
-      margin-top: 4px;
-      max-width: 110px;
+      position: absolute;
+      top: 100%; left: 50%;
+      transform: translate(-50%, 3px);
+      max-width: 140px;
       padding: 3px 8px;
-      background: rgba(255,255,255,0.95);
-      border-radius: 12px;
+      background: rgba(255,255,255,0.96);
+      border-radius: 10px;
       color: #1A1612;
       font-size: 11px;
+      line-height: 14px;
       font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      white-space: normal;
+      text-align: center;
+      word-break: keep-all;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+      pointer-events: none;
     }
     .user-loc {
       width: 18px; height: 18px;
@@ -114,15 +99,22 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         });
       }
 
-      // 라인 스타일 마커 아이콘 SVG (이모지 대체)
-      var PAW_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="16" rx="5" ry="4"/><circle cx="6" cy="9" r="1.7"/><circle cx="9.5" cy="5.5" r="1.7"/><circle cx="14.5" cy="5.5" r="1.7"/><circle cx="18" cy="9" r="1.7"/></svg>';
-      var STAR_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9.5 17 14.5 18.5 22 12 18.5 5.5 22 7 14.5 2 9.5 9 9 12 2"/></svg>';
+      var VARIANT_BG = { default: '#9C9B97', visited: '#7BA08B', regular: '#C47848' };
+      var PAW_PATH = '<path d="M12 2 C 9.5 2 7.8 4 7.8 6.5 C 7.8 9 9.5 11 12 11 C 14.5 11 16.2 9 16.2 6.5 C 16.2 4 14.5 2 12 2 Z M 5 7 C 3.3 7 2 8.5 2 10.3 C 2 12.1 3.3 13.5 5 13.5 C 6.7 13.5 8 12.1 8 10.3 C 8 8.5 6.7 7 5 7 Z M 19 7 C 17.3 7 16 8.5 16 10.3 C 16 12.1 17.3 13.5 19 13.5 C 20.7 13.5 22 12.1 22 10.3 C 22 8.5 20.7 7 19 7 Z" fill="#fff"/>';
+      var STAR_PATH = '<polygon points="12 5 14.5 11 21 11.3 16 15.5 17.5 22 12 18.5 6.5 22 8 15.5 3 11.3 9.5 11 12 5" fill="#fff"/>';
 
       function pinHtml(id, label, variant, selected) {
-        var icon = variant === 'regular' ? STAR_SVG : PAW_SVG;
-        var cls = 'pin-dot pin-' + (variant || 'default') + (selected ? ' pin-selected' : '');
-        return '<div class="pin" data-marker-id="' + escapeHtml(id) + '">' +
-                 '<div class="' + cls + '">' + icon + '</div>' +
+        var iconPath = variant === 'regular' ? STAR_PATH : PAW_PATH;
+        var w = selected ? 36 : 28;
+        var h = selected ? 46 : 36;
+        var fill = VARIANT_BG[variant || 'default'];
+        var cls = 'pin-svg' + (selected ? ' pin-svg-selected' : '');
+        var pinSvg = '<svg class="' + cls + '" width="' + w + '" height="' + h + '" viewBox="0 0 32 40">' +
+          '<path d="M16 0 C 7.2 0 0 7.2 0 16 C 0 23 8 31 16 40 C 24 31 32 23 32 16 C 32 7.2 24.8 0 16 0 Z" fill="' + fill + '" stroke="#fff" stroke-width="2.5"/>' +
+          '<g transform="translate(4,4)' + (selected ? '' : ' scale(0.85)') + '">' + iconPath + '</g>' +
+        '</svg>';
+        return '<div class="pin" data-marker-id="' + escapeHtml(id) + '" style="width:' + w + 'px;">' +
+                 pinSvg +
                  '<div class="pin-label">' + escapeHtml(label || '') + '</div>' +
                '</div>';
       }

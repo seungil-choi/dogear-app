@@ -309,47 +309,27 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            3) 앱 — 알림 / 앱 설정
+            3) 알림 (도그이어 핵심 — 발도장/관계 알림)
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
-            <Icon name="settings" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>앱</Text>
+            <Icon name="bell" size={15} color={Colors.text.secondary} />
+            <Text style={s.sectionTitle}>알림</Text>
           </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="bell"     label="알림"     onPress={() => router.push('/notifications')} />
-            <SettingsRow icon="settings" label="앱 설정"  onPress={() => router.push('/settings' as any)} />
+            <SettingsRow icon="bell" label="발도장 · 관계 알림" onPress={() => router.push('/notifications')} />
           </View>
         </View>
 
         {/* ══════════════════════════════════════
-            4) 정책 / 안전
+            4) 설정 진입 (시스템/약관/계정 통합 — Instagram/Threads 패턴)
         ══════════════════════════════════════ */}
         <View style={s.section}>
-          <View style={s.sectionTitleRow}>
-            <Icon name="shield" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>정책 · 안전</Text>
-          </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="document" label="서비스 이용약관"   onPress={() => router.push('/(legal)/terms' as any)} />
-            <SettingsRow icon="shield"   label="개인정보 처리방침"  onPress={() => router.push('/(legal)/privacy-policy' as any)} />
-            <SettingsRow icon="person"   label="차단한 사용자"       onPress={() => router.push('/blocked-users' as any)} />
-          </View>
-        </View>
-
-        {/* ══════════════════════════════════════
-            5) 계정 — 로그아웃만 노출, 회원 탈퇴는 앱 설정 → 계정 관리에서
-        ══════════════════════════════════════ */}
-        <View style={s.section}>
-          <View style={s.sectionTitleRow}>
-            <Icon name="person" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>계정</Text>
-          </View>
-          <View style={s.settingsCard}>
-            <SettingsRow icon="logout" label="로그아웃" onPress={logout} danger />
+            <SettingsRow icon="settings" label="설정"  onPress={() => router.push('/settings' as any)} />
           </View>
           <Text style={s.sectionFootnote}>
-            회원 탈퇴는 [앱 설정 → 계정 관리]에서 진행할 수 있어요.
+            약관 · 차단 · 로그아웃 · 계정 관리는 설정에서 한 번에 관리할 수 있어요.
           </Text>
         </View>
 

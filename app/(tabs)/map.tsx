@@ -40,7 +40,8 @@ function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number)
 const INITIAL_CENTER = { latitude: 37.5563, longitude: 126.9237, level: 4 };
 
 // ─── 필터 ────────────────────────────────────────────────────
-type FilterKey = 'all' | 'saved' | 'visited' | 'short_walk' | 'long_walk' | 'rest';
+// 'rest' 필터 — 모호하여 Phase 1에서는 비노출 (코드는 유지하되 FILTERS 목록에서 제외)
+type FilterKey = 'all' | 'saved' | 'visited' | 'short_walk' | 'long_walk';
 
 const FILTERS: { key: FilterKey; label: string; icon: string }[] = [
   { key: 'all',        label: '가까운 곳',   icon: 'map'      },
@@ -48,13 +49,17 @@ const FILTERS: { key: FilterKey; label: string; icon: string }[] = [
   { key: 'visited',    label: '발도장 남긴', icon: 'paw'      },
   { key: 'short_walk', label: '짧게 걷기',   icon: 'trail'    },
   { key: 'long_walk',  label: '오래 걷기',   icon: 'park'     },
-  { key: 'rest',       label: '쉬기 좋은',   icon: 'rest'     },
 ];
 
 const FILTER_CATEGORIES: Partial<Record<FilterKey, SpotCategory[]>> = {
-  short_walk: ['trail', 'riverside'],
+  short_walk: ['trail', 'riverside', 'park'],
   long_walk:  ['park', 'trail'],
-  rest:       ['rest_spot', 'park'],
+};
+
+// 필터별 거리 반경 (m) — 짧게 걷기는 500m, 그 외는 기본 2km
+const FILTER_RADIUS: Partial<Record<FilterKey, number>> = {
+  short_walk: 500,
+  long_walk:  2000,
 };
 
 type ViewMode = 'map' | 'list';
@@ -156,8 +161,7 @@ export default function ExploreScreen() {
         result = result.filter(c => c.has_visited);
         break;
       case 'short_walk':
-      case 'long_walk':
-      case 'rest': {
+      case 'long_walk': {
         const cats = FILTER_CATEGORIES[activeFilter] ?? [];
         result = result.filter(c => {
           const sp = spots.find(s => s.spot_id === c.spot_id);
@@ -188,9 +192,12 @@ export default function ExploreScreen() {
     }
   }, [currentLocation]);
 
-  // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 + 2km 반경 제한 ──
-  // 반경 2km 초과 장소는 목록과 마커에서 모두 제외 (렌더 성능 + UX)
-  const NEARBY_RADIUS_M = 2000;
+  // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 + 반경 제한 ──
+  // 검색 중일 때는 반경 제한 우회 (이름으로 찾는 장소는 거리 무관 노출)
+  const isSearching = searchQuery.trim().length > 0;
+  const activeRadiusM = isSearching
+    ? Number.MAX_SAFE_INTEGER  // 검색 시: 반경 제한 없음
+    : (FILTER_RADIUS[activeFilter] ?? 2000);
 
   const sortedCards = useMemo(() => {
     return filteredCards
@@ -198,7 +205,7 @@ export default function ExploreScreen() {
         const spot = spots.find(s => s.spot_id === card.spot_id);
         if (!spot) return null;
         const dist = haversineMeters(mapCenter.lat, mapCenter.lng, spot.latitude, spot.longitude);
-        if (dist > NEARBY_RADIUS_M) return null;   // 2km 초과 제외
+        if (dist > activeRadiusM) return null;   // 반경 초과 제외
         return { card, dist };
       })
       .filter((x): x is { card: typeof filteredCards[0]; dist: number } => x !== null)
@@ -207,7 +214,7 @@ export default function ExploreScreen() {
         ...card,
         distance_text: distanceText(dist),
       }));
-  }, [filteredCards, spots, mapCenter]);
+  }, [filteredCards, spots, mapCenter, activeRadiusM]);
 
   // 선택된 핀의 카드 = hero 영역에 항상 노출, 나머지는 주변 다른 장소로 분리
   const selectedHeroCard = useMemo(
@@ -442,13 +449,15 @@ export default function ExploreScreen() {
               <View style={s.panelHeader}>
                 {/* 선택된 핀이 있으면 그 장소명을, 없으면 '주변 장소' */}
                 <Text style={s.panelTitle} numberOfLines={1}>
-                  {selectedHeroCard ? selectedHeroCard.name : '주변 장소'}
+                  {selectedHeroCard ? selectedHeroCard.name : (isSearching ? '검색 결과' : '주변 장소')}
                 </Text>
                 <View style={s.panelCountBadge}>
                   <Text style={s.panelCount}>
                     {selectedHeroCard
                       ? (restCards.length > 0 ? `반경 내 ${restCards.length}곳` : '근처 장소')
-                      : `2km 내 ${sortedCards.length}곳`}
+                      : isSearching
+                        ? `${sortedCards.length}곳`
+                        : `${activeRadiusM >= 1000 ? `${activeRadiusM/1000}km` : `${activeRadiusM}m`} 내 ${sortedCards.length}곳`}
                   </Text>
                 </View>
                 <TouchableOpacity

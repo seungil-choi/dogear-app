@@ -96,12 +96,14 @@ export default function SettingsScreen() {
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── 알림 / 위치 ── */}
+        {/* ──────────────────────────────────────────
+            1) 권한 — 시스템 권한 (알림 토글 + 위치)
+        ────────────────────────────────────────── */}
         <SectionTitle label="권한" />
         <View style={s.card}>
           <SettingsRow
             icon="bell"
-            label="알림"
+            label="알림 받기"
             rightEl={
               <Switch
                 value={notifEnabled}
@@ -120,30 +122,42 @@ export default function SettingsScreen() {
           />
         </View>
 
-        {/* ── 고객지원 ── */}
-        <SectionTitle label="고객지원" />
-        <View style={s.card}>
-          <SettingsRow icon="help"     label="고객센터"             onPress={openSupport} />
-          <View style={s.divider} />
-          <SettingsRow icon="document" label="개인정보 처리방침"     onPress={() => router.push('/(legal)/privacy-policy' as any)} />
-          <View style={s.divider} />
-          <SettingsRow icon="document" label="서비스 이용약관"       onPress={() => router.push('/(legal)/terms' as any)} />
-          <View style={s.divider} />
-          <SettingsRow icon="document" label="위치기반서비스 이용약관" onPress={() => router.push('/(legal)/location-terms' as any)} />
-        </View>
-
-        {/* ── 안전 / 모더레이션 ── */}
+        {/* ──────────────────────────────────────────
+            2) 안전 · 모더레이션
+        ────────────────────────────────────────── */}
         <SectionTitle label="안전" />
         <View style={s.card}>
           <SettingsRow icon="person" label="차단한 사용자" onPress={() => router.push('/blocked-users' as any)} />
         </View>
 
-        {/* ── 계정 ── */}
+        {/* ──────────────────────────────────────────
+            3) 약관 및 정책 — 모두 한 곳에 통합
+        ────────────────────────────────────────── */}
+        <SectionTitle label="약관 및 정책" />
+        <View style={s.card}>
+          <SettingsRow icon="document" label="서비스 이용약관"        onPress={() => router.push('/(legal)/terms' as any)} />
+          <View style={s.divider} />
+          <SettingsRow icon="shield"   label="개인정보 처리방침"      onPress={() => router.push('/(legal)/privacy-policy' as any)} />
+          <View style={s.divider} />
+          <SettingsRow icon="document" label="위치기반서비스 이용약관" onPress={() => router.push('/(legal)/location-terms' as any)} />
+        </View>
+
+        {/* ──────────────────────────────────────────
+            4) 도움말
+        ────────────────────────────────────────── */}
+        <SectionTitle label="도움말" />
+        <View style={s.card}>
+          <SettingsRow icon="help" label="고객센터 문의" onPress={openSupport} />
+        </View>
+
+        {/* ──────────────────────────────────────────
+            5) 계정 — 로그아웃 + 계정 관리/삭제
+        ────────────────────────────────────────── */}
         <SectionTitle label="계정" />
         <View style={s.card}>
-          <SettingsRow icon="logout"  label="로그아웃"   onPress={handleLogout} />
+          <SettingsRow icon="logout" label="로그아웃"  onPress={handleLogout} />
           <View style={s.divider} />
-          <SettingsRow icon="person"  label="계정 관리"  onPress={handleDeleteAccount} />
+          <SettingsRow icon="person" label="계정 관리" onPress={handleDeleteAccount} />
         </View>
 
         {/* 앱 버전 */}

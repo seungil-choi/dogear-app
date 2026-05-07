@@ -82,12 +82,13 @@ export default function SpotDetailScreen() {
       vm?.name ?? '장소',
       undefined,
       [
+        { text: '길찾기 (네이버 지도)', onPress: () => handleDirections() },
         { text: '정보 수정 제안', onPress: () => Alert.alert('준비 중', '정보 수정 제안 기능을 준비 중이에요.') },
         { text: '이 장소 신고하기', style: 'destructive', onPress: () => router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } } as any) },
         { text: '취소', style: 'cancel' },
       ],
     );
-  }, [vm, id, router]);
+  }, [vm, id, router, handleDirections]);
 
   if (!vm) {
     return (
@@ -116,7 +117,8 @@ export default function SpotDetailScreen() {
     <View style={s.safe}>
 
       {/* ════════════════════════════════════
-          고정 상단 네비 바 (뒤로가기 · 저장 · 공유 · 더보기)
+          고정 상단 네비 바 (뒤로가기 · 공유 · 더보기)
+          저장은 하단 CTA로 일원화 — 중복 노출 방지
       ════════════════════════════════════ */}
       <View style={[s.topNav, { paddingTop: insets.top + 4 }]}>
         <TouchableOpacity
@@ -128,18 +130,6 @@ export default function SpotDetailScreen() {
           <Icon name="back" size={22} color={Colors.text.primary} />
         </TouchableOpacity>
         <View style={s.topNavRight}>
-          <TouchableOpacity
-            style={s.topNavBtn}
-            onPress={handleSave}
-            hitSlop={8}
-            accessibilityLabel={vm.is_saved ? '저장 해제' : '저장'}
-          >
-            <Icon
-              name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
-              size={20}
-              color={vm.is_saved ? Colors.brand.primary : Colors.text.secondary}
-            />
-          </TouchableOpacity>
           <TouchableOpacity style={s.topNavBtn} onPress={handleShare} hitSlop={8} accessibilityLabel="공유">
             <Icon name="share" size={20} color={Colors.text.secondary} />
           </TouchableOpacity>
@@ -194,61 +184,81 @@ export default function SpotDetailScreen() {
           </View>
         </View>
 
-        {/* ── 관계 요약 카드 ── */}
+        {/* ── 관계 요약 카드 (아이콘으로 판독성 강화) ── */}
         <View style={s.statsCard}>
           <View style={s.statItem}>
+            <View style={s.statIconWrap}>
+              <Icon name="leaf-filled" size={16} color={Colors.brand.primary} />
+            </View>
             <Text style={s.statValue}>{vm.unique_visitor_count}</Text>
             <Text style={s.statLabel}>방문한 강아지</Text>
           </View>
           <View style={s.statDivider} />
           <View style={s.statItem}>
+            <View style={s.statIconWrap}>
+              <Icon name="paw-filled" size={16} color={Colors.brand.primary} />
+            </View>
             <Text style={s.statValue}>{vm.recent_trace_count}</Text>
             <Text style={s.statLabel}>최근 발도장</Text>
           </View>
           <View style={s.statDivider} />
           <View style={s.statItem}>
+            <View style={s.statIconWrap}>
+              <Icon name="star-filled" size={16} color={Colors.brand.primary} />
+            </View>
             <Text style={s.statValue}>{vm.user_relation?.visit_count ?? 0}회</Text>
             <Text style={s.statLabel}>내 방문</Text>
           </View>
         </View>
 
-        {/* ── 장소 정보 섹션 (설명용 상세 정보) ── */}
+        {/* ── 장소 정보 섹션 (라벨/값 테이블 구조) ── */}
         <View style={s.section}>
-          {/* 태그 */}
-          {vm.features && vm.features.length > 0 && (
-            <View style={s.featureChips}>
-              {vm.features.slice(0, 6).map(f => (
-                <View key={f} style={s.featureChip}>
-                  <Text style={s.featureChipText}>{f}</Text>
+          <Text style={s.sectionTitle}>장소 정보</Text>
+
+          <View style={s.infoTable}>
+            {vm.features && vm.features.length > 0 && (
+              <View style={s.infoRow}>
+                <Text style={s.infoKey}>주요 태그</Text>
+                <View style={s.featureChips}>
+                  {vm.features.slice(0, 6).map(f => (
+                    <View key={f} style={s.featureChip}>
+                      <Text style={s.featureChipText}>{f}</Text>
+                    </View>
+                  ))}
                 </View>
-              ))}
-            </View>
-          )}
-
-          {/* 설명 */}
-          {vm.description ? (
-            <Text style={s.descriptionText}>{vm.description}</Text>
-          ) : (
-            <Text style={s.descriptionEmpty}>장소 설명이 아직 없어요.</Text>
-          )}
-
-          {/* 주소 + 복사 */}
-          {vm.address_text && (
-            <View style={s.addressRow}>
-              <Icon name="location" size={13} color={Colors.text.tertiary} />
-              <Text style={s.addressText} numberOfLines={2}>{vm.address_text}</Text>
-              <TouchableOpacity
-                style={s.copyAddrBtn}
-                onPress={() => handleCopyAddress(vm.address_text!)}
-                activeOpacity={0.75}
-                accessibilityLabel="주소 복사"
-                hitSlop={6}
-              >
-                <Icon name="copy" size={13} color={Colors.brand.primary} />
-                <Text style={s.copyAddrLabel}>복사</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+              </View>
+            )}
+            {vm.description && (
+              <>
+                {vm.features && vm.features.length > 0 && <View style={s.infoSep} />}
+                <View style={s.infoRow}>
+                  <Text style={s.infoKey}>설명</Text>
+                  <Text style={s.infoVal}>{vm.description}</Text>
+                </View>
+              </>
+            )}
+            {vm.address_text && (
+              <>
+                <View style={s.infoSep} />
+                <View style={s.infoRow}>
+                  <Text style={s.infoKey}>주소</Text>
+                  <View style={s.infoAddressRow}>
+                    <Text style={s.infoAddressText}>{vm.address_text}</Text>
+                    <TouchableOpacity
+                      style={s.copyAddrBtn}
+                      onPress={() => handleCopyAddress(vm.address_text!)}
+                      activeOpacity={0.75}
+                      accessibilityLabel="주소 복사"
+                      hitSlop={6}
+                    >
+                      <Icon name="copy" size={13} color={Colors.brand.primary} />
+                      <Text style={s.copyAddrLabel}>복사</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </>
+            )}
+          </View>
         </View>
 
         {/* ── P3: 자주 찾는 강아지 ── */}
@@ -436,15 +446,21 @@ export default function SpotDetailScreen() {
         </Pressable>
       </Modal>
 
-      {/* ── 하단 고정 액션 바 — 길찾기 + 발도장 ── */}
+      {/* ── 하단 고정 액션 바 — 저장 + 발도장 ── */}
       <View style={[s.bottomBar, { paddingBottom: insets.bottom + Spacing[8] }]}>
         <TouchableOpacity
-          style={s.bottomBtnDirections}
-          onPress={handleDirections}
+          style={[s.bottomBtnDirections, vm.is_saved && s.bottomBtnSaveActive]}
+          onPress={handleSave}
           activeOpacity={0.85}
         >
-          <Icon name="location" size={18} color={Colors.brand.primary} />
-          <Text style={s.bottomBtnDirectionsText}>길찾기</Text>
+          <Icon
+            name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
+            size={18}
+            color={Colors.brand.primary}
+          />
+          <Text style={s.bottomBtnDirectionsText}>
+            {vm.is_saved ? '저장됨' : '저장하기'}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.bottomBtnPaw} onPress={handlePawCheckin} activeOpacity={0.88}>
           <Icon name="paw-filled" size={18} color="#fff" />
@@ -540,7 +556,7 @@ const s = StyleSheet.create({
     flexShrink: 0,
   },
 
-  // ── 관계 요약 카드 ────────────────────────────────────────────────
+  // ── 관계 요약 카드 (아이콘 포함) ───────────────────────────────────
   statsCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -553,6 +569,14 @@ const s = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: Spacing[4],
+  },
+  statIconWrap: {
+    width: 32, height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing[4],
   },
   statValue: {
     ...Typography.title.s,
@@ -567,7 +591,7 @@ const s = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    height: 32,
+    height: 56,
     backgroundColor: Colors.border.default,
   },
 
@@ -851,8 +875,40 @@ const s = StyleSheet.create({
   },
   noTraceText: { ...Typography.body.s, color: Colors.text.tertiary },
 
-  // ── 장소 정보 (설명·태그·주소) ───────────────────────────────────
+  // ── 장소 정보 테이블 (좌:라벨 / 우:값) ─────────────────────────
+  infoTable: {
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+    overflow: 'hidden',
+    backgroundColor: Colors.surface.default,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: Spacing[14],
+    paddingHorizontal: Spacing[16],
+    gap: Spacing[16],
+  },
+  infoSep: {
+    height: 1,
+    backgroundColor: Colors.border.subtle,
+    marginHorizontal: Spacing[16],
+  },
+  infoKey: {
+    ...Typography.label.m,
+    color: Colors.text.tertiary,
+    width: 56,
+    flexShrink: 0,
+  },
+  infoVal: {
+    flex: 1,
+    ...Typography.label.m,
+    color: Colors.text.primary,
+    lineHeight: 22,
+  },
   featureChips: {
+    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing[6],
@@ -867,31 +923,18 @@ const s = StyleSheet.create({
   },
   featureChipText: { ...Typography.label.s, color: Colors.text.secondary },
 
-  descriptionText: {
-    ...Typography.body.m,
-    color: Colors.text.secondary,
-    lineHeight: 22,
-  },
-  descriptionEmpty: {
-    ...Typography.body.s,
-    color: Colors.text.tertiary,
-    fontStyle: 'italic',
-  },
-
-  // 주소 행
-  addressRow: {
+  // 주소 + 복사 — 한 줄 인라인 (테이블 내)
+  infoAddressRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: Spacing[8],
-    paddingTop: Spacing[4],
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.border.subtle,
+    gap: Spacing[10],
   },
-  addressText: {
+  infoAddressText: {
     flex: 1,
-    ...Typography.body.s,
-    color: Colors.text.tertiary,
-    lineHeight: 18,
+    ...Typography.label.m,
+    color: Colors.text.primary,
+    lineHeight: 22,
   },
   copyAddrBtn: {
     flexDirection: 'row',
@@ -928,8 +971,12 @@ const s = StyleSheet.create({
     paddingVertical: Spacing[14],
     borderRadius: Radius.round,
     borderWidth: 1.5,
-    borderColor: Colors.brand.primary,
+    borderColor: Colors.border.default,
     backgroundColor: Colors.surface.default,
+  },
+  bottomBtnSaveActive: {
+    backgroundColor: Colors.brand.subtle,
+    borderColor: Colors.brand.primary,
   },
   bottomBtnDirectionsText: {
     ...Typography.label.l,
