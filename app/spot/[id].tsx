@@ -85,7 +85,7 @@ export default function SpotDetailScreen() {
       { label: '이 장소 신고하기', destructive: true },
     ]);
     if (idx === 0) handleDirections();
-    else if (idx === 1) notify('정보 수정 제안 기능을 준비 중이에요.', '준비 중');
+    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id } } as any);
     else if (idx === 2) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } } as any);
   }, [vm, id, router, handleDirections]);
 

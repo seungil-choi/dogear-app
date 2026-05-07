@@ -6,16 +6,40 @@ import { StyleSheet, Platform, View } from 'react-native';
 import { Colors } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
 import { useAuth } from '../src/hooks/useAuth';
+import { notify } from '../src/utils/dialog';
 import { useLocation } from '../src/hooks/useLocation';
 import { useNearbySpots } from '../src/hooks/useNearbySpots';
 import { useUserData } from '../src/hooks/useUserData';
 import { usePushToken } from '../src/hooks/usePushToken';
 
 // 인증 가드: 로그아웃 상태에서 보호 화면 접근 시 로그인으로 리다이렉트
+//          + 정지/삭제 사용자 자동 로그아웃 처리
 function AuthGate() {
   const router = useRouter();
   const segments = useSegments();
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
+  const user = useAppStore(s => s.user);
+  const logout = useAppStore(s => s.logout);
+  const notifiedRef = React.useRef<string | null>(null);
+
+  // 운영자가 차단/삭제 처리한 사용자 → 자동 로그아웃 + 안내
+  useEffect(() => {
+    if (!user) return;
+    const blocked = user.status === 'blocked';
+    const deleted = user.status === 'deleted';
+    if (!blocked && !deleted) return;
+    // 동일 user에 대해 중복 알림 방지
+    if (notifiedRef.current === user.user_id) return;
+    notifiedRef.current = user.user_id;
+    notify(
+      blocked
+        ? '계정이 정지되어 있어요.\n자세한 내용은 고객센터(support@9factorial.com)로 문의해주세요.'
+        : '삭제된 계정이에요.\n다시 가입하려면 새로 회원가입해주세요.',
+      '계정 안내',
+    );
+    logout();
+    router.replace('/(auth)/login' as any);
+  }, [user, logout, router]);
 
   useEffect(() => {
     const seg0 = segments[0] as string | undefined;
@@ -125,6 +149,13 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="report"
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+          }}
+        />
+        <Stack.Screen
+          name="info-correction"
           options={{
             presentation: 'modal',
             animation: 'slide_from_bottom',

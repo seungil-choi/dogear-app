@@ -72,12 +72,16 @@ export default function LoginScreen() {
   const router  = useRouter();
   const login   = useAppStore(s => s.login);
   const consent = useAppStore(s => s.consent);
+  const dog     = useAppStore(s => s.dog);
 
-  // 약관 미동의 시 consent → dog-setup, 동의 완료 시 dog-setup으로 직진
+  // 신규 흐름: consent → dog-setup → permissions → tabs
+  // 재로그인: dog 데이터가 있으면 tabs 직행
   const proceedAfterAuth = () => {
     login();
     if (!consent) {
       router.replace('/(auth)/consent' as any);
+    } else if (!dog) {
+      router.replace('/(auth)/dog-setup' as any);
     } else {
       router.replace('/(tabs)');
     }
@@ -220,12 +224,7 @@ export default function LoginScreen() {
 
   // 게스트 로그인 — 웹/Android에서 사용 가능 (데이터는 기기에만 저장됨)
   const handleGuestLogin = () => {
-    login();
-    if (!consent) {
-      router.replace('/(auth)/consent' as any);
-    } else {
-      router.replace('/(tabs)');
-    }
+    proceedAfterAuth();
   };
 
   return (
@@ -342,13 +341,13 @@ export default function LoginScreen() {
           <Text style={s.guestNote}>소셜 계정 없이 기기에서만 사용해요</Text>
 
           <Text style={s.disclaimer}>
-            로그인하면{' '}
+            로그인 후 다음 단계에서{' '}
             <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/terms' as any)}>이용약관</Text>
             {' · '}
             <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/privacy-policy' as any)}>개인정보 처리방침</Text>
             {' · '}
             <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/location-terms' as any)}>위치기반서비스 약관</Text>
-            에 동의한 것으로 간주돼요.
+            에 직접 동의하게 돼요.
           </Text>
         </View>
 

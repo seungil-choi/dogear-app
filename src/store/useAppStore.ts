@@ -125,6 +125,9 @@ interface AppState {
   unblockUser: (block_id: string) => void;
   isUserBlocked: (user_id: string) => boolean;
 
+  // 정보 수정 제안 (어드민 IA "신고 > 정보 수정 제안" 큐로 들어감)
+  suggestEdit: (input: { spot_id: string; field: string; proposed_value: string; reason?: string }) => Promise<void>;
+
   // Supabase 연동 actions
   setUser: (user: User | null) => void;
   setActiveDog: (dog: Dog | null) => void;
@@ -390,6 +393,28 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     }
   },
 
+  // 정보 수정 제안 — 어드민 큐로 적재 (실 환경: edit_suggestions 테이블)
+  suggestEdit: async (input) => {
+    const { dog, user } = get();
+    if (IS_REAL_AUTH && (dog || user)) {
+      const { error } = await supabase.from('edit_suggestions').insert({
+        spot_id: input.spot_id,
+        suggester_dog_id: dog?.dog_id ?? null,
+        suggester_user_id: user?.user_id ?? null,
+        field: input.field,
+        proposed_value: input.proposed_value,
+        reason: input.reason ?? null,
+        status: 'pending',
+      });
+      if (error) {
+        console.error('edit_suggestions insert failed:', error);
+        throw error;
+      }
+    }
+    // DEV_SEED 모드: 메모리 로깅만 (실제 어드민에는 안 보이지만 사용자에게는 접수 완료 응답)
+    // 추후 백엔드 연결 시 자동으로 어드민 큐에 들어감
+  },
+
   blockUser: (blocked_user_id, blocked_dog_id) => {
     const { blockedUsers, user } = get();
     if (!user) return;
@@ -529,7 +554,8 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       savedSpots, privacySetting, currentLocation, blockedUsers, dogs,
     } = get();
     const spot = spots.find(s => s.spot_id === spotId);
-    if (!spot || !dog) return null;
+    // hidden/blocked/merged 장소는 상세 노출 차단 (어드민에서 비노출 처리한 장소 보호)
+    if (!spot || !dog || spot.status !== 'active') return null;
 
     // 차단 적용
     const blockedDogIds = new Set(blockedUsers.map(b => b.blocked_dog_id).filter(Boolean) as string[]);

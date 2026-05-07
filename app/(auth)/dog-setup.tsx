@@ -40,6 +40,8 @@ export default function DogSetupScreen() {
   const user               = useAppStore(s => s.user);
 
   const [name, setName] = useState('');
+  const [breed, setBreed] = useState('');
+  const [weightKg, setWeightKg] = useState('');
   const [size, setSize] = useState<DogSize>('small');
   const [ageGroup, setAgeGroup] = useState<DogAgeGroup>('adult');
   const [selectedTemperament, setSelectedTemperament] = useState<string[]>([]);
@@ -55,6 +57,14 @@ export default function DogSetupScreen() {
     if (!name.trim() || isSaving) return;
     setIsSaving(true);
 
+    const weightNum = weightKg.trim() ? parseFloat(weightKg) : undefined;
+    const weightValid = weightNum === undefined || (!Number.isNaN(weightNum) && weightNum > 0 && weightNum < 100);
+    if (!weightValid) {
+      notify('체중은 0보다 크고 100kg 미만의 숫자로 입력해주세요.', '체중 확인');
+      setIsSaving(false);
+      return;
+    }
+
     if (IS_REAL_AUTH && user) {
       // 실 환경: Supabase dogs 테이블에 저장 → DB 생성 UUID 사용
       const { data, error } = await supabase
@@ -62,6 +72,8 @@ export default function DogSetupScreen() {
         .insert({
           user_id: user.user_id,
           name: name.trim(),
+          breed: breed.trim() || null,
+          weight_kg: weightNum ?? null,
           size,
           age_group: ageGroup,
           temperament_tags: selectedTemperament,
@@ -81,6 +93,8 @@ export default function DogSetupScreen() {
         dog_id: data.dog_id,
         user_id: data.user_id,
         name: data.name,
+        breed: data.breed ?? undefined,
+        weight_kg: data.weight_kg ?? undefined,
         size: data.size,
         age_group: data.age_group,
         temperament_tags: data.temperament_tags ?? [],
@@ -95,6 +109,8 @@ export default function DogSetupScreen() {
         dog_id: `dog_${Date.now()}`,
         user_id: user?.user_id ?? 'local',
         name: name.trim(),
+        breed: breed.trim() || undefined,
+        weight_kg: weightNum,
         size,
         age_group: ageGroup,
         temperament_tags: selectedTemperament,
@@ -106,7 +122,8 @@ export default function DogSetupScreen() {
     }
 
     completeOnboarding();
-    router.replace('/(tabs)');
+    // 등록 완료 후 권한 안내 단계로 (위치 + 알림)
+    router.replace('/(auth)/permissions' as any);
   };
 
   const canProceed = name.trim().length > 0 && !isSaving;
@@ -128,6 +145,36 @@ export default function DogSetupScreen() {
             onChangeText={setName}
             maxLength={20}
           />
+          <Text style={s.fieldHint}>
+            이 이름이 다른 보호자에게 보이는 식별자가 돼요. 닉네임처럼 활용돼요.
+          </Text>
+        </View>
+
+        {/* 품종 + 체중 — 한 줄 (선택) */}
+        <View style={s.fieldRow}>
+          <View style={s.fieldHalf}>
+            <Text style={s.fieldLabel}>품종 (선택)</Text>
+            <TextInput
+              style={s.textInput}
+              placeholder="예: 말티즈"
+              placeholderTextColor={Colors.text.tertiary}
+              value={breed}
+              onChangeText={setBreed}
+              maxLength={30}
+            />
+          </View>
+          <View style={s.fieldHalf}>
+            <Text style={s.fieldLabel}>체중 (선택)</Text>
+            <TextInput
+              style={s.textInput}
+              placeholder="예: 4.5"
+              placeholderTextColor={Colors.text.tertiary}
+              value={weightKg}
+              onChangeText={setWeightKg}
+              keyboardType="decimal-pad"
+              maxLength={5}
+            />
+          </View>
         </View>
 
         {/* 크기 */}
@@ -220,7 +267,10 @@ const s = StyleSheet.create({
   desc: { ...Typography.body.m, color: Colors.text.secondary, marginBottom: Spacing[24] },
 
   field: { marginBottom: Spacing[20] },
+  fieldRow: { flexDirection: 'row', gap: Spacing[10], marginBottom: Spacing[20] },
+  fieldHalf: { flex: 1 },
   fieldLabel: { ...Typography.label.l, color: Colors.text.primary, marginBottom: Spacing[10] },
+  fieldHint: { ...Typography.caption, color: Colors.text.tertiary, marginTop: Spacing[6], lineHeight: 16 },
 
   textInput: {
     height: 48,
