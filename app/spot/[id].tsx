@@ -16,8 +16,9 @@ import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Linking, Alert, Platform, Share, Modal, Pressable,
+  StyleSheet, Linking, Platform, Share, Modal, Pressable,
 } from 'react-native';
+import { notify, actionSheet } from '../../src/utils/dialog';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
@@ -48,9 +49,9 @@ export default function SpotDetailScreen() {
   const handleCopyAddress = useCallback(async (text: string) => {
     try {
       await Clipboard.setStringAsync(text);
-      Alert.alert('복사됨', '주소를 클립보드에 복사했어요.');
+      notify('주소를 클립보드에 복사했어요.', '복사됨');
     } catch {
-      Alert.alert('복사 실패', '주소를 복사하지 못했어요.');
+      notify('주소를 복사하지 못했어요.', '복사 실패');
     }
   }, []);
 
@@ -77,17 +78,15 @@ export default function SpotDetailScreen() {
     }
   }, [vm]);
 
-  const handleMore = useCallback(() => {
-    Alert.alert(
-      vm?.name ?? '장소',
-      undefined,
-      [
-        { text: '길찾기 (네이버 지도)', onPress: () => handleDirections() },
-        { text: '정보 수정 제안', onPress: () => Alert.alert('준비 중', '정보 수정 제안 기능을 준비 중이에요.') },
-        { text: '이 장소 신고하기', style: 'destructive', onPress: () => router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } } as any) },
-        { text: '취소', style: 'cancel' },
-      ],
-    );
+  const handleMore = useCallback(async () => {
+    const idx = await actionSheet(vm?.name ?? '장소', [
+      { label: '길찾기 (네이버 지도)' },
+      { label: '정보 수정 제안' },
+      { label: '이 장소 신고하기', destructive: true },
+    ]);
+    if (idx === 0) handleDirections();
+    else if (idx === 1) notify('정보 수정 제안 기능을 준비 중이에요.', '준비 중');
+    else if (idx === 2) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } } as any);
   }, [vm, id, router, handleDirections]);
 
   if (!vm) {

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  ScrollView, StyleSheet, SafeAreaView, Alert,
+  ScrollView, StyleSheet, SafeAreaView,
 } from 'react-native';
+import { notify } from '../../src/utils/dialog';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
@@ -71,7 +72,7 @@ export default function DogSetupScreen() {
         .single();
 
       if (error || !data) {
-        Alert.alert('등록 실패', '강아지 등록에 실패했어요. 잠시 후 다시 시도해주세요.');
+        notify('강아지 등록에 실패했어요. 잠시 후 다시 시도해주세요.', '등록 실패');
         setIsSaving(false);
         return;
       }

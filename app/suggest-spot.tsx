@@ -14,8 +14,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, TextInput,
-  StyleSheet, SafeAreaView, ActivityIndicator, Platform, KeyboardAvoidingView, Alert,
+  StyleSheet, SafeAreaView, ActivityIndicator, Platform, KeyboardAvoidingView,
 } from 'react-native';
+import { notify } from '../src/utils/dialog';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
@@ -139,7 +140,7 @@ export default function SuggestSpotScreen() {
         });
 
       if (error) {
-        Alert.alert('제안 실패', '장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.');
+        notify('장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.', '제안 실패');
         return;
       }
     }

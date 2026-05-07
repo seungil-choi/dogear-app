@@ -11,8 +11,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, TextInput,
-  StyleSheet, Alert, KeyboardAvoidingView, Platform,
+  StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import { notify } from '../src/utils/dialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
@@ -43,19 +44,16 @@ export default function ReportScreen() {
 
   const submit = () => {
     if (!reason) {
-      Alert.alert('신고 사유 선택', '신고 사유를 먼저 선택해주세요.');
+      notify('신고 사유를 먼저 선택해주세요.', '신고 사유 선택');
       return;
     }
     if (!targetId) {
-      Alert.alert('오류', '신고 대상을 확인할 수 없어요.');
+      notify('신고 대상을 확인할 수 없어요.', '오류');
       return;
     }
     reportContent(targetType, targetId, reason, detail.trim() || undefined);
-    Alert.alert(
-      '신고가 접수됐어요',
-      '24시간 내에 검토 후 처리할게요. 소중한 신고 감사해요.',
-      [{ text: '확인', onPress: () => router.back() }],
-    );
+    notify('24시간 내에 검토 후 처리할게요. 소중한 신고 감사해요.', '신고가 접수됐어요');
+    router.back();
   };
 
   return (

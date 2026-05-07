@@ -10,8 +10,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
-  Alert,
-  ActionSheetIOS,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -22,6 +20,7 @@ import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
+import { notify, actionSheet } from '../src/utils/dialog';
 
 const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 import {
@@ -105,7 +104,7 @@ export default function DogEditScreen() {
       : ImagePicker.requestMediaLibraryPermissionsAsync;
     const { status } = await permFn();
     if (status !== 'granted') {
-      Alert.alert('권한 필요', source === 'camera' ? '카메라 접근 권한이 필요해요.' : '사진 접근 권한이 필요해요.');
+      notify(source === 'camera' ? '카메라 접근 권한이 필요해요.' : '사진 접근 권한이 필요해요.', '권한 필요');
       return;
     }
     const result = source === 'camera'
@@ -117,24 +116,15 @@ export default function DogEditScreen() {
     }
   }
 
-  function handleAvatarPress() {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        { options: ['취소', '카메라로 찍기', '앨범에서 선택', '사진 삭제'], cancelButtonIndex: 0, destructiveButtonIndex: 3 },
-        idx => {
-          if (idx === 1) pickImage('camera');
-          else if (idx === 2) pickImage('library');
-          else if (idx === 3) setAvatarUri(undefined);
-        },
-      );
-    } else {
-      Alert.alert('프로필 사진', undefined, [
-        { text: '취소', style: 'cancel' },
-        { text: '카메라로 찍기',   onPress: () => pickImage('camera') },
-        { text: '앨범에서 선택',   onPress: () => pickImage('library') },
-        { text: '사진 삭제', style: 'destructive', onPress: () => setAvatarUri(undefined) },
-      ]);
-    }
+  async function handleAvatarPress() {
+    const idx = await actionSheet('프로필 사진', [
+      { label: '카메라로 찍기' },
+      { label: '앨범에서 선택' },
+      { label: '사진 삭제', destructive: true },
+    ]);
+    if (idx === 0) pickImage('camera');
+    else if (idx === 1) pickImage('library');
+    else if (idx === 2) setAvatarUri(undefined);
   }
 
   // ─── 저장 ────────────────────────────────────────────
@@ -154,7 +144,7 @@ export default function DogEditScreen() {
         });
         finalAvatarUrl = result.url;
       } catch (e: any) {
-        Alert.alert('업로드 실패', e.message ?? '사진 업로드에 실패했어요.');
+        notify(e.message ?? '사진 업로드에 실패했어요.', '업로드 실패');
         return;
       }
     }
@@ -187,7 +177,7 @@ export default function DogEditScreen() {
         .eq('dog_id', dog.dog_id);
 
       if (error) {
-        Alert.alert('저장 실패', '프로필 저장에 실패했어요. 다시 시도해주세요.');
+        notify('프로필 저장에 실패했어요. 다시 시도해주세요.', '저장 실패');
         return;
       }
     }

@@ -9,7 +9,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, TextInput,
-  StyleSheet, Alert, KeyboardAvoidingView, Platform,
+  StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -17,6 +17,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
+import { notify, confirm as dialogConfirm } from '../src/utils/dialog';
 
 const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 
@@ -42,34 +43,27 @@ export default function AccountManageScreen() {
 
   const canSubmit = confirm.trim() === CONFIRM_WORD;
 
-  const onConfirm = () => {
+  const onConfirm = async () => {
     if (!canSubmit) return;
-    Alert.alert(
-      '정말 삭제할까요?',
-      '삭제 후에는 데이터를 복구할 수 없어요.',
-      [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '계정 삭제',
-          style: 'destructive',
-          onPress: async () => {
-            setSubmitting(true);
-            try {
-              await deleteAccount(reason.trim() || undefined);
-              // 실 환경: Supabase 세션도 만료
-              if (IS_REAL_AUTH) {
-                await supabase.auth.signOut();
-              }
-              router.replace('/(auth)/login');
-            } catch {
-              Alert.alert('오류', '계정 삭제 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.');
-            } finally {
-              setSubmitting(false);
-            }
-          },
-        },
-      ],
-    );
+    const ok = await dialogConfirm('삭제 후에는 데이터를 복구할 수 없어요.', {
+      title: '정말 삭제할까요?',
+      confirmText: '계정 삭제',
+      destructive: true,
+    });
+    if (!ok) return;
+    setSubmitting(true);
+    try {
+      await deleteAccount(reason.trim() || undefined);
+      // 실 환경: Supabase 세션도 만료
+      if (IS_REAL_AUTH) {
+        await supabase.auth.signOut();
+      }
+      router.replace('/(auth)/login');
+    } catch {
+      notify('계정 삭제 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', '오류');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

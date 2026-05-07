@@ -14,7 +14,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Switch,
   StyleSheet, SafeAreaView, Dimensions, NativeScrollEvent,
-  NativeSyntheticEvent,
+  NativeSyntheticEvent, Alert, Platform,
 } from 'react-native';
 import { AppImage } from '../../src/components/common/AppImage';
 import { useRouter } from 'expo-router';
@@ -150,6 +150,24 @@ export default function ProfileScreen() {
   const privacySetting       = useAppStore(s => s.privacySetting);
   const updatePrivacySetting = useAppStore(s => s.updatePrivacySetting);
   const logout               = useAppStore(s => s.logout);
+
+  // 로그아웃: 확인 다이얼로그 + store 비우기 + 인증화면 이동
+  // 웹에서는 Alert가 비동기/비차단이라 confirm() 사용
+  const handleLogout = useCallback(() => {
+    const proceed = () => {
+      logout();
+      router.replace('/(auth)/splash' as any);
+    };
+    if (Platform.OS === 'web') {
+      // window.confirm은 SSR 환경 대비 typeof window 체크
+      if (typeof window !== 'undefined' && window.confirm('정말 로그아웃할까요?')) proceed();
+      return;
+    }
+    Alert.alert('로그아웃', '정말 로그아웃할까요?', [
+      { text: '취소', style: 'cancel' },
+      { text: '로그아웃', style: 'destructive', onPress: proceed },
+    ]);
+  }, [logout, router]);
 
   // 현재 보이는 슬롯 인덱스 (강아지 카드 + 추가 카드)
   const [pageIndex, setPageIndex] = useState(0);
@@ -331,7 +349,7 @@ export default function ProfileScreen() {
             <Text style={s.sectionTitle}>계정</Text>
           </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="logout"   label="로그아웃" onPress={logout} danger />
+            <SettingsRow icon="logout"   label="로그아웃" onPress={handleLogout} danger />
           </View>
         </View>
 

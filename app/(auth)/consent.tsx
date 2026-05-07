@@ -6,8 +6,9 @@
 
 import React, { useState, useMemo } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert,
+  View, Text, TouchableOpacity, ScrollView, StyleSheet,
 } from 'react-native';
+import { notify } from '../../src/utils/dialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants/tokens';
@@ -50,7 +51,7 @@ export default function ConsentScreen() {
 
   const onAgree = () => {
     if (!requiredChecked) {
-      Alert.alert('필수 항목 동의', '필수 항목에 모두 동의해야 서비스를 이용할 수 있어요.');
+      notify('필수 항목에 모두 동의해야 서비스를 이용할 수 있어요.', '필수 항목 동의');
       return;
     }
     setConsent({

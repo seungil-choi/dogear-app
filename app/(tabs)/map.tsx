@@ -12,7 +12,7 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import {
   View, Text, StyleSheet, SafeAreaView,
   TouchableOpacity, ScrollView, TextInput, Dimensions,
-  Animated, PanResponder, Alert, Linking, Platform,
+  Animated, PanResponder, Linking, Platform,
 } from 'react-native';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +24,7 @@ import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
 import { distanceText } from '../../src/utils/labels';
 import type { SpotCategory } from '../../src/types';
+import { notify, confirm } from '../../src/utils/dialog';
 
 // ─── 거리 계산 (Haversine) ────────────────────────────────────────
 function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -288,14 +289,13 @@ export default function ExploreScreen() {
         status = req.status;
       }
       if (status !== 'granted') {
-        Alert.alert(
-          '위치 권한이 필요해요',
-          '내 위치를 보려면 설정에서 위치 권한을 허용해 주세요.',
-          [
-            { text: '닫기', style: 'cancel' },
-            { text: '설정 열기', onPress: () => Linking.openSettings() },
-          ],
-        );
+        if (await confirm('내 위치를 보려면 설정에서 위치 권한을 허용해 주세요.', {
+          title: '위치 권한이 필요해요',
+          cancelText: '닫기',
+          confirmText: '설정 열기',
+        })) {
+          Linking.openSettings();
+        }
         return;
       }
 
@@ -318,7 +318,7 @@ export default function ExploreScreen() {
         setIsTracking(true);
         mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
       } else {
-        Alert.alert('위치를 가져올 수 없어요', '잠시 후 다시 시도해 주세요.');
+        notify('잠시 후 다시 시도해 주세요.', '위치를 가져올 수 없어요');
       }
     } finally {
       setIsLocating(false);

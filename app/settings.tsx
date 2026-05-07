@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, Alert, Linking, Switch,
+  StyleSheet, Alert, Linking, Switch, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -65,9 +65,14 @@ export default function SettingsScreen() {
   const [notifEnabled, setNotifEnabled] = useState(true);
 
   const handleLogout = () => {
+    const proceed = () => { logout(); router.replace('/(auth)/login' as any); };
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm('정말 로그아웃할까요?')) proceed();
+      return;
+    }
     Alert.alert('로그아웃', '정말 로그아웃할까요?', [
       { text: '취소', style: 'cancel' },
-      { text: '로그아웃', style: 'destructive', onPress: () => { logout(); router.replace('/(auth)/login'); } },
+      { text: '로그아웃', style: 'destructive', onPress: proceed },
     ]);
   };
 

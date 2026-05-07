@@ -18,8 +18,9 @@ import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react'
 import { AppImage } from '../src/components/common/AppImage';
 import {
   View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, SafeAreaView, Alert,
+  StyleSheet, SafeAreaView,
 } from 'react-native';
+import { notify } from '../src/utils/dialog';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
@@ -118,7 +119,7 @@ export default function PawCheckinModal() {
       try {
         await submitToServer(); // Edge Function → Supabase 저장
       } catch (err: any) {
-        Alert.alert('발도장 저장 실패', err.message ?? '잠시 후 다시 시도해주세요.');
+        notify(err.message ?? '잠시 후 다시 시도해주세요.', '발도장 저장 실패');
         return;
       }
     }

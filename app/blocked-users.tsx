@@ -6,7 +6,7 @@
 
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, FlatList, StyleSheet, Alert,
+  View, Text, TouchableOpacity, FlatList, StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -14,6 +14,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { relativeTime } from '../src/utils/labels';
+import { confirm } from '../src/utils/dialog';
 import type { BlockedUser } from '../src/types';
 
 export default function BlockedUsersScreen() {
@@ -22,15 +23,13 @@ export default function BlockedUsersScreen() {
   const dogs         = useAppStore(s => s.dogs);
   const unblockUser  = useAppStore(s => s.unblockUser);
 
-  const onUnblock = (item: BlockedUser) => {
-    Alert.alert(
-      '차단 해제',
-      '차단을 해제하면 이 사용자의 콘텐츠가 다시 보여요.',
-      [
-        { text: '취소', style: 'cancel' },
-        { text: '해제할게요', onPress: () => unblockUser(item.block_id) },
-      ],
-    );
+  const onUnblock = async (item: BlockedUser) => {
+    if (await confirm('차단을 해제하면 이 사용자의 콘텐츠가 다시 보여요.', {
+      title: '차단 해제',
+      confirmText: '해제할게요',
+    })) {
+      unblockUser(item.block_id);
+    }
   };
 
   const renderItem = ({ item }: { item: BlockedUser }) => {

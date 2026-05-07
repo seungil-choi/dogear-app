@@ -9,8 +9,9 @@
 
 import React from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Platform,
+  View, Text, TouchableOpacity, StyleSheet, SafeAreaView, Platform,
 } from 'react-native';
+import { notify } from '../../src/utils/dialog';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
@@ -98,7 +99,7 @@ export default function LoginScreen() {
       });
 
       if (!credential.identityToken) {
-        Alert.alert('로그인 실패', '인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
+        notify('인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
         return;
       }
 
@@ -109,7 +110,7 @@ export default function LoginScreen() {
           token: credential.identityToken,
         });
         if (error) {
-          Alert.alert('로그인 오류', error.message);
+          notify(error.message);
           return;
         }
         // useAuth 훅이 onAuthStateChange로 user/dog 상태 자동 설정
@@ -120,7 +121,7 @@ export default function LoginScreen() {
       }
     } catch (e: any) {
       if (e?.code === 'ERR_REQUEST_CANCELED') return;
-      Alert.alert('로그인 오류', 'Apple 로그인 중 문제가 발생했어요.');
+      notify('Apple 로그인 중 문제가 발생했어요.');
     }
   };
 
@@ -138,7 +139,7 @@ export default function LoginScreen() {
       const idToken = (userInfo as any).idToken ?? (userInfo as any).data?.idToken;
 
       if (!idToken) {
-        Alert.alert('로그인 실패', '인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
+        notify('인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
         return;
       }
 
@@ -149,7 +150,7 @@ export default function LoginScreen() {
       });
 
       if (error) {
-        Alert.alert('로그인 오류', error.message);
+        notify(error.message);
         return;
       }
 
@@ -158,11 +159,11 @@ export default function LoginScreen() {
       if (e?.code === statusCodes.SIGN_IN_CANCELLED) return;
       if (e?.code === statusCodes.IN_PROGRESS) return;
       if (e?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Alert.alert('알림', 'Google Play Services가 필요해요.');
+        notify('Google Play Services가 필요해요.');
         return;
       }
       console.error('Google Sign-In error:', e);
-      Alert.alert('로그인 오류', 'Google 로그인 중 문제가 발생했어요.');
+      notify('Google 로그인 중 문제가 발생했어요.');
     }
   };
 
@@ -184,7 +185,7 @@ export default function LoginScreen() {
       });
 
       if (fnError || !data?.email || !data?.hashed_token) {
-        Alert.alert('로그인 오류', '카카오 로그인 처리에 실패했어요.');
+        notify('카카오 로그인 처리에 실패했어요.');
         return;
       }
 
@@ -196,7 +197,7 @@ export default function LoginScreen() {
       });
 
       if (verifyError) {
-        Alert.alert('로그인 오류', verifyError.message);
+        notify(verifyError.message);
         return;
       }
 
@@ -204,7 +205,7 @@ export default function LoginScreen() {
     } catch (e: any) {
       if (e?.code === 'E_CANCELLED_OPERATION') return;
       console.error('Kakao login error:', e);
-      Alert.alert('로그인 오류', '카카오 로그인 중 문제가 발생했어요.');
+      notify('카카오 로그인 중 문제가 발생했어요.');
     }
   };
 
@@ -214,7 +215,7 @@ export default function LoginScreen() {
       proceedAfterAuth();
       return;
     }
-    Alert.alert('준비 중', '해당 로그인은 곧 지원될 예정이에요.');
+    notify('해당 로그인은 곧 지원될 예정이에요.');
   };
 
   // 게스트 로그인 — 웹/Android에서 사용 가능 (데이터는 기기에만 저장됨)
