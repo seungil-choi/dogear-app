@@ -15,6 +15,7 @@ import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, SafeAreaView, Modal,
+  Dimensions, NativeScrollEvent, NativeSyntheticEvent,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -174,17 +175,17 @@ export default function HomeScreen() {
 
   const cards    = useMemo(() => getHomeCards(), [getHomeCards]);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [featuredPage, setFeaturedPage] = useState(0);
   const multiDog = dogs.length > 1;
 
-  // ── 오늘의 추천 스팟 ──────────────────────────────────────────────
+  // ── 오늘의 추천 스팟 (3개 카드, 가로 스와이프) ────────────────────
   // 규칙:
-  //   1) 발도장이 있으면 → 가장 최근 발도장 위치 중심으로 2km 이내, 미방문 장소 중 최우선
-  //   2) 발도장이 없고 currentLocation이 있으면 → 현 위치 기준 2km 이내 미방문 장소
-  //   3) 둘 다 없으면 → cards 배열 첫 번째 (기본 홈 베이스)
-  const featuredCard = useMemo(() => {
-    if (cards.length === 0) return null;
+  //   1) 발도장이 있으면 → 가장 최근 발도장 위치 중심으로 2km 이내, 미방문 장소 우선
+  //   2) 발도장이 없고 currentLocation이 있으면 → 현 위치 기준 2km 이내 미방문 우선
+  //   3) 둘 다 없으면 → cards 배열 앞쪽 3개 (기본 홈 베이스)
+  const featuredCards = useMemo(() => {
+    if (cards.length === 0) return [];
 
-    // 거리 계산 함수 (Haversine)
     const dist = (lat1: number, lng1: number, lat2: number, lng2: number) => {
       const R = 6371000;
       const phi1 = (lat1 * Math.PI) / 180;
@@ -195,7 +196,6 @@ export default function HomeScreen() {
       return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     };
 
-    // 1) 활성 강아지의 가장 최근 발도장 위치 추출
     let center: { lat: number; lng: number } | null = null;
     if (dog) {
       const mine = visitSummaries.filter(vs => vs.dog_id === dog.dog_id);
@@ -207,43 +207,33 @@ export default function HomeScreen() {
         if (lastSpot) center = { lat: lastSpot.latitude, lng: lastSpot.longitude };
       }
     }
-    // 2) 발도장 없으면 currentLocation
     if (!center && currentLocation) {
       center = { lat: currentLocation.latitude, lng: currentLocation.longitude };
     }
-    // 3) 둘 다 없으면 fallback: cards[0]
-    if (!center) return cards[0] ?? null;
+    if (!center) return cards.slice(0, 3);
 
-    // 2km 이내 + 미방문 장소 중 거리 가까운 것 + (우선) 분위기 좋은 것 선택
-    const candidates = cards
+    // 2km 이내 후보 추출 + 거리 정렬
+    const within = cards
       .map(c => {
         const sp = spots.find(s => s.spot_id === c.spot_id);
         if (!sp) return null;
         const d = dist(center!.lat, center!.lng, sp.latitude, sp.longitude);
-        if (d > 2000 || d < 30) return null;  // 너무 가깝거나 멀면 제외
+        if (d > 2000 || d < 30) return null;
         return { card: c, dist: d };
       })
       .filter((x): x is { card: typeof cards[0]; dist: number } => x !== null)
-      .filter(({ card }) => !card.has_visited)  // 미방문 우선
       .sort((a, b) => a.dist - b.dist);
 
-    if (candidates.length > 0) return candidates[0].card;
-    // 없으면 2km 이내에서 미방문 무관하게 가장 가까운 곳
-    const fallback = cards
-      .map(c => {
-        const sp = spots.find(s => s.spot_id === c.spot_id);
-        if (!sp) return null;
-        const d = dist(center!.lat, center!.lng, sp.latitude, sp.longitude);
-        if (d > 2000) return null;
-        return { card: c, dist: d };
-      })
-      .filter((x): x is { card: typeof cards[0]; dist: number } => x !== null)
-      .sort((a, b) => a.dist - b.dist);
-    return fallback[0]?.card ?? cards[0] ?? null;
+    // 미방문 우선 + 방문한 곳 차순 → 최대 3개
+    const unvisited = within.filter(({ card }) => !card.has_visited);
+    const visited   = within.filter(({ card }) =>  card.has_visited);
+    const merged = [...unvisited, ...visited].slice(0, 3).map(x => x.card);
+    return merged.length > 0 ? merged : cards.slice(0, 3);
   }, [cards, dog, visitSummaries, spots, currentLocation]);
-  const isFeaturedSaved = useMemo(() =>
-    featuredCard ? savedSpots.some(sv => sv.spot_id === featuredCard.spot_id && sv.dog_id === dog?.dog_id) : false,
-  [featuredCard, savedSpots, dog]);
+
+  const isFeaturedSaved = useCallback((spotId: string) =>
+    savedSpots.some(sv => sv.spot_id === spotId && sv.dog_id === dog?.dog_id),
+  [savedSpots, dog]);
 
   // ── 최근 간 장소 ──────────────────────────────────────────────────
   const recentCards = useMemo(() =>
@@ -290,25 +280,24 @@ export default function HomeScreen() {
     return relativeTime(latest.last_visit_at);
   }, [dog, visitSummaries]);
 
-  // ── 추천 카드 강아지 맞춤 설명 ────────────────────────────────────
-  const personalizedDesc = useMemo(() => {
-    if (!dog || !featuredCard) return undefined;
-    // atmosphere_state는 HomeSpotCardViewModel에 없으므로 배지에서 유추
-    const badges = featuredCard.atmosphere_badges;
+  // ── 추천 카드별 강아지 맞춤 설명 ──────────────────────────────────
+  const buildDescFor = useCallback((card: HomeSpotCardViewModel) => {
+    if (!dog) return undefined;
+    const badges = card.atmosphere_badges;
     const atmosphere =
       badges.some(b => b.includes('한산') || b.includes('조용'))  ? 'quiet'  :
       badges.some(b => b.includes('활발') || b.includes('많은')) ? 'active' :
       'mixed';
     return buildPersonalizedDesc(dog.name, dog.temperament_tags, atmosphere as AtmosphereState);
-  }, [dog, featuredCard]);
+  }, [dog]);
 
   const handlePressCard = useCallback((spotId: string) => {
     router.push(`/spot/${spotId}`);
   }, [router]);
 
-  const handleFeaturedSave = useCallback(() => {
-    if (featuredCard) toggleSaveSpot(featuredCard.spot_id);
-  }, [featuredCard, toggleSaveSpot]);
+  const handleFeaturedSave = useCallback((spotId: string) => {
+    toggleSaveSpot(spotId);
+  }, [toggleSaveSpot]);
 
   // 강아지 미등록 → 온보딩 유도
   if (!dog) {
@@ -425,25 +414,53 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ── 오늘의 추천 스팟 ── */}
-        {featuredCard && (
+        {/* ── 오늘의 추천 스팟 (3개, 가로 스와이프) ── */}
+        {featuredCards.length > 0 && (
           <View style={s.sectionWrap}>
             <View style={s.sectionHead}>
               <Text style={s.sectionTitle}>오늘의 추천 스팟</Text>
-              <TouchableOpacity onPress={() => router.push('/(tabs)/map')}>
-                <View style={s.sectionMoreBtn}>
-                  <Text style={s.sectionMore}>전체보기</Text>
-                  <Icon name="forward" size={11} color={Colors.text.tertiary} />
-                </View>
-              </TouchableOpacity>
+              {featuredCards.length > 1 && (
+                <Text style={s.featuredCountIndicator}>
+                  {featuredPage + 1} / {featuredCards.length}
+                </Text>
+              )}
             </View>
-            <FeaturedCard
-              card={featuredCard}
-              isSaved={isFeaturedSaved}
-              personalizedDesc={personalizedDesc}
-              onPress={() => handlePressCard(featuredCard.spot_id)}
-              onSave={handleFeaturedSave}
-            />
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={(e: NativeSyntheticEvent<NativeScrollEvent>) => {
+                const w = e.nativeEvent.layoutMeasurement.width;
+                const x = e.nativeEvent.contentOffset.x;
+                const page = Math.round(x / w);
+                if (page !== featuredPage) setFeaturedPage(page);
+              }}
+              scrollEventThrottle={16}
+              decelerationRate="fast"
+            >
+              {featuredCards.map(card => (
+                <View key={card.spot_id} style={{ width: Dimensions.get('window').width }}>
+                  <FeaturedCard
+                    card={card}
+                    isSaved={isFeaturedSaved(card.spot_id)}
+                    personalizedDesc={buildDescFor(card)}
+                    onPress={() => handlePressCard(card.spot_id)}
+                    onSave={() => handleFeaturedSave(card.spot_id)}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+            {/* 페이지 도트 */}
+            {featuredCards.length > 1 && (
+              <View style={s.featuredDots}>
+                {featuredCards.map((_, i) => (
+                  <View
+                    key={i}
+                    style={[s.featuredDot, i === featuredPage && s.featuredDotActive]}
+                  />
+                ))}
+              </View>
+            )}
           </View>
         )}
 
@@ -691,6 +708,29 @@ const s = StyleSheet.create({
     ...Typography.label.s,
     color: Colors.text.tertiary,
     fontWeight: '500',
+  },
+
+  // ── 추천 스팟 페이지네이션 ──
+  featuredCountIndicator: {
+    ...Typography.label.s,
+    color: Colors.text.tertiary,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  },
+  featuredDots: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: Spacing[6],
+    marginTop: Spacing[12],
+  },
+  featuredDot: {
+    width: 6, height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.border.default,
+  },
+  featuredDotActive: {
+    width: 18,
+    backgroundColor: Colors.brand.primary,
   },
 
   // ── 오늘의 추천 카드 (이미지 오버레이 방식) ──
