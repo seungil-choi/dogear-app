@@ -223,6 +223,16 @@ export default function ExploreScreen() {
       }));
   }, [filteredCards, spots, mapCenter]);
 
+  // 선택된 핀의 카드 = hero 영역에 항상 노출, 나머지는 주변 다른 장소로 분리
+  const selectedHeroCard = useMemo(
+    () => (selectedId ? sortedCards.find(c => c.spot_id === selectedId) ?? null : null),
+    [sortedCards, selectedId],
+  );
+  const restCards = useMemo(
+    () => (selectedId ? sortedCards.filter(c => c.spot_id !== selectedId) : sortedCards),
+    [sortedCards, selectedId],
+  );
+
   const handlePinPress = useCallback((spotId: string) => {
     setSelectedId(spotId);
     selectSpot(spotId);
@@ -231,12 +241,16 @@ export default function ExploreScreen() {
       // 카드 목록이 하단에 있으므로 살짝 위로 보정
       mapRef.current.setCenter(spot.latitude - 0.002, spot.longitude, 4);
     }
-    // 카드 목록에서 해당 카드로 자동 스크롤
-    const offset = cardOffsetsRef.current[spotId];
-    if (offset != null && cardListRef.current) {
-      cardListRef.current.scrollTo({ y: Math.max(0, offset - 8), animated: true });
+    // 핀 클릭 = "이 장소를 보고 싶다"는 의도 → 패널을 half 로 펼쳐
+    // 선택 장소를 강조 카드로 노출하고 주변 장소는 보조 정보로 함께 보여줌
+    if (snapState === 'min' || snapState === 'peek') {
+      snapToHeight('half');
     }
-  }, [spots, selectSpot]);
+    // 카드 목록의 맨 위(선택 hero 영역)로 스크롤 — 선택 장소가 항상 hero로 노출되므로 0
+    if (cardListRef.current) {
+      cardListRef.current.scrollTo({ y: 0, animated: true });
+    }
+  }, [spots, selectSpot, snapState, snapToHeight]);
 
   const [isLocating, setIsLocating] = useState(false);
 
@@ -423,14 +437,18 @@ export default function ExploreScreen() {
             <View {...panelPanResponder.panHandlers} style={s.panelHandleArea}>
               <View style={s.panelHandle} />
               <View style={s.panelHeader}>
-                <Text style={s.panelTitle}>주변 장소</Text>
+                {/* 선택된 핀이 있으면 그 장소명을, 없으면 '주변 장소' */}
+                <Text style={s.panelTitle} numberOfLines={1}>
+                  {selectedHeroCard ? selectedHeroCard.name : '주변 장소'}
+                </Text>
                 <View style={s.panelCountBadge}>
-                  <Text style={s.panelCount}>{sortedCards.length}곳</Text>
+                  <Text style={s.panelCount}>
+                    {selectedHeroCard ? `+ 주변 ${restCards.length}곳` : `${sortedCards.length}곳`}
+                  </Text>
                 </View>
                 <TouchableOpacity
                   style={s.panelExpandBtn}
                   onPress={() => {
-                    // min → peek 으로 복귀, peek/half → full, full → peek
                     if (snapState === 'min') snapToHeight('peek');
                     else if (snapState === 'full') snapToHeight('peek');
                     else snapToHeight('full');
@@ -459,29 +477,76 @@ export default function ExploreScreen() {
                 showsVerticalScrollIndicator={false}
                 nestedScrollEnabled
               >
-                {sortedCards.map(card => {
-                  const isSelected = selectedId === card.spot_id;
-                  return (
-                    <View
-                      key={card.spot_id}
-                      onLayout={(e) => { cardOffsetsRef.current[card.spot_id] = e.nativeEvent.layout.y; }}
-                      style={[s.peekCardWrap, isSelected && s.peekCardWrapSelected]}
-                    >
-                      <ListSpotCard
-                        name={card.name}
-                        categoryLabel={card.category_label}
-                        distanceText={card.distance_text}
-                        atmosphereSummary={card.atmosphere_badges.join(' · ')}
-                        relationSummary={
-                          card.is_regular ? '단골 스팟' :
-                          card.has_visited ? '발도장 남긴 곳' : undefined
-                        }
-                        isSaved={isSaved(card.spot_id)}
-                        onPress={() => router.push(`/spot/${card.spot_id}` as any)}
-                      />
+                {/* ── 선택된 핀의 hero 카드 (있으면 항상 최상단) ── */}
+                {selectedHeroCard && (
+                  <View style={s.heroCardWrap}>
+                    <View style={s.heroCard}>
+                      <View style={s.heroHeader}>
+                        <Icon name="location-filled" size={14} color={Colors.brand.primary} />
+                        <Text style={s.heroLabel}>선택한 장소</Text>
+                      </View>
+                      <Text style={s.heroName} numberOfLines={1}>{selectedHeroCard.name}</Text>
+                      <Text style={s.heroMeta} numberOfLines={1}>
+                        {selectedHeroCard.category_label} · {selectedHeroCard.distance_text}
+                        {selectedHeroCard.atmosphere_badges.length > 0
+                          ? ` · ${selectedHeroCard.atmosphere_badges.join(' · ')}` : ''}
+                      </Text>
+                      <View style={s.heroActions}>
+                        <TouchableOpacity
+                          style={[s.heroBtn, s.heroBtnPrimary]}
+                          onPress={() => router.push(`/spot/${selectedHeroCard.spot_id}` as any)}
+                          activeOpacity={0.85}
+                        >
+                          <Icon name="forward" size={14} color={Colors.brand.onPrimary} />
+                          <Text style={s.heroBtnPrimaryText}>상세 보기</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[s.heroBtn, s.heroBtnSecondary]}
+                          onPress={() => {
+                            const card = sortedCards.find(c => c.spot_id === selectedHeroCard.spot_id);
+                            if (card) {
+                              useAppStore.getState().setPawSpot(card);
+                              router.push('/paw-checkin');
+                            }
+                          }}
+                          activeOpacity={0.85}
+                        >
+                          <Icon name="paw" size={14} color={Colors.brand.primary} />
+                          <Text style={s.heroBtnSecondaryText}>발도장 찍기</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                  );
-                })}
+                    {restCards.length > 0 && (
+                      <View style={s.restHeader}>
+                        <View style={s.restHeaderLine} />
+                        <Text style={s.restHeaderText}>주변 다른 장소</Text>
+                        <View style={s.restHeaderLine} />
+                      </View>
+                    )}
+                  </View>
+                )}
+
+                {/* ── 나머지 장소 (선택 안 된 경우 sortedCards 전체, 선택 시 restCards) ── */}
+                {(selectedHeroCard ? restCards : sortedCards).map(card => (
+                  <View
+                    key={card.spot_id}
+                    onLayout={(e) => { cardOffsetsRef.current[card.spot_id] = e.nativeEvent.layout.y; }}
+                    style={s.peekCardWrap}
+                  >
+                    <ListSpotCard
+                      name={card.name}
+                      categoryLabel={card.category_label}
+                      distanceText={card.distance_text}
+                      atmosphereSummary={card.atmosphere_badges.join(' · ')}
+                      relationSummary={
+                        card.is_regular ? '단골 스팟' :
+                        card.has_visited ? '발도장 남긴 곳' : undefined
+                      }
+                      isSaved={isSaved(card.spot_id)}
+                      onPress={() => router.push(`/spot/${card.spot_id}` as any)}
+                    />
+                  </View>
+                ))}
                 <View style={{ height: insets.bottom + 80 }} />
               </ScrollView>
             )}
@@ -680,6 +745,92 @@ const s = StyleSheet.create({
   },
   peekCardWrapSelected: {
     backgroundColor: Colors.brand.subtle,
+  },
+
+  // 선택 hero 카드 — 핀 클릭 시 패널 최상단 강조
+  heroCardWrap: {
+    paddingHorizontal: Spacing[16],
+    paddingTop: Spacing[12],
+    paddingBottom: Spacing[8],
+    backgroundColor: Colors.surface.default,
+  },
+  heroCard: {
+    backgroundColor: Colors.brand.subtle,
+    borderRadius: Radius.l,
+    padding: Spacing[14],
+    borderWidth: 1,
+    borderColor: Colors.brand.primary,
+    gap: Spacing[6],
+  },
+  heroHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[4],
+  },
+  heroLabel: {
+    ...Typography.label.s,
+    color: Colors.brand.primary,
+    fontWeight: '700',
+  },
+  heroName: {
+    ...Typography.title.m,
+    color: Colors.text.primary,
+    fontWeight: '700',
+  },
+  heroMeta: {
+    ...Typography.label.s,
+    color: Colors.text.secondary,
+  },
+  heroActions: {
+    flexDirection: 'row',
+    gap: Spacing[8],
+    marginTop: Spacing[8],
+  },
+  heroBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[4],
+    paddingVertical: Spacing[10],
+    borderRadius: Radius.m,
+  },
+  heroBtnPrimary: {
+    backgroundColor: Colors.brand.primary,
+  },
+  heroBtnPrimaryText: {
+    ...Typography.label.m,
+    color: Colors.brand.onPrimary,
+    fontWeight: '700',
+  },
+  heroBtnSecondary: {
+    backgroundColor: Colors.surface.default,
+    borderWidth: 1,
+    borderColor: Colors.brand.primary,
+  },
+  heroBtnSecondaryText: {
+    ...Typography.label.m,
+    color: Colors.brand.primary,
+    fontWeight: '700',
+  },
+
+  // 주변 다른 장소 — hero 아래 구분선
+  restHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[8],
+    paddingTop: Spacing[14],
+    paddingBottom: Spacing[6],
+  },
+  restHeaderLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.border.subtle,
+  },
+  restHeaderText: {
+    ...Typography.label.s,
+    color: Colors.text.tertiary,
+    fontWeight: '600',
   },
 
   listScroll:       { flex: 1 },
