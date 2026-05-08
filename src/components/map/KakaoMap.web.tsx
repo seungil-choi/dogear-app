@@ -86,17 +86,19 @@ function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], sel
   const iconAttrs = variant === 'visited'
     ? `fill="none" stroke="${iconColor}"`
     : `fill="${iconColor}"`;
+  // viewBox 패딩 추가 (-1.5 ~ 25.5 / 33.5) — stroke가 viewBox 안에 완전히 포함됨
+  // overflow:visible 백업 — 일부 환경에서 SVG가 stroke를 잘라내는 케이스 방지
   const pinSvg = `
-    <svg width="${w}" height="${h}" viewBox="0 0 24 32" preserveAspectRatio="xMidYMid meet"
-         style="display:block;width:${w}px;height:${h}px;${shadow}">
+    <svg width="${w}" height="${h}" viewBox="-1.5 -1.5 27 35" preserveAspectRatio="xMidYMid meet"
+         style="display:block;width:${w}px;height:${h}px;overflow:visible;${shadow}">
       <path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z"
-            fill="${v.fill}" stroke="${v.stroke}" stroke-width="${strokeWidth}"/>
+            fill="${v.fill}" stroke="${v.stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>
       <g ${iconAttrs}>${iconPath}</g>
     </svg>
   `;
-  // 컨테이너에 width/height 모두 명시 → 카카오 CustomOverlay가 width:100% 등으로 stretch 못 함
+  // 컨테이너 overflow:visible — 카카오 CustomOverlay가 잘라내지 않도록 명시
   return `
-    <div data-marker-id="${escapeHtml(id)}" style="position:relative;cursor:pointer;pointer-events:auto;width:${w}px;height:${h}px;">
+    <div data-marker-id="${escapeHtml(id)}" style="position:relative;cursor:pointer;pointer-events:auto;width:${w}px;height:${h}px;overflow:visible;">
       ${pinSvg}
       <div style="position:absolute;top:100%;left:50%;transform:translate(-50%,3px);max-width:140px;padding:3px 8px;background:rgba(255,255,255,0.96);border-radius:10px;color:#1A1612;font-size:11px;line-height:14px;font-weight:600;white-space:normal;text-align:center;word-break:keep-all;box-shadow:0 1px 3px rgba(0,0,0,0.18);pointer-events:none;">${escapeHtml(label)}</div>
     </div>

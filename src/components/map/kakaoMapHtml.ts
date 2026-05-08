@@ -122,11 +122,12 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
           : 'fill="' + iconColor + '"';
         var sw = selected ? 2.2 : 1.8;
         var cls = 'pin-svg' + (selected ? ' pin-svg-selected' : '');
-        var pinSvg = '<svg class="' + cls + '" width="' + w + '" height="' + h + '" viewBox="0 0 24 32" preserveAspectRatio="xMidYMid meet" style="width:' + w + 'px;height:' + h + 'px;">' +
-          '<path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z" fill="' + v.fill + '" stroke="' + v.stroke + '" stroke-width="' + sw + '"/>' +
+        // viewBox padding + overflow:visible — stroke 잘림 방지 양면 안전장치
+        var pinSvg = '<svg class="' + cls + '" width="' + w + '" height="' + h + '" viewBox="-1.5 -1.5 27 35" preserveAspectRatio="xMidYMid meet" style="width:' + w + 'px;height:' + h + 'px;overflow:visible;">' +
+          '<path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z" fill="' + v.fill + '" stroke="' + v.stroke + '" stroke-width="' + sw + '" stroke-linejoin="round"/>' +
           '<g ' + iconAttrs + '>' + iconPath + '</g>' +
         '</svg>';
-        return '<div class="pin" data-marker-id="' + escapeHtml(id) + '" style="width:' + w + 'px;height:' + h + 'px;">' +
+        return '<div class="pin" data-marker-id="' + escapeHtml(id) + '" style="width:' + w + 'px;height:' + h + 'px;overflow:visible;">' +
                  pinSvg +
                  '<div class="pin-label">' + escapeHtml(label || '') + '</div>' +
                '</div>';
