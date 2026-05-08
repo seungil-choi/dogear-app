@@ -36,10 +36,14 @@ function loadKakaoSdk(appKey: string): Promise<any> {
 // (카카오: 1 = 가장 가까움, 14 = 가장 멀음)
 const CLUSTER_LEVEL = 6;
 
-const VARIANT_BG = {
-  default: '#9C9B97',
-  visited: '#7BA08B',
-  regular: '#C47848',
+// status별 핀 시각 정의 — 브랜드 spectrum 안에서 단계 표현 (통일감)
+//   regular: 진한 브랜드 = 자주 가는 곳 (★ 별)
+//   visited: 중간 브랜드 = 발도장 남긴 곳 (✓ 체크)
+//   default: 흰 배경 + 브랜드 외곽선 = 아직 안 가본 곳 (• 점)
+const VARIANT_STYLE = {
+  regular: { fill: '#C47848', icon: 'fill', stroke: '#fff' },
+  visited: { fill: '#D89678', icon: 'fill', stroke: '#fff' },
+  default: { fill: '#FFFFFF', icon: 'brand', stroke: '#C47848' },
 } as const;
 
 function escapeHtml(s: string): string {
@@ -48,9 +52,13 @@ function escapeHtml(s: string): string {
   })[c] as string);
 }
 
-// 마커 내부 아이콘
-const PAW_PATH = `<path d="M12 2 C 9.5 2 7.8 4 7.8 6.5 C 7.8 9 9.5 11 12 11 C 14.5 11 16.2 9 16.2 6.5 C 16.2 4 14.5 2 12 2 Z M 5 7 C 3.3 7 2 8.5 2 10.3 C 2 12.1 3.3 13.5 5 13.5 C 6.7 13.5 8 12.1 8 10.3 C 8 8.5 6.7 7 5 7 Z M 19 7 C 17.3 7 16 8.5 16 10.3 C 16 12.1 17.3 13.5 19 13.5 C 20.7 13.5 22 12.1 22 10.3 C 22 8.5 20.7 7 19 7 Z" fill="#fff"/>`;
-const STAR_PATH = `<polygon points="12 5 14.5 11 21 11.3 16 15.5 17.5 22 12 18.5 6.5 22 8 15.5 3 11.3 9.5 11 12 5" fill="#fff"/>`;
+// 마커 내부 아이콘 — status별로 의미 명확 (작은 사이즈에서도 인식 쉬움)
+//   STAR_PATH: 단골 (★)
+//   CHECK_PATH: 발도장 남긴 곳 (✓)
+//   DOT_PATH: 안 가본 곳 (•)
+const STAR_PATH  = `<polygon points="12 4 14.6 9.5 21 10 16.2 14.4 17.6 21 12 17.6 6.4 21 7.8 14.4 3 10 9.4 9.5 12 4"/>`;
+const CHECK_PATH = `<polyline points="6 12 10 16 18 8" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+const DOT_PATH   = `<circle cx="12" cy="12" r="3.5"/>`;
 
 /**
  * tail-pin SVG 마커
@@ -59,22 +67,31 @@ const STAR_PATH = `<polygon points="12 5 14.5 11 21 11.3 16 15.5 17.5 22 12 18.5
  *  - 라벨 풀네임 노출 (white-space:normal, max-width 확대)
  */
 function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], selected: boolean): string {
-  const iconPath = variant === 'regular' ? STAR_PATH : PAW_PATH;
+  const v = VARIANT_STYLE[variant];
+  const iconPath =
+    variant === 'regular' ? STAR_PATH :
+    variant === 'visited' ? CHECK_PATH :
+    DOT_PATH;
   // viewBox 24x32 = 3:4 — 위는 큰 원, 아래로 좁은 꼬리 (Google Maps 스타일)
+  // 선택 시 1.2배 + 그림자 강화로 status에 관계없이 강조
   const w = selected ? 33 : 27;
   const h = selected ? 44 : 36;   // 27:36 = 33:44 = 3:4 (viewBox와 동일)
-  const fill = VARIANT_BG[variant];
   const shadow = selected
-    ? 'filter:drop-shadow(0 4px 8px rgba(196,120,72,0.45));'
-    : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));';
-  // 진짜 tail-pin path — 원형 위 + 뾰족한 아래 꼬리
-  // 원: cx=12, cy=12, r=12  /  꼬리: (12, 32)에서 모임
+    ? 'filter:drop-shadow(0 5px 10px rgba(0,0,0,0.35));'
+    : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.22));';
+  // 아이콘 색상: fill variant는 흰색, brand variant(default 안 가본 곳)는 브랜드 컬러
+  const iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
+  const strokeWidth = selected ? 2.2 : 1.8;
+  // CHECK_PATH는 stroke 기반이라 fill 대신 stroke 색만 사용
+  const iconAttrs = variant === 'visited'
+    ? `fill="none" stroke="${iconColor}"`
+    : `fill="${iconColor}"`;
   const pinSvg = `
     <svg width="${w}" height="${h}" viewBox="0 0 24 32" preserveAspectRatio="xMidYMid meet"
          style="display:block;width:${w}px;height:${h}px;${shadow}">
       <path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z"
-            fill="${fill}" stroke="#fff" stroke-width="1.8"/>
-      <g transform="translate(2,2) scale(0.66)">${iconPath}</g>
+            fill="${v.fill}" stroke="${v.stroke}" stroke-width="${strokeWidth}"/>
+      <g ${iconAttrs}>${iconPath}</g>
     </svg>
   `;
   // 컨테이너에 width/height 모두 명시 → 카카오 CustomOverlay가 width:100% 등으로 stretch 못 함

@@ -99,19 +99,32 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         });
       }
 
-      var VARIANT_BG = { default: '#9C9B97', visited: '#7BA08B', regular: '#C47848' };
-      var PAW_PATH = '<path d="M12 2 C 9.5 2 7.8 4 7.8 6.5 C 7.8 9 9.5 11 12 11 C 14.5 11 16.2 9 16.2 6.5 C 16.2 4 14.5 2 12 2 Z M 5 7 C 3.3 7 2 8.5 2 10.3 C 2 12.1 3.3 13.5 5 13.5 C 6.7 13.5 8 12.1 8 10.3 C 8 8.5 6.7 7 5 7 Z M 19 7 C 17.3 7 16 8.5 16 10.3 C 16 12.1 17.3 13.5 19 13.5 C 20.7 13.5 22 12.1 22 10.3 C 22 8.5 20.7 7 19 7 Z" fill="#fff"/>';
-      var STAR_PATH = '<polygon points="12 5 14.5 11 21 11.3 16 15.5 17.5 22 12 18.5 6.5 22 8 15.5 3 11.3 9.5 11 12 5" fill="#fff"/>';
+      // status별 핀 시각 — 브랜드 spectrum 안에서 단계 표현
+      var VARIANT_STYLE = {
+        regular: { fill: '#C47848', stroke: '#fff', icon: 'fill' },
+        visited: { fill: '#D89678', stroke: '#fff', icon: 'fill' },
+        default: { fill: '#FFFFFF', stroke: '#C47848', icon: 'brand' },
+      };
+      var STAR_PATH  = '<polygon points="12 4 14.6 9.5 21 10 16.2 14.4 17.6 21 12 17.6 6.4 21 7.8 14.4 3 10 9.4 9.5 12 4"/>';
+      var CHECK_PATH = '<polyline points="6 12 10 16 18 8" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+      var DOT_PATH   = '<circle cx="12" cy="12" r="3.5"/>';
 
       function pinHtml(id, label, variant, selected) {
-        var iconPath = variant === 'regular' ? STAR_PATH : PAW_PATH;
+        var v = VARIANT_STYLE[variant || 'default'];
+        var iconPath = variant === 'regular' ? STAR_PATH
+                     : variant === 'visited' ? CHECK_PATH
+                     : DOT_PATH;
         var w = selected ? 33 : 27;
         var h = selected ? 44 : 36;        // 3:4 비율 (viewBox 24x32와 일치)
-        var fill = VARIANT_BG[variant || 'default'];
+        var iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
+        var iconAttrs = variant === 'visited'
+          ? 'fill="none" stroke="' + iconColor + '"'
+          : 'fill="' + iconColor + '"';
+        var sw = selected ? 2.2 : 1.8;
         var cls = 'pin-svg' + (selected ? ' pin-svg-selected' : '');
         var pinSvg = '<svg class="' + cls + '" width="' + w + '" height="' + h + '" viewBox="0 0 24 32" preserveAspectRatio="xMidYMid meet" style="width:' + w + 'px;height:' + h + 'px;">' +
-          '<path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z" fill="' + fill + '" stroke="#fff" stroke-width="1.8"/>' +
-          '<g transform="translate(2,2) scale(0.66)">' + iconPath + '</g>' +
+          '<path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z" fill="' + v.fill + '" stroke="' + v.stroke + '" stroke-width="' + sw + '"/>' +
+          '<g ' + iconAttrs + '>' + iconPath + '</g>' +
         '</svg>';
         return '<div class="pin" data-marker-id="' + escapeHtml(id) + '" style="width:' + w + 'px;height:' + h + 'px;">' +
                  pinSvg +
