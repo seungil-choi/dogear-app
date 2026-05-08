@@ -114,20 +114,19 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         var iconPath = variant === 'regular' ? STAR_PATH
                      : variant === 'visited' ? CHECK_PATH
                      : DOT_PATH;
-        var w = selected ? 33 : 27;
-        var h = selected ? 44 : 36;        // 3:4 비율 (viewBox 24x32와 일치)
+        var size = selected ? 32 : 26;       // 정사각형 — 원형 dot
         var iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
         var iconAttrs = variant === 'visited'
           ? 'fill="none" stroke="' + iconColor + '"'
           : 'fill="' + iconColor + '"';
         var sw = selected ? 2.2 : 1.8;
         var cls = 'pin-svg' + (selected ? ' pin-svg-selected' : '');
-        // viewBox padding + overflow:visible — stroke 잘림 방지 양면 안전장치
-        var pinSvg = '<svg class="' + cls + '" width="' + w + '" height="' + h + '" viewBox="-1.5 -1.5 27 35" preserveAspectRatio="xMidYMid meet" style="width:' + w + 'px;height:' + h + 'px;overflow:visible;">' +
-          '<path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z" fill="' + v.fill + '" stroke="' + v.stroke + '" stroke-width="' + sw + '" stroke-linejoin="round"/>' +
+        // 원형 dot — viewBox 24x24 정사각형
+        var pinSvg = '<svg class="' + cls + '" width="' + size + '" height="' + size + '" viewBox="-1.5 -1.5 27 27" preserveAspectRatio="xMidYMid meet" style="width:' + size + 'px;height:' + size + 'px;overflow:visible;">' +
+          '<circle cx="12" cy="12" r="11" fill="' + v.fill + '" stroke="' + v.stroke + '" stroke-width="' + sw + '"/>' +
           '<g ' + iconAttrs + '>' + iconPath + '</g>' +
         '</svg>';
-        return '<div class="pin" data-marker-id="' + escapeHtml(id) + '" style="width:' + w + 'px;height:' + h + 'px;overflow:visible;">' +
+        return '<div class="pin" data-marker-id="' + escapeHtml(id) + '" style="width:' + size + 'px;height:' + size + 'px;overflow:visible;">' +
                  pinSvg +
                  '<div class="pin-label">' + escapeHtml(label || '') + '</div>' +
                '</div>';
@@ -147,7 +146,8 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
           var overlay = new kakao.maps.CustomOverlay({
             position: pos,
             content: content,
-            yAnchor: 1,
+            xAnchor: 0.5,
+            yAnchor: 0.5,           // 원형 dot — 중심이 LatLng
             clickable: true,
           });
           overlay.setMap(map);
@@ -190,19 +190,12 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         map.panTo(pos);
       }
 
-      function setUserLocation(lat, lng) {
-        if (!map) return;
-        var pos = new kakao.maps.LatLng(lat, lng);
+      // 사용자 위치 점 표시 — 의도가 모호하다는 피드백으로 비노출
+      // (지도 panTo는 setCenter로 가능, 위치 점 자체는 표시하지 않음)
+      function setUserLocation(_lat, _lng) {
         if (userMarker) {
-          userMarker.setPosition(pos);
-        } else {
-          userMarker = new kakao.maps.CustomOverlay({
-            position: pos,
-            content: '<div class="user-loc"></div>',
-            yAnchor: 0.5, xAnchor: 0.5,
-            zIndex: 5,
-          });
-          userMarker.setMap(map);
+          userMarker.setMap(null);
+          userMarker = null;
         }
       }
 

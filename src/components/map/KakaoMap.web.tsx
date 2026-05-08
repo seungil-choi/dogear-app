@@ -61,10 +61,10 @@ const CHECK_PATH = `<polyline points="6 12 10 16 18 8" fill="none" stroke-width=
 const DOT_PATH   = `<circle cx="12" cy="12" r="3.5"/>`;
 
 /**
- * tail-pin SVG 마커
- *  - 핀의 BOTTOM TIP이 LatLng에 정확히 위치 (yAnchor:1 사용)
- *  - 라벨은 absolute로 핀 아래에 배치 → 좌표 정렬에 영향 X
- *  - 라벨 풀네임 노출 (white-space:normal, max-width 확대)
+ * 원형 dot 마커 — 꼬리 없는 단순 동그라미 (좌표가 곧 마커 중심)
+ *  - viewBox 24x24 정사각형
+ *  - xAnchor 0.5, yAnchor 0.5 (중심이 LatLng)
+ *  - 라벨은 absolute로 dot 아래
  */
 function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], selected: boolean): string {
   const v = VARIANT_STYLE[variant];
@@ -72,33 +72,28 @@ function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], sel
     variant === 'regular' ? STAR_PATH :
     variant === 'visited' ? CHECK_PATH :
     DOT_PATH;
-  // viewBox 24x32 = 3:4 — 위는 큰 원, 아래로 좁은 꼬리 (Google Maps 스타일)
-  // 선택 시 1.2배 + 그림자 강화로 status에 관계없이 강조
-  const w = selected ? 33 : 27;
-  const h = selected ? 44 : 36;   // 27:36 = 33:44 = 3:4 (viewBox와 동일)
+  // 정사각형 1:1 — viewBox 24x24
+  const size = selected ? 32 : 26;
   const shadow = selected
-    ? 'filter:drop-shadow(0 5px 10px rgba(0,0,0,0.35));'
+    ? 'filter:drop-shadow(0 4px 8px rgba(0,0,0,0.32));'
     : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.22));';
-  // 아이콘 색상: fill variant는 흰색, brand variant(default 안 가본 곳)는 브랜드 컬러
   const iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
   const strokeWidth = selected ? 2.2 : 1.8;
-  // CHECK_PATH는 stroke 기반이라 fill 대신 stroke 색만 사용
   const iconAttrs = variant === 'visited'
     ? `fill="none" stroke="${iconColor}"`
     : `fill="${iconColor}"`;
-  // viewBox 패딩 추가 (-1.5 ~ 25.5 / 33.5) — stroke가 viewBox 안에 완전히 포함됨
-  // overflow:visible 백업 — 일부 환경에서 SVG가 stroke를 잘라내는 케이스 방지
+  // viewBox 패딩 (-1.5 ~ 25.5) + overflow:visible — stroke 잘림 방지
   const pinSvg = `
-    <svg width="${w}" height="${h}" viewBox="-1.5 -1.5 27 35" preserveAspectRatio="xMidYMid meet"
-         style="display:block;width:${w}px;height:${h}px;overflow:visible;${shadow}">
-      <path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z"
-            fill="${v.fill}" stroke="${v.stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>
+    <svg width="${size}" height="${size}" viewBox="-1.5 -1.5 27 27" preserveAspectRatio="xMidYMid meet"
+         style="display:block;width:${size}px;height:${size}px;overflow:visible;${shadow}">
+      <circle cx="12" cy="12" r="11"
+              fill="${v.fill}" stroke="${v.stroke}" stroke-width="${strokeWidth}"/>
       <g ${iconAttrs}>${iconPath}</g>
     </svg>
   `;
   // 컨테이너 overflow:visible — 카카오 CustomOverlay가 잘라내지 않도록 명시
   return `
-    <div data-marker-id="${escapeHtml(id)}" style="position:relative;cursor:pointer;pointer-events:auto;width:${w}px;height:${h}px;overflow:visible;">
+    <div data-marker-id="${escapeHtml(id)}" style="position:relative;cursor:pointer;pointer-events:auto;width:${size}px;height:${size}px;overflow:visible;">
       ${pinSvg}
       <div style="position:absolute;top:100%;left:50%;transform:translate(-50%,3px);max-width:140px;padding:3px 8px;background:rgba(255,255,255,0.96);border-radius:10px;color:#1A1612;font-size:11px;line-height:14px;font-weight:600;white-space:normal;text-align:center;word-break:keep-all;box-shadow:0 1px 3px rgba(0,0,0,0.18);pointer-events:none;">${escapeHtml(label)}</div>
     </div>
@@ -197,10 +192,21 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     markersRef.current.clear();
 
     if (isCluster) {
-      // ── 클러스터 모드 — 일반 Marker + Clusterer ──
+      // ── 클러스터 모드 — Marker + Clusterer ──
+      // Marker에 우리 원형 dot SVG를 image로 지정 (카카오 기본 빨간 핀 대체)
       const markers = props.markers.map((m) => {
+        // variant별 dot SVG → data URL → MarkerImage
+        const v = VARIANT_STYLE[m.variant];
+        const dotSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="-1.5 -1.5 27 27"><circle cx="12" cy="12" r="11" fill="${v.fill}" stroke="${v.stroke}" stroke-width="1.8"/></svg>`;
+        const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(dotSvg)}`;
+        const markerImage = new kakao.maps.MarkerImage(
+          dataUrl,
+          new kakao.maps.Size(22, 22),
+          { offset: new kakao.maps.Point(11, 11) },
+        );
         const marker = new kakao.maps.Marker({
           position: new kakao.maps.LatLng(m.latitude, m.longitude),
+          image: markerImage,
           clickable: true,
         });
         kakao.maps.event.addListener(marker, 'click', () => {
@@ -213,14 +219,15 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
       return;
     }
 
-    // ── 디테일 모드 — CustomOverlay tail-pin (라벨 풀네임) ──
+    // ── 디테일 모드 — CustomOverlay 원형 dot (라벨 풀네임) ──
+    // yAnchor 0.5 — dot 중심이 LatLng (꼬리 없는 원형이라 중앙 앵커가 자연스러움)
     props.markers.forEach((m) => {
       const isSelected = m.id === props.selectedId;
       const overlay = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(m.latitude, m.longitude),
         content: pinHtml(m.id, m.label, m.variant, isSelected),
         xAnchor: 0.5,
-        yAnchor: 1.0,
+        yAnchor: 0.5,
         clickable: true,
       });
       overlay.setMap(mapRef.current);
@@ -248,22 +255,13 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     });
   }, [ready, props.markers, props.selectedId, props.onMarkerClick, zoomLevel]);
 
-  // 사용자 위치
+  // 사용자 위치 표시 — 의도가 모호하다는 피드백으로 비노출
+  // (지도 우측 상단 핀 버튼으로 내 위치 panTo는 가능. 위치 점 자체는 표시하지 않음)
   useEffect(() => {
-    if (!ready || !mapRef.current) return;
-    if (!props.userLocation) return;
-    const kakao = (window as any).kakao;
-    const pos = new kakao.maps.LatLng(props.userLocation.latitude, props.userLocation.longitude);
+    // 기존에 그려진 overlay가 있으면 정리
     if (userOverlayRef.current) {
-      userOverlayRef.current.setPosition(pos);
-    } else {
-      userOverlayRef.current = new kakao.maps.CustomOverlay({
-        position: pos,
-        content: '<div style="width:18px;height:18px;border-radius:50%;background:#4285F4;border:3px solid #fff;box-shadow:0 0 0 4px rgba(66,133,244,0.25)"></div>',
-        yAnchor: 0.5, xAnchor: 0.5,
-        zIndex: 5,
-      });
-      userOverlayRef.current.setMap(mapRef.current);
+      userOverlayRef.current.setMap(null);
+      userOverlayRef.current = null;
     }
   }, [ready, props.userLocation]);
 
