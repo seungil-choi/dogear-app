@@ -78,14 +78,16 @@ function getDotMarkerImage(kakao: any, fillColor: string, strokeColor: string, s
   return img;
 }
 
-// status별 핀 시각 정의 — 브랜드 spectrum 안에서 단계 표현 (통일감)
+// status별 핀 시각 정의
 //   regular: 진한 브랜드 = 자주 가는 곳 (★ 별)
 //   visited: 중간 브랜드 = 발도장 남긴 곳 (✓ 체크)
-//   default: 연한 브랜드 = 아직 안 가본 곳 (• 점) — 흰 빈 원 X, 채워진 연한 색
+//   default: 흰 배경 + 브랜드 외곽선 = 아직 안 가본 곳 (• 점)
+//   ※ 클러스터 모드(level≥6)에서는 모든 핀이 숫자 클러스터로 통합되므로
+//     default 흰 빈 원은 디테일 모드(가까이)에서만 노출됨
 const VARIANT_STYLE = {
-  regular: { fill: '#C47848', icon: 'fill', stroke: '#fff' },
-  visited: { fill: '#D89678', icon: 'fill', stroke: '#fff' },
-  default: { fill: '#E5BFA8', icon: 'fill', stroke: '#fff' },  // 연한 브랜드 fill + 흰 stroke
+  regular: { fill: '#C47848', icon: 'fill',  stroke: '#fff'    },
+  visited: { fill: '#D89678', icon: 'fill',  stroke: '#fff'    },
+  default: { fill: '#FFFFFF', icon: 'brand', stroke: '#C47848' },
 } as const;
 
 function escapeHtml(s: string): string {
@@ -119,8 +121,8 @@ function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], sel
   const shadow = selected
     ? 'filter:drop-shadow(0 4px 8px rgba(0,0,0,0.32));'
     : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.22));';
-  // 모든 variant가 채워진 색이라 아이콘은 흰색으로 통일
-  const iconColor = '#fff';
+  // 아이콘 색상: fill variant는 흰색, brand variant(default 안 가본 곳)는 브랜드 컬러
+  const iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
   const strokeWidth = selected ? 2.2 : 1.8;
   const iconAttrs = variant === 'visited'
     ? `fill="none" stroke="${iconColor}"`
@@ -177,7 +179,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
         map,
         averageCenter: true,
         minLevel: CLUSTER_LEVEL,            // 이 레벨 이상에서만 클러스터링 시작
-        minClusterSize: 2,                  // 2개 이상 모일 때만 클러스터
+        minClusterSize: 1,                  // 1개라도 클러스터 처리 (줌아웃 시 단일 dot 미노출)
         disableClickZoom: false,            // 클러스터 클릭 시 자동 줌인
         // 단계별 스타일 — 카운트에 따라 자동 적용
         // box-sizing:border-box로 border가 width에 포함되어야 정사각형(원형) 유지
