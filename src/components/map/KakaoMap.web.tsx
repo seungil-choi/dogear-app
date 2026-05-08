@@ -60,20 +60,21 @@ const STAR_PATH = `<polygon points="12 5 14.5 11 21 11.3 16 15.5 17.5 22 12 18.5
  */
 function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], selected: boolean): string {
   const iconPath = variant === 'regular' ? STAR_PATH : PAW_PATH;
-  // viewBox 32x40 = 4:5 비율을 정확히 유지해야 핀이 stretch 안 됨
-  const w = selected ? 36 : 28;
-  const h = selected ? 45 : 35;   // 28:35 = 36:45 = 4:5 (viewBox와 동일)
+  // viewBox 24x32 = 3:4 — 위는 큰 원, 아래로 좁은 꼬리 (Google Maps 스타일)
+  const w = selected ? 33 : 27;
+  const h = selected ? 44 : 36;   // 27:36 = 33:44 = 3:4 (viewBox와 동일)
   const fill = VARIANT_BG[variant];
   const shadow = selected
     ? 'filter:drop-shadow(0 4px 8px rgba(196,120,72,0.45));'
-    : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.28));';
-  // SVG 자체 사이즈 명시 + preserveAspectRatio로 비율 강제 + CSS 사이즈 재명시 (카카오 컨테이너 stretch 방지)
+    : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));';
+  // 진짜 tail-pin path — 원형 위 + 뾰족한 아래 꼬리
+  // 원: cx=12, cy=12, r=12  /  꼬리: (12, 32)에서 모임
   const pinSvg = `
-    <svg width="${w}" height="${h}" viewBox="0 0 32 40" preserveAspectRatio="xMidYMid meet"
+    <svg width="${w}" height="${h}" viewBox="0 0 24 32" preserveAspectRatio="xMidYMid meet"
          style="display:block;width:${w}px;height:${h}px;${shadow}">
-      <path d="M16 0 C 7.2 0 0 7.2 0 16 C 0 23 8 31 16 40 C 24 31 32 23 32 16 C 32 7.2 24.8 0 16 0 Z"
-            fill="${fill}" stroke="#fff" stroke-width="2.5"/>
-      <g transform="translate(4,4) scale(${(w === 36 ? 1.0 : 0.85)})">${iconPath}</g>
+      <path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z"
+            fill="${fill}" stroke="#fff" stroke-width="1.8"/>
+      <g transform="translate(2,2) scale(0.66)">${iconPath}</g>
     </svg>
   `;
   // 컨테이너에 width/height 모두 명시 → 카카오 CustomOverlay가 width:100% 등으로 stretch 못 함

@@ -105,13 +105,13 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
 
       function pinHtml(id, label, variant, selected) {
         var iconPath = variant === 'regular' ? STAR_PATH : PAW_PATH;
-        var w = selected ? 36 : 28;
-        var h = selected ? 45 : 35;        // 4:5 비율로 viewBox와 정확히 일치 (stretch 방지)
+        var w = selected ? 33 : 27;
+        var h = selected ? 44 : 36;        // 3:4 비율 (viewBox 24x32와 일치)
         var fill = VARIANT_BG[variant || 'default'];
         var cls = 'pin-svg' + (selected ? ' pin-svg-selected' : '');
-        var pinSvg = '<svg class="' + cls + '" width="' + w + '" height="' + h + '" viewBox="0 0 32 40" preserveAspectRatio="xMidYMid meet" style="width:' + w + 'px;height:' + h + 'px;">' +
-          '<path d="M16 0 C 7.2 0 0 7.2 0 16 C 0 23 8 31 16 40 C 24 31 32 23 32 16 C 32 7.2 24.8 0 16 0 Z" fill="' + fill + '" stroke="#fff" stroke-width="2.5"/>' +
-          '<g transform="translate(4,4)' + (selected ? '' : ' scale(0.85)') + '">' + iconPath + '</g>' +
+        var pinSvg = '<svg class="' + cls + '" width="' + w + '" height="' + h + '" viewBox="0 0 24 32" preserveAspectRatio="xMidYMid meet" style="width:' + w + 'px;height:' + h + 'px;">' +
+          '<path d="M 12 0 C 5.4 0 0 5.4 0 12 C 0 14.7 1 17 2.5 19.3 L 12 32 L 21.5 19.3 C 23 17 24 14.7 24 12 C 24 5.4 18.6 0 12 0 Z" fill="' + fill + '" stroke="#fff" stroke-width="1.8"/>' +
+          '<g transform="translate(2,2) scale(0.66)">' + iconPath + '</g>' +
         '</svg>';
         return '<div class="pin" data-marker-id="' + escapeHtml(id) + '" style="width:' + w + 'px;height:' + h + 'px;">' +
                  pinSvg +
