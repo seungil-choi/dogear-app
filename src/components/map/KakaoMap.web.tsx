@@ -81,11 +81,11 @@ function getDotMarkerImage(kakao: any, fillColor: string, strokeColor: string, s
 // status별 핀 시각 정의 — 브랜드 spectrum 안에서 단계 표현 (통일감)
 //   regular: 진한 브랜드 = 자주 가는 곳 (★ 별)
 //   visited: 중간 브랜드 = 발도장 남긴 곳 (✓ 체크)
-//   default: 흰 배경 + 브랜드 외곽선 = 아직 안 가본 곳 (• 점)
+//   default: 연한 브랜드 = 아직 안 가본 곳 (• 점) — 흰 빈 원 X, 채워진 연한 색
 const VARIANT_STYLE = {
   regular: { fill: '#C47848', icon: 'fill', stroke: '#fff' },
   visited: { fill: '#D89678', icon: 'fill', stroke: '#fff' },
-  default: { fill: '#FFFFFF', icon: 'brand', stroke: '#C47848' },
+  default: { fill: '#E5BFA8', icon: 'fill', stroke: '#fff' },  // 연한 브랜드 fill + 흰 stroke
 } as const;
 
 function escapeHtml(s: string): string {
@@ -119,7 +119,8 @@ function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], sel
   const shadow = selected
     ? 'filter:drop-shadow(0 4px 8px rgba(0,0,0,0.32));'
     : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.22));';
-  const iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
+  // 모든 variant가 채워진 색이라 아이콘은 흰색으로 통일
+  const iconColor = '#fff';
   const strokeWidth = selected ? 2.2 : 1.8;
   const iconAttrs = variant === 'visited'
     ? `fill="none" stroke="${iconColor}"`
@@ -178,12 +179,14 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
         minLevel: CLUSTER_LEVEL,            // 이 레벨 이상에서만 클러스터링 시작
         minClusterSize: 2,                  // 2개 이상 모일 때만 클러스터
         disableClickZoom: false,            // 클러스터 클릭 시 자동 줌인
+        // 단계별 스타일 — 카운트에 따라 자동 적용
+        // box-sizing:border-box로 border가 width에 포함되어야 정사각형(원형) 유지
+        // padding:0으로 카카오의 기본 padding 제거
         styles: [
-          // 단계별 스타일 — 카운트에 따라 자동 적용
-          { width: 36, height: 36, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '36px', borderRadius: '50%', fontWeight: '700', fontSize: '12px', border: '2px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' },
-          { width: 44, height: 44, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '44px', borderRadius: '50%', fontWeight: '700', fontSize: '13px', border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.22)' },
-          { width: 52, height: 52, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '52px', borderRadius: '50%', fontWeight: '800', fontSize: '14px', border: '2px solid #fff', boxShadow: '0 3px 10px rgba(0,0,0,0.24)' },
-          { width: 60, height: 60, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '60px', borderRadius: '50%', fontWeight: '800', fontSize: '15px', border: '2px solid #fff', boxShadow: '0 3px 12px rgba(0,0,0,0.26)' },
+          { width: '36px', height: '36px', background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '32px', borderRadius: '50%', fontWeight: '700', fontSize: '12px', border: '2px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)', boxSizing: 'border-box', padding: '0' },
+          { width: '44px', height: '44px', background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '40px', borderRadius: '50%', fontWeight: '700', fontSize: '13px', border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.22)', boxSizing: 'border-box', padding: '0' },
+          { width: '52px', height: '52px', background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '48px', borderRadius: '50%', fontWeight: '800', fontSize: '14px', border: '2px solid #fff', boxShadow: '0 3px 10px rgba(0,0,0,0.24)', boxSizing: 'border-box', padding: '0' },
+          { width: '60px', height: '60px', background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '56px', borderRadius: '50%', fontWeight: '800', fontSize: '15px', border: '2px solid #fff', boxShadow: '0 3px 12px rgba(0,0,0,0.26)', boxSizing: 'border-box', padding: '0' },
         ],
         calculator: [10, 50, 100],          // 1~9 / 10~49 / 50~99 / 100+ 단계
       });

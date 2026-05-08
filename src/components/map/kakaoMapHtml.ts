@@ -112,11 +112,11 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         });
       }
 
-      // status별 핀 시각 — 브랜드 spectrum 안에서 단계 표현
+      // status별 핀 시각 — 브랜드 spectrum 안에서 단계 표현 (모두 채워진 색)
       var VARIANT_STYLE = {
-        regular: { fill: '#C47848', stroke: '#fff', icon: 'fill' },
-        visited: { fill: '#D89678', stroke: '#fff', icon: 'fill' },
-        default: { fill: '#FFFFFF', stroke: '#C47848', icon: 'brand' },
+        regular: { fill: '#C47848', stroke: '#fff' },
+        visited: { fill: '#D89678', stroke: '#fff' },
+        default: { fill: '#E5BFA8', stroke: '#fff' },
       };
       var STAR_PATH  = '<polygon points="12 4 14.6 9.5 21 10 16.2 14.4 17.6 21 12 17.6 6.4 21 7.8 14.4 3 10 9.4 9.5 12 4"/>';
       var CHECK_PATH = '<polyline points="6 12 10 16 18 8" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
@@ -128,7 +128,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
                      : variant === 'visited' ? CHECK_PATH
                      : DOT_PATH;
         var size = selected ? 32 : 26;       // 정사각형 — 원형 dot
-        var iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
+        var iconColor = '#fff';
         var iconAttrs = variant === 'visited'
           ? 'fill="none" stroke="' + iconColor + '"'
           : 'fill="' + iconColor + '"';
