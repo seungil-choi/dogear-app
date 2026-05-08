@@ -86,6 +86,7 @@ export default function ExploreScreen() {
     lat: INITIAL_CENTER.latitude,
     lng: INITIAL_CENTER.longitude,
   });
+  const [zoomLevel, setZoomLevel] = useState<number>(INITIAL_CENTER.level);
 
   const mapRef = useRef<KakaoMapRef>(null);
   const cardListRef = useRef<ScrollView>(null);
@@ -196,9 +197,17 @@ export default function ExploreScreen() {
   // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 + 반경 제한 ──
   // 검색 중일 때는 반경 제한 우회 (이름으로 찾는 장소는 거리 무관 노출)
   const isSearching = searchQuery.trim().length > 0;
+  // 줌 레벨에 따른 동적 반경 — 줌아웃 시 더 넓은 영역을 클러스터로 보여줌
+  // 카카오 줌: 1=가장 가까움 ~ 14=가장 멀음
+  const zoomBasedRadiusM =
+    zoomLevel <= 4 ? 2000 :
+    zoomLevel === 5 ? 3500 :
+    zoomLevel === 6 ? 7000 :
+    zoomLevel === 7 ? 15000 :
+    30000;
   const activeRadiusM = isSearching
     ? Number.MAX_SAFE_INTEGER  // 검색 시: 반경 제한 없음
-    : (FILTER_RADIUS[activeFilter] ?? 2000);
+    : Math.max(FILTER_RADIUS[activeFilter] ?? 2000, zoomBasedRadiusM);
 
   const sortedCards = useMemo(() => {
     return filteredCards
@@ -421,7 +430,10 @@ export default function ExploreScreen() {
             markers={kakaoMarkers}
             onMarkerClick={handlePinPress}
             onMapClick={() => { setSelectedId(null); }}
-            onRegionChange={(lat, lng) => setMapCenter({ lat, lng })}
+            onRegionChange={(lat, lng, lv) => {
+              setMapCenter({ lat, lng });
+              if (lv != null) setZoomLevel(lv);
+            }}
           />
 
           {/* 내 위치 버튼 — 헤더 + 카테고리 아래 우측 상단 고정 */}

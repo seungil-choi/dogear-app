@@ -12,16 +12,16 @@ import type { KakaoMapProps, KakaoMapRef, KakaoMarker } from './KakaoMap';
 
 const KAKAO_JS_KEY = process.env.EXPO_PUBLIC_KAKAO_JS_KEY ?? '';
 
-// 동적으로 카카오 SDK 스크립트 로드 (한 번만)
+// 동적으로 카카오 SDK 스크립트 로드 (한 번만) — clusterer 라이브러리 포함
 let kakaoLoadPromise: Promise<any> | null = null;
 function loadKakaoSdk(appKey: string): Promise<any> {
   if (typeof window === 'undefined') return Promise.reject('SSR');
-  if ((window as any).kakao?.maps) return Promise.resolve((window as any).kakao);
+  if ((window as any).kakao?.maps?.MarkerClusterer) return Promise.resolve((window as any).kakao);
   if (kakaoLoadPromise) return kakaoLoadPromise;
 
   kakaoLoadPromise = new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=clusterer`;
     script.async = true;
     script.onload = () => {
       (window as any).kakao.maps.load(() => resolve((window as any).kakao));
@@ -31,6 +31,10 @@ function loadKakaoSdk(appKey: string): Promise<any> {
   });
   return kakaoLoadPromise;
 }
+
+// 줌 레벨 임계값 — 이 값 이상(멀리)이면 클러스터, 이하(가까이)면 디테일 핀
+// (카카오: 1 = 가장 가까움, 14 = 가장 멀음)
+const CLUSTER_LEVEL = 6;
 
 const VARIANT_BG = {
   default: '#9C9B97',
@@ -81,9 +85,12 @@ function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], sel
 const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props, ref) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
-  const overlaysRef = useRef<Map<string, any>>(new Map());
+  const overlaysRef = useRef<Map<string, any>>(new Map());          // 디테일 모드 (CustomOverlay)
+  const markersRef = useRef<Map<string, any>>(new Map());           // 클러스터 모드 (Marker)
+  const clustererRef = useRef<any>(null);                            // MarkerClusterer 인스턴스
   const userOverlayRef = useRef<any>(null);
   const [ready, setReady] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(props.initialLevel ?? 4);
 
   // 초기화
   useEffect(() => {
@@ -104,6 +111,23 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
       });
       mapRef.current = map;
 
+      // 클러스터러 초기화 (도그이어 톤)
+      clustererRef.current = new kakao.maps.MarkerClusterer({
+        map,
+        averageCenter: true,
+        minLevel: CLUSTER_LEVEL,            // 이 레벨 이상에서만 클러스터링 시작
+        minClusterSize: 2,                  // 2개 이상 모일 때만 클러스터
+        disableClickZoom: false,            // 클러스터 클릭 시 자동 줌인
+        styles: [
+          // 단계별 스타일 — 카운트에 따라 자동 적용
+          { width: 36, height: 36, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '36px', borderRadius: '50%', fontWeight: '700', fontSize: '12px', border: '2px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' },
+          { width: 44, height: 44, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '44px', borderRadius: '50%', fontWeight: '700', fontSize: '13px', border: '2px solid #fff', boxShadow: '0 2px 8px rgba(0,0,0,0.22)' },
+          { width: 52, height: 52, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '52px', borderRadius: '50%', fontWeight: '800', fontSize: '14px', border: '2px solid #fff', boxShadow: '0 3px 10px rgba(0,0,0,0.24)' },
+          { width: 60, height: 60, background: 'rgba(196,120,72,0.92)', color: '#fff', textAlign: 'center', lineHeight: '60px', borderRadius: '50%', fontWeight: '800', fontSize: '15px', border: '2px solid #fff', boxShadow: '0 3px 12px rgba(0,0,0,0.26)' },
+        ],
+        calculator: [10, 50, 100],          // 1~9 / 10~49 / 50~99 / 100+ 단계
+      });
+
       // 빈 영역 클릭
       kakao.maps.event.addListener(map, 'click', () => {
         props.onMapClick?.();
@@ -111,6 +135,13 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
 
       // 영역 변경
       kakao.maps.event.addListener(map, 'dragend', () => {
+        const c = map.getCenter();
+        props.onRegionChange?.(c.getLat(), c.getLng(), map.getLevel());
+      });
+
+      // 줌 변경 — 디테일/클러스터 모드 전환 트리거
+      kakao.maps.event.addListener(map, 'zoom_changed', () => {
+        setZoomLevel(map.getLevel());
         const c = map.getCenter();
         props.onRegionChange?.(c.getLat(), c.getLng(), map.getLevel());
       });
@@ -125,22 +156,46 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // markers 동기화
+  // markers 동기화 — 줌 레벨에 따라 디테일/클러스터 분기
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     const kakao = (window as any).kakao;
     if (!kakao) return;
 
-    // 기존 overlay 제거
+    const isCluster = zoomLevel >= CLUSTER_LEVEL;
+
+    // 양쪽 모드 모두 정리 (재구성 전에)
     overlaysRef.current.forEach(o => o.setMap(null));
     overlaysRef.current.clear();
+    if (clustererRef.current) {
+      clustererRef.current.clear();
+    }
+    markersRef.current.forEach(m => m.setMap(null));
+    markersRef.current.clear();
 
+    if (isCluster) {
+      // ── 클러스터 모드 — 일반 Marker + Clusterer ──
+      const markers = props.markers.map((m) => {
+        const marker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(m.latitude, m.longitude),
+          clickable: true,
+        });
+        kakao.maps.event.addListener(marker, 'click', () => {
+          props.onMarkerClick?.(m.id);
+        });
+        markersRef.current.set(m.id, marker);
+        return marker;
+      });
+      clustererRef.current?.addMarkers(markers);
+      return;
+    }
+
+    // ── 디테일 모드 — CustomOverlay tail-pin (라벨 풀네임) ──
     props.markers.forEach((m) => {
       const isSelected = m.id === props.selectedId;
       const overlay = new kakao.maps.CustomOverlay({
         position: new kakao.maps.LatLng(m.latitude, m.longitude),
         content: pinHtml(m.id, m.label, m.variant, isSelected),
-        // tail-pin SVG 형태 — 꼬리 끝이 LatLng에 정확히 위치 (yAnchor:1)
         xAnchor: 0.5,
         yAnchor: 1.0,
         clickable: true,
@@ -168,7 +223,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
       // 한 번 더 — 일부 브라우저에서 첫 RAF 직후 DOM 미반영 케이스 대비
       setTimeout(attachClicks, 100);
     });
-  }, [ready, props.markers, props.selectedId, props.onMarkerClick]);
+  }, [ready, props.markers, props.selectedId, props.onMarkerClick, zoomLevel]);
 
   // 사용자 위치
   useEffect(() => {
