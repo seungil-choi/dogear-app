@@ -126,13 +126,36 @@ export default function DogSetupScreen() {
     router.replace('/(auth)/permissions' as any);
   };
 
+  // 강아지 등록 건너뛰기 — 마이 탭에서 언제든 추가 가능
+  const handleSkip = () => {
+    completeOnboarding();
+    router.replace('/(auth)/permissions' as any);
+  };
+
   const canProceed = name.trim().length > 0 && !isSaving;
 
   return (
     <SafeAreaView style={s.safe}>
+      {/* 헤더 — 우측 상단 건너뛰기 */}
+      <View style={s.header}>
+        <View style={{ width: 40 }} />
+        <View style={{ flex: 1 }} />
+        <TouchableOpacity onPress={handleSkip} style={s.skipBtn} hitSlop={8} disabled={isSaving}>
+          <Text style={s.skipText}>건너뛰기</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-        <Text style={s.title}>반려견을 소개해주세요</Text>
-        <Text style={s.desc}>산책 스팟 추천과 익숙한 강아지 필터에 활용돼요.</Text>
+        <View style={s.titleRow}>
+          <Text style={s.title}>반려견을 소개해주세요</Text>
+          <View style={s.optionalBadge}>
+            <Text style={s.optionalBadgeText}>선택사항</Text>
+          </View>
+        </View>
+        <Text style={s.desc}>
+          지금 등록하면 맞춤 산책 추천을 받을 수 있어요.{'\n'}
+          나중에 마이 탭에서 언제든 추가할 수 있어요.
+        </Text>
 
         {/* 이름 */}
         <View style={s.field}>
@@ -246,13 +269,16 @@ export default function DogSetupScreen() {
 
       <View style={s.footer}>
         <Button
-          label={isSaving ? '등록 중...' : canProceed ? '완료' : '이름을 입력해주세요'}
+          label={isSaving ? '등록 중...' : canProceed ? '등록하고 시작' : '이름을 입력해주세요'}
           onPress={handleDone}
           variant="primary"
           size="l"
           fullWidth
           disabled={!canProceed}
         />
+        <TouchableOpacity onPress={handleSkip} style={s.skipLater} disabled={isSaving} activeOpacity={0.7}>
+          <Text style={s.skipLaterText}>나중에 등록할게요</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -263,8 +289,43 @@ const s = StyleSheet.create({
   scroll: { flex: 1 },
   content: { padding: Spacing[20] },
 
-  title: { ...Typography.display.s, color: Colors.text.primary, marginBottom: Spacing[6] },
-  desc: { ...Typography.body.m, color: Colors.text.secondary, marginBottom: Spacing[24] },
+  // 헤더 (우측 상단 건너뛰기)
+  header: {
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing[16],
+  },
+  skipBtn: { paddingHorizontal: Spacing[8], paddingVertical: Spacing[8] },
+  skipText: { ...Typography.label.m, color: Colors.text.tertiary, fontWeight: '600' },
+
+  // 타이틀 + Optional 배지
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[8], marginBottom: Spacing[6] },
+  title: { ...Typography.display.s, color: Colors.text.primary },
+  optionalBadge: {
+    paddingHorizontal: Spacing[8],
+    paddingVertical: 3,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.bg.secondary,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+  },
+  optionalBadgeText: { ...Typography.caption, color: Colors.text.tertiary, fontWeight: '600' },
+
+  desc: { ...Typography.body.m, color: Colors.text.secondary, marginBottom: Spacing[24], lineHeight: 22 },
+
+  // 하단 보조 — 나중에 등록
+  skipLater: {
+    alignItems: 'center',
+    paddingVertical: Spacing[12],
+    marginTop: Spacing[6],
+  },
+  skipLaterText: {
+    ...Typography.label.m,
+    color: Colors.text.tertiary,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
+  },
 
   field: { marginBottom: Spacing[20] },
   fieldRow: { flexDirection: 'row', gap: Spacing[10], marginBottom: Spacing[20] },
