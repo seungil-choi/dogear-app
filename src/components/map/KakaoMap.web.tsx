@@ -36,6 +36,48 @@ function loadKakaoSdk(appKey: string): Promise<any> {
 // (카카오: 1 = 가장 가까움, 14 = 가장 멀음)
 const CLUSTER_LEVEL = 6;
 
+/**
+ * Canvas로 원형 dot PNG 생성 → MarkerImage
+ *  - SVG dataURL이 카카오에서 일부 환경 미적용 → 카카오 default(파란 핀) 폴백 문제
+ *  - PNG dataURL은 모든 환경에서 안정적
+ *  - dpr 보정으로 retina에서도 선명
+ */
+const dotImageCache = new Map<string, any>();
+function getDotMarkerImage(kakao: any, fillColor: string, strokeColor: string, sizeCss = 22): any {
+  const cacheKey = `${fillColor}|${strokeColor}|${sizeCss}`;
+  if (dotImageCache.has(cacheKey)) return dotImageCache.get(cacheKey);
+  if (typeof document === 'undefined') return null;
+
+  const dpr = (typeof window !== 'undefined' ? window.devicePixelRatio : 1) || 1;
+  const canvas = document.createElement('canvas');
+  canvas.width = sizeCss * dpr;
+  canvas.height = sizeCss * dpr;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+  ctx.scale(dpr, dpr);
+
+  const half = sizeCss / 2;
+  const radius = half - 2;
+  // fill
+  ctx.fillStyle = fillColor;
+  ctx.beginPath();
+  ctx.arc(half, half, radius, 0, Math.PI * 2);
+  ctx.fill();
+  // stroke
+  ctx.lineWidth = 1.8;
+  ctx.strokeStyle = strokeColor;
+  ctx.stroke();
+
+  const dataUrl = canvas.toDataURL('image/png');
+  const img = new kakao.maps.MarkerImage(
+    dataUrl,
+    new kakao.maps.Size(sizeCss, sizeCss),
+    { offset: new kakao.maps.Point(half, half) },
+  );
+  dotImageCache.set(cacheKey, img);
+  return img;
+}
+
 // status별 핀 시각 정의 — 브랜드 spectrum 안에서 단계 표현 (통일감)
 //   regular: 진한 브랜드 = 자주 가는 곳 (★ 별)
 //   visited: 중간 브랜드 = 발도장 남긴 곳 (✓ 체크)
@@ -193,20 +235,13 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
 
     if (isCluster) {
       // ── 클러스터 모드 — Marker + Clusterer ──
-      // Marker에 우리 원형 dot SVG를 image로 지정 (카카오 기본 빨간 핀 대체)
+      // Canvas로 PNG dataURL 생성 → MarkerImage (SVG dataURL 환경 의존 회피)
       const markers = props.markers.map((m) => {
-        // variant별 dot SVG → data URL → MarkerImage
         const v = VARIANT_STYLE[m.variant];
-        const dotSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="-1.5 -1.5 27 27"><circle cx="12" cy="12" r="11" fill="${v.fill}" stroke="${v.stroke}" stroke-width="1.8"/></svg>`;
-        const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(dotSvg)}`;
-        const markerImage = new kakao.maps.MarkerImage(
-          dataUrl,
-          new kakao.maps.Size(22, 22),
-          { offset: new kakao.maps.Point(11, 11) },
-        );
+        const markerImage = getDotMarkerImage(kakao, v.fill, v.stroke, 22);
         const marker = new kakao.maps.Marker({
           position: new kakao.maps.LatLng(m.latitude, m.longitude),
-          image: markerImage,
+          image: markerImage ?? undefined,
           clickable: true,
         });
         kakao.maps.event.addListener(marker, 'click', () => {
@@ -255,13 +290,37 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     });
   }, [ready, props.markers, props.selectedId, props.onMarkerClick, zoomLevel]);
 
-  // 사용자 위치 표시 — 의도가 모호하다는 피드백으로 비노출
-  // (지도 우측 상단 핀 버튼으로 내 위치 panTo는 가능. 위치 점 자체는 표시하지 않음)
+  // 사용자 위치 표시 — "내 위치" 인지가 명확하도록 디자인:
+  //  - 외곽 반투명 링 (펄스 효과 같은 느낌)
+  //  - 내부 진한 점 + 흰 테두리
+  //  - 브랜드 컬러로 통일감 (이전 파란색 #4285F4는 정체 모호)
   useEffect(() => {
-    // 기존에 그려진 overlay가 있으면 정리
+    if (!ready || !mapRef.current) return;
+    if (!props.userLocation) {
+      if (userOverlayRef.current) {
+        userOverlayRef.current.setMap(null);
+        userOverlayRef.current = null;
+      }
+      return;
+    }
+    const kakao = (window as any).kakao;
+    const pos = new kakao.maps.LatLng(props.userLocation.latitude, props.userLocation.longitude);
+    const html = `
+      <div style="position:relative;width:32px;height:32px;pointer-events:none;">
+        <div style="position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;background:rgba(196,120,72,0.18);"></div>
+        <div style="position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;background:#C47848;border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.28);transform:translate(-50%,-50%);"></div>
+      </div>
+    `;
     if (userOverlayRef.current) {
-      userOverlayRef.current.setMap(null);
-      userOverlayRef.current = null;
+      userOverlayRef.current.setPosition(pos);
+    } else {
+      userOverlayRef.current = new kakao.maps.CustomOverlay({
+        position: pos,
+        content: html,
+        xAnchor: 0.5, yAnchor: 0.5,
+        zIndex: 5,
+      });
+      userOverlayRef.current.setMap(mapRef.current);
     }
   }, [ready, props.userLocation]);
 

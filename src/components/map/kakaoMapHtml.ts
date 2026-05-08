@@ -64,12 +64,25 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       box-shadow: 0 1px 3px rgba(0,0,0,0.18);
       pointer-events: none;
     }
-    .user-loc {
-      width: 18px; height: 18px;
+    /* 사용자 위치 — 외곽 링 + 내부 점 (브랜드 컬러로 통일) */
+    .user-loc-wrap {
+      position: relative; width: 32px; height: 32px;
+      pointer-events: none;
+    }
+    .user-loc-ring {
+      position: absolute; left: 0; top: 0;
+      width: 32px; height: 32px;
       border-radius: 50%;
-      background: #4285F4;
+      background: rgba(196,120,72,0.18);
+    }
+    .user-loc-dot {
+      position: absolute; left: 50%; top: 50%;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #C47848;
       border: 3px solid #fff;
-      box-shadow: 0 0 0 4px rgba(66,133,244,0.25);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.28);
+      transform: translate(-50%, -50%);
     }
   </style>
 </head>
@@ -190,12 +203,24 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         map.panTo(pos);
       }
 
-      // 사용자 위치 점 표시 — 의도가 모호하다는 피드백으로 비노출
-      // (지도 panTo는 setCenter로 가능, 위치 점 자체는 표시하지 않음)
-      function setUserLocation(_lat, _lng) {
+      // 사용자 위치 표시 — 외곽 링 + 내부 점 (브랜드 컬러)
+      function setUserLocation(lat, lng) {
+        if (!map) return;
+        var pos = new kakao.maps.LatLng(lat, lng);
+        var html = '<div class="user-loc-wrap">' +
+                     '<div class="user-loc-ring"></div>' +
+                     '<div class="user-loc-dot"></div>' +
+                   '</div>';
         if (userMarker) {
-          userMarker.setMap(null);
-          userMarker = null;
+          userMarker.setPosition(pos);
+        } else {
+          userMarker = new kakao.maps.CustomOverlay({
+            position: pos,
+            content: html,
+            xAnchor: 0.5, yAnchor: 0.5,
+            zIndex: 5,
+          });
+          userMarker.setMap(map);
         }
       }
 
