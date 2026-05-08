@@ -8,8 +8,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, Alert, Linking, Switch, Platform,
+  StyleSheet, Linking, Switch,
 } from 'react-native';
+import { notify, confirm } from '../src/utils/dialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
@@ -64,16 +65,11 @@ export default function SettingsScreen() {
   // 알림 on/off (로컬 상태 — 실제 권한 연동은 추후)
   const [notifEnabled, setNotifEnabled] = useState(true);
 
-  const handleLogout = () => {
-    const proceed = () => { logout(); router.replace('/(auth)/login' as any); };
-    if (Platform.OS === 'web') {
-      if (typeof window !== 'undefined' && window.confirm('정말 로그아웃할까요?')) proceed();
-      return;
+  const handleLogout = async () => {
+    if (await confirm('정말 로그아웃할까요?', { title: '로그아웃', confirmText: '로그아웃', destructive: true })) {
+      logout();
+      router.replace('/(auth)/login' as any);
     }
-    Alert.alert('로그아웃', '정말 로그아웃할까요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '로그아웃', style: 'destructive', onPress: proceed },
-    ]);
   };
 
   const handleDeleteAccount = () => {
@@ -82,7 +78,7 @@ export default function SettingsScreen() {
 
   const openSupport = () => {
     Linking.openURL('mailto:support@9factorial.com?subject=DogEar%20%EB%AC%B8%EC%9D%98')
-      .catch(() => Alert.alert('메일 앱을 열 수 없어요', 'support@9factorial.com으로 직접 문의해 주세요.'));
+      .catch(() => notify('support@9factorial.com으로 직접 문의해 주세요.', '메일 앱을 열 수 없어요'));
   };
 
   return (

@@ -147,7 +147,7 @@ export default function DogSetupScreen() {
 
       <ScrollView style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
         <View style={s.titleRow}>
-          <Text style={s.title}>반려견을 소개해주세요</Text>
+          <Text style={s.title}>강아지를 소개해주세요</Text>
           <View style={s.optionalBadge}>
             <Text style={s.optionalBadgeText}>선택사항</Text>
           </View>

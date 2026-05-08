@@ -32,7 +32,7 @@ const TABS: { key: Tab; label: string }[] = [
 ];
 
 const REGULAR_LABEL: Record<string, string> = {
-  regular: '단골 스팟',
+  regular: '단골 장소',
   almost:  '거의 단골',
   active:  '활발히 방문 중',
   fading:  '관계가 옅어지는 중',

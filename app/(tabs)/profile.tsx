@@ -1,10 +1,10 @@
 /**
  * 마이 탭
  *
- * 역할: 여러 반려견 프로필과 서비스 설정을 관리
+ * 역할: 여러 강아지 프로필과 서비스 설정을 관리
  *
  * 구조:
- *   1) 내 반려견 — 좌우 스와이프 카드, 페이지 도트, 강아지 추가
+ *   1) 내 강아지 — 좌우 스와이프 카드, 페이지 도트, 강아지 추가
  *   2) 발도장 설정 — 활성 강아지 기준 공개 범위 / 안전 설정
  *   3) 앱 설정 — 알림, 약관, 개인정보
  *   4) 로그아웃
@@ -14,8 +14,9 @@ import React, { useCallback, useRef, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Switch,
   StyleSheet, SafeAreaView, Dimensions, NativeScrollEvent,
-  NativeSyntheticEvent, Alert, Platform,
+  NativeSyntheticEvent,
 } from 'react-native';
+import { confirm } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
@@ -152,21 +153,11 @@ export default function ProfileScreen() {
   const logout               = useAppStore(s => s.logout);
 
   // 로그아웃: 확인 다이얼로그 + store 비우기 + 인증화면 이동
-  // 웹에서는 Alert가 비동기/비차단이라 confirm() 사용
-  const handleLogout = useCallback(() => {
-    const proceed = () => {
+  const handleLogout = useCallback(async () => {
+    if (await confirm('정말 로그아웃할까요?', { title: '로그아웃', confirmText: '로그아웃', destructive: true })) {
       logout();
       router.replace('/(auth)/splash' as any);
-    };
-    if (Platform.OS === 'web') {
-      // window.confirm은 SSR 환경 대비 typeof window 체크
-      if (typeof window !== 'undefined' && window.confirm('정말 로그아웃할까요?')) proceed();
-      return;
     }
-    Alert.alert('로그아웃', '정말 로그아웃할까요?', [
-      { text: '취소', style: 'cancel' },
-      { text: '로그아웃', style: 'destructive', onPress: proceed },
-    ]);
   }, [logout, router]);
 
   // 현재 보이는 슬롯 인덱스 (강아지 카드 + 추가 카드)
@@ -211,7 +202,7 @@ export default function ProfileScreen() {
           <View style={s.loginIconWrap}>
             <Icon name="dog" size={48} color={Colors.brand.primary} />
           </View>
-          <Text style={s.loginTitle}>반려견 프로필을 만들어주세요</Text>
+          <Text style={s.loginTitle}>강아지 프로필을 만들어주세요</Text>
           <Button
             label="시작하기"
             onPress={() => router.push('/(auth)/onboarding')}
@@ -235,14 +226,14 @@ export default function ProfileScreen() {
       >
 
         {/* ══════════════════════════════════════
-            1) 내 반려견 — 스와이프 캐러셀
+            1) 내 강아지 — 스와이프 캐러셀
         ══════════════════════════════════════ */}
         <View style={s.carouselSection}>
           {/* 섹션 헤더 */}
           <View style={s.carouselHeader}>
             <View style={s.sectionTitleRow}>
               <Icon name="paw" size={15} color={Colors.text.secondary} />
-              <Text style={s.sectionTitle}>내 반려견</Text>
+              <Text style={s.sectionTitle}>내 강아지</Text>
             </View>
             {canAddMore && (
               <TouchableOpacity

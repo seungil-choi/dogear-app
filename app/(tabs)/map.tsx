@@ -580,7 +580,7 @@ export default function ExploreScreen() {
                       distanceText={card.distance_text}
                       atmosphereSummary={card.atmosphere_badges.join(' · ')}
                       relationSummary={
-                        card.is_regular ? '단골 스팟' :
+                        card.is_regular ? '단골 장소' :
                         card.has_visited ? '발도장 남긴 곳' : undefined
                       }
                       isSaved={isSaved(card.spot_id)}
@@ -615,7 +615,7 @@ export default function ExploreScreen() {
                 distanceText={card.distance_text}
                 atmosphereSummary={card.atmosphere_badges.join(' · ')}
                 relationSummary={
-                  card.is_regular ? '단골 스팟' :
+                  card.is_regular ? '단골 장소' :
                   card.has_visited ? '발도장 남긴 곳' : undefined
                 }
                 isSaved={isSaved(card.spot_id)}
