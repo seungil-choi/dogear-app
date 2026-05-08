@@ -4,6 +4,7 @@ import {
   ScrollView, StyleSheet, SafeAreaView,
 } from 'react-native';
 import { notify } from '../../src/utils/dialog';
+import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
@@ -122,6 +123,13 @@ export default function DogSetupScreen() {
     }
 
     completeOnboarding();
+    track(EVENT.dog_profile_create_completed, {
+      screen_name: 'dog_setup',
+      has_breed: !!breed.trim(),
+      has_weight: !!weightNum,
+      temperament_count: selectedTemperament.length,
+      walking_count: selectedWalking.length,
+    });
     // 등록 완료 후 권한 안내 단계로 (위치 + 알림)
     router.replace('/(auth)/permissions' as any);
   };

@@ -14,6 +14,7 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
+import { track, EVENT } from '../src/utils/analytics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
@@ -52,6 +53,13 @@ export default function ReportScreen() {
       return;
     }
     reportContent(targetType, targetId, reason, detail.trim() || undefined);
+    // 대상 유형에 따라 이벤트 분기 (place vs photo)
+    track(targetType === 'spot' ? EVENT.report_place_submitted : EVENT.report_photo_submitted, {
+      screen_name: 'report',
+      place_id: targetType === 'spot' ? targetId : undefined,
+      target_type: targetType,
+      reason,
+    });
     notify('24시간 내에 검토 후 처리할게요. 소중한 신고 감사해요.', '신고가 접수됐어요');
     router.back();
   };

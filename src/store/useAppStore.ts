@@ -10,6 +10,7 @@ import type {
   HomeSpotCardViewModel, SuggestedSpot, NearbyDuplicate, SpotCategory,
   Report, BlockedUser, ConsentRecord, ReportTargetType, ReportReason,
 } from '../types';
+import { setUserContext } from '../utils/analytics';
 
 // ─── Haversine 거리 계산 (미터) ───────────────────────────────
 function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -466,8 +467,15 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   },
 
   // Supabase 연동
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
-  setActiveDog: (dog) => set({ activeDog: dog, dog }),
+  setUser: (user) => {
+    set({ user, isAuthenticated: !!user });
+    // analytics 컨텍스트 동기화
+    setUserContext({ user_id: user?.user_id ?? null });
+  },
+  setActiveDog: (dog) => {
+    set({ activeDog: dog, dog });
+    setUserContext({ dog_profile_id: dog?.dog_id ?? null });
+  },
   registerDog: (newDog) => {
     const { dogs } = get();
     const exists = dogs.some(d => d.dog_id === newDog.dog_id);
@@ -475,6 +483,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       ? dogs.map(d => d.dog_id === newDog.dog_id ? newDog : d)
       : [...dogs, newDog];
     set({ dogs: updatedDogs, activeDog: newDog, dog: newDog });
+    setUserContext({ dog_profile_id: newDog.dog_id });
   },
   setDogs: (dogs) => set({ dogs }),
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),

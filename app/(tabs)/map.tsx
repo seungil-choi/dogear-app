@@ -25,6 +25,7 @@ import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/componen
 import { distanceText } from '../../src/utils/labels';
 import type { SpotCategory } from '../../src/types';
 import { notify, confirm } from '../../src/utils/dialog';
+import { track, EVENT } from '../../src/utils/analytics';
 
 // ─── 거리 계산 (Haversine) ────────────────────────────────────────
 function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -181,10 +182,11 @@ export default function ExploreScreen() {
     return result;
   }, [homeCards, spots, activeFilter, searchQuery, isSaved]);
 
-  // ── 페이지 진입 시 선택 상태 초기화 ──
+  // ── 페이지 진입 시 선택 상태 초기화 + 진입 추적 ──
   useEffect(() => {
     setSelectedId(null);
     selectSpot(null);
+    track(EVENT.explore_viewed, { screen_name: 'explore' });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── 사용자 현재 위치가 잡히면 지도 중심도 거기로 동기화 (최초 1회) ──

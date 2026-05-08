@@ -21,6 +21,7 @@ import {
   TextInput, Platform, ScrollView, KeyboardAvoidingView,
 } from 'react-native';
 import { notify } from '../../src/utils/dialog';
+import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
@@ -76,8 +77,9 @@ export default function LoginScreen() {
   const [busy, setBusy] = useState(false);
 
   // 신규 흐름: consent → dog-setup → permissions → tabs
-  const proceedAfterAuth = () => {
+  const proceedAfterAuth = (provider: string = 'guest') => {
     login();
+    track(EVENT.login_completed, { screen_name: 'login', provider });
     if (!consent) {
       router.replace('/(auth)/consent' as any);
     } else if (!dog) {

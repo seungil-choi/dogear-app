@@ -10,7 +10,8 @@
  *   - 지도 탐색 버튼
  */
 
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState, useEffect } from 'react';
+import { track, EVENT } from '../../src/utils/analytics';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity,
@@ -178,6 +179,11 @@ export default function HomeScreen() {
   const [featuredPage, setFeaturedPage] = useState(0);
   const multiDog = dogs.length > 1;
 
+  // 홈 진입 추적 (마운트 시 1회)
+  useEffect(() => {
+    track(EVENT.home_viewed, { screen_name: 'home' });
+  }, []);
+
   // ── 오늘의 추천 스팟 (3개 카드, 가로 스와이프) ────────────────────
   // 규칙:
   //   1) 발도장이 있으면 → 가장 최근 발도장 위치 중심으로 2km 이내, 미방문 장소 우선
@@ -291,13 +297,22 @@ export default function HomeScreen() {
     return buildPersonalizedDesc(dog.name, dog.temperament_tags, atmosphere as AtmosphereState);
   }, [dog]);
 
-  const handlePressCard = useCallback((spotId: string) => {
+  const handlePressCard = useCallback((spotId: string, source: 'recommended' | 'recent' | 'frequent' = 'recommended') => {
+    const eventName =
+      source === 'recent'    ? EVENT.recent_place_clicked   :
+      source === 'frequent'  ? EVENT.frequent_place_clicked :
+                               EVENT.recommended_place_clicked;
+    track(eventName, { screen_name: 'home', source_screen: 'home', place_id: spotId });
     router.push(`/spot/${spotId}`);
   }, [router]);
 
   const handleFeaturedSave = useCallback((spotId: string) => {
+    const wasSaved = savedSpots.some(sv => sv.spot_id === spotId && sv.dog_id === dog?.dog_id);
+    track(wasSaved ? EVENT.place_unsaved : EVENT.place_saved, {
+      screen_name: 'home', place_id: spotId,
+    });
     toggleSaveSpot(spotId);
-  }, [toggleSaveSpot]);
+  }, [toggleSaveSpot, savedSpots, dog]);
 
   // 강아지 미등록 → 온보딩 유도
   if (!dog) {
@@ -485,7 +500,7 @@ export default function HomeScreen() {
                 <RecentSpotCard
                   key={card.spot_id}
                   card={card}
-                  onPress={() => handlePressCard(card.spot_id)}
+                  onPress={() => handlePressCard(card.spot_id, 'recent')}
                 />
               ))}
             </ScrollView>
@@ -513,7 +528,7 @@ export default function HomeScreen() {
                 <RegularSpotCard
                   key={card.spot_id}
                   card={card}
-                  onPress={() => handlePressCard(card.spot_id)}
+                  onPress={() => handlePressCard(card.spot_id, 'frequent')}
                 />
               ))}
             </ScrollView>

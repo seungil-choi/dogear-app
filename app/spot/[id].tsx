@@ -11,7 +11,7 @@
  *  - 하단 CTA (저장 / 발도장 남기기)
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
@@ -19,6 +19,7 @@ import {
   StyleSheet, Linking, Platform, Share, Modal, Pressable,
 } from 'react-native';
 import { notify, actionSheet } from '../../src/utils/dialog';
+import { track, EVENT } from '../../src/utils/analytics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
@@ -43,9 +44,29 @@ export default function SpotDetailScreen() {
 
   const vm = getSpotDetail(id);
 
+  // 장소 상세 진입 추적
+  useEffect(() => {
+    if (!vm) return;
+    track(EVENT.place_detail_viewed, {
+      screen_name: 'spot_detail',
+      place_id: id,
+      place_category: vm.category_label,
+      region_sigungu: vm.neighborhood,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
   const [selectedDog, setSelectedDog] = useState<FamiliarDogCardViewModel | null>(null);
 
-  const handleSave = useCallback(() => toggleSaveSpot(id), [id, toggleSaveSpot]);
+  const handleSave = useCallback(() => {
+    const wasSaved = vm?.is_saved;
+    toggleSaveSpot(id);
+    track(wasSaved ? EVENT.place_unsaved : EVENT.place_saved, {
+      screen_name: 'spot_detail',
+      place_id: id,
+      place_category: vm?.category_label,
+    });
+  }, [id, toggleSaveSpot, vm]);
   const handleCopyAddress = useCallback(async (text: string) => {
     try {
       await Clipboard.setStringAsync(text);
@@ -64,11 +85,16 @@ export default function SpotDetailScreen() {
 
   const handleDirections = useCallback(() => {
     if (vm?.address_text) {
+      track(EVENT.navigation_clicked, {
+        screen_name: 'spot_detail',
+        place_id: id,
+        place_category: vm.category_label,
+      });
       Linking.openURL(
         `https://map.naver.com/v5/search/${encodeURIComponent(vm.address_text)}`
       );
     }
-  }, [vm]);
+  }, [vm, id]);
 
   const handleShare = useCallback(() => {
     if (Platform.OS === 'web' && typeof navigator !== 'undefined' && (navigator as any).share && vm) {

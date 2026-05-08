@@ -20,6 +20,7 @@ import { Icon } from '../../src/components/common/Icon';
 import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
 import { notify } from '../../src/utils/dialog';
+import { track, EVENT } from '../../src/utils/analytics';
 
 const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
 
@@ -52,6 +53,7 @@ export default function SignupScreen() {
       if (!IS_REAL_AUTH) {
         // DEV_SEED 모드: 즉시 통과
         login();
+        track(EVENT.signup_completed, { screen_name: 'signup', provider: 'email' });
         router.replace('/(auth)/consent' as any);
         return;
       }
@@ -67,6 +69,7 @@ export default function SignupScreen() {
         notify(error.message ?? '가입에 실패했어요.', '가입 실패');
         return;
       }
+      track(EVENT.signup_completed, { screen_name: 'signup', provider: 'email' });
       notify(
         `${email.trim()}으로 인증 메일을 보냈어요. 메일의 링크를 눌러 인증을 완료한 뒤 다시 로그인해주세요.`,
         '인증 메일 발송',

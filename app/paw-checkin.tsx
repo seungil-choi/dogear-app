@@ -21,6 +21,7 @@ import {
   StyleSheet, SafeAreaView,
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
+import { track, EVENT } from '../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
@@ -95,6 +96,12 @@ export default function PawCheckinModal() {
     if (isPresetSpot && pawFlow.step === 1) {
       setPawStep(2);
     }
+    // 진입 자체가 발도장 시작 액션
+    track(EVENT.pawmark_start_clicked, {
+      screen_name: 'paw_checkin',
+      source_screen: isPresetSpot ? 'spot_detail' : 'paw_tab',
+      place_id: selectedSpot?.spot_id,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -119,13 +126,31 @@ export default function PawCheckinModal() {
       try {
         await submitToServer(); // Edge Function → Supabase 저장
       } catch (err: any) {
-        notify(err.message ?? '잠시 후 다시 시도해주세요.', '발도장 저장 실패');
+        // 쿨다운/일일제한 분기 — 메시지 패턴으로 구분
+        const msg = err?.message ?? '';
+        const eventName =
+          /cooldown|쿨다운|간격/i.test(msg)         ? EVENT.pawmark_blocked_cooldown :
+          /daily|일일|하루|limit/i.test(msg)        ? EVENT.pawmark_blocked_daily_limit :
+                                                      EVENT.pawmark_submit_failed;
+        track(eventName, {
+          screen_name: 'paw_checkin',
+          place_id: selectedSpot?.spot_id,
+          error_message: msg.slice(0, 100),
+        });
+        notify(msg || '잠시 후 다시 시도해주세요.', '발도장 저장 실패');
         return;
       }
     }
     submitPawCheckin(); // 로컬 store 업데이트 (즉각적인 UI 반영)
+    track(EVENT.pawmark_completed, {
+      screen_name: 'paw_checkin',
+      place_id: selectedSpot?.spot_id,
+      tag_count: selectedTags.length,
+      has_note: !!pawFlow.note,
+      visibility: pawFlow.visibility,
+    });
     setIsSuccess(true);
-  }, [submitPawCheckin, submitToServer]);
+  }, [submitPawCheckin, submitToServer, selectedSpot, selectedTags, pawFlow]);
 
   const handleGoHome = useCallback(() => {
     resetPawFlow();

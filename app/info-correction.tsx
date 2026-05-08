@@ -16,6 +16,7 @@ import {
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
+import { track, EVENT } from '../src/utils/analytics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
@@ -63,9 +64,18 @@ export default function InfoCorrectionScreen() {
         proposed_value: selectedField?.needsValue ? proposedValue.trim() : '',
         reason: reason.trim() || undefined,
       });
+      track(EVENT.place_suggestion_submitted, {
+        screen_name: 'info_correction',
+        place_id: spotId,
+        suggestion_type: field,
+      });
       notify('운영자 검토 후 반영 여부를 결정해요. 감사합니다.', '제안 접수 완료');
       router.back();
     } catch {
+      track(EVENT.place_suggestion_submit_failed, {
+        screen_name: 'info_correction',
+        place_id: spotId,
+      });
       notify('제안 제출에 실패했어요. 잠시 후 다시 시도해주세요.', '제출 실패');
     } finally {
       setSubmitting(false);

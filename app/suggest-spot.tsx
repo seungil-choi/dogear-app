@@ -17,6 +17,7 @@ import {
   StyleSheet, SafeAreaView, ActivityIndicator, Platform, KeyboardAvoidingView,
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
+import { track, EVENT } from '../src/utils/analytics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
@@ -140,6 +141,7 @@ export default function SuggestSpotScreen() {
         });
 
       if (error) {
+        track(EVENT.place_suggestion_submit_failed, { screen_name: 'suggest_spot' });
         notify('장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.', '제안 실패');
         return;
       }
@@ -147,6 +149,12 @@ export default function SuggestSpotScreen() {
 
     // 로컬 store에도 반영 (즉각적인 UI 피드백) — spot_id 반환됨
     const newSpotId = suggestSpot(payload);
+    track(EVENT.place_suggestion_submitted, {
+      screen_name: 'suggest_spot',
+      place_id: newSpotId,
+      place_category: payload.category,
+      tag_count: payload.additional_tags?.length ?? 0,
+    });
     setCreatedSpotId(newSpotId);
     setStep('done');
   }, [name, description, category, selectedTags, pinLocation, suggestSpot, user]);
