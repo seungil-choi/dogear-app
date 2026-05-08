@@ -60,22 +60,25 @@ const STAR_PATH = `<polygon points="12 5 14.5 11 21 11.3 16 15.5 17.5 22 12 18.5
  */
 function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], selected: boolean): string {
   const iconPath = variant === 'regular' ? STAR_PATH : PAW_PATH;
+  // viewBox 32x40 = 4:5 비율을 정확히 유지해야 핀이 stretch 안 됨
   const w = selected ? 36 : 28;
-  const h = selected ? 46 : 36;
+  const h = selected ? 45 : 35;   // 28:35 = 36:45 = 4:5 (viewBox와 동일)
   const fill = VARIANT_BG[variant];
   const shadow = selected
     ? 'filter:drop-shadow(0 4px 8px rgba(196,120,72,0.45));'
     : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.28));';
-  // ViewBox 32x40: 상단 원(반지름 14) + 하단 꼬리(triangle to bottom)
+  // SVG 자체 사이즈 명시 + preserveAspectRatio로 비율 강제 + CSS 사이즈 재명시 (카카오 컨테이너 stretch 방지)
   const pinSvg = `
-    <svg width="${w}" height="${h}" viewBox="0 0 32 40" style="display:block;${shadow}">
+    <svg width="${w}" height="${h}" viewBox="0 0 32 40" preserveAspectRatio="xMidYMid meet"
+         style="display:block;width:${w}px;height:${h}px;${shadow}">
       <path d="M16 0 C 7.2 0 0 7.2 0 16 C 0 23 8 31 16 40 C 24 31 32 23 32 16 C 32 7.2 24.8 0 16 0 Z"
             fill="${fill}" stroke="#fff" stroke-width="2.5"/>
       <g transform="translate(4,4) scale(${(w === 36 ? 1.0 : 0.85)})">${iconPath}</g>
     </svg>
   `;
+  // 컨테이너에 width/height 모두 명시 → 카카오 CustomOverlay가 width:100% 등으로 stretch 못 함
   return `
-    <div data-marker-id="${escapeHtml(id)}" style="position:relative;cursor:pointer;pointer-events:auto;width:${w}px;">
+    <div data-marker-id="${escapeHtml(id)}" style="position:relative;cursor:pointer;pointer-events:auto;width:${w}px;height:${h}px;">
       ${pinSvg}
       <div style="position:absolute;top:100%;left:50%;transform:translate(-50%,3px);max-width:140px;padding:3px 8px;background:rgba(255,255,255,0.96);border-radius:10px;color:#1A1612;font-size:11px;line-height:14px;font-weight:600;white-space:normal;text-align:center;word-break:keep-all;box-shadow:0 1px 3px rgba(0,0,0,0.18);pointer-events:none;">${escapeHtml(label)}</div>
     </div>
