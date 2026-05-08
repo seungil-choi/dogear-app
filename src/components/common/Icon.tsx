@@ -36,6 +36,7 @@ import {
   Copy,
   // UI
   Bell,
+  Mail,
   MapPin,
   Navigation,
   Camera,
@@ -117,6 +118,7 @@ const ICON_MAP: Record<string, IconDef> = {
 
   // ─ UI 요소 ─
   bell:               { Component: Bell },
+  mail:               { Component: Mail },
   'bell-filled':      { Component: Bell, filled: true },
   location:           { Component: MapPin },
   'location-filled':  { Component: MapPin, filled: true },
