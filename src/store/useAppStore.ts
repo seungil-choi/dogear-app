@@ -221,12 +221,36 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   // ─── Actions ───────────────────────────────────
   completeOnboarding: () => set({ hasCompletedOnboarding: true }),
-  login: () => set({ isAuthenticated: true }),
-  // 로그아웃: 모든 사용자 데이터 초기화 (다음 로그인 시 데이터 오염 방지)
+  // 로그인:
+  //  - DEV_SEED 모드: mock 데이터 복원 (사용자가 데모를 계속 진행)
+  //  - 실 환경: isAuthenticated만 true (실제 user는 useAuth/setUser가 채움)
+  login: () => {
+    if (DEV_PREVIEW_SEED) {
+      set({ ...initialState, isAuthenticated: true, hasCompletedOnboarding: get().hasCompletedOnboarding });
+    } else {
+      set({ isAuthenticated: true });
+    }
+  },
+  // 로그아웃: 사용자 데이터 명시적 초기화
+  // DEV_SEED 모드의 initialState도 isAuthenticated:true로 시작하므로
+  // ...initialState 후 명시적으로 false 강제 (로그아웃이 즉시 무효화되는 문제 방지)
   logout: () => set({
-    ...initialState,
+    user: null,
+    dog: null,
+    dogs: [],
+    activeDog: null,
+    consent: get().consent,                                 // 약관 동의는 유지
+    hasCompletedOnboarding: get().hasCompletedOnboarding,   // 온보딩 완료 상태 유지
+    isAuthenticated: false,                                 // 명시적으로 false
     isAuthLoading: false,
-    hasCompletedOnboarding: get().hasCompletedOnboarding, // 온보딩 완료 상태는 유지
+    spots: [],
+    checkins: [],
+    visitSummaries: [],
+    savedSpots: [],
+    familiarSignals: [],
+    blockedUsers: [],
+    reports: [],
+    selectedSpotId: null,
   }),
 
   selectSpot: (spotId) => set({ selectedSpotId: spotId }),
