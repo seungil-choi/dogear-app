@@ -229,9 +229,17 @@ export default function ExploreScreen() {
   }, [filteredCards, spots, mapCenter, activeRadiusM]);
 
   // 선택된 핀의 카드 = hero 영역에 항상 노출, 나머지는 주변 다른 장소로 분리
+  // 선택된 hero 카드 — sortedCards(반경 내)에서 우선 찾고, 없으면 homeCards 전체에서 (반경 밖 핀도 카드 표시 보장)
   const selectedHeroCard = useMemo(
-    () => (selectedId ? sortedCards.find(c => c.spot_id === selectedId) ?? null : null),
-    [sortedCards, selectedId],
+    () => {
+      if (!selectedId) return null;
+      return (
+        sortedCards.find(c => c.spot_id === selectedId) ??
+        homeCards.find(c => c.spot_id === selectedId) ??
+        null
+      );
+    },
+    [sortedCards, homeCards, selectedId],
   );
   const restCards = useMemo(
     () => (selectedId ? sortedCards.filter(c => c.spot_id !== selectedId) : sortedCards),
@@ -256,6 +264,20 @@ export default function ExploreScreen() {
       cardListRef.current.scrollTo({ y: 0, animated: true });
     }
   }, [spots, selectSpot, snapState, snapToHeight]);
+
+  // 지도 빈 영역 터치 — 선택 해제 + 패널 상태 초기화 (UseFlow 일관성)
+  const handleMapClick = useCallback(() => {
+    setSelectedId(null);
+    selectSpot(null);
+    // 핀 클릭으로 펼친 half/full 패널은 peek 상태로 복귀
+    if (snapState === 'half' || snapState === 'full') {
+      snapToHeight('peek');
+    }
+    // 카드 목록 스크롤 위로
+    if (cardListRef.current) {
+      cardListRef.current.scrollTo({ y: 0, animated: true });
+    }
+  }, [selectSpot, snapState, snapToHeight]);
 
   // ── 카카오 마커 데이터 — sortedCards(2km 이내)만 렌더 (성능 및 정확도 보장) ──
   const kakaoMarkers = useMemo<KakaoMarker[]>(() => {
@@ -431,7 +453,7 @@ export default function ExploreScreen() {
             selectedId={selectedId}
             markers={kakaoMarkers}
             onMarkerClick={handlePinPress}
-            onMapClick={() => { setSelectedId(null); }}
+            onMapClick={handleMapClick}
             onRegionChange={(lat, lng, lv) => {
               setMapCenter({ lat, lng });
               if (lv != null) setZoomLevel(lv);
@@ -461,17 +483,16 @@ export default function ExploreScreen() {
             <View {...panelPanResponder.panHandlers} style={s.panelHandleArea}>
               <View style={s.panelHandle} />
               <View style={s.panelHeader}>
-                {/* 선택된 핀이 있으면 그 장소명을, 없으면 '주변 장소' */}
+                {/* 헤더는 항상 동일한 컨텍스트 표기 — 선택 시 hero 카드에 장소명이
+                    이미 노출되므로 헤더에 중복 표시하지 않음 */}
                 <Text style={s.panelTitle} numberOfLines={1}>
-                  {selectedHeroCard ? selectedHeroCard.name : (isSearching ? '검색 결과' : '주변 장소')}
+                  {isSearching ? '검색 결과' : '주변 장소'}
                 </Text>
                 <View style={s.panelCountBadge}>
                   <Text style={s.panelCount}>
-                    {selectedHeroCard
-                      ? (restCards.length > 0 ? `반경 내 ${restCards.length}곳` : '근처 장소')
-                      : isSearching
-                        ? `${sortedCards.length}곳`
-                        : `${activeRadiusM >= 1000 ? `${activeRadiusM/1000}km` : `${activeRadiusM}m`} 내 ${sortedCards.length}곳`}
+                    {isSearching
+                      ? `${sortedCards.length}곳`
+                      : `${activeRadiusM >= 1000 ? `${activeRadiusM/1000}km` : `${activeRadiusM}m`} 내 ${sortedCards.length}곳`}
                   </Text>
                 </View>
                 <TouchableOpacity
