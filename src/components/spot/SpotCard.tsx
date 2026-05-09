@@ -1,9 +1,49 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { AppImage } from '../common/AppImage';
 import { Colors, Typography, Radius, Spacing } from '../../constants/tokens';
-import { Icon } from '../common/Icon';
+import { Icon, type IconName } from '../common/Icon';
 import type { HomeSpotCardViewModel } from '../../types';
+
+/**
+ * 카테고리 컬러 박스 — 이미지 자리표시자 통일 시스템
+ *  - 운영 무비용 원칙: 장소 실사 이미지 없이도 식별 가능
+ *  - 카테고리별 컬러 + 라인 아이콘으로 즉시 분류 인지
+ *  - 모든 spot card에서 동일하게 사용
+ */
+const CATEGORY_THUMB: Record<string, { bg: string; icon: IconName }> = {
+  // 한국어 라벨 기반 매핑 (categoryLabel과 일치)
+  '공원':       { bg: '#7BA08B22', icon: 'leaf' },         // 세이지 그린 톤 (자연)
+  '산책로':     { bg: '#C8A87833', icon: 'trail' },        // 모래 베이지
+  '강변':       { bg: '#8AA8C033', icon: 'location' },     // 스틸 블루 (강변·수변)
+  '쉼터':       { bg: '#B89A7E33', icon: 'rest' },         // 웜 그레이
+  '기타':       { bg: '#C4784822', icon: 'paw' },          // 브랜드
+};
+const CATEGORY_ICON_COLOR: Record<string, string> = {
+  '공원': '#5C8A75', '산책로': '#A88758', '강변': '#5C7E9A', '쉼터': '#8B7A60', '기타': '#C47848',
+};
+
+interface CategoryThumbProps {
+  categoryLabel: string;
+  size: number;       // 정사각형 사이즈, 또는 height (width 별도 지정 시)
+  width?: number | string;  // 가로 커스텀 (풀폭 카드 등)
+  iconSize?: number;
+  rounded?: number;
+}
+
+export function CategoryThumb({ categoryLabel, size, width, iconSize, rounded = Radius.card }: CategoryThumbProps) {
+  const conf = CATEGORY_THUMB[categoryLabel] ?? CATEGORY_THUMB['기타'];
+  const color = CATEGORY_ICON_COLOR[categoryLabel] ?? CATEGORY_ICON_COLOR['기타'];
+  const w = width ?? size;
+  return (
+    <View style={{
+      width: w as any, height: size, borderRadius: rounded,
+      backgroundColor: conf.bg,
+      alignItems: 'center', justifyContent: 'center',
+    }}>
+      <Icon name={conf.icon} size={iconSize ?? Math.round(size * 0.42)} color={color} />
+    </View>
+  );
+}
 
 interface FeaturedProps {
   card: HomeSpotCardViewModel;
@@ -14,15 +54,9 @@ interface FeaturedProps {
 export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={s.featured} onPress={onPress} activeOpacity={0.88}>
-      {/* 이미지 영역 */}
+      {/* 카테고리 컬러 박스 (이미지 없는 무비용 운영 디자인) */}
       <View style={s.featuredImage}>
-        {card.cover_image_url ? (
-          <AppImage source={{ uri: card.cover_image_url }} style={s.featuredImg} resizeMode="cover" />
-        ) : (
-          <View style={s.featuredImgPlaceholder}>
-            <Icon name="leaf-filled" size={28} color={Colors.brand.primary} />
-          </View>
-        )}
+        <CategoryThumb categoryLabel={card.category_label} size={128} width={128} iconSize={36} rounded={0} />
         {card.is_regular && (
           <View style={s.featuredRegularBadge}>
             <Text style={s.featuredRegularText}>단골</Text>
@@ -59,15 +93,9 @@ export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
 export function CompactSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={s.compact} onPress={onPress} activeOpacity={0.88}>
-      {/* 이미지 영역 */}
+      {/* 카테고리 컬러 박스 */}
       <View style={s.compactImage}>
-        {card.cover_image_url ? (
-          <AppImage source={{ uri: card.cover_image_url }} style={s.compactImg} resizeMode="cover" />
-        ) : (
-          <View style={s.compactImgPlaceholder}>
-            <Icon name="leaf-filled" size={20} color={Colors.brand.primary} />
-          </View>
-        )}
+        <CategoryThumb categoryLabel={card.category_label} size={100} width={168} iconSize={28} rounded={0} />
         {card.is_regular && (
           <View style={s.compactRegularDot} />
         )}
@@ -101,15 +129,9 @@ export function CompactSpotCard({ card, onPress }: FeaturedProps) {
 export function RecentSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
-      {/* 썸네일 */}
+      {/* 카테고리 컬러 박스 */}
       <View style={sr.imageWrap}>
-        {card.cover_image_url ? (
-          <AppImage source={{ uri: card.cover_image_url }} style={sr.image} resizeMode="cover" />
-        ) : (
-          <View style={sr.imagePlaceholder}>
-            <Icon name="leaf-filled" size={22} color={Colors.brand.primary} />
-          </View>
-        )}
+        <CategoryThumb categoryLabel={card.category_label} size={132} width="100%" iconSize={28} rounded={0} />
       </View>
 
       {/* 텍스트 */}
@@ -128,15 +150,9 @@ export function RecentSpotCard({ card, onPress }: FeaturedProps) {
 export function RegularSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
-      {/* 썸네일 */}
+      {/* 카테고리 컬러 박스 */}
       <View style={sr.imageWrap}>
-        {card.cover_image_url ? (
-          <AppImage source={{ uri: card.cover_image_url }} style={sr.image} resizeMode="cover" />
-        ) : (
-          <View style={sr.imagePlaceholder}>
-            <Icon name="leaf-filled" size={22} color={Colors.brand.primary} />
-          </View>
-        )}
+        <CategoryThumb categoryLabel={card.category_label} size={132} width="100%" iconSize={28} rounded={0} />
         {/* 단골 뱃지 */}
         {card.is_regular && (
           <View style={sr.regularBadge}>
@@ -177,15 +193,9 @@ export function ListSpotCard({
     <TouchableOpacity style={s.listCard} onPress={onPress} activeOpacity={0.85}>
       {/* RN Web: TouchableOpacity는 row 레이아웃을 자식에게 전달 못할 수 있어 inner View로 강제 */}
       <View style={s.listCardInner}>
-        {/* 썸네일 */}
+        {/* 카테고리 컬러 박스 */}
         <View style={s.listImage}>
-          {coverImageUrl ? (
-            <AppImage source={{ uri: coverImageUrl }} style={s.listImg} resizeMode="cover" />
-          ) : (
-            <View style={s.listImgPlaceholder}>
-              <Icon name="leaf-filled" size={18} color={Colors.brand.primary} />
-            </View>
-          )}
+          <CategoryThumb categoryLabel={categoryLabel} size={60} iconSize={22} rounded={12} />
         </View>
 
         {/* 정보 */}

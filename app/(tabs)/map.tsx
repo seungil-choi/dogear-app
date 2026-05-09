@@ -22,7 +22,7 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
-import { distanceText } from '../../src/utils/labels';
+import { distanceText, categoryLabel as catLabel } from '../../src/utils/labels';
 import type { SpotCategory } from '../../src/types';
 import { notify, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
@@ -229,18 +229,31 @@ export default function ExploreScreen() {
   }, [filteredCards, spots, mapCenter, activeRadiusM]);
 
   // 선택된 핀의 카드 = hero 영역에 항상 노출, 나머지는 주변 다른 장소로 분리
-  // 선택된 hero 카드 — sortedCards(반경 내)에서 우선 찾고, 없으면 homeCards 전체에서 (반경 밖 핀도 카드 표시 보장)
-  const selectedHeroCard = useMemo(
-    () => {
-      if (!selectedId) return null;
-      return (
-        sortedCards.find(c => c.spot_id === selectedId) ??
-        homeCards.find(c => c.spot_id === selectedId) ??
-        null
-      );
-    },
-    [sortedCards, homeCards, selectedId],
-  );
+  // 선택된 hero 카드 — 3단계 fallback으로 어떤 핀이든 카드 표시 보장
+  //  1) sortedCards(반경 내) — 가장 자연스러운 거리 정보 포함
+  //  2) homeCards(active 전체) — 반경 밖이지만 active 장소
+  //  3) spots(전체) — homeCards 빌드 조건 미충족 장소까지 직접 빌드 (정상 동작 보장)
+  const selectedHeroCard = useMemo(() => {
+    if (!selectedId) return null;
+    const fromSorted = sortedCards.find(c => c.spot_id === selectedId);
+    if (fromSorted) return fromSorted;
+    const fromHome = homeCards.find(c => c.spot_id === selectedId);
+    if (fromHome) return fromHome;
+    // 마지막 fallback — spots에서 직접 minimal 카드 빌드
+    const sp = spots.find(s => s.spot_id === selectedId);
+    if (!sp) return null;
+    const dist = haversineMeters(mapCenter.lat, mapCenter.lng, sp.latitude, sp.longitude);
+    return {
+      spot_id: sp.spot_id,
+      name: sp.name,
+      category_label: catLabel[sp.category],
+      distance_text: distanceText(dist),
+      atmosphere_badges: [],
+      has_visited: false,
+      is_regular: false,
+      cover_image_url: sp.cover_image_url,
+    } as typeof homeCards[0];
+  }, [sortedCards, homeCards, spots, selectedId, mapCenter]);
   const restCards = useMemo(
     () => (selectedId ? sortedCards.filter(c => c.spot_id !== selectedId) : sortedCards),
     [sortedCards, selectedId],

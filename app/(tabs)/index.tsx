@@ -22,7 +22,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
-import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotCard';
+import { RecentSpotCard, RegularSpotCard, CategoryThumb } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
 import { EmptyState } from '../../src/components/common/EmptyState';
@@ -105,13 +105,16 @@ function FeaturedCard({
   return (
     <TouchableOpacity style={s.featuredCard} onPress={onPress} activeOpacity={0.92}>
       <View style={s.featuredImageWrap}>
-        {card.cover_image_url ? (
-          <AppImage source={{ uri: card.cover_image_url }} style={s.featuredImage} resizeMode="cover" />
-        ) : (
-          <View style={[s.featuredImageWrap, s.featuredImageFallback]}>
-            <Icon name="leaf-filled" size={44} color={Colors.brand.primary} />
-          </View>
-        )}
+        {/* 풀폭 카테고리 컬러 박스 — 운영 비용 0 (이미지 의존 X) */}
+        <View style={[s.featuredImageWrap, s.featuredImageFallback]}>
+          <CategoryThumb
+            categoryLabel={card.category_label}
+            size={228}
+            width="100%"
+            iconSize={64}
+            rounded={0}
+          />
+        </View>
 
         {/* Bottom scrim — warm gradient, fades naturally */}
         <LinearGradient
