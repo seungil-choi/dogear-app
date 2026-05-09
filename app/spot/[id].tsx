@@ -14,6 +14,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
+import { LinearGradient } from 'expo-linear-gradient';
+import { CategoryThumb } from '../../src/components/spot/SpotCard';
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Linking, Platform, Share, Modal, Pressable,
@@ -172,40 +174,43 @@ export default function SpotDetailScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── 상단 헤더: 한눈 요약 영역 ── */}
-        <View style={s.spotHeader}>
-          <View style={s.spotHeaderContent}>
-            {/* 장소 유형 뱃지 */}
-            <View style={s.categoryBadge}>
-              <Icon name="leaf" size={11} color={Colors.brand.primary} />
-              <Text style={s.categoryBadgeText}>{vm.category_label}</Text>
+        {/* ── 키비주얼 헤더 — 이미지 + 텍스트 오버레이 (이미지 없으면 카테고리 컬러 폴백) ── */}
+        <View style={s.keyVisual}>
+          {vm.cover_image_url ? (
+            <AppImage source={{ uri: vm.cover_image_url }} style={s.keyVisualImage} resizeMode="cover" />
+          ) : (
+            <View style={s.keyVisualImage}>
+              <CategoryThumb
+                categoryLabel={vm.category_label}
+                size={260}
+                width="100%"
+                iconSize={72}
+                rounded={0}
+              />
             </View>
-            {/* 장소명 */}
-            <Text style={s.spotName} numberOfLines={2}>{vm.name}</Text>
-            {/* 지역 · 거리 */}
-            <View style={s.spotMetaRow}>
-              <Icon name="location" size={13} color={Colors.text.tertiary} />
-              <Text style={s.spotMetaText} numberOfLines={1}>
+          )}
+
+          {/* 그라데이션 scrim — 텍스트 가독성 보장 */}
+          <LinearGradient
+            colors={['transparent', 'rgba(18,12,6,0.20)', 'rgba(18,12,6,0.78)']}
+            locations={[0, 0.45, 1]}
+            style={s.keyVisualScrim}
+            pointerEvents="none"
+          />
+
+          {/* 텍스트 오버레이 — 카테고리 / 장소명 / 지역·거리 */}
+          <View style={s.keyVisualOverlay} pointerEvents="none">
+            <View style={s.keyVisualBadge}>
+              <Icon name="leaf-filled" size={11} color={Colors.brand.primary} />
+              <Text style={s.keyVisualBadgeText}>{vm.category_label}</Text>
+            </View>
+            <Text style={s.keyVisualName} numberOfLines={2}>{vm.name}</Text>
+            <View style={s.keyVisualMetaRow}>
+              <Icon name="location" size={12} color="rgba(255,255,255,0.85)" />
+              <Text style={s.keyVisualMeta} numberOfLines={1}>
                 {[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
               </Text>
             </View>
-          </View>
-
-          {/* 지도 썸네일 — 실제 위치 미니맵 (이미지 대체 식별 장치) */}
-          <View style={s.mapThumb} pointerEvents="none">
-            <KakaoMap
-              initialLatitude={vm.latitude}
-              initialLongitude={vm.longitude}
-              initialLevel={4}
-              markers={[{
-                id: vm.spot_id,
-                latitude: vm.latitude,
-                longitude: vm.longitude,
-                label: vm.name,
-                variant: 'default',
-              }] as KakaoMarker[]}
-              style={{ flex: 1, borderRadius: Radius.card }}
-            />
           </View>
         </View>
 
@@ -283,6 +288,23 @@ export default function SpotDetailScreen() {
                 </View>
               </>
             )}
+          </View>
+
+          {/* 위치 미니맵 — 정보 테이블과 동일 너비 */}
+          <View style={s.locationMap} pointerEvents="none">
+            <KakaoMap
+              initialLatitude={vm.latitude}
+              initialLongitude={vm.longitude}
+              initialLevel={4}
+              markers={[{
+                id: vm.spot_id,
+                latitude: vm.latitude,
+                longitude: vm.longitude,
+                label: vm.name,
+                variant: 'default',
+              }] as KakaoMarker[]}
+              style={{ flex: 1, borderRadius: Radius.card }}
+            />
           </View>
         </View>
 
@@ -521,57 +543,78 @@ const s = StyleSheet.create({
   // ── 스크롤 ───────────────────────────────────────────────────────
   scroll: { flex: 1 },
 
-  // ── 상단 헤더: 한눈 요약 영역 (compact) ────────────────────────────
-  spotHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing[16],
-    paddingTop: Spacing[14],
-    paddingBottom: Spacing[14],
-    backgroundColor: Colors.bg.primary,
-    gap: Spacing[12],
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.border.subtle,
+  // ── 키비주얼 헤더: 이미지 + 텍스트 오버레이 ────────────────────────
+  keyVisual: {
+    width: '100%',
+    height: 260,
+    position: 'relative',
+    backgroundColor: Colors.bg.tertiary,
+    overflow: 'hidden',
   },
-  spotHeaderContent: {
-    flex: 1,
-    gap: Spacing[4],
+  keyVisualImage: {
+    width: '100%', height: '100%',
+    position: 'absolute', left: 0, top: 0,
   },
-  categoryBadge: {
+  keyVisualScrim: {
+    position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
+  },
+  keyVisualOverlay: {
+    position: 'absolute',
+    left: 0, right: 0, bottom: 0,
+    paddingHorizontal: Spacing[20],
+    paddingBottom: Spacing[20],
+    paddingTop: Spacing[40],
+    gap: Spacing[6],
+  },
+  keyVisualBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing[4],
     alignSelf: 'flex-start',
-    backgroundColor: Colors.brand.subtle,
+    backgroundColor: 'rgba(255,255,255,0.95)',
     paddingHorizontal: Spacing[8],
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: Radius.round,
-    borderWidth: 1,
-    borderColor: Colors.border.brand,
   },
-  categoryBadgeText: {
+  keyVisualBadgeText: {
     ...Typography.caption,
     color: Colors.brand.primary,
-    fontWeight: '600',
+    fontWeight: '700',
   },
-  spotName: {
-    ...Typography.title.l,
-    color: Colors.text.primary,
+  keyVisualName: {
+    ...Typography.display.s,
+    color: '#FFFFFF',
     fontWeight: '800',
-    lineHeight: 26,
-    marginTop: 2,
+    lineHeight: 32,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
-  spotMetaRow: {
+  keyVisualMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing[4],
+    marginTop: 2,
   },
-  spotMetaText: {
-    ...Typography.caption,
-    color: Colors.text.tertiary,
+  keyVisualMeta: {
+    ...Typography.label.s,
+    color: 'rgba(255,255,255,0.92)',
+    fontWeight: '500',
   },
 
-  // 지도 썸네일 — 컴팩트 미니맵
+  // 위치 미니맵 — 장소 정보 섹션 밑, 정보 테이블과 동일 너비
+  locationMap: {
+    width: '100%',
+    height: 180,
+    marginTop: Spacing[12],
+    borderRadius: Radius.card,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+    backgroundColor: Colors.bg.tertiary,
+  },
+
+  // (deprecated, 키비주얼로 대체) 컴팩트 미니맵
   mapThumb: {
     width: 88, height: 88,
     borderRadius: Radius.card,

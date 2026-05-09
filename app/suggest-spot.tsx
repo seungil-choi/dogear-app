@@ -18,6 +18,8 @@ import {
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
 import { track, EVENT } from '../src/utils/analytics';
+import * as ImagePicker from 'expo-image-picker';
+import { AppImage } from '../src/components/common/AppImage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
@@ -79,6 +81,7 @@ export default function SuggestSpotScreen() {
   const [category,    setCategory]    = useState<SpotCategory>('park');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [pinLocation, setPinLocation] = useState({ latitude: location.latitude, longitude: location.longitude });
+  const [photoUri,    setPhotoUri]    = useState<string | null>(null);
 
   // ── 초기 중복 검사 ────────────────────────────────────────
   useEffect(() => {
@@ -100,6 +103,31 @@ export default function SuggestSpotScreen() {
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag],
     );
   }, []);
+
+  // ── 사진 선택 ──────────────────────────────────────────────
+  // 갤러리에서 1장 선택 → 미리보기. 실 환경에서는 Supabase Storage에 업로드 후
+  // cover_image_url로 사용 (현재 단계는 URI만 보관, 업로드는 store/edge function에서)
+  const handlePickPhoto = useCallback(async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        notify('사진 첨부에는 갤러리 권한이 필요해요.', '권한 필요');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        allowsEditing: true,
+        aspect: [4, 3],
+      });
+      if (!result.canceled && result.assets[0]) {
+        setPhotoUri(result.assets[0].uri);
+      }
+    } catch {
+      notify('사진을 불러오지 못했어요. 잠시 후 다시 시도해주세요.', '오류');
+    }
+  }, []);
+  const handleRemovePhoto = useCallback(() => setPhotoUri(null), []);
 
   // ── 제출 전 중복 검사 ─────────────────────────────────────
   const handleCheckDuplicates = useCallback(() => {
@@ -124,6 +152,7 @@ export default function SuggestSpotScreen() {
       additional_tags: selectedTags,
       latitude: pinLocation.latitude,
       longitude: pinLocation.longitude,
+      cover_image_url: photoUri ?? undefined,  // 로컬 URI 또는 추후 업로드된 URL
     };
 
     if (IS_REAL_AUTH && user) {
@@ -138,6 +167,7 @@ export default function SuggestSpotScreen() {
           additional_tags: payload.additional_tags,
           latitude: payload.latitude,
           longitude: payload.longitude,
+          cover_image_url: payload.cover_image_url ?? null,
         });
 
       if (error) {
@@ -343,6 +373,26 @@ export default function SuggestSpotScreen() {
                 placeholderTextColor={Colors.text.tertiary}
                 maxLength={40}
               />
+            </View>
+
+            {/* ── 대표 사진 (선택) ── */}
+            <View style={s.formSection}>
+              <Text style={s.formSectionTitle}>대표 사진 <Text style={s.optional}>(선택)</Text></Text>
+              <Text style={s.photoHint}>장소 분위기를 잘 보여주는 사진 한 장을 첨부하면 좋아요</Text>
+              {photoUri ? (
+                <View style={s.photoPreviewWrap}>
+                  <AppImage source={{ uri: photoUri }} style={s.photoPreview} resizeMode="cover" />
+                  <TouchableOpacity style={s.photoRemoveBtn} onPress={handleRemovePhoto} activeOpacity={0.85}>
+                    <Icon name="close" size={14} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={s.photoPicker} onPress={handlePickPhoto} activeOpacity={0.85}>
+                  <Icon name="camera" size={22} color={Colors.brand.primary} />
+                  <Text style={s.photoPickerText}>사진 선택하기</Text>
+                  <Text style={s.photoPickerSub}>JPG · PNG (최대 1장)</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             <View style={s.formSection}>
@@ -588,6 +638,41 @@ const s = StyleSheet.create({
   formSection: { gap: Spacing[10] },
   formSectionTitle: { ...Typography.label.m, color: Colors.text.primary, fontWeight: '600' },
   required:         { color: Colors.brand.primary },
+
+  // 사진 첨부
+  photoHint: { ...Typography.caption, color: Colors.text.tertiary, marginTop: -Spacing[4] },
+  photoPicker: {
+    height: 120,
+    borderRadius: Radius.l,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: Colors.border.brand,
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[6],
+  },
+  photoPickerText: { ...Typography.label.l, color: Colors.brand.primary, fontWeight: '700' },
+  photoPickerSub:  { ...Typography.caption, color: Colors.text.tertiary },
+  photoPreviewWrap: {
+    width: '100%',
+    height: 180,
+    borderRadius: Radius.l,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+    position: 'relative',
+  },
+  photoPreview: { width: '100%', height: '100%' },
+  photoRemoveBtn: {
+    position: 'absolute',
+    top: Spacing[8],
+    right: Spacing[8],
+    width: 28, height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    alignItems: 'center', justifyContent: 'center',
+  },
   optional:         { ...Typography.body.s, color: Colors.text.tertiary, fontWeight: '400' },
 
   textInput: {
