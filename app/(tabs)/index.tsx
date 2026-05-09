@@ -105,10 +105,11 @@ function FeaturedCard({
   return (
     <TouchableOpacity style={s.featuredCard} onPress={onPress} activeOpacity={0.92}>
       <View style={s.featuredImageWrap}>
-        {/* 풀폭 카테고리 컬러 박스 — 운영 비용 0 (이미지 의존 X) */}
+        {/* 풀폭 키비주얼 — 이미지 있으면 AppImage, 없으면 카테고리 컬러 폴백 */}
         <View style={[s.featuredImageWrap, s.featuredImageFallback]}>
           <CategoryThumb
             categoryLabel={card.category_label}
+            coverImageUrl={card.cover_image_url}
             size={228}
             width="100%"
             iconSize={64}

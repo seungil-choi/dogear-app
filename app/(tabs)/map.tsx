@@ -620,6 +620,7 @@ export default function ExploreScreen() {
                         card.has_visited ? '발도장 남긴 곳' : undefined
                       }
                       isSaved={isSaved(card.spot_id)}
+                      coverImageUrl={card.cover_image_url}
                       onPress={() => router.push(`/spot/${card.spot_id}`)}
                     />
                   </View>
@@ -655,6 +656,7 @@ export default function ExploreScreen() {
                   card.has_visited ? '발도장 남긴 곳' : undefined
                 }
                 isSaved={isSaved(card.spot_id)}
+                coverImageUrl={card.cover_image_url}
                 onPress={() => router.push(`/spot/${card.spot_id}`)}
               />
             ))

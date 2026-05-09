@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors, Typography, Radius, Spacing } from '../../constants/tokens';
 import { Icon, type IconName } from '../common/Icon';
+import { AppImage } from '../common/AppImage';
 import type { HomeSpotCardViewModel } from '../../types';
 
 /**
@@ -24,16 +25,26 @@ const CATEGORY_ICON_COLOR: Record<string, string> = {
 
 interface CategoryThumbProps {
   categoryLabel: string;
-  size: number;       // 정사각형 사이즈, 또는 height (width 별도 지정 시)
-  width?: number | string;  // 가로 커스텀 (풀폭 카드 등)
+  coverImageUrl?: string;     // 있으면 이미지 우선, 없으면 카테고리 컬러 폴백
+  size: number;               // 정사각형 사이즈, 또는 height (width 별도 지정 시)
+  width?: number | string;    // 가로 커스텀 (풀폭 카드 등)
   iconSize?: number;
   rounded?: number;
 }
 
-export function CategoryThumb({ categoryLabel, size, width, iconSize, rounded = Radius.card }: CategoryThumbProps) {
+export function CategoryThumb({ categoryLabel, coverImageUrl, size, width, iconSize, rounded = Radius.card }: CategoryThumbProps) {
+  const w = width ?? size;
+  // 이미지가 있으면 AppImage 우선 (장소 상세 키비주얼과 일관)
+  if (coverImageUrl) {
+    return (
+      <View style={{ width: w as any, height: size, borderRadius: rounded, overflow: 'hidden', backgroundColor: Colors.bg.tertiary }}>
+        <AppImage source={{ uri: coverImageUrl }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+      </View>
+    );
+  }
+  // 폴백: 카테고리 컬러 + 라인 아이콘
   const conf = CATEGORY_THUMB[categoryLabel] ?? CATEGORY_THUMB['기타'];
   const color = CATEGORY_ICON_COLOR[categoryLabel] ?? CATEGORY_ICON_COLOR['기타'];
-  const w = width ?? size;
   return (
     <View style={{
       width: w as any, height: size, borderRadius: rounded,
@@ -54,9 +65,9 @@ interface FeaturedProps {
 export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={s.featured} onPress={onPress} activeOpacity={0.88}>
-      {/* 카테고리 컬러 박스 (이미지 없는 무비용 운영 디자인) */}
+      {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={s.featuredImage}>
-        <CategoryThumb categoryLabel={card.category_label} size={128} width={128} iconSize={36} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} coverImageUrl={card.cover_image_url} size={128} width={128} iconSize={36} rounded={0} />
         {card.is_regular && (
           <View style={s.featuredRegularBadge}>
             <Text style={s.featuredRegularText}>단골</Text>
@@ -93,9 +104,9 @@ export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
 export function CompactSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={s.compact} onPress={onPress} activeOpacity={0.88}>
-      {/* 카테고리 컬러 박스 */}
+      {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={s.compactImage}>
-        <CategoryThumb categoryLabel={card.category_label} size={100} width={168} iconSize={28} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} coverImageUrl={card.cover_image_url} size={100} width={168} iconSize={28} rounded={0} />
         {card.is_regular && (
           <View style={s.compactRegularDot} />
         )}
@@ -129,9 +140,9 @@ export function CompactSpotCard({ card, onPress }: FeaturedProps) {
 export function RecentSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
-      {/* 카테고리 컬러 박스 */}
+      {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={sr.imageWrap}>
-        <CategoryThumb categoryLabel={card.category_label} size={132} width="100%" iconSize={28} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} coverImageUrl={card.cover_image_url} size={132} width="100%" iconSize={28} rounded={0} />
       </View>
 
       {/* 텍스트 */}
@@ -150,9 +161,9 @@ export function RecentSpotCard({ card, onPress }: FeaturedProps) {
 export function RegularSpotCard({ card, onPress }: FeaturedProps) {
   return (
     <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
-      {/* 카테고리 컬러 박스 */}
+      {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={sr.imageWrap}>
-        <CategoryThumb categoryLabel={card.category_label} size={132} width="100%" iconSize={28} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} coverImageUrl={card.cover_image_url} size={132} width="100%" iconSize={28} rounded={0} />
         {/* 단골 뱃지 */}
         {card.is_regular && (
           <View style={sr.regularBadge}>
@@ -187,15 +198,15 @@ interface ListCardProps {
 
 export function ListSpotCard({
   name, categoryLabel, distanceText, atmosphereSummary, relationSummary,
-  isSaved, onPress,
+  isSaved, coverImageUrl, onPress,
 }: ListCardProps) {
   return (
     <TouchableOpacity style={s.listCard} onPress={onPress} activeOpacity={0.85}>
       {/* RN Web: TouchableOpacity는 row 레이아웃을 자식에게 전달 못할 수 있어 inner View로 강제 */}
       <View style={s.listCardInner}>
-        {/* 카테고리 컬러 박스 */}
+        {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
         <View style={s.listImage}>
-          <CategoryThumb categoryLabel={categoryLabel} size={60} iconSize={22} rounded={12} />
+          <CategoryThumb categoryLabel={categoryLabel} coverImageUrl={coverImageUrl} size={60} iconSize={22} rounded={12} />
         </View>
 
         {/* 정보 */}
