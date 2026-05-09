@@ -10,12 +10,11 @@ import {
   View, Text, TouchableOpacity, ScrollView,
   StyleSheet, Linking, Switch,
 } from 'react-native';
-import { notify, confirm } from '../src/utils/dialog';
+import { notify } from '../src/utils/dialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
 import { Icon } from '../src/components/common/Icon';
-import { useAppStore } from '../src/store/useAppStore';
 import type { IconName } from '../src/components/common/Icon';
 
 // ─── 설정 행 ─────────────────────────────────────────────
@@ -60,17 +59,9 @@ function SectionTitle({ label }: { label: string }) {
 // ─── 메인 컴포넌트 ───────────────────────────────────────
 export default function SettingsScreen() {
   const router  = useRouter();
-  const logout  = useAppStore(st => st.logout);
 
   // 알림 on/off (로컬 상태 — 실제 권한 연동은 추후)
   const [notifEnabled, setNotifEnabled] = useState(true);
-
-  const handleLogout = async () => {
-    if (await confirm('정말 로그아웃할까요?', { title: '로그아웃', confirmText: '로그아웃', destructive: true })) {
-      logout();
-      router.replace('/(auth)/login');
-    }
-  };
 
   const handleDeleteAccount = () => {
     router.push('/account-delete');

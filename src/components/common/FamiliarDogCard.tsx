@@ -2,7 +2,6 @@ import React from 'react';
 import { AppImage } from './AppImage';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Typography, Radius, Spacing, Shadow } from '../../constants/tokens';
-import { Icon } from './Icon';
 import type { FamiliarDogCardViewModel } from '../../types';
 
 interface Props {

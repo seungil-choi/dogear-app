@@ -614,17 +614,6 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.tertiary,
   },
 
-  // (deprecated, 키비주얼로 대체) 컴팩트 미니맵
-  mapThumb: {
-    width: 88, height: 88,
-    borderRadius: Radius.card,
-    backgroundColor: Colors.bg.tertiary,
-    borderWidth: 1,
-    borderColor: Colors.border.default,
-    overflow: 'hidden',
-    flexShrink: 0,
-  },
-
   // ── 관계 요약 카드 (아이콘 포함) ───────────────────────────────────
   statsCard: {
     flexDirection: 'row',

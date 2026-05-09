@@ -1,7 +1,7 @@
 import type {
   PawCheckin, SpotVisitSummary, FamiliarDogSignal, PrivacySetting,
   AtmosphereState, FeelingTag, RegularStatus, PinVariant, HomeSpotCardViewModel,
-  MapPinViewModel, Spot, Dog,
+  Spot, Dog,
 } from '../types';
 import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel } from './labels';
 import type { FamiliarDogCardViewModel, TraceListItemViewModel, SpotAggregate } from '../types';
@@ -113,7 +113,7 @@ export function buildHomeSpotCard(
 
 // ─── 지도 핀 variant ─────────────────────────────
 export function computePinVariant(
-  spot: Spot,
+  _spot: Spot,
   aggregate: SpotAggregate,
   summary?: SpotVisitSummary,
 ): PinVariant {

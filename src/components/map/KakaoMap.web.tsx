@@ -5,7 +5,7 @@
  */
 
 import React, {
-  useImperativeHandle, useRef, forwardRef, useEffect, useCallback, useState,
+  useImperativeHandle, useRef, forwardRef, useEffect, useState,
 } from 'react';
 import { Colors } from '@/constants/tokens';
 import type { KakaoMapProps, KakaoMapRef, KakaoMarker } from './KakaoMap';

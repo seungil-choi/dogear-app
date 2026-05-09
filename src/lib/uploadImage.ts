@@ -6,7 +6,6 @@
  */
 
 import { supabase } from './supabase';
-import { Platform } from 'react-native';
 
 import { IS_REAL_AUTH } from '../config/env';
 

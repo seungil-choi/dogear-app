@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Typography, Spacing, Radius, Shadow } from '../../src/constants/tokens';
+import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { Icon } from '../../src/components/common/Icon';
 import { EmptyState } from '../../src/components/common/EmptyState';

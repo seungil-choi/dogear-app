@@ -187,7 +187,7 @@ interface ListCardProps {
 
 export function ListSpotCard({
   name, categoryLabel, distanceText, atmosphereSummary, relationSummary,
-  isSaved, coverImageUrl, onPress,
+  isSaved, onPress,
 }: ListCardProps) {
   return (
     <TouchableOpacity style={s.listCard} onPress={onPress} activeOpacity={0.85}>

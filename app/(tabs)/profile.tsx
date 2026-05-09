@@ -23,7 +23,7 @@ import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens'
 import { useAppStore } from '../../src/store/useAppStore';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
-import { sizeLabel, ageGroupLabel, visibilityLabel, temperamentLabels } from '../../src/utils/labels';
+import { sizeLabel, visibilityLabel } from '../../src/utils/labels';
 import type { Dog } from '../../src/types';
 
 const { width: SCREEN_W } = Dimensions.get('window');

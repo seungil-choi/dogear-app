@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, ViewStyle } from 'react-native';
 import { Colors, Typography, Radius, Spacing } from '../../constants/tokens';
 
 type Variant = 'primary' | 'secondary' | 'tertiary' | 'destructive';

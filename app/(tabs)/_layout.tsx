@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Colors, Typography, Spacing, Shadow } from '../../src/constants/tokens';
+import { Colors, Spacing, Shadow } from '../../src/constants/tokens';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 
 // ─── 탭 아이콘 컴포넌트 ───────────────────────────────────────

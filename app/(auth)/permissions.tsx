@@ -18,7 +18,6 @@ import * as Notifications from 'expo-notifications';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 import { useAppStore } from '../../src/store/useAppStore';
-import { notify } from '../../src/utils/dialog';
 
 type PermStatus = 'pending' | 'granted' | 'denied';
 

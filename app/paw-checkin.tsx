@@ -266,7 +266,7 @@ export default function PawCheckinModal() {
         </TouchableOpacity>
 
         <View style={s.stepIndicator}>
-          {STEP_LABELS.map((label, i) => {
+          {STEP_LABELS.map((_label, i) => {
             const n = i + 1;
             const done   = n < indicatorStep;
             const active = n === indicatorStep;

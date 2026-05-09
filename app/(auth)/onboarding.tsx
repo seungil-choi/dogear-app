@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, SafeAreaView, TouchableOpacity,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
+import { Colors, Typography, Spacing } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';

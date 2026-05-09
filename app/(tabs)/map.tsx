@@ -98,7 +98,7 @@ export default function ExploreScreen() {
   // 패널은 4단 snap:
   //   min(헤더만 노출, 카드 가려짐) / peek(카드 ~2장) / half(중간) / full(헤더 아래까지)
   const SCREEN_H = Dimensions.get('window').height;
-  const [headerH, setHeaderH] = useState(160); // 헤더 측정값 (대략 추정 후 onLayout 갱신)
+  const [headerH] = useState(160); // 헤더 측정값 (현재는 고정)
   const PANEL_MIN_H  = 56;    // 핸들 + "주변 장소 N곳" 헤더만 (카드 완전히 가림)
   const PANEL_PEEK_H = 200;   // 카드 ~2장 보이는 높이
   const PANEL_HALF_H = Math.round(SCREEN_H * 0.55);
