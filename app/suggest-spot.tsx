@@ -27,7 +27,7 @@ import { Icon } from '../src/components/common/Icon';
 import KakaoMap from '../src/components/map/KakaoMap';
 import type { SpotCategory, NearbyDuplicate } from '../src/types';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../src/config/env';
 
 // react-native-maps — native only (not available on web)
 const RNMapView = Platform.OS !== 'web' ? require('react-native-maps').default : null;

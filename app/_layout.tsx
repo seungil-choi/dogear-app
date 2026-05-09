@@ -38,7 +38,7 @@ function AuthGate() {
       '계정 안내',
     );
     logout();
-    router.replace('/(auth)/login' as any);
+    router.replace('/(auth)/login');
   }, [user, logout, router]);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ function AuthGate() {
     // (auth) 그룹과 (legal) 그룹은 비로그인 상태에서도 접근 허용
     const isPublic = seg0 === '(auth)' || seg0 === '(legal)';
     if (!isAuthenticated && !isPublic) {
-      router.replace('/(auth)/splash' as any);
+      router.replace('/(auth)/splash');
     }
   }, [isAuthenticated, segments, router]);
 
@@ -54,7 +54,7 @@ function AuthGate() {
 }
 
 // DEV_PREVIEW_SEED=false일 때만 실 Supabase 인증 + 데이터 로드 활성화
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../src/config/env';
 
 // 실 Supabase 인증 세션 복원 (IS_REAL_AUTH=true일 때만 마운트)
 function AuthProvider() {

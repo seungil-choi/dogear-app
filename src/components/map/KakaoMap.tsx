@@ -15,7 +15,7 @@ import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { Colors } from '@/constants/tokens';
 import { buildKakaoMapHtml } from './kakaoMapHtml';
 
-const KAKAO_JS_KEY = process.env.EXPO_PUBLIC_KAKAO_JS_KEY ?? '';
+import { KAKAO_JS_KEY } from '@/config/env';
 
 export type KakaoPinVariant = 'default' | 'visited' | 'regular';
 

@@ -2,8 +2,7 @@ import { create, type StateCreator } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
-
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH, IS_DEV_SEED } from '../config/env';
 import type {
   User, Dog, Spot, PawCheckin, SavedSpot, SavedType, SpotVisitSummary,
   FamiliarDogSignal, PrivacySetting, VisibilityLevel, FeelingTag,
@@ -38,7 +37,7 @@ import {
 
 // 목업 시드 — .env의 EXPO_PUBLIC_DEV_SEED=true 일 때만 활성화
 // 프로덕션 빌드: .env.production에 EXPO_PUBLIC_DEV_SEED=false 설정
-const DEV_PREVIEW_SEED = process.env.EXPO_PUBLIC_DEV_SEED === 'true';
+const DEV_PREVIEW_SEED = IS_DEV_SEED;
 
 // ─── 기본 개인정보 설정 (강아지 신규 가입 시 사용) ─────────────────
 const defaultPrivacySetting: PrivacySetting = {

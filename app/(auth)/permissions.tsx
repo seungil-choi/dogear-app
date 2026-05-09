@@ -131,7 +131,7 @@ export default function PermissionsScreen() {
     else if (key === 'notification') requestNotification();
   };
 
-  const proceed = () => router.replace('/(tabs)' as any);
+  const proceed = () => router.replace('/(tabs)');
 
   const allDecided = ITEMS.every(it => statuses[it.key] !== 'pending');
 

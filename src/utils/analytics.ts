@@ -24,8 +24,7 @@
  */
 
 import { supabase } from '../lib/supabase';
-
-const IS_REAL = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH as IS_REAL } from '../config/env';
 
 // ─── 이벤트 이름 화이트리스트 (오타·중복 명명 방지) ─────────────────
 export const EVENT = {

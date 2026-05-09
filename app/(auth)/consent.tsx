@@ -61,7 +61,7 @@ export default function ConsentScreen() {
       marketing_optin:  checks.marketing,
       agreed_at:        new Date().toISOString(),
     });
-    router.replace('/(auth)/dog-setup' as any);
+    router.replace('/(auth)/dog-setup');
   };
 
   return (

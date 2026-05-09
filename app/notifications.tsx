@@ -13,7 +13,7 @@ import { EmptyState } from '../src/components/common/EmptyState';
 import { Colors, Typography, Spacing, Layout } from '../src/constants/tokens';
 
 // DEV_SEED 모드에서만 데모 알림 노출 (실 환경에서는 빈 상태로 시작)
-const SHOW_MOCK = process.env.EXPO_PUBLIC_DEV_SEED === 'true';
+import { IS_DEV_SEED as SHOW_MOCK } from '../src/config/env';
 
 // ─── 타입 정의 ──────────────────────────────────────────────────
 type NotificationGroup = '오늘' | '어제' | '이번 주';
@@ -102,7 +102,7 @@ export default function NotificationsScreen() {
       prev.map(n => (n.id === item.id ? { ...n, read: true } : n))
     );
     if (item.spot_id) {
-      router.push(`/spot/${item.spot_id}` as any);
+      router.push(`/spot/${item.spot_id}`);
     }
   };
 
@@ -149,7 +149,7 @@ export default function NotificationsScreen() {
             headline="아직 도착한 알림이 없어요"
             description="발도장이 쌓이고 익숙한 강아지가 등장하면 여기로 알려드릴게요."
             ctaLabel="지도에서 산책 시작하기"
-            onCta={() => router.replace('/(tabs)/map' as any)}
+            onCta={() => router.replace('/(tabs)/map')}
           />
         </View>
       ) : (

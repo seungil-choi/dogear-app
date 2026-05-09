@@ -10,7 +10,7 @@ import React, {
 import { Colors } from '@/constants/tokens';
 import type { KakaoMapProps, KakaoMapRef, KakaoMarker } from './KakaoMap';
 
-const KAKAO_JS_KEY = process.env.EXPO_PUBLIC_KAKAO_JS_KEY ?? '';
+import { KAKAO_JS_KEY } from '@/config/env';
 
 // 동적으로 카카오 SDK 스크립트 로드 (한 번만) — clusterer 라이브러리 포함
 let kakaoLoadPromise: Promise<any> | null = null;

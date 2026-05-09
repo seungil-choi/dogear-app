@@ -19,7 +19,7 @@ import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { notify, confirm as dialogConfirm } from '../src/utils/dialog';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../src/config/env';
 
 const CONFIRM_WORD = '삭제';
 

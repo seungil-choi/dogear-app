@@ -68,12 +68,12 @@ export default function SettingsScreen() {
   const handleLogout = async () => {
     if (await confirm('정말 로그아웃할까요?', { title: '로그아웃', confirmText: '로그아웃', destructive: true })) {
       logout();
-      router.replace('/(auth)/login' as any);
+      router.replace('/(auth)/login');
     }
   };
 
   const handleDeleteAccount = () => {
-    router.push('/account-delete' as any);
+    router.push('/account-delete');
   };
 
   const openSupport = () => {
@@ -129,11 +129,11 @@ export default function SettingsScreen() {
         ────────────────────────────────────────── */}
         <SectionTitle label="약관 및 정책" />
         <View style={s.card}>
-          <SettingsRow icon="document" label="서비스 이용약관"        onPress={() => router.push('/(legal)/terms' as any)} />
+          <SettingsRow icon="document" label="서비스 이용약관"        onPress={() => router.push('/(legal)/terms')} />
           <View style={s.divider} />
-          <SettingsRow icon="shield"   label="개인정보 처리방침"      onPress={() => router.push('/(legal)/privacy-policy' as any)} />
+          <SettingsRow icon="shield"   label="개인정보 처리방침"      onPress={() => router.push('/(legal)/privacy-policy')} />
           <View style={s.divider} />
-          <SettingsRow icon="document" label="위치기반서비스 이용약관" onPress={() => router.push('/(legal)/location-terms' as any)} />
+          <SettingsRow icon="document" label="위치기반서비스 이용약관" onPress={() => router.push('/(legal)/location-terms')} />
         </View>
 
         {/* ──────────────────────────────────────────

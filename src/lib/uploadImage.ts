@@ -8,7 +8,7 @@
 import { supabase } from './supabase';
 import { Platform } from 'react-native';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../config/env';
 
 export type ImageBucket = 'dog-avatars' | 'checkin-photos' | 'spot-suggestions';
 

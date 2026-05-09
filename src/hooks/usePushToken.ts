@@ -14,7 +14,7 @@ import Constants from 'expo-constants';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../config/env';
 
 // 알림 표시 동작 설정 (앱 활성 시에도 알림 노출)
 Notifications.setNotificationHandler({

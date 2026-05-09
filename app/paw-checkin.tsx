@@ -32,7 +32,7 @@ import { EmptyState } from '../src/components/common/EmptyState';
 import type { FeelingTag, VisibilityLevel } from '../src/types';
 import { feelingTagLabel, visibilityLabel } from '../src/utils/labels';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../src/config/env';
 
 
 

@@ -13,7 +13,7 @@ import { Button } from '../../src/components/common/Button';
 import type { DogSize, DogAgeGroup, Dog } from '../../src/types';
 import { sizeLabel, ageGroupLabel } from '../../src/utils/labels';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../../src/config/env';
 
 const SIZES: DogSize[] = ['small', 'medium', 'large'];
 const AGE_GROUPS: DogAgeGroup[] = ['puppy', 'adult', 'senior'];
@@ -131,13 +131,13 @@ export default function DogSetupScreen() {
       walking_count: selectedWalking.length,
     });
     // 등록 완료 후 권한 안내 단계로 (위치 + 알림)
-    router.replace('/(auth)/permissions' as any);
+    router.replace('/(auth)/permissions');
   };
 
   // 강아지 등록 건너뛰기 — 마이 탭에서 언제든 추가 가능
   const handleSkip = () => {
     completeOnboarding();
-    router.replace('/(auth)/permissions' as any);
+    router.replace('/(auth)/permissions');
   };
 
   const canProceed = name.trim().length > 0 && !isSaving;

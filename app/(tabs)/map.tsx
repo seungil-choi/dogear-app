@@ -571,7 +571,7 @@ export default function ExploreScreen() {
                       <View style={s.heroActions}>
                         <TouchableOpacity
                           style={[s.heroBtn, s.heroBtnPrimary]}
-                          onPress={() => router.push(`/spot/${selectedHeroCard.spot_id}` as any)}
+                          onPress={() => router.push(`/spot/${selectedHeroCard.spot_id}`)}
                           activeOpacity={0.85}
                         >
                           <Icon name="forward" size={14} color={Colors.brand.onPrimary} />
@@ -620,7 +620,7 @@ export default function ExploreScreen() {
                         card.has_visited ? '발도장 남긴 곳' : undefined
                       }
                       isSaved={isSaved(card.spot_id)}
-                      onPress={() => router.push(`/spot/${card.spot_id}` as any)}
+                      onPress={() => router.push(`/spot/${card.spot_id}`)}
                     />
                   </View>
                 ))}
@@ -655,7 +655,7 @@ export default function ExploreScreen() {
                   card.has_visited ? '발도장 남긴 곳' : undefined
                 }
                 isSaved={isSaved(card.spot_id)}
-                onPress={() => router.push(`/spot/${card.spot_id}` as any)}
+                onPress={() => router.push(`/spot/${card.spot_id}`)}
               />
             ))
           )}

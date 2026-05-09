@@ -156,7 +156,7 @@ export default function ProfileScreen() {
   const handleLogout = useCallback(async () => {
     if (await confirm('정말 로그아웃할까요?', { title: '로그아웃', confirmText: '로그아웃', destructive: true })) {
       logout();
-      router.replace('/(auth)/splash' as any);
+      router.replace('/(auth)/splash');
     }
   }, [logout, router]);
 
@@ -191,7 +191,7 @@ export default function ProfileScreen() {
   }, [setActiveDog, router]);
 
   const handleAddDog = useCallback(() => {
-    router.push('/(auth)/dog-setup' as any);
+    router.push('/(auth)/dog-setup');
   }, [router]);
 
   // 강아지 없음 → 온보딩 유도
@@ -327,7 +327,7 @@ export default function ProfileScreen() {
           </View>
           <View style={s.settingsCard}>
             <SettingsRow icon="bell"   label="알림"           onPress={() => router.push('/notifications')} />
-            <SettingsRow icon="person" label="차단한 사용자"   onPress={() => router.push('/blocked-users' as any)} />
+            <SettingsRow icon="person" label="차단한 사용자"   onPress={() => router.push('/blocked-users')} />
           </View>
         </View>
 
@@ -349,7 +349,7 @@ export default function ProfileScreen() {
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.settingsCard}>
-            <SettingsRow icon="settings" label="설정"  onPress={() => router.push('/settings' as any)} />
+            <SettingsRow icon="settings" label="설정"  onPress={() => router.push('/settings')} />
           </View>
           <Text style={s.sectionFootnote}>
             권한 · 약관 · 도움말 · 계정 관리는 설정에서 확인할 수 있어요.

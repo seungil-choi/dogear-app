@@ -111,8 +111,8 @@ export default function SpotDetailScreen() {
       { label: '이 장소 신고하기', destructive: true },
     ]);
     if (idx === 0) handleDirections();
-    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id } } as any);
-    else if (idx === 2) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } } as any);
+    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id } });
+    else if (idx === 2) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
   }, [vm, id, router, handleDirections]);
 
   if (!vm) {
@@ -334,7 +334,7 @@ export default function SpotDetailScreen() {
         <View style={s.section}>
           <View style={s.sectionHead}>
             <Text style={s.sectionTitle}>최근 흔적</Text>
-            <TouchableOpacity style={s.sectionMore} onPress={() => router.push(`/visit-history/${id}` as any)}>
+            <TouchableOpacity style={s.sectionMore} onPress={() => router.push(`/visit-history/${id}`)}>
               <Text style={s.sectionMoreText}>더보기</Text>
               <Icon name="forward" size={12} color={Colors.text.tertiary} />
             </TouchableOpacity>
@@ -347,7 +347,7 @@ export default function SpotDetailScreen() {
                   key={trace.trace_id}
                   style={[s.traceRow, idx < vm.recent_traces.length - 1 && s.traceRowBorder]}
                   activeOpacity={0.75}
-                  onPress={() => router.push(`/visit-history/${id}` as any)}
+                  onPress={() => router.push(`/visit-history/${id}`)}
                 >
                   <View style={s.traceIconWrap}>
                     <Icon name="paw-filled" size={14} color={Colors.brand.primary} />

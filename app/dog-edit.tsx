@@ -22,7 +22,7 @@ import { supabase } from '../src/lib/supabase';
 import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
 import { notify, actionSheet } from '../src/utils/dialog';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../src/config/env';
 import {
   sizeLabel,
   ageGroupLabel,

@@ -33,7 +33,7 @@ import {
 } from '../../src/components/common/SnsLogos';
 import { supabase } from '../../src/lib/supabase';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../../src/config/env';
 
 // Google Sign-In 초기 설정
 if (IS_REAL_AUTH && Platform.OS !== 'web') {
@@ -81,9 +81,9 @@ export default function LoginScreen() {
     login();
     track(EVENT.login_completed, { screen_name: 'login', provider });
     if (!consent) {
-      router.replace('/(auth)/consent' as any);
+      router.replace('/(auth)/consent');
     } else if (!dog) {
-      router.replace('/(auth)/dog-setup' as any);
+      router.replace('/(auth)/dog-setup');
     } else {
       router.replace('/(tabs)');
     }
@@ -302,11 +302,11 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <View style={s.formLinks}>
-              <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password' as any)}>
+              <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
                 <Text style={s.linkText}>비밀번호 찾기</Text>
               </TouchableOpacity>
               <View style={s.linkSep} />
-              <TouchableOpacity onPress={() => router.push('/(auth)/signup' as any)}>
+              <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
                 <Text style={[s.linkText, s.linkStrong]}>이메일로 가입하기</Text>
               </TouchableOpacity>
             </View>
@@ -358,11 +358,11 @@ export default function LoginScreen() {
           {/* ── 약관 안내 ── */}
           <Text style={s.disclaimer}>
             로그인 후 다음 단계에서{' '}
-            <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/terms' as any)}>이용약관</Text>
+            <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/terms')}>이용약관</Text>
             {' · '}
-            <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/privacy-policy' as any)}>개인정보 처리방침</Text>
+            <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/privacy-policy')}>개인정보 처리방침</Text>
             {' · '}
-            <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/location-terms' as any)}>위치기반서비스 약관</Text>
+            <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/location-terms')}>위치기반서비스 약관</Text>
             에 직접 동의하게 돼요.
           </Text>
         </ScrollView>

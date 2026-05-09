@@ -18,7 +18,7 @@ import { Icon } from '../../src/components/common/Icon';
 import { supabase } from '../../src/lib/supabase';
 import { notify } from '../../src/utils/dialog';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../../src/config/env';
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
@@ -131,7 +131,7 @@ export default function ForgotPasswordScreen() {
           <View style={s.footer}>
             <TouchableOpacity
               style={s.cta}
-              onPress={() => router.replace('/(auth)/login' as any)}
+              onPress={() => router.replace('/(auth)/login')}
               activeOpacity={0.88}
             >
               <Text style={s.ctaLabel}>로그인으로 돌아가기</Text>

@@ -22,7 +22,7 @@ import { supabase } from '../../src/lib/supabase';
 import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 
-const IS_REAL_AUTH = process.env.EXPO_PUBLIC_DEV_SEED !== 'true';
+import { IS_REAL_AUTH } from '../../src/config/env';
 
 // 비밀번호 정책: 8자+ / 영문 + 숫자
 function validatePassword(pw: string): { ok: boolean; reason?: string } {
@@ -54,7 +54,7 @@ export default function SignupScreen() {
         // DEV_SEED 모드: 즉시 통과
         login();
         track(EVENT.signup_completed, { screen_name: 'signup', provider: 'email' });
-        router.replace('/(auth)/consent' as any);
+        router.replace('/(auth)/consent');
         return;
       }
       const { error } = await supabase.auth.signUp({
@@ -74,7 +74,7 @@ export default function SignupScreen() {
         `${email.trim()}으로 인증 메일을 보냈어요. 메일의 링크를 눌러 인증을 완료한 뒤 다시 로그인해주세요.`,
         '인증 메일 발송',
       );
-      router.replace('/(auth)/login' as any);
+      router.replace('/(auth)/login');
     } catch {
       notify('가입 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', '오류');
     } finally {

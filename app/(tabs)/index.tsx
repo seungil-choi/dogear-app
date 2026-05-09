@@ -325,7 +325,7 @@ export default function HomeScreen() {
           <Icon name="paw" size={56} color={Colors.brand.primary} />
           <Text style={s.noDogTitle}>강아지를 등록해주세요</Text>
           <Text style={s.noDogDesc}>산책 스팟 추천과 발도장 기록을{'\n'}시작하려면 강아지 프로필이 필요해요.</Text>
-          <TouchableOpacity style={s.noDogBtn} onPress={() => router.push('/(auth)/dog-setup' as any)}>
+          <TouchableOpacity style={s.noDogBtn} onPress={() => router.push('/(auth)/dog-setup')}>
             <Text style={s.noDogBtnText}>강아지 등록하기</Text>
           </TouchableOpacity>
         </View>

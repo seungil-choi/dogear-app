@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
+import { SUPABASE_URL as ENV_SUPABASE_URL, SUPABASE_ANON_KEY as ENV_SUPABASE_ANON_KEY } from '../config/env';
 
-const SUPABASE_URL     = process.env.EXPO_PUBLIC_SUPABASE_URL     ?? 'https://placeholder.supabase.co';
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? 'placeholder-anon-key';
+const SUPABASE_URL     = ENV_SUPABASE_URL     || 'https://placeholder.supabase.co';
+const SUPABASE_ANON_KEY = ENV_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 // ─── SSR-safe 스토리지 어댑터 ─────────────────────────────────────────
 // 웹 SSR(Node.js) 환경에서는 window/localStorage 접근 불가 → 인메모리 폴백
