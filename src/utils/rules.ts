@@ -5,10 +5,13 @@ import type {
 } from '../types';
 import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel } from './labels';
 import type { FamiliarDogCardViewModel, TraceListItemViewModel, SpotAggregate } from '../types';
+import { FAMILIAR_LAYER_POLICY } from '../config/familiar-layer';
 
 const HOURS_72 = 72 * 60 * 60 * 1000;
 const DAYS_14 = 14 * 24 * 60 * 60 * 1000;
 const DAYS_7 = 7 * 24 * 60 * 60 * 1000;
+// familiar_layer 정책의 윈도 — SSOT에서 미러
+const FAMILIAR_WINDOW_MS = FAMILIAR_LAYER_POLICY.WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
 // ─── 유효 발도장 필터 ─────────────────────────────
 function isValid(c: PawCheckin) {
@@ -147,21 +150,33 @@ export function buildFamiliarDogCards(
   privacySettings: Map<string, PrivacySetting>,
   allCheckins: PawCheckin[],
 ): FamiliarDogCardViewModel[] {
+  // currentDog(보고 있는 사용자) 자신의 노출 허용도 양방 합의 원칙으로 체크
+  const currentDogPs = privacySettings.get(currentDogId);
+  const currentDogAllowed = !currentDogPs || currentDogPs.allow_familiar_layer_exposure;
+  if (!currentDogAllowed) {
+    // 본인 강아지가 노출 거부 상태면 양방 매칭이 성립 불가 → 카드 비활성
+    return [];
+  }
+
   const eligible = signals
     .filter(s => {
       if (s.spot_id !== spotId) return false;
       if (s.visible_dog_id === currentDogId) return false;
       if (!s.exposure_allowed) return false;
+      // 상대(visible_dog) 노출 허용 — 기본 동의로 간주(설정 없으면 허용)
       const ps = privacySettings.get(s.visible_dog_id);
       if (ps && !ps.allow_familiar_layer_exposure) return false;
       const recentFamiliarCheckins = allCheckins.filter(
         c => c.spot_id === spotId
           && c.dog_id === s.visible_dog_id
           && c.visibility_level === 'familiar_layer'
-          && isWithin(c.checked_in_at, DAYS_14)
+          && isWithin(c.checked_in_at, FAMILIAR_WINDOW_MS)
           && isValid(c),
       );
-      return recentFamiliarCheckins.length >= 2 && isWithin(s.recent_last_seen_at, DAYS_14);
+      return (
+        recentFamiliarCheckins.length >= FAMILIAR_LAYER_POLICY.MIN_FAMILIAR_CHECKIN_COUNT
+        && isWithin(s.recent_last_seen_at, FAMILIAR_WINDOW_MS)
+      );
     })
     .sort((a, b) => b.recent_visible_checkin_count - a.recent_visible_checkin_count)
     .slice(0, 6);

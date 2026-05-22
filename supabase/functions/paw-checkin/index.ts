@@ -247,16 +247,26 @@ Deno.serve(async (req: Request) => {
 
 /**
  * familiar_dog_signals 갱신
- * 동일 스팟에서 familiar_layer 체크인이 2회 이상이면 exposure_allowed = true
+ * 동일 스팟에서 familiar_layer 체크인이 임계치 이상이면 exposure_allowed = true
+ *
+ * ⚠️ 정책 SSOT 미러 — 클라이언트 src/config/familiar-layer.ts FAMILIAR_LAYER_POLICY와 동기화 필수.
+ *    Deno 환경이라 TS import 불가 → 값 직접 복제. 변경 시 양쪽 모두 수정.
  */
+const FAMILIAR_LAYER_POLICY = {
+  MIN_FAMILIAR_CHECKIN_COUNT: 2,        // ↔ MIN_FAMILIAR_CHECKIN_COUNT
+  MIN_FAMILIAR_CHECKIN_WINDOW_DAYS: 30, // ↔ MIN_FAMILIAR_CHECKIN_WINDOW_DAYS
+} as const;
+
 async function updateFamiliarDogSignal(
   serviceClient: any,
   dogId: string,
   spotId: string
 ) {
   try {
-    // 최근 30일 familiar_layer 체크인 수
-    const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    // 임계 윈도 내 familiar_layer 체크인 수
+    const sinceMs =
+      FAMILIAR_LAYER_POLICY.MIN_FAMILIAR_CHECKIN_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+    const since30d = new Date(Date.now() - sinceMs).toISOString();
     const { count } = await serviceClient
       .from('paw_checkins')
       .select('*', { count: 'exact', head: true })
@@ -266,7 +276,7 @@ async function updateFamiliarDogSignal(
       .gte('checked_in_at', since30d);
 
     const recentCount = count ?? 0;
-    const exposureAllowed = recentCount >= 2;
+    const exposureAllowed = recentCount >= FAMILIAR_LAYER_POLICY.MIN_FAMILIAR_CHECKIN_COUNT;
 
     await serviceClient
       .from('familiar_dog_signals')

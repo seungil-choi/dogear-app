@@ -10,6 +10,7 @@ import { PrivacyChip } from '../src/components/common/StatusBadge';
 import { Icon } from '../src/components/common/Icon';
 import type { VisibilityLevel } from '../src/types';
 import { visibilityLabel } from '../src/utils/labels';
+import { SAFETY_CONDITION_TEXTS } from '../src/config/familiar-layer';
 
 const VISIBILITY_LEVELS: VisibilityLevel[] = ['private', 'spot_only', 'familiar_layer'];
 
@@ -29,14 +30,8 @@ const LEVEL_DESC: Record<VisibilityLevel, { title: string; desc: string }> = {
   },
 };
 
-const SAFETY_CONDITIONS = [
-  '두 강아지 모두 최근 14일 안에 같은 장소를 방문했어요',
-  '두 강아지 모두 최근 7일 안에 같은 장소를 2회 이상 방문했어요',
-  '두 강아지 모두 "익숙한 강아지" 공개를 허용해두었어요',
-  '두 강아지 모두 "자주 만나는 강아지에게 보이기"를 켜둔 상태예요',
-  '최근 7일 안에 같은 장소에서 발도장이 겹친 적 있어요',
-  '같은 크기의 강아지만 보기로 설정했다면, 두 강아지의 크기가 같아야 해요',
-];
+// 안전 조건은 src/config/familiar-layer.ts SSOT에서 import
+const SAFETY_CONDITIONS = SAFETY_CONDITION_TEXTS;
 
 export default function PrivacySettingsScreen() {
   const router = useRouter();
@@ -107,7 +102,7 @@ export default function PrivacySettingsScreen() {
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
             <Icon name="lock" size={16} color={Colors.text.primary} />
-            <Text style={s.sectionTitle}>산책 친구 안전 조건 6가지</Text>
+            <Text style={s.sectionTitle}>산책 친구 안전 조건</Text>
           </View>
           <Text style={s.sectionDesc}>
             아래 조건을 모두 충족해야만 산책 친구 찾기가 작동해요.
