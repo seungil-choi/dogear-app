@@ -33,6 +33,7 @@ export function usePawCheckin(): UsePawCheckinReturn {
 
   const activeDog = useAppStore(s => s.activeDog);
   const pawFlow = useAppStore(s => s.pawFlow);
+  const currentLocation = useAppStore(s => s.currentLocation);
   const selectedSpotId = pawFlow.selectedSpot?.spot_id;
   const selectedFeelingTags = pawFlow.selectedTags;
   const note = pawFlow.note;
@@ -58,13 +59,24 @@ export function usePawCheckin(): UsePawCheckinReturn {
           note: note || undefined,
           visibilityLevel: visibilityLevel as VisibilityLevel,
           sourceType: 'global_cta',
+          // 서버 측 근접성 재검증을 위한 좌표/정확도
+          userLat: currentLocation?.latitude,
+          userLng: currentLocation?.longitude,
+          accuracy: currentLocation?.accuracy,
         },
       });
 
       if (fnError) {
-        // 중복 체크인 처리
+        // 중복 체크인
         if (fnError.message?.includes('409') || fnError.context?.status === 409) {
           throw new Error('최근 1시간 내에 이미 발도장을 남겼어요');
+        }
+        // 위치 가드 (403) — 서버가 보낸 메시지를 그대로 노출
+        if (fnError.context?.status === 403) {
+          const serverMsg = fnError.context?.body?.message
+            ?? fnError.context?.body?.error
+            ?? '장소 근처에서만 발도장을 남길 수 있어요';
+          throw new Error(serverMsg);
         }
         throw fnError;
       }
@@ -86,7 +98,7 @@ export function usePawCheckin(): UsePawCheckinReturn {
     } finally {
       setIsSubmitting(false);
     }
-  }, [activeDog, selectedSpotId, selectedFeelingTags, note, visibilityLevel]);
+  }, [activeDog, selectedSpotId, selectedFeelingTags, note, visibilityLevel, currentLocation]);
 
   return { submit, isSubmitting, error };
 }

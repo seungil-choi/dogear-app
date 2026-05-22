@@ -1,7 +1,7 @@
 /**
- * 내장소 탭
+ * 내 장소 탭
  *
- * 역할: 우리 아이와 관계가 생긴 장소와 저장한 장소를 관리/회고
+ * 역할: 우리 아이와 관계가 생긴 곳과 저장한 곳을 관리/회고
  * 핵심 질문: "우리는 어디를 다녔고, 어디를 다시 가고 싶지?"
  *
  * 구조:
@@ -186,9 +186,9 @@ export default function MySpotsScreen() {
         {activeTab === 'saved' && (
           mySavedSpots.length === 0 ? (
             <EmptyState
-              headline="저장한 장소가 없어요"
-              description="마음에 드는 장소를 저장해두면 여기에 모여요."
-              ctaLabel="장소 탐색하러 가기"
+              headline="저장한 곳이 없어요"
+              description="마음에 드는 곳을 저장해두면 여기에 모여요."
+              ctaLabel="지도 보기"
               onCta={() => router.push('/(tabs)/map')}
             />
           ) : (
@@ -295,7 +295,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 4,
   },
   segCountActive:     { backgroundColor: Colors.brand.primaryLight },
-  segCountText:       { ...Typography.label.s, fontSize: 10, color: Colors.text.tertiary },
+  segCountText:       { ...Typography.label.s, color: Colors.text.tertiary },
   segCountTextActive: { color: Colors.brand.accent, fontWeight: '700' },
 
   sortBar: {

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Typography, Radius, Spacing } from '../../constants/tokens';
 import type { AtmosphereState, RegularStatus, VisibilityLevel } from '../../types';
+import { visibilityLabel } from '../../utils/labels';
 
 // ─── 분위기 배지 ─────────────────────────────
 export function AtmosphereBadge({ state }: { state: AtmosphereState }) {
@@ -58,11 +59,7 @@ export function PrivacyChip({
     spot_only:      Colors.safety.spotOnly,
     familiar_layer: Colors.safety.familiarLayer,
   };
-  const labelMap = {
-    private:        '나만 보기',
-    spot_only:      '장소 분위기에만',
-    familiar_layer: '산책 친구 찾기',
-  };
+  // 라벨은 labels.ts visibilityLabel SSOT 사용 (하드코딩 금지)
   const c = colorMap[level];
   return (
     <View
@@ -76,7 +73,7 @@ export function PrivacyChip({
     >
       <View style={[s.privacyDot, { backgroundColor: c.dot }]} />
       <Text style={[s.chipText, { color: selected ? c.text : Colors.text.secondary }]}>
-        {labelMap[level]}
+        {visibilityLabel[level]}
       </Text>
     </View>
   );

@@ -9,7 +9,7 @@
 
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform,
+  View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -176,7 +176,18 @@ export default function PermissionsScreen() {
               ) : st === 'granted' ? (
                 <Text style={s.permResultOk}>허용됨 ✓</Text>
               ) : (
-                <Text style={s.permResultSkip}>나중에 허용해도 괜찮아요</Text>
+                <View style={{ gap: Spacing[6] }}>
+                  <Text style={s.permResultSkip}>거부됨 — 설정에서 다시 허용할 수 있어요</Text>
+                  {Platform.OS !== 'web' && (
+                    <TouchableOpacity
+                      onPress={() => Linking.openSettings().catch(() => {})}
+                      activeOpacity={0.85}
+                      style={s.permSettingsBtn}
+                    >
+                      <Text style={s.permSettingsBtnText}>설정 열기</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               )}
             </View>
           );
@@ -259,4 +270,19 @@ const s = StyleSheet.create({
   },
   ctaLabel: { ...Typography.title.m, color: '#FFFFFF' },
   ctaLabelSecondary: { color: Colors.text.secondary },
+
+  permSettingsBtn: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing[12],
+    paddingVertical: Spacing[6],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.subtle,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+  },
+  permSettingsBtnText: {
+    ...Typography.label.s,
+    color: Colors.brand.accent,
+    fontWeight: '600',
+  },
 });

@@ -145,6 +145,16 @@ export default function SuggestSpotScreen() {
 
   // ── 최종 제출 ─────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
+    // hard_block 안전망 — duplicate_check 단계에서 우회되더라도 최종 제출 직전 재검증
+    if (hasHardBlock) {
+      notify(
+        '동일한 이름·카테고리의 장소가 이미 매우 가까이 등록되어 있어요. 기존 장소를 선택해주세요.',
+        '제안 불가',
+      );
+      setStep('duplicate_check');
+      return;
+    }
+
     const payload = {
       name: name.trim(),
       description: description.trim(),
@@ -187,7 +197,7 @@ export default function SuggestSpotScreen() {
     });
     setCreatedSpotId(newSpotId);
     setStep('done');
-  }, [name, description, category, selectedTags, pinLocation, suggestSpot, user]);
+  }, [name, description, category, selectedTags, pinLocation, suggestSpot, user, hasHardBlock, photoUri]);
 
   // ── 기존 장소 사용 ────────────────────────────────────────
   const handleUseExistingSpot = useCallback((spotId: string) => {
@@ -262,14 +272,13 @@ export default function SuggestSpotScreen() {
                       </View>
                     )}
                   </View>
-                  {!dup.is_hard_block && (
-                    <TouchableOpacity
-                      style={s.useSpotBtn}
-                      onPress={() => handleUseExistingSpot(dup.spot_id)}
-                    >
-                      <Text style={s.useSpotBtnText}>이 장소 사용하기</Text>
-                    </TouchableOpacity>
-                  )}
+                  {/* hard_block이면 강조 색으로, 그 외엔 기본 — 어느 쪽이든 기존 장소로 이동 가능 */}
+                  <TouchableOpacity
+                    style={[s.useSpotBtn, dup.is_hard_block && s.useSpotBtnStrong]}
+                    onPress={() => handleUseExistingSpot(dup.spot_id)}
+                  >
+                    <Text style={s.useSpotBtnText}>이 장소 사용하기</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
@@ -604,12 +613,15 @@ const s = StyleSheet.create({
     borderRadius: Radius.round,
     borderWidth: 1, borderColor: '#E8B0AB',
   },
-  blockBadgeText: { ...Typography.label.s, fontSize: 11, color: Colors.status.error.text },
+  blockBadgeText: { ...Typography.label.s, color: Colors.status.error.text },
 
   useSpotBtn: {
     paddingHorizontal: Spacing[14], paddingVertical: Spacing[10],
     backgroundColor: Colors.brand.primary,
     borderRadius: Radius.m,
+  },
+  useSpotBtnStrong: {
+    backgroundColor: Colors.brand.secondary, // hard_block은 더 짙은 강조
   },
   useSpotBtnText: { ...Typography.label.s, color: Colors.brand.onPrimary, fontWeight: '700' },
 

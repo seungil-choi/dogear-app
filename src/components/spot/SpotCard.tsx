@@ -10,17 +10,15 @@ import type { HomeSpotCardViewModel } from '../../types';
  *  - 운영 무비용 원칙: 장소 실사 이미지 없이도 식별 가능
  *  - 카테고리별 컬러 + 라인 아이콘으로 즉시 분류 인지
  *  - 모든 spot card에서 동일하게 사용
+ *  - 컬러는 Colors.category.* 토큰 SSOT 사용
  */
-const CATEGORY_THUMB: Record<string, { bg: string; icon: IconName }> = {
+const CATEGORY_THUMB: Record<string, { bg: string; icon: IconName; iconColor: string }> = {
   // 한국어 라벨 기반 매핑 (categoryLabel과 일치)
-  '공원':       { bg: '#7BA08B22', icon: 'leaf' },         // 세이지 그린 톤 (자연)
-  '산책로':     { bg: '#C8A87833', icon: 'trail' },        // 모래 베이지
-  '강변':       { bg: '#8AA8C033', icon: 'location' },     // 스틸 블루 (강변·수변)
-  '쉼터':       { bg: '#B89A7E33', icon: 'rest' },         // 웜 그레이
-  '기타':       { bg: '#C4784822', icon: 'paw' },          // 브랜드
-};
-const CATEGORY_ICON_COLOR: Record<string, string> = {
-  '공원': '#5C8A75', '산책로': '#A88758', '강변': '#5C7E9A', '쉼터': '#8B7A60', '기타': '#C47848',
+  '공원':   { bg: Colors.category.park.bg,      icon: 'leaf',     iconColor: Colors.category.park.icon },
+  '산책로': { bg: Colors.category.trail.bg,     icon: 'trail',    iconColor: Colors.category.trail.icon },
+  '강변':   { bg: Colors.category.riverside.bg, icon: 'location', iconColor: Colors.category.riverside.icon },
+  '쉼터':   { bg: Colors.category.rest.bg,      icon: 'rest',     iconColor: Colors.category.rest.icon },
+  '기타':   { bg: Colors.category.other.bg,     icon: 'paw',      iconColor: Colors.category.other.icon },
 };
 
 interface CategoryThumbProps {
@@ -44,7 +42,7 @@ export function CategoryThumb({ categoryLabel, coverImageUrl, size, width, iconS
   }
   // 폴백: 카테고리 컬러 + 라인 아이콘
   const conf = CATEGORY_THUMB[categoryLabel] ?? CATEGORY_THUMB['기타'];
-  const color = CATEGORY_ICON_COLOR[categoryLabel] ?? CATEGORY_ICON_COLOR['기타'];
+  const color = conf.iconColor;
   return (
     <View style={{
       width: w as any, height: size, borderRadius: rounded,
@@ -375,7 +373,7 @@ const s = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: Radius.round,
   },
-  savedChipText: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700', fontSize: 10 },
+  savedChipText: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
   relationChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -386,7 +384,7 @@ const s = StyleSheet.create({
     width: 4, height: 4, borderRadius: 2,
     backgroundColor: Colors.brand.primary,
   },
-  relationText: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700', fontSize: 11 },
+  relationText: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
   subText: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 16, marginTop: 1 },
 
   // ── Shared ────────────────────────────
@@ -450,7 +448,6 @@ const sr = StyleSheet.create({
     ...Typography.label.s,
     color: Colors.brand.onPrimary,
     fontWeight: '700',
-    fontSize: 11,
   },
   body: {
     paddingHorizontal: Spacing[12],

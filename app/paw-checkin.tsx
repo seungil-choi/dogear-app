@@ -18,7 +18,7 @@ import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react'
 import { AppImage } from '../src/components/common/AppImage';
 import {
   View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, SafeAreaView,
+  StyleSheet, SafeAreaView, Linking, Platform,
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
 import { track, EVENT } from '../src/utils/analytics';
@@ -31,6 +31,9 @@ import { Icon } from '../src/components/common/Icon';
 import { EmptyState } from '../src/components/common/EmptyState';
 import type { FeelingTag, VisibilityLevel } from '../src/types';
 import { feelingTagLabel, visibilityLabel } from '../src/utils/labels';
+import { checkPawmarkProximity, formatDistanceShort } from '../src/utils/geo';
+import { getPawmarkRadius, pawmarkCooldownRemainingMs } from '../src/config/checkin';
+import * as Location from 'expo-location';
 
 import { IS_REAL_AUTH } from '../src/config/env';
 
@@ -47,22 +50,23 @@ const VISIBILITY_OPTIONS: {
   title: string;
   desc: string;
 }[] = [
+  // title은 labels.ts visibilityLabel SSOT 사용
   {
     level: 'private',
     icon:  'lock',
-    title: '나만 보기',
+    title: visibilityLabel.private,
     desc:  '나만 볼 수 있는 기록이에요. 통계에도 반영되지 않아요.',
   },
   {
     level: 'spot_only',
     icon:  'map',
-    title: '장소 분위기에만',
+    title: visibilityLabel.spot_only,
     desc:  '장소 분위기 통계에만 더해져요. 우리 아이 정보는 나오지 않아요.',
   },
   {
     level: 'familiar_layer',
     icon:  'paw',
-    title: '산책 친구 찾기',
+    title: visibilityLabel.familiar_layer,
     desc:  '안전 조건을 모두 충족한 강아지에게만 최소한의 정보로 소개돼요.',
   },
 ];
@@ -79,9 +83,69 @@ export default function PawCheckinModal() {
   const resetPawFlow   = useAppStore(s => s.resetPawFlow);
   const visitSummaries = useAppStore(s => s.visitSummaries);
   const dog            = useAppStore(s => s.dog);
+  const spots            = useAppStore(s => s.spots);
+  const currentLocation  = useAppStore(s => s.currentLocation);
+  const setCurrentLocation = useAppStore(s => s.setCurrentLocation);
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isRefreshingLocation, setIsRefreshingLocation] = useState(false);
   const { submit: submitToServer, isSubmitting } = usePawCheckin();
+
+  // 발도장 가능 spot의 진짜 좌표/카테고리 (selectedSpot은 ViewModel이라 lat/lng 없음)
+  const targetSpot = useMemo(() => {
+    if (!pawFlow.selectedSpot) return null;
+    return spots.find(s => s.spot_id === pawFlow.selectedSpot!.spot_id) ?? null;
+  }, [pawFlow.selectedSpot, spots]);
+
+  // 위치 근접성 판정 (실시간)
+  const proximity = useMemo(() => {
+    if (!targetSpot) return null;
+    return checkPawmarkProximity({
+      currentLocation,
+      spot: {
+        latitude: targetSpot.latitude,
+        longitude: targetSpot.longitude,
+        category: targetSpot.category,
+      },
+    });
+  }, [targetSpot, currentLocation]);
+
+  // 1시간 쿨다운 남은 시간 (ms). 같은 강아지 × 같은 spot 기준.
+  const cooldownRemainingMs = useMemo(() => {
+    if (!dog || !targetSpot) return 0;
+    const summary = visitSummaries.find(
+      v => v.dog_id === dog.dog_id && v.spot_id === targetSpot.spot_id,
+    );
+    return pawmarkCooldownRemainingMs(summary?.last_visit_at);
+  }, [dog, targetSpot, visitSummaries]);
+  const cooldownMinLeft = Math.ceil(cooldownRemainingMs / 60000);
+
+  // 위치 새로고침 (사용자 액션)
+  const refreshLocation = useCallback(async () => {
+    setIsRefreshingLocation(true);
+    try {
+      const { status } = await Location.getForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        const { status: req } = await Location.requestForegroundPermissionsAsync();
+        if (req !== 'granted') {
+          notify('위치 권한을 허용해야 발도장을 남길 수 있어요.', '위치 권한 필요');
+          return;
+        }
+      }
+      const loc = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,  // 발도장은 정확도 우선
+      });
+      setCurrentLocation({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        accuracy: loc.coords.accuracy ?? undefined,
+      });
+    } catch {
+      notify('위치를 가져올 수 없어요. 잠시 후 다시 시도해주세요.', '위치 조회 실패');
+    } finally {
+      setIsRefreshingLocation(false);
+    }
+  }, [setCurrentLocation]);
 
   const { step, selectedSpot, selectedTags, visibility } = pawFlow;
   const cards = getHomeCards();
@@ -93,6 +157,16 @@ export default function PawCheckinModal() {
   const isPresetSpot = useRef<boolean>(!!selectedSpot).current;
 
   useEffect(() => {
+    // 강아지 미등록 상태에서 진입 시 입력 흐름 시작 전에 차단
+    if (!dog) {
+      notify(
+        '발도장을 남기려면 먼저 강아지 프로필이 필요해요.',
+        '강아지 등록 필요',
+      );
+      resetPawFlow();
+      router.replace('/(auth)/dog-setup');
+      return;
+    }
     if (isPresetSpot && pawFlow.step === 1) {
       setPawStep(2);
     }
@@ -122,6 +196,84 @@ export default function PawCheckinModal() {
   }, [step, setPawStep, handleClose, isPresetSpot]);
 
   const handleSubmit = useCallback(async () => {
+    // ── 강아지 등록 가드 ──────────────────────────────────────
+    // 강아지 없이는 발도장 의미 없음. 등록 화면으로 안내.
+    if (!dog) {
+      notify(
+        '발도장을 남기려면 먼저 강아지 프로필이 필요해요.',
+        '강아지 등록 필요',
+      );
+      resetPawFlow();
+      router.replace('/(auth)/dog-setup');
+      return;
+    }
+    // ── 위치 근접성 가드 ──────────────────────────────────────
+    // 사용자가 spot 근처(카테고리별 반경)에 실제로 있어야만 발도장 가능
+    if (!targetSpot) {
+      notify('장소 정보를 불러올 수 없어요.', '오류');
+      return;
+    }
+    // ── 1시간 쿨다운 가드 ────────────────────────────────────
+    if (cooldownRemainingMs > 0) {
+      track(EVENT.pawmark_blocked_cooldown, {
+        screen_name: 'paw_checkin',
+        place_id: targetSpot.spot_id,
+        remaining_min: cooldownMinLeft,
+      });
+      notify(
+        `같은 장소엔 1시간에 한 번만 발도장을 남길 수 있어요.\n${cooldownMinLeft}분 후에 다시 시도해주세요.`,
+        '잠시 후 다시 가능',
+      );
+      return;
+    }
+    if (proximity && !proximity.ok) {
+      const radius = getPawmarkRadius(targetSpot.category);
+      if (proximity.reason === 'invalid_spot') {
+        notify(
+          '장소 좌표 정보가 올바르지 않아요. 운영진에게 신고해주시면 확인하겠습니다.',
+          '장소 정보 오류',
+        );
+        return;
+      }
+      if (proximity.reason === 'no_location') {
+        track(EVENT.pawmark_blocked_no_location, {
+          screen_name: 'paw_checkin',
+          place_id: targetSpot.spot_id,
+        });
+        notify(
+          '발도장을 남기려면 위치 권한이 필요해요. 권한 허용 후 다시 시도해주세요.',
+          '위치 권한 필요',
+        );
+        await refreshLocation();
+        return;
+      }
+      if (proximity.reason === 'low_accuracy') {
+        track(EVENT.pawmark_blocked_low_accuracy, {
+          screen_name: 'paw_checkin',
+          place_id: targetSpot.spot_id,
+          accuracy: Math.round(proximity.accuracy),
+        });
+        notify(
+          `현재 위치 정확도가 낮아요 (±${Math.round(proximity.accuracy)}m).\n야외 또는 창가로 이동해 위치를 새로고침해주세요.`,
+          '위치 정확도 부족',
+        );
+        return;
+      }
+      if (proximity.reason === 'too_far') {
+        track(EVENT.pawmark_blocked_too_far, {
+          screen_name: 'paw_checkin',
+          place_id: targetSpot.spot_id,
+          distance_m: Math.round(proximity.distance),
+          allowed_m: Math.round(proximity.allowed),
+        });
+        notify(
+          `현재 ${targetSpot.name}에서 약 ${formatDistanceShort(proximity.distance)} 떨어져 있어요.\n발도장은 장소 가까이(약 ${radius}m 이내)에서만 남길 수 있어요.`,
+          '장소 근처로 이동해주세요',
+        );
+        return;
+      }
+    }
+    // ── 가드 통과 → 실제 제출 ──────────────────────────────────
     if (IS_REAL_AUTH) {
       try {
         await submitToServer(); // Edge Function → Supabase 저장
@@ -150,7 +302,7 @@ export default function PawCheckinModal() {
       visibility: pawFlow.visibility,
     });
     setIsSuccess(true);
-  }, [submitPawCheckin, submitToServer, selectedSpot, selectedTags, pawFlow]);
+  }, [submitPawCheckin, submitToServer, selectedSpot, selectedTags, pawFlow, targetSpot, proximity, refreshLocation, dog, resetPawFlow, router, cooldownRemainingMs, cooldownMinLeft]);
 
   const handleGoHome = useCallback(() => {
     resetPawFlow();
@@ -328,7 +480,7 @@ export default function PawCheckinModal() {
                 <EmptyState
                   headline="주변 장소가 없어요"
                   description="위치 권한을 허용하거나 탐색 탭에서 먼저 장소를 찾아보세요."
-                  ctaLabel="탐색하러 가기"
+                  ctaLabel="지도 보기"
                   onCta={() => { resetPawFlow(); router.replace('/(tabs)/map'); }}
                 />
               ) : (
@@ -497,6 +649,87 @@ export default function PawCheckinModal() {
               />
               <SummaryRow label="공개 범위" value={visibilityLabel[visibility]} />
             </View>
+
+            {/* ── 1시간 쿨다운 안내 ───────────────────────────────── */}
+            {targetSpot && cooldownRemainingMs > 0 && (
+              <View style={[s.proximityCard, s.proximityFail]}>
+                <View style={s.proximityRow}>
+                  <Icon name="bell" size={18} color={Colors.status.error.text} />
+                  <Text style={[s.proximityTitle, { color: Colors.status.error.text }]}>
+                    {cooldownMinLeft}분 후에 다시 가능
+                  </Text>
+                </View>
+                <Text style={s.proximityHint}>
+                  같은 장소엔 1시간에 한 번만 발도장을 남길 수 있어요.
+                </Text>
+              </View>
+            )}
+
+            {/* ── 위치 근접성 상태 패널 ─────────────────────────────── */}
+            {targetSpot && proximity && (
+              <View
+                style={[
+                  s.proximityCard,
+                  proximity.ok ? s.proximityOk : s.proximityFail,
+                ]}
+              >
+                <View style={s.proximityRow}>
+                  <Icon
+                    name={proximity.ok ? 'location' : 'lock'}
+                    size={18}
+                    color={proximity.ok ? Colors.status.success.text : Colors.status.error.text}
+                  />
+                  <Text
+                    style={[
+                      s.proximityTitle,
+                      { color: proximity.ok ? Colors.status.success.text : Colors.status.error.text },
+                    ]}
+                  >
+                    {proximity.ok
+                      ? '장소 근처에 있어요'
+                      : proximity.reason === 'no_location'
+                        ? '위치 권한이 필요해요'
+                        : proximity.reason === 'low_accuracy'
+                          ? `위치 정확도가 낮아요 (±${Math.round(proximity.accuracy)}m)`
+                          : proximity.reason === 'invalid_spot'
+                            ? '장소 좌표 정보가 올바르지 않아요'
+                            : `장소에서 약 ${formatDistanceShort(proximity.distance)} 떨어져 있어요`}
+                  </Text>
+                </View>
+                {!proximity.ok && proximity.reason === 'too_far' && (
+                  <Text style={s.proximityHint}>
+                    발도장은 약 {getPawmarkRadius(targetSpot.category)}m 이내에서만 남길 수 있어요. 장소에 도착한 뒤 다시 시도해주세요.
+                  </Text>
+                )}
+                <View style={{ flexDirection: 'row', gap: Spacing[12], flexWrap: 'wrap' }}>
+                  <TouchableOpacity
+                    onPress={refreshLocation}
+                    disabled={isRefreshingLocation}
+                    style={s.proximityRefresh}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityLabel="위치 새로고침"
+                  >
+                    <Icon name="refresh" size={14} color={Colors.brand.primary} />
+                    <Text style={s.proximityRefreshText}>
+                      {isRefreshingLocation ? '확인 중…' : '위치 새로고침'}
+                    </Text>
+                  </TouchableOpacity>
+                  {/* 위치 권한 거부 상태에서 OS 설정으로 직접 안내 (네이티브만) */}
+                  {!proximity.ok &&
+                    proximity.reason === 'no_location' &&
+                    Platform.OS !== 'web' && (
+                      <TouchableOpacity
+                        onPress={() => Linking.openSettings().catch(() => {})}
+                        style={s.proximityRefresh}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityLabel="설정 열기"
+                      >
+                        <Text style={s.proximityRefreshText}>설정 열기</Text>
+                      </TouchableOpacity>
+                    )}
+                </View>
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -518,12 +751,26 @@ export default function PawCheckinModal() {
           />
         ) : (
           <Button
-            label={isSubmitting ? '저장 중...' : '발도장 찍기'}
+            label={
+              isSubmitting
+                ? '저장 중...'
+                : cooldownRemainingMs > 0
+                  ? `${cooldownMinLeft}분 후 가능`
+                  : proximity && !proximity.ok
+                    ? (proximity.reason === 'too_far'
+                        ? '장소 근처로 이동해주세요'
+                        : proximity.reason === 'no_location'
+                          ? '위치 권한 필요'
+                          : proximity.reason === 'invalid_spot'
+                            ? '장소 정보 오류'
+                            : '위치 정확도 부족')
+                    : '발도장 찍기'
+            }
             onPress={handleSubmit}
             variant="primary"
             size="l"
             fullWidth
-            disabled={isSubmitting}
+            disabled={isSubmitting || cooldownRemainingMs > 0 || !!(proximity && !proximity.ok)}
           />
         )}
       </View>
@@ -770,6 +1017,51 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
     textAlign: 'center',
     lineHeight: 18,
+  },
+
+  // ── 위치 근접성 패널 ─────────────────────────────────────
+  proximityCard: {
+    marginTop: Spacing[12],
+    borderRadius: Radius.m,
+    paddingHorizontal: Spacing[14],
+    paddingVertical: Spacing[12],
+    borderWidth: 1,
+    gap: Spacing[6],
+  },
+  proximityOk: {
+    backgroundColor: Colors.status.success.bg,
+    borderColor: Colors.status.success.text,
+  },
+  proximityFail: {
+    backgroundColor: Colors.status.error.bg,
+    borderColor: Colors.status.error.text,
+  },
+  proximityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[8],
+  },
+  proximityTitle: {
+    ...Typography.label.l,
+    fontWeight: '600',
+    flex: 1,
+  },
+  proximityHint: {
+    ...Typography.label.s,
+    color: Colors.text.secondary,
+    lineHeight: 18,
+  },
+  proximityRefresh: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[4],
+    alignSelf: 'flex-start',
+    paddingVertical: Spacing[4],
+  },
+  proximityRefreshText: {
+    ...Typography.label.s,
+    color: Colors.brand.primary,
+    fontWeight: '600',
   },
 });
 

@@ -21,6 +21,36 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, handleCors } from '../_shared/cors.ts';
 
+// ─── 발도장 근접성 정책 (클라이언트 src/config/checkin.ts와 미러) ───
+const CATEGORY_RADIUS_M: Record<string, number> = {
+  park:      100,
+  trail:     150,
+  riverside: 200,
+  beach:     150,
+  rest_spot:  20,
+  pet_cafe:   20,
+};
+const DEFAULT_RADIUS_M = 20;
+const MIN_ACCURACY_M = 100;
+const ACCURACY_MARGIN_RATIO = 0.5;
+
+function getRadiusForCategory(category?: string): number {
+  return (category && CATEGORY_RADIUS_M[category]) || DEFAULT_RADIUS_M;
+}
+
+function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const φ1 = toRad(lat1);
+  const φ2 = toRad(lat2);
+  const Δφ = toRad(lat2 - lat1);
+  const Δλ = toRad(lon2 - lon1);
+  const a =
+    Math.sin(Δφ / 2) ** 2 +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -57,6 +87,9 @@ Deno.serve(async (req: Request) => {
       photoUrl,
       visibilityLevel = 'spot_only',
       sourceType = 'global_cta',
+      userLat,
+      userLng,
+      accuracy,
     } = body;
 
     // 필수 필드 검증
@@ -87,16 +120,61 @@ Deno.serve(async (req: Request) => {
       return Response.json({ error: 'Dog not found' }, { status: 404, headers: corsHeaders });
     }
 
-    // 스팟 존재 확인
+    // 스팟 존재 확인 (좌표/카테고리 포함 — 근접성 검증용)
     const { data: spot, error: spotError } = await supabase
       .from('spots')
-      .select('spot_id, name')
+      .select('spot_id, name, latitude, longitude, category')
       .eq('spot_id', spotId)
       .eq('status', 'active')
       .single();
 
     if (spotError || !spot) {
       return Response.json({ error: 'Spot not found' }, { status: 404, headers: corsHeaders });
+    }
+
+    // spot 좌표 무결성 (DB 누락/null island 방지)
+    const spotLat = Number(spot.latitude);
+    const spotLng = Number(spot.longitude);
+    if (
+      !Number.isFinite(spotLat) || !Number.isFinite(spotLng) ||
+      (Math.abs(spotLat) < 0.01 && Math.abs(spotLng) < 0.01) ||
+      spotLat < -90 || spotLat > 90 || spotLng < -180 || spotLng > 180
+    ) {
+      return Response.json(
+        { error: 'invalid_spot', message: '장소 좌표 정보가 올바르지 않아요.' },
+        { status: 422, headers: corsHeaders }
+      );
+    }
+
+    // ─── 위치 근접성 검증 (서버측) ─────────────────────────────────
+    // 클라이언트가 보낸 좌표가 spot으로부터 허용 반경 안에 있어야 함.
+    // 클라이언트 가드는 우회 가능하므로 여기서 다시 검증.
+    if (typeof userLat !== 'number' || typeof userLng !== 'number') {
+      return Response.json(
+        { error: 'too_far', message: '발도장은 장소 근처에서만 가능해요 (위치 정보 누락).' },
+        { status: 403, headers: corsHeaders }
+      );
+    }
+    if (typeof accuracy === 'number' && accuracy > MIN_ACCURACY_M) {
+      return Response.json(
+        { error: 'low_accuracy', message: `위치 정확도가 너무 낮아요 (±${Math.round(accuracy)}m).` },
+        { status: 403, headers: corsHeaders }
+      );
+    }
+    const distance = haversineMeters(userLat, userLng, spot.latitude, spot.longitude);
+    const radius = getRadiusForCategory(spot.category);
+    const margin = typeof accuracy === 'number' ? accuracy * ACCURACY_MARGIN_RATIO : 0;
+    const allowed = radius + margin;
+    if (distance > allowed) {
+      return Response.json(
+        {
+          error: 'too_far',
+          message: `${spot.name}에서 약 ${Math.round(distance)}m 떨어져 있어요. 장소 근처(약 ${radius}m 이내)에서만 발도장이 가능해요.`,
+          distance_m: Math.round(distance),
+          allowed_m: Math.round(allowed),
+        },
+        { status: 403, headers: corsHeaders }
+      );
     }
 
     // 중복 체크인 방지 (동일 강아지, 동일 스팟, 1시간 이내)

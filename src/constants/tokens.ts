@@ -76,6 +76,32 @@ export const Colors = {
     regular: '#84481F',
   },
 
+  // ─────────────────────────────────────────
+  // Category Thumb — 카테고리별 카드 썸네일 폴백 컬러
+  //   bg: 22~33% 알파 적용된 배경 (텍스트 위에 깔리지 않게 옅은 톤)
+  //   icon: 같은 hue의 짙은 톤 (아이콘 stroke/fill)
+  // 사용처: SpotCard.tsx CategoryThumb (cover_image_url 없을 때 폴백)
+  // ─────────────────────────────────────────
+  category: {
+    park:      { bg: '#7BA08B22', icon: '#5C8A75' },  // 세이지 그린 (자연/공원)
+    trail:     { bg: '#C8A87833', icon: '#A88758' },  // 모래 베이지 (산책로)
+    riverside: { bg: '#8AA8C033', icon: '#5C7E9A' },  // 스틸 블루 (강변)
+    rest:      { bg: '#B89A7E33', icon: '#8B7A60' },  // 웜 그레이 (쉼터)
+    other:     { bg: '#C4784822', icon: '#C47848' },  // 브랜드 (기타)
+  },
+
+  // ─────────────────────────────────────────
+  // Onboarding — 슬라이드별 액센트 컬러
+  //   다른 hue로 단계 차별화. accent와 호환 (브랜드 hue 변주)
+  // 사용처: app/(auth)/onboarding.tsx
+  // ─────────────────────────────────────────
+  onboarding: {
+    discover: '#3B82F6',  // 블루 (탐색)
+    paw:      '#E76F35',  // 오렌지 (브랜드 변주)
+    familiar: '#3B5BA9',  // 네이비 (안정)
+    privacy:  '#84481F',  // 브랜드 accent (개인정보 — 신뢰감)
+  },
+
   // Util
   overlay:      'rgba(33, 33, 33, 0.32)',   // Cohere Near Black 기반
   overlayLight: 'rgba(33, 33, 33, 0.06)',

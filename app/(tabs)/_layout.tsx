@@ -97,18 +97,18 @@ export default function TabLayout() {
       <Tabs.Screen
         name="my-spots"
         options={{
-          title: '내장소',
+          title: '내 장소',
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="bookmark" iconFocused="bookmark-filled" label="내장소" focused={focused} />
+            <TabIcon icon="bookmark" iconFocused="bookmark-filled" label="내 장소" focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: '마이',
+          title: '내 정보',
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="person" iconFocused="person-filled" label="마이" focused={focused} />
+            <TabIcon icon="person" iconFocused="person-filled" label="내 정보" focused={focused} />
           ),
         }}
       />

@@ -427,7 +427,7 @@ export default function HomeScreen() {
             <EmptyState
               headline="아직 주변 장소 정보가 없어요"
               description="위치 권한을 허용하면 근처 산책 장소를 바로 추천해드려요."
-              ctaLabel="지도에서 탐색하기"
+              ctaLabel="지도 보기"
               onCta={() => router.push('/(tabs)/map')}
             />
           </View>
@@ -726,7 +726,6 @@ const s = StyleSheet.create({
   profileTagText: {
     ...Typography.label.s,
     color: Colors.brand.accent,
-    fontSize: 11,
     fontWeight: '600',
   },
   profileWalkRow: {
@@ -893,7 +892,6 @@ const s = StyleSheet.create({
     ...Typography.label.s,
     color: Colors.text.primary,
     fontWeight: '700',
-    fontSize: 11,
   },
   featuredHeart: {
     position: 'absolute',

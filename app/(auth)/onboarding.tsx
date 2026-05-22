@@ -19,8 +19,8 @@ const SLIDES: {
   {
     key: 'discover',
     icon: 'map-filled',
-    iconColor: '#3B82F6',
-    bg: '#EBF4FF',
+    iconColor: Colors.onboarding.discover,
+    bg: '#EBF4FF',  // discover bg는 hue-tinted background (옅은 블루)
     title: '우리 동네 산책 지도',
     desc: '강아지 친화적인 장소를\n지도에서 한눈에 찾아봐요.',
   },
@@ -35,7 +35,7 @@ const SLIDES: {
   {
     key: 'familiar',
     icon: 'dog',
-    iconColor: '#E76F35',
+    iconColor: Colors.onboarding.paw,
     bg: '#FDF0EB',
     title: '산책 친구 찾기',
     desc: '같은 장소를 자주 찾는 강아지를 자연스럽게 발견하고\n편안하고 안전한 인연을 이어가요.',
@@ -43,7 +43,7 @@ const SLIDES: {
   {
     key: 'privacy',
     icon: 'lock',
-    iconColor: '#3B5BA9',
+    iconColor: Colors.onboarding.familiar,
     bg: '#EEF3FA',
     title: '내 정보는 내가 조절해요',
     desc: '공개 범위를 내가 직접 정할 수 있어요.\n안전 조건을 충족한 강아지에게만\n우리 아이가 보여져요.',

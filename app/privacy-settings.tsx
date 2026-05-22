@@ -9,20 +9,22 @@ import { useAppStore } from '../src/store/useAppStore';
 import { PrivacyChip } from '../src/components/common/StatusBadge';
 import { Icon } from '../src/components/common/Icon';
 import type { VisibilityLevel } from '../src/types';
+import { visibilityLabel } from '../src/utils/labels';
 
 const VISIBILITY_LEVELS: VisibilityLevel[] = ['private', 'spot_only', 'familiar_layer'];
 
+// title은 labels.ts visibilityLabel SSOT 사용
 const LEVEL_DESC: Record<VisibilityLevel, { title: string; desc: string }> = {
   private: {
-    title: '나만 보기',
+    title: visibilityLabel.private,
     desc: '내 발도장은 나만 볼 수 있어요. 장소 분위기나 익숙한 강아지 통계에도 전혀 반영되지 않아요.',
   },
   spot_only: {
-    title: '장소 분위기에만',
+    title: visibilityLabel.spot_only,
     desc: '장소의 분위기 통계에만 보태져요. 우리 아이 정보는 어디에도 나오지 않아요.',
   },
   familiar_layer: {
-    title: '산책 친구 찾기',
+    title: visibilityLabel.familiar_layer,
     desc: '안전 조건을 모두 충족했을 때만, 자주 마주치는 강아지에게 최소한의 정보로 소개돼요.',
   },
 };

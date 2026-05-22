@@ -37,7 +37,14 @@ export default function SplashScreen() {
     if (isAuthLoading) return; // Supabase 세션 복원 중이면 대기
 
     if (isAuthenticated) {
-      router.replace('/(tabs)');
+      // 인증됐지만 강아지 미등록(고아 상태)이면 dog-setup으로 직행
+      //   useAuth가 dogs=[] 감지 시 hasCompletedOnboarding=false로 복구
+      //   → 홈에서 빈 카드 거치지 않고 바로 등록 흐름 재개
+      if (!hasCompletedOnboarding) {
+        router.replace('/(auth)/dog-setup');
+      } else {
+        router.replace('/(tabs)');
+      }
     } else if (hasCompletedOnboarding) {
       router.replace('/(auth)/login');
     } else {

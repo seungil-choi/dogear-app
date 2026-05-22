@@ -89,6 +89,66 @@ export default function ExploreScreen() {
   });
   const [zoomLevel, setZoomLevel] = useState<number>(INITIAL_CENTER.level);
 
+  // 위치 권한 상태 추적 (denied 시 안내 배너 노출)
+  // useLocation hook은 root에서 마운트되어 setCurrentLocation 부작용 있음 — 여기선 상태만 조회
+  const [locationPermDenied, setLocationPermDenied] = useState(false);
+  const [permBannerDismissed, setPermBannerDismissed] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        if (Platform.OS === 'web') {
+          // 웹은 navigator.geolocation 호출 시점에서만 권한 확인 가능 — currentLocation 없으면 denied로 추정
+          if (!cancelled) setLocationPermDenied(!currentLocation);
+          return;
+        }
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (!cancelled) setLocationPermDenied(status !== 'granted');
+      } catch {
+        if (!cancelled) setLocationPermDenied(true);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentLocation]);
+
+  const requestLocationPerm = useCallback(async () => {
+    try {
+      if (Platform.OS === 'web') {
+        if (typeof navigator === 'undefined' || !navigator.geolocation) return;
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setCurrentLocation({
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+              accuracy: pos.coords.accuracy,
+            });
+            setLocationPermDenied(false);
+          },
+          () => setLocationPermDenied(true),
+          { timeout: 8000 },
+        );
+        return;
+      }
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        const loc = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        });
+        setCurrentLocation({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+          accuracy: loc.coords.accuracy ?? undefined,
+        });
+        setLocationPermDenied(false);
+      } else {
+        // OS가 차단 상태일 가능성 → 설정 안내
+        setLocationPermDenied(true);
+      }
+    } catch {
+      setLocationPermDenied(true);
+    }
+  }, [setCurrentLocation]);
+
   const mapRef = useRef<KakaoMapRef>(null);
   const cardListRef = useRef<ScrollView>(null);
   const cardOffsetsRef = useRef<Record<string, number>>({});
@@ -374,6 +434,42 @@ export default function ExploreScreen() {
   return (
     <SafeAreaView style={s.safe}>
 
+      {/* ── 위치 권한 거부 안내 배너 (dismiss 가능) ── */}
+      {locationPermDenied && !permBannerDismissed && (
+        <View style={s.permBanner}>
+          <Icon name="location" size={16} color={Colors.brand.accent} />
+          <View style={{ flex: 1 }}>
+            <Text style={s.permBannerTitle}>위치 권한이 꺼져 있어요</Text>
+            <Text style={s.permBannerDesc}>
+              현재 위치 주변 추천과 거리 계산이 동작하지 않아요.
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={requestLocationPerm}
+            style={s.permBannerBtn}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Text style={s.permBannerBtnText}>허용</Text>
+          </TouchableOpacity>
+          {Platform.OS !== 'web' && (
+            <TouchableOpacity
+              onPress={() => Linking.openSettings().catch(() => {})}
+              style={s.permBannerBtnOutline}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Text style={s.permBannerBtnOutlineText}>설정</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            onPress={() => setPermBannerDismissed(true)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityLabel="배너 닫기"
+          >
+            <Icon name="close" size={14} color={Colors.text.tertiary} />
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* ── 상단 헤더 ── */}
       <View style={s.topBar}>
         {/* 검색바 + 지도/목록 토글 — 한 줄 */}
@@ -532,8 +628,8 @@ export default function ExploreScreen() {
                 <Text style={s.peekEmptyText}>
                   {isSearching
                     ? `'${searchQuery.trim()}' 결과가 없어요`
-                    : (activeFilter === 'saved'   ? '저장한 장소가 없어요'
-                     : activeFilter === 'visited' ? '발도장 남긴 장소가 없어요'
+                    : (activeFilter === 'saved'   ? '저장한 곳이 없어요'
+                     : activeFilter === 'visited' ? '발도장 남긴 곳이 없어요'
                      : '반경 내 장소가 없어요')}
                 </Text>
                 <Text style={s.peekEmptySub}>
@@ -922,4 +1018,48 @@ const s = StyleSheet.create({
   listResultText: { ...Typography.label.m, color: Colors.text.secondary },
   listEmpty:      { alignItems: 'center', gap: Spacing[10], paddingVertical: Spacing[48] },
   listEmptyText:  { ...Typography.body.m, color: Colors.text.tertiary },
+
+  // ── 위치 권한 거부 배너 ──
+  permBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[10],
+    backgroundColor: Colors.brand.subtle,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border.brand,
+    paddingHorizontal: Spacing[14],
+    paddingVertical: Spacing[10],
+  },
+  permBannerTitle: {
+    ...Typography.label.l,
+    color: Colors.brand.accent,
+    fontWeight: '600',
+  },
+  permBannerDesc: {
+    ...Typography.label.s,
+    color: Colors.text.secondary,
+  },
+  permBannerBtn: {
+    paddingHorizontal: Spacing[12],
+    paddingVertical: Spacing[6],
+    backgroundColor: Colors.brand.primary,
+    borderRadius: Radius.round,
+  },
+  permBannerBtnText: {
+    ...Typography.label.s,
+    color: Colors.brand.onPrimary,
+    fontWeight: '700',
+  },
+  permBannerBtnOutline: {
+    paddingHorizontal: Spacing[10],
+    paddingVertical: Spacing[6],
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+    borderRadius: Radius.round,
+  },
+  permBannerBtnOutlineText: {
+    ...Typography.label.s,
+    color: Colors.brand.accent,
+    fontWeight: '600',
+  },
 });

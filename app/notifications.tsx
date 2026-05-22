@@ -65,7 +65,7 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = [
     id: '4',
     group: '어제',
     icon: 'bookmark',
-    title: '저장한 장소가 업데이트됐어요',
+    title: '저장한 곳이 업데이트됐어요',
     desc: '"뚝섬 한강공원" 장소에 새로운 사진과 정보가 업데이트됐어요.',
     time: '어제 오전 10:05',
     read: true,
@@ -148,7 +148,7 @@ export default function NotificationsScreen() {
           <EmptyState
             headline="아직 도착한 알림이 없어요"
             description="발도장이 쌓이고 익숙한 강아지가 등장하면 여기로 알려드릴게요."
-            ctaLabel="지도에서 산책 시작하기"
+            ctaLabel="지도 보기"
             onCta={() => router.replace('/(tabs)/map')}
           />
         </View>

@@ -566,8 +566,6 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
     paddingHorizontal: Spacing[16],
     paddingTop: Spacing[6],
-    fontSize: 11,
-    lineHeight: 16,
   },
   sectionTitleDog: {
     ...Typography.label.m,

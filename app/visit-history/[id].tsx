@@ -21,7 +21,7 @@ import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens'
 import { useAppStore } from '../../src/store/useAppStore';
 import { Icon } from '../../src/components/common/Icon';
 import { EmptyState } from '../../src/components/common/EmptyState';
-import { feelingTagLabel, visitDateText, relativeTime } from '../../src/utils/labels';
+import { feelingTagLabel, visitDateText, relativeTime, visibilityLabel } from '../../src/utils/labels';
 import type { PawCheckin } from '../../src/types';
 
 // ─── 날짜 그룹 유틸 ────────────────────────────────────────────
@@ -88,11 +88,7 @@ function CheckinRow({ checkin }: { checkin: PawCheckin }) {
             color={Colors.text.tertiary}
           />
           <Text style={r.visibilityText}>
-            {checkin.visibility_level === 'private'
-              ? '나만 보기'
-              : checkin.visibility_level === 'spot_only'
-              ? '장소 분위기 반영'
-              : '산책 친구 찾기'}
+            {visibilityLabel[checkin.visibility_level]}
           </Text>
         </View>
       </View>

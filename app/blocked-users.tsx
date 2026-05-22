@@ -14,7 +14,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { relativeTime } from '../src/utils/labels';
-import { confirm } from '../src/utils/dialog';
+import { confirm, notify } from '../src/utils/dialog';
 import type { BlockedUser } from '../src/types';
 
 export default function BlockedUsersScreen() {
@@ -29,6 +29,7 @@ export default function BlockedUsersScreen() {
       confirmText: '해제할게요',
     })) {
       unblockUser(item.block_id);
+      notify('차단을 해제했어요. 이 사용자의 콘텐츠가 다시 보입니다.', '차단 해제 완료');
     }
   };
 

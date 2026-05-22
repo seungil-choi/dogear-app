@@ -34,6 +34,7 @@ import {
   Share2,
   MoreHorizontal,
   Copy,
+  RotateCw,
   // UI
   Bell,
   Mail,
@@ -113,6 +114,7 @@ const ICON_MAP: Record<string, IconDef> = {
   share:              { Component: Share2 },
   more:               { Component: MoreHorizontal },
   copy:               { Component: Copy },
+  refresh:            { Component: RotateCw },
   chat:               { Component: MessageCircle },
   'chat-filled':      { Component: MessageCircle, filled: true },
 
