@@ -61,6 +61,8 @@ export const EVENT = {
   pawmark_completed:                 'pawmark_completed',
   pawmark_blocked_cooldown:          'pawmark_blocked_cooldown',
   pawmark_blocked_daily_limit:       'pawmark_blocked_daily_limit',
+  // 전역 크래시 catch
+  unexpected_error_caught:           'unexpected_error_caught',
   pawmark_blocked_too_far:           'pawmark_blocked_too_far',
   pawmark_blocked_no_location:       'pawmark_blocked_no_location',
   pawmark_blocked_low_accuracy:      'pawmark_blocked_low_accuracy',

@@ -11,6 +11,7 @@ import { useLocation } from '../src/hooks/useLocation';
 import { useNearbySpots } from '../src/hooks/useNearbySpots';
 import { useUserData } from '../src/hooks/useUserData';
 import { usePushToken } from '../src/hooks/usePushToken';
+import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 
 // 인증 가드: 로그아웃 상태에서 보호 화면 접근 시 로그인으로 리다이렉트
 //          + 정지/삭제 사용자 자동 로그아웃 처리
@@ -74,9 +75,10 @@ function DataProvider() {
 // 웹에서는 GestureHandlerRootView가 터치를 막으므로 View로 대체
 const RootContainer = Platform.OS === 'web' ? View : GestureHandlerRootView;
 
-export default function RootLayout() {
+function RootLayoutInner() {
+  const router = useRouter();
   return (
-    <RootContainer style={s.root as any}>
+    <ErrorBoundary onResetToHome={() => router.replace('/(tabs)')}>
       <StatusBar style="dark" backgroundColor={Colors.bg.primary} />
       {IS_REAL_AUTH && <AuthProvider />}
       {IS_REAL_AUTH && <DataProvider />}
@@ -176,6 +178,14 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+    </ErrorBoundary>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <RootContainer style={s.root as any}>
+      <RootLayoutInner />
     </RootContainer>
   );
 }
