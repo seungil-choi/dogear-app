@@ -39,6 +39,23 @@ export default function Root({ children }: PropsWithChildren) {
         {/* 브라우저 UI 색 (Android Chrome 주소창, iOS Safari 상단바) */}
         <meta name="theme-color" content="#C47848" />
 
+        {/*
+         * PWA 매니페스트 (Android Chrome + 데스크톱 PWA)
+         *   - public/manifest.json 정적 호스팅
+         *   - 아이콘 실파일은 public/icons/ 에 배치 (README 참고)
+         */}
+        <link rel="manifest" href="/manifest.json" />
+
+        {/*
+         * iOS Safari — manifest를 읽지 않으므로 apple-touch-icon으로 별도 처리
+         *   - 180x180 단일 파일이면 충분 (iOS가 자동 리사이즈)
+         */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180.png" />
+
+        {/* 브라우저 탭 favicon */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+
         {/* SEO / 공유 */}
         <meta name="description" content="우리 강아지와 가본 곳, 갈 곳을 발도장으로 기록해요." />
         <meta name="format-detection" content="telephone=no" />
