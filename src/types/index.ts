@@ -43,6 +43,8 @@ export interface Dog {
   walking_style_tags: string[];
   created_at: string;
   is_active: boolean;
+  /** soft delete 타임스탬프. NULL/undefined = 활성. 값 있으면 30일 grace 중. */
+  deleted_at?: string | null;
 }
 
 export interface Spot {

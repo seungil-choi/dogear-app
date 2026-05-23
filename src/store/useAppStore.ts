@@ -123,6 +123,14 @@ interface AppState {
   setActiveDog: (dog: Dog | null) => void;
   registerDog: (dog: Dog) => void;
   setDogs: (dogs: Dog[]) => void;
+  /**
+   * 강아지 soft delete.
+   *   - IS_REAL_AUTH=true: supabase에서 deleted_at = NOW() update
+   *   - 로컬 dogs 배열에서 제거 + activeDog 갱신 (첫 번째 남은 강아지로)
+   *   - dogs.length === 1 일 때 호출하지 않도록 호출 측에서 가드
+   * Returns: 성공 시 true, 실패 시 false (에러는 호출 측 알림)
+   */
+  deleteDog: (dog_id: string) => Promise<boolean>;
   setAuthLoading: (loading: boolean) => void;
   setCurrentLocation: (loc: { latitude: number; longitude: number; accuracy?: number } | null) => void;
 
@@ -475,6 +483,28 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     setUserContext({ dog_profile_id: newDog.dog_id });
   },
   setDogs: (dogs) => set({ dogs }),
+
+  deleteDog: async (dog_id) => {
+    if (IS_REAL_AUTH) {
+      const { error } = await supabase
+        .from('dogs')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('dog_id', dog_id);
+      if (error) {
+        console.warn('[deleteDog] supabase update failed:', error.message);
+        return false;
+      }
+    }
+    // 로컬 상태에서 제거 + activeDog 갱신
+    const { dogs, activeDog } = get();
+    const remaining = dogs.filter(d => d.dog_id !== dog_id);
+    const nextActive =
+      activeDog?.dog_id === dog_id ? (remaining[0] ?? null) : activeDog;
+    set({ dogs: remaining, activeDog: nextActive, dog: nextActive });
+    if (nextActive) setUserContext({ dog_profile_id: nextActive.dog_id });
+    return true;
+  },
+
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
   setCurrentLocation: (currentLocation) => set({ currentLocation }),
 

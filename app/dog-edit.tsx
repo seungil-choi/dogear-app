@@ -20,7 +20,7 @@ import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
-import { notify, actionSheet } from '../src/utils/dialog';
+import { notify, actionSheet, confirm } from '../src/utils/dialog';
 
 import { IS_REAL_AUTH } from '../src/config/env';
 import {
@@ -42,7 +42,7 @@ const WALKING_STYLE_KEYS = Object.keys(walkingStyleLabels);
 
 export default function DogEditScreen() {
   const router = useRouter();
-  const { dog, dogs, setActiveDog, setDogs } = useAppStore();
+  const { dog, dogs, setActiveDog, setDogs, deleteDog } = useAppStore();
 
   // ─── State — 반드시 조건부 return 이전에 선언해야 함 (Rules of Hooks) ───
   const [avatarUri, setAvatarUri] = useState<string | undefined>(dog?.avatar_url);
@@ -184,6 +184,45 @@ export default function DogEditScreen() {
 
     setActiveDog(updatedDog);
     setDogs(dogs.map(d => (d.dog_id === dog.dog_id ? updatedDog : d)));
+    router.back();
+  }
+
+  // ─── 강아지 삭제 ──────────────────────────────────────
+  async function handleDelete() {
+    if (!dog) return;
+
+    // 마지막 강아지면 → DogEar는 강아지 없이 동작 안 함 → 계정 삭제로 안내
+    if (dogs.length <= 1) {
+      const goAccountDelete = await confirm(
+        `${dog.name}만 등록된 상태예요. 강아지를 삭제하면 DogEar 사용이 어려워져요.\n계정 삭제 화면으로 이동할까요?`,
+        {
+          title: '마지막 강아지예요',
+          confirmText: '계정 삭제로 이동',
+        },
+      );
+      if (goAccountDelete) {
+        router.push('/account-delete');
+      }
+      return;
+    }
+
+    // 일반 삭제 — 다른 강아지가 있는 경우
+    const ok = await confirm(
+      `${dog.name}의 발도장 기록과 단골 장소 정보가 삭제 예약돼요.\n30일 안에는 운영팀에 문의해 복구할 수 있어요.\n계속할까요?`,
+      {
+        title: `${dog.name} 삭제`,
+        confirmText: '삭제',
+        destructive: true,
+      },
+    );
+    if (!ok) return;
+
+    const success = await deleteDog(dog.dog_id);
+    if (!success) {
+      notify('삭제에 실패했어요. 잠시 후 다시 시도해주세요.', '삭제 실패');
+      return;
+    }
+    notify(`${dog.name}을(를) 삭제했어요. 30일 안에는 복구 가능해요.`, '삭제 완료');
     router.back();
   }
 
@@ -353,6 +392,16 @@ export default function DogEditScreen() {
               })}
             </View>
           </SectionCard>
+
+          {/* ── 위험 영역 — 강아지 삭제 ── */}
+          <TouchableOpacity
+            style={styles.deleteBtn}
+            onPress={handleDelete}
+            activeOpacity={0.7}
+          >
+            <Icon name="trash" size={16} color={Colors.status.error.text} />
+            <Text style={styles.deleteBtnText}>이 강아지 프로필 삭제</Text>
+          </TouchableOpacity>
 
           {/* 하단 여백 */}
           <View style={{ height: Spacing[40] }} />
@@ -572,6 +621,25 @@ const styles = StyleSheet.create({
   avatarHint: {
     ...Typography.caption,
     color: Colors.text.tertiary,
+  },
+
+  // 위험 영역 — 강아지 삭제 버튼
+  deleteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[8],
+    marginTop: Spacing[16],
+    paddingVertical: Spacing[14],
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Colors.status.error.text,
+    backgroundColor: Colors.surface.default,
+  },
+  deleteBtnText: {
+    ...Typography.label.l,
+    color: Colors.status.error.text,
+    fontWeight: '600',
   },
 
   // 빈 상태

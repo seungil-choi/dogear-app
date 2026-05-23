@@ -72,11 +72,13 @@ export function useAuth() {
     setUser(user);
 
     // 강아지 목록 조회 → 첫 번째 활성 강아지를 active로 설정
+    //   soft-deleted 강아지(deleted_at NOT NULL)는 제외 — 30일 grace 동안 숨김
     const { data: dogsData } = await supabase
       .from('dogs')
       .select('*')
       .eq('user_id', userData.user_id)
       .eq('is_active', true)
+      .is('deleted_at', null)
       .order('created_at', { ascending: true });
 
     if (dogsData && dogsData.length > 0) {
