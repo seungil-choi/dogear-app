@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   ScrollView, StyleSheet, SafeAreaView,
@@ -48,6 +48,12 @@ export default function DogSetupScreen() {
   const [selectedTemperament, setSelectedTemperament] = useState<string[]>([]);
   const [selectedWalking, setSelectedWalking] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+
+  // 가입 funnel 진입 추적 (마운트 시점 1회)
+  useEffect(() => {
+    track(EVENT.dog_profile_create_started, { screen_name: 'dog_setup' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleItem = (arr: string[], key: string, setter: (v: string[]) => void) => {
     if (arr.includes(key)) setter(arr.filter(i => i !== key));

@@ -21,6 +21,7 @@ import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
 import { notify, actionSheet, confirm } from '../src/utils/dialog';
+import { track, EVENT } from '../src/utils/analytics';
 
 import { IS_REAL_AUTH } from '../src/config/env';
 import {
@@ -144,6 +145,11 @@ export default function DogEditScreen() {
         });
         finalAvatarUrl = result.url;
       } catch (e: any) {
+        track(EVENT.photo_upload_failed, {
+          screen_name: 'dog_edit',
+          bucket: 'dog-avatars',
+          error_message: (e?.message ?? 'unknown').slice(0, 100),
+        });
         notify(e.message ?? '사진 업로드에 실패했어요.', '업로드 실패');
         return;
       }

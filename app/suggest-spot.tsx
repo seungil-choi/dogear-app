@@ -87,8 +87,13 @@ export default function SuggestSpotScreen() {
   useEffect(() => {
     // 0.6초 로딩 후 form으로 (이름/카테고리 미입력 상태에서는 중복 검사 의미 없음)
     // 실제 중복 검사는 폼 제출 직전에 수행
+    track(EVENT.place_suggestion_start, {
+      screen_name: 'suggest_spot',
+      source_screen: typeof from === 'string' ? from : undefined,
+    });
     const timer = setTimeout(() => setStep('form'), 600);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── 폼 유효성 ─────────────────────────────────────────────

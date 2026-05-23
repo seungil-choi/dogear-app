@@ -483,6 +483,16 @@ export default function ExploreScreen() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               returnKeyType="search"
+              onSubmitEditing={() => {
+                const q = searchQuery.trim();
+                if (q.length > 0) {
+                  track(EVENT.search_performed, {
+                    screen_name: 'explore',
+                    query_length: q.length,
+                    result_count: sortedCards.length,
+                  });
+                }
+              }}
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity
@@ -499,7 +509,12 @@ export default function ExploreScreen() {
           <View style={s.viewToggle}>
             <TouchableOpacity
               style={[s.toggleBtn, viewMode === 'map' && s.toggleBtnActive]}
-              onPress={() => setViewMode('map')}
+              onPress={() => {
+                if (viewMode !== 'map') {
+                  setViewMode('map');
+                  track(EVENT.map_viewed, { screen_name: 'explore', source_screen: 'list' });
+                }
+              }}
               accessibilityLabel="지도 뷰"
             >
               <Icon
@@ -510,7 +525,12 @@ export default function ExploreScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
-              onPress={() => setViewMode('list')}
+              onPress={() => {
+                if (viewMode !== 'list') {
+                  setViewMode('list');
+                  track(EVENT.list_viewed, { screen_name: 'explore', source_screen: 'map' });
+                }
+              }}
               accessibilityLabel="목록 뷰"
             >
               <Icon
@@ -536,7 +556,15 @@ export default function ExploreScreen() {
               <TouchableOpacity
                 key={f.key}
                 style={[s.filterChip, active && s.filterChipActive]}
-                onPress={() => setActiveFilter(f.key)}
+                onPress={() => {
+                  if (activeFilter !== f.key) {
+                    setActiveFilter(f.key);
+                    track(EVENT.filter_applied, {
+                      screen_name: 'explore',
+                      filter_key: f.key,
+                    });
+                  }
+                }}
                 activeOpacity={0.8}
               >
                 <Icon name={f.icon as any} size={13} color={active ? Colors.brand.onPrimary : Colors.text.secondary} />
