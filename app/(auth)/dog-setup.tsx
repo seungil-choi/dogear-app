@@ -181,6 +181,8 @@ export default function DogSetupScreen() {
             value={name}
             onChangeText={setName}
             maxLength={20}
+            accessibilityLabel="강아지 이름"
+            returnKeyType="next"
           />
           <Text style={s.fieldHint}>
             이 이름이 다른 보호자에게 보이는 식별자가 돼요. 닉네임처럼 활용돼요.
@@ -198,6 +200,8 @@ export default function DogSetupScreen() {
               value={breed}
               onChangeText={setBreed}
               maxLength={30}
+              accessibilityLabel="강아지 품종, 선택사항"
+              returnKeyType="next"
             />
           </View>
           <View style={s.fieldHalf}>
@@ -210,6 +214,8 @@ export default function DogSetupScreen() {
               onChangeText={setWeightKg}
               keyboardType="decimal-pad"
               maxLength={5}
+              accessibilityLabel="강아지 체중, 킬로그램, 선택사항"
+              returnKeyType="done"
             />
           </View>
         </View>

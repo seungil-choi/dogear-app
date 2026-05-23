@@ -277,6 +277,10 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoCorrect={false}
                 editable={!busy}
+                accessibilityLabel="이메일"
+                textContentType="emailAddress"
+                autoComplete="email"
+                returnKeyType="next"
               />
             </View>
             <View style={s.inputRow}>
@@ -289,6 +293,10 @@ export default function LoginScreen() {
                 onChangeText={setPassword}
                 secureTextEntry
                 editable={!busy}
+                accessibilityLabel="비밀번호"
+                textContentType="password"
+                autoComplete="password"
+                returnKeyType="done"
               />
             </View>
 

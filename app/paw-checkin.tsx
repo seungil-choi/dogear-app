@@ -413,7 +413,13 @@ export default function PawCheckinModal() {
     <SafeAreaView style={s.safe}>
       {/* 헤더 — 뒤로가기 + 단계 표시 */}
       <View style={s.header}>
-        <TouchableOpacity onPress={handleBack} style={s.headerBtn}>
+        <TouchableOpacity
+          onPress={handleBack}
+          style={s.headerBtn}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityLabel={step === 1 ? '닫기' : '이전 단계'}
+          accessibilityRole="button"
+        >
           <Icon name={step === 1 ? 'close' : 'back'} size={22} color={Colors.text.primary} />
         </TouchableOpacity>
 
@@ -582,6 +588,9 @@ export default function PawCheckinModal() {
                   style={[s.tagChip, selectedTags.includes(tag) && s.tagChipSelected]}
                   onPress={() => toggleTag(tag)}
                   activeOpacity={0.8}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: selectedTags.includes(tag) }}
+                  accessibilityLabel={feelingTagLabel[tag]}
                 >
                   <Text style={[s.tagChipText, selectedTags.includes(tag) && s.tagChipTextSelected]}>
                     {feelingTagLabel[tag]}
@@ -609,6 +618,9 @@ export default function PawCheckinModal() {
                     style={[s.visibilityCard, selected && s.visibilityCardSelected]}
                     onPress={() => setPawVisibility(opt.level)}
                     activeOpacity={0.85}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`${opt.title}, ${opt.desc}`}
                   >
                     <View style={[s.visibilityIcon, selected && s.visibilityIconSelected]}>
                       <Icon name={opt.icon as any} size={20} color={selected ? Colors.brand.onPrimary : Colors.text.secondary} />

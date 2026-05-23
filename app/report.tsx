@@ -130,6 +130,9 @@ export default function ReportScreen() {
                   style={[s.row, selected && s.rowOn]}
                   onPress={() => setReason(r.key)}
                   activeOpacity={0.85}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected }}
+                  accessibilityLabel={`${r.label}. ${r.desc}`}
                 >
                   <View style={[s.radio, selected && s.radioOn]}>
                     {selected && <View style={s.radioDot} />}
@@ -175,6 +178,7 @@ export default function ReportScreen() {
             multiline
             maxLength={500}
             textAlignVertical="top"
+            accessibilityLabel="신고 상세 내용, 선택사항"
           />
           <Text style={s.counter}>{detail.length}/500</Text>
         </ScrollView>

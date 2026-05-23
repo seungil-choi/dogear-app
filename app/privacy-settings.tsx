@@ -70,6 +70,9 @@ export default function PrivacySettingsScreen() {
                   privacySetting.default_visibility_level === level && s.levelItemSelected,
                 ]}
                 onPress={() => updatePrivacySetting({ default_visibility_level: level })}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: privacySetting.default_visibility_level === level }}
+                accessibilityLabel={`${LEVEL_DESC[level].title}. ${LEVEL_DESC[level].desc}`}
               >
                 <View style={s.levelHeader}>
                   <PrivacyChip level={level} selected={privacySetting.default_visibility_level === level} />

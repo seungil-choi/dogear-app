@@ -239,11 +239,23 @@ export default function DogEditScreen() {
 
       {/* 헤더 */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn} hitSlop={8}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.headerBtn}
+          hitSlop={8}
+          accessibilityLabel="뒤로 가기"
+          accessibilityRole="button"
+        >
           <Icon name="back" size={24} color={Colors.text.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>프로필 수정</Text>
-        <TouchableOpacity onPress={handleSave} style={styles.saveBtn} hitSlop={8}>
+        <Text style={styles.headerTitle} accessibilityRole="header">프로필 수정</Text>
+        <TouchableOpacity
+          onPress={handleSave}
+          style={styles.saveBtn}
+          hitSlop={8}
+          accessibilityLabel="저장"
+          accessibilityRole="button"
+        >
           <Text style={styles.saveBtnText}>저장</Text>
         </TouchableOpacity>
       </View>
@@ -261,7 +273,13 @@ export default function DogEditScreen() {
         >
           {/* ── 아바타 편집 ── */}
           <View style={styles.avatarSection}>
-            <TouchableOpacity style={styles.avatarWrap} onPress={handleAvatarPress} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.avatarWrap}
+              onPress={handleAvatarPress}
+              activeOpacity={0.8}
+              accessibilityLabel="프로필 사진 변경"
+              accessibilityRole="button"
+            >
               {avatarUri ? (
                 <AppImage source={{ uri: avatarUri }} style={styles.avatarImg} />
               ) : (
@@ -287,6 +305,7 @@ export default function DogEditScreen() {
                 placeholder="강아지 이름"
                 placeholderTextColor={Colors.text.placeholder}
                 returnKeyType="next"
+                accessibilityLabel="강아지 이름"
               />
             </FieldRow>
             <Divider />
@@ -298,6 +317,7 @@ export default function DogEditScreen() {
                 placeholder="예: 말티즈"
                 placeholderTextColor={Colors.text.placeholder}
                 returnKeyType="next"
+                accessibilityLabel="강아지 품종"
               />
             </FieldRow>
             <Divider />
@@ -310,6 +330,7 @@ export default function DogEditScreen() {
                 placeholderTextColor={Colors.text.placeholder}
                 keyboardType="decimal-pad"
                 returnKeyType="done"
+                accessibilityLabel="강아지 체중, 킬로그램"
               />
             </FieldRow>
           </SectionCard>
@@ -323,6 +344,9 @@ export default function DogEditScreen() {
                   style={[styles.optionBtn, size === opt && styles.optionBtnActive]}
                   onPress={() => setSize(opt)}
                   activeOpacity={0.7}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: size === opt }}
+                  accessibilityLabel={`크기 ${sizeLabel[opt]}`}
                 >
                   <Text
                     style={[styles.optionBtnText, size === opt && styles.optionBtnTextActive]}
@@ -343,6 +367,9 @@ export default function DogEditScreen() {
                   style={[styles.optionBtn, ageGroup === opt && styles.optionBtnActive]}
                   onPress={() => setAgeGroup(opt)}
                   activeOpacity={0.7}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: ageGroup === opt }}
+                  accessibilityLabel={`나이대 ${ageGroupLabel[opt]}`}
                 >
                   <Text
                     style={[
@@ -368,6 +395,9 @@ export default function DogEditScreen() {
                     style={[styles.chip, active && styles.chipActive]}
                     onPress={() => toggleTag(key, temperamentTags, setTemperamentTags)}
                     activeOpacity={0.75}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: active }}
+                    accessibilityLabel={temperamentLabels[key]}
                   >
                     <Text style={[styles.chipText, active && styles.chipTextActive]}>
                       {temperamentLabels[key]}
@@ -389,6 +419,9 @@ export default function DogEditScreen() {
                     style={[styles.chip, active && styles.chipActive]}
                     onPress={() => toggleTag(key, walkingStyleTags, setWalkingStyleTags)}
                     activeOpacity={0.75}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: active }}
+                    accessibilityLabel={walkingStyleLabels[key]}
                   >
                     <Text style={[styles.chipText, active && styles.chipTextActive]}>
                       {walkingStyleLabels[key]}

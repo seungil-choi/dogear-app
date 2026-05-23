@@ -12,9 +12,19 @@ interface AppImageProps {
   source: { uri?: string } | null | undefined;
   style?: StyleProp<ImageStyle>;
   resizeMode?: 'cover' | 'contain' | 'stretch' | 'center';
+  /** 스크린리더 라벨. 정보형 이미지면 반드시 지정. 장식용이면 accessibilityIgnoresInvertColors와 함께 빈 문자열. */
+  accessibilityLabel?: string;
+  /** 정보 전달 없는 장식용 이미지 (스크린리더에서 건너뛰기) */
+  decorative?: boolean;
 }
 
-export function AppImage({ source, style, resizeMode = 'cover' }: AppImageProps) {
+export function AppImage({
+  source,
+  style,
+  resizeMode = 'cover',
+  accessibilityLabel,
+  decorative,
+}: AppImageProps) {
   if (!source?.uri) return null;
 
   if (Platform.OS === 'web') {
@@ -31,7 +41,9 @@ export function AppImage({ source, style, resizeMode = 'cover' }: AppImageProps)
           objectFit,
           ...(flat as any),
         }}
-        alt=""
+        // 웹은 alt 속성으로 a11y 처리. 장식용이면 빈 문자열(스크린리더 skip)
+        alt={decorative ? '' : (accessibilityLabel ?? '')}
+        role={decorative ? 'presentation' : undefined}
         loading="lazy"
       />
     );
@@ -42,6 +54,11 @@ export function AppImage({ source, style, resizeMode = 'cover' }: AppImageProps)
       source={{ uri: source.uri }}
       style={style}
       resizeMode={resizeMode}
+      accessible={!decorative}
+      accessibilityLabel={decorative ? undefined : accessibilityLabel}
+      accessibilityRole={decorative ? 'none' : 'image'}
+      accessibilityElementsHidden={decorative}
+      importantForAccessibility={decorative ? 'no' : 'auto'}
     />
   );
 }

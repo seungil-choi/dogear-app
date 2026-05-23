@@ -448,6 +448,8 @@ export default function ExploreScreen() {
             onPress={requestLocationPerm}
             style={s.permBannerBtn}
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            accessibilityLabel="위치 권한 허용"
+            accessibilityRole="button"
           >
             <Text style={s.permBannerBtnText}>허용</Text>
           </TouchableOpacity>
@@ -456,6 +458,8 @@ export default function ExploreScreen() {
               onPress={() => Linking.openSettings().catch(() => {})}
               style={s.permBannerBtnOutline}
               hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+              accessibilityLabel="시스템 설정 열기"
+              accessibilityRole="button"
             >
               <Text style={s.permBannerBtnOutlineText}>설정</Text>
             </TouchableOpacity>
@@ -483,6 +487,7 @@ export default function ExploreScreen() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               returnKeyType="search"
+              accessibilityLabel="장소명 검색"
               onSubmitEditing={() => {
                 const q = searchQuery.trim();
                 if (q.length > 0) {
@@ -515,7 +520,9 @@ export default function ExploreScreen() {
                   track(EVENT.map_viewed, { screen_name: 'explore', source_screen: 'list' });
                 }
               }}
-              accessibilityLabel="지도 뷰"
+              accessibilityLabel="지도 보기"
+              accessibilityRole="button"
+              accessibilityState={{ selected: viewMode === 'map' }}
             >
               <Icon
                 name="map"
@@ -531,7 +538,9 @@ export default function ExploreScreen() {
                   track(EVENT.list_viewed, { screen_name: 'explore', source_screen: 'map' });
                 }
               }}
-              accessibilityLabel="목록 뷰"
+              accessibilityLabel="목록 보기"
+              accessibilityRole="button"
+              accessibilityState={{ selected: viewMode === 'list' }}
             >
               <Icon
                 name="list"
@@ -556,6 +565,9 @@ export default function ExploreScreen() {
               <TouchableOpacity
                 key={f.key}
                 style={[s.filterChip, active && s.filterChipActive]}
+                accessibilityRole="button"
+                accessibilityLabel={`${f.label} 필터`}
+                accessibilityState={{ selected: active }}
                 onPress={() => {
                   if (activeFilter !== f.key) {
                     setActiveFilter(f.key);
