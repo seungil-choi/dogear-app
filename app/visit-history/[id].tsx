@@ -35,27 +35,54 @@ function groupByDate(checkins: PawCheckin[]): { date: string; items: PawCheckin[
   return Array.from(map.entries()).map(([date, items]) => ({ date, items }));
 }
 
-// ─── 개별 발도장 행 ────────────────────────────────────────────
-function CheckinRow({ checkin }: { checkin: PawCheckin }) {
+// ─── 개별 발도장 카드 (타임라인 노드) ───────────────────────────
+function CheckinCard({
+  checkin,
+  isFirst,
+  isLast,
+  isLatest,
+}: {
+  checkin: PawCheckin;
+  isFirst: boolean;
+  isLast: boolean;
+  isLatest: boolean;
+}) {
   const time = new Date(checkin.checked_in_at);
   const hhmm = `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`;
 
   return (
     <View style={r.row}>
-      {/* 왼쪽: 시간 */}
-      <View style={r.timeCol}>
-        <Text style={r.time}>{hhmm}</Text>
-      </View>
-
-      {/* 가운데: 타임라인 선 + 점 */}
+      {/* 좌측: dashed line + paw dot */}
       <View style={r.timelineCol}>
-        <View style={r.dot} />
-        <View style={r.line} />
+        {/* 위 line — 첫 항목엔 없음 */}
+        <View style={[r.lineSegment, r.lineTop, isFirst && r.lineHidden]} />
+
+        {/* dot — paw 아이콘 (최근 항목은 채워진 brand bg) */}
+        <View style={[r.dotWrap, isLatest && r.dotWrapLatest]}>
+          <Icon
+            name={isLatest ? 'paw-filled' : 'paw'}
+            size={12}
+            color={isLatest ? Colors.brand.onPrimary : Colors.brand.primary}
+          />
+        </View>
+
+        {/* 아래 line — 마지막 항목엔 없음 */}
+        <View style={[r.lineSegment, r.lineBottom, isLast && r.lineHidden]} />
       </View>
 
-      {/* 오른쪽: 내용 */}
-      <View style={r.contentCol}>
-        {/* 느낌 태그 칩 */}
+      {/* 우측: 카드 */}
+      <View style={[r.card, isLatest && r.cardLatest]}>
+        {/* 카드 헤더 — 시간 + "최근" 배지 */}
+        <View style={r.cardHeader}>
+          <Text style={r.timeText}>{hhmm}</Text>
+          {isLatest && (
+            <View style={r.latestChip}>
+              <Text style={r.latestChipText}>최근</Text>
+            </View>
+          )}
+        </View>
+
+        {/* 느낌 태그 */}
         {checkin.feeling_tags.length > 0 && (
           <View style={r.tagRow}>
             {checkin.feeling_tags.map(t => (
@@ -77,6 +104,7 @@ function CheckinRow({ checkin }: { checkin: PawCheckin }) {
             source={{ uri: checkin.photo_url }}
             style={r.photoImage}
             resizeMode="cover"
+            accessibilityLabel="발도장 사진"
           />
         )}
 
@@ -96,10 +124,10 @@ function CheckinRow({ checkin }: { checkin: PawCheckin }) {
   );
 }
 
-// ─── 날짜 섹션 헤더 ────────────────────────────────────────────
+// ─── 날짜 그룹 chip ────────────────────────────────────────────
 function DateHeader({ date }: { date: string }) {
   return (
-    <View style={r.dateHeader}>
+    <View style={r.dateChip}>
       <Text style={r.dateText}>{date}</Text>
     </View>
   );
@@ -204,14 +232,31 @@ export default function VisitHistoryScreen() {
           />
 
           {/* 타임라인 */}
-          {groups.map(({ date, items }) => (
-            <View key={date} style={s.group}>
-              <DateHeader date={date} />
-              {items.map(c => (
-                <CheckinRow key={c.checkin_id} checkin={c} />
-              ))}
-            </View>
-          ))}
+          {groups.map(({ date, items }, gi) => {
+            const isLastGroup = gi === groups.length - 1;
+            return (
+              <View key={date} style={s.group}>
+                <DateHeader date={date} />
+                {items.map((c, ii) => {
+                  // 전체 발도장 중 가장 최근(첫 item of 첫 group) 1개만 latest 강조
+                  const isLatest = gi === 0 && ii === 0;
+                  // 첫 행/마지막 행은 위/아래 line 제거 — 자연스러운 종결
+                  const isFirst = gi === 0 && ii === 0;
+                  const isLast =
+                    isLastGroup && ii === items.length - 1;
+                  return (
+                    <CheckinCard
+                      key={c.checkin_id}
+                      checkin={c}
+                      isFirst={isFirst}
+                      isLast={isLast}
+                      isLatest={isLatest}
+                    />
+                  );
+                })}
+              </View>
+            );
+          })}
         </ScrollView>
       )}
     </SafeAreaView>
@@ -222,7 +267,7 @@ export default function VisitHistoryScreen() {
 const s = StyleSheet.create({
   safe:   { flex: 1, backgroundColor: Colors.bg.primary },
   scroll: { flex: 1 },
-  scrollContent: { paddingHorizontal: Spacing[16], paddingTop: Spacing[16] },
+  scrollContent: { paddingHorizontal: Spacing[20], paddingTop: Spacing[20] },
 
   // 헤더
   header: {
@@ -270,84 +315,147 @@ const r = StyleSheet.create({
     backgroundColor: Colors.border.subtle,
   },
 
-  // 날짜 헤더
-  dateHeader: {
-    paddingVertical: Spacing[8],
-    marginBottom: Spacing[4],
+  // ── 날짜 그룹 chip ──
+  dateChip: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: Spacing[12],
+    paddingVertical: Spacing[6],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.subtle,
+    marginBottom: Spacing[12],
+    marginLeft: Spacing[4],
   },
   dateText: {
-    ...Typography.label.m,
-    color: Colors.text.secondary,
-    fontWeight: '600',
+    ...Typography.label.s,
+    color: Colors.brand.accent,
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
 
-  // 발도장 행
+  // ── 행 컨테이너 (timeline + card) ──
   row: {
     flexDirection: 'row',
-    paddingVertical: Spacing[4],
-    minHeight: 72,
+    alignItems: 'stretch',
   },
 
-  // 시간 열 (왼쪽)
-  timeCol: {
-    width: 44,
-    alignItems: 'flex-end',
-    paddingTop: 4,
-    paddingRight: Spacing[8],
-  },
-  time: { ...Typography.caption, color: Colors.text.tertiary },
-
-  // 타임라인 열 (가운데)
+  // ── 좌측 timeline column ──
   timelineCol: {
-    width: 20,
+    width: 36,
     alignItems: 'center',
   },
-  dot: {
-    width: 10, height: 10,
-    borderRadius: 5,
-    backgroundColor: Colors.brand.primary,
-    marginTop: 4,
+  // dot wrapper — paw 아이콘이 안에 들어감
+  dotWrap: {
+    width: 28, height: 28,
+    borderRadius: 14,
+    backgroundColor: Colors.surface.default,
+    borderWidth: 1.5,
+    borderColor: Colors.brand.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // 라인과 dot 사이 가벼운 분리
+    marginVertical: 2,
     zIndex: 1,
   },
-  line: {
-    flex: 1,
-    width: 2,
-    backgroundColor: Colors.border.subtle,
-    marginTop: 2,
+  dotWrapLatest: {
+    backgroundColor: Colors.brand.primary,
+    borderColor: Colors.brand.primary,
+    // halo 효과 — 살짝 큰 그림자 같은 느낌으로 두께만
+    borderWidth: 2,
+    transform: [{ scale: 1.08 }],
   },
 
-  // 내용 열 (오른쪽)
-  contentCol: {
+  // dashed 연결선 (위/아래 세그먼트)
+  lineSegment: {
+    width: 0,
+    borderLeftWidth: 1.5,
+    borderLeftColor: Colors.border.default,
+    borderStyle: 'dashed',
+  },
+  lineTop: {
+    height: 14,
+  },
+  lineBottom: {
     flex: 1,
-    paddingLeft: Spacing[12],
-    paddingBottom: Spacing[16],
-    gap: Spacing[6],
+    minHeight: 24,
+  },
+  lineHidden: {
+    opacity: 0,
   },
 
-  // 태그
-  tagRow:  { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6] },
-  tagChip: {
+  // ── 우측 카드 ──
+  card: {
+    flex: 1,
+    marginLeft: Spacing[12],
+    marginBottom: Spacing[14],
+    padding: Spacing[14],
+    borderRadius: Radius.m,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+    backgroundColor: Colors.surface.default,
+    gap: Spacing[8],
+  },
+  cardLatest: {
+    borderColor: Colors.brand.primary,
     backgroundColor: Colors.brand.subtle,
+    borderWidth: 1.5,
+  },
+
+  // 카드 헤더 — 시간 + "최근" 배지
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  timeText: {
+    ...Typography.label.m,
+    color: Colors.text.secondary,
+    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
+  },
+  latestChip: {
+    paddingHorizontal: Spacing[10],
+    paddingVertical: 3,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.primary,
+  },
+  latestChipText: {
+    ...Typography.label.s,
+    color: Colors.brand.onPrimary,
+    fontWeight: '700',
+  },
+
+  // 느낌 태그
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6] },
+  tagChip: {
+    backgroundColor: Colors.bg.tertiary,
     borderRadius: Radius.round,
     paddingHorizontal: Spacing[10],
     paddingVertical: Spacing[4],
   },
-  tagText: { ...Typography.label.s, color: Colors.brand.primary },
+  tagText: { ...Typography.label.s, color: Colors.text.secondary, fontWeight: '600' },
 
   // 메모
-  note: { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 20 },
+  note: {
+    ...Typography.body.s,
+    color: Colors.text.primary,
+    lineHeight: 20,
+    fontStyle: 'italic',
+  },
 
   // 사진
   photoImage: {
     width: '100%',
-    height: 160,
-    borderRadius: Radius.m,
+    height: 180,
+    borderRadius: Radius.s,
     backgroundColor: Colors.bg.secondary,
   },
 
-  // 공개 범위
+  // 공개 범위 배지
   visibilityBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: Spacing[2],
   },
   visibilityText: { ...Typography.caption, color: Colors.text.tertiary },
 });
