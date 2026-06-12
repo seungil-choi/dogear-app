@@ -15,7 +15,7 @@ import { track, EVENT } from '../../src/utils/analytics';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, SafeAreaView, Modal,
+  StyleSheet, SafeAreaView, Modal, RefreshControl,
   Dimensions, NativeScrollEvent, NativeSyntheticEvent,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -25,6 +25,8 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { RecentSpotCard, RegularSpotCard, CategoryThumb } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
+import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
+import { HomeRailSkeleton } from '../../src/components/common/Skeleton';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import type { Dog, HomeSpotCardViewModel, AtmosphereState } from '../../src/types';
 
@@ -177,6 +179,8 @@ export default function HomeScreen() {
   const getHomeCards   = useAppStore(s => s.getHomeCards);
   const spots          = useAppStore(s => s.spots);
   const currentLocation = useAppStore(s => s.currentLocation);
+  const isSpotsLoading  = useAppStore(s => s.isSpotsLoading);
+  const { refreshing, onRefresh } = usePullToRefresh();
 
   const cards    = useMemo(() => getHomeCards(), [getHomeCards]);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -349,6 +353,14 @@ export default function HomeScreen() {
         style={s.scroll}
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.brand.primary}
+            colors={[Colors.brand.primary]}
+          />
+        }
       >
 
         {/* ── 상단 로고 헤더 ── */}
@@ -421,15 +433,32 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ── 빈 상태 (강아지는 있는데 주변 장소 데이터가 없을 때) ── */}
-        {dog && cards.length === 0 && (
+        {/* ── 로딩 스켈레톤 (주변 스팟 페치 중 + 아직 카드 없음) ── */}
+        {dog && cards.length === 0 && isSpotsLoading && (
+          <View style={s.sectionWrap}>
+            <HomeRailSkeleton />
+          </View>
+        )}
+
+        {/* ── 빈 상태 (강아지는 있는데 주변 장소 데이터가 없을 때) ──
+            위치 권한이 원인이면 권한 안내를 우선, 그 외엔 지도 탐색 유도 */}
+        {dog && cards.length === 0 && !isSpotsLoading && (
           <View style={s.emptyWrap}>
-            <EmptyState
-              headline="아직 주변 장소 정보가 없어요"
-              description="위치 권한을 허용하면 근처 산책 장소를 바로 추천해드려요."
-              ctaLabel="지도 보기"
-              onCta={() => router.push('/(tabs)/map')}
-            />
+            {!currentLocation ? (
+              <EmptyState
+                headline="위치 권한이 필요해요"
+                description="내 위치 주변 산책 장소를 추천하려면 위치 권한이 필요해요. 지도 탭에서 허용할 수 있어요."
+                ctaLabel="위치 허용하러 가기"
+                onCta={() => router.push('/(tabs)/map')}
+              />
+            ) : (
+              <EmptyState
+                headline="아직 주변 장소 정보가 없어요"
+                description="지도를 옮기거나 새로운 장소를 제안해보세요."
+                ctaLabel="지도 보기"
+                onCta={() => router.push('/(tabs)/map')}
+              />
+            )}
           </View>
         )}
 
@@ -882,11 +911,7 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing[4],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 6,
-    elevation: 3,
+    ...Shadow.m,
   },
   featuredBadgeText: {
     ...Typography.label.s,
@@ -902,11 +927,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.surface.default,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 6,
-    elevation: 3,
+    ...Shadow.m,
   },
 
   // ── 수평 레일 ──

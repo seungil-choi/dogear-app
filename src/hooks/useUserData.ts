@@ -13,6 +13,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
+import { registerRefreshHandler } from '@/utils/refreshBus';
 import type { PawCheckin, SavedSpot, SpotVisitSummary, FamiliarDogSignal } from '@/types';
 
 export function useUserData() {
@@ -35,6 +36,14 @@ export function useUserData() {
     loadedDogRef.current = activeDog.dog_id;
     loadUserData(activeDog.dog_id);
   }, [isAuthenticated, isAuthLoading, activeDog?.dog_id]);
+
+  // pull-to-refresh 버스 등록 — 현재 활성 강아지 기준 사용자 데이터 재로드
+  useEffect(() => {
+    if (!activeDog?.dog_id) return;
+    const dogId = activeDog.dog_id;
+    return registerRefreshHandler(() => loadUserData(dogId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDog?.dog_id]);
 
   async function loadUserData(dogId: string) {
     const [checkinRes, savedRes, summaryRes, familiarRes] = await Promise.allSettled([

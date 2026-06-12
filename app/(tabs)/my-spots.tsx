@@ -12,9 +12,10 @@
 import React, { useState, useMemo } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, SafeAreaView,
+  StyleSheet, SafeAreaView, RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
@@ -43,6 +44,7 @@ export default function MySpotsScreen() {
   const router  = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('visited');
   const [sortKey,   setSortKey]   = useState<SortKey>('recent');
+  const { refreshing, onRefresh } = usePullToRefresh();
 
   const dog            = useAppStore(s => s.dog);
   const spots          = useAppStore(s => s.spots);
@@ -149,6 +151,14 @@ export default function MySpotsScreen() {
         style={s.scroll}
         contentContainerStyle={s.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.brand.primary}
+            colors={[Colors.brand.primary]}
+          />
+        }
       >
         {/* ── 발도장 남긴 곳 ── */}
         {activeTab === 'visited' && (

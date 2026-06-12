@@ -5,11 +5,12 @@
  * 알림 설정 / 위치 권한 / 고객센터 / 개인정보 처리방침 / 로그아웃 / 계정 삭제
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, Linking, Switch,
+  StyleSheet, Linking, Switch, Platform, AppState,
 } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import { notify } from '../src/utils/dialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -60,8 +61,68 @@ function SectionTitle({ label }: { label: string }) {
 export default function SettingsScreen() {
   const router  = useRouter();
 
-  // 알림 on/off (로컬 상태 — 실제 권한 연동은 추후)
-  const [notifEnabled, setNotifEnabled] = useState(true);
+  // 알림 권한 — OS 권한 상태와 실시간 동기화
+  //   ON 시도: 권한 요청 → 거부되어 있으면 설정 안내
+  //   OFF 시도: OS에서 앱이 권한을 직접 끌 수 없으므로 설정으로 안내
+  const [notifEnabled, setNotifEnabled] = useState(false);
+
+  const syncNotifPermission = useCallback(async () => {
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && 'Notification' in window) {
+        setNotifEnabled(window.Notification.permission === 'granted');
+      }
+      return;
+    }
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      setNotifEnabled(status === 'granted');
+    } catch {
+      setNotifEnabled(false);
+    }
+  }, []);
+
+  // 마운트 시 + 백그라운드→포그라운드 복귀 시(OS 설정 변경 반영) 동기화
+  useEffect(() => {
+    syncNotifPermission();
+    const sub = AppState.addEventListener('change', state => {
+      if (state === 'active') syncNotifPermission();
+    });
+    return () => sub.remove();
+  }, [syncNotifPermission]);
+
+  const handleNotifToggle = useCallback(async (next: boolean) => {
+    if (Platform.OS === 'web') {
+      if (typeof window === 'undefined' || !('Notification' in window)) {
+        notify('이 브라우저는 알림을 지원하지 않아요.', '알림 미지원');
+        return;
+      }
+      if (next) {
+        const result = await window.Notification.requestPermission();
+        setNotifEnabled(result === 'granted');
+        if (result !== 'granted') {
+          notify('브라우저 사이트 설정에서 알림을 허용해주세요.', '알림 권한');
+        }
+      } else {
+        notify('알림 해제는 브라우저 사이트 설정에서 변경할 수 있어요.', '알림 권한');
+      }
+      return;
+    }
+
+    if (next) {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status === 'granted') {
+        setNotifEnabled(true);
+      } else {
+        // OS가 다이얼로그를 차단한 상태 → 설정으로 안내
+        notify('설정에서 DogEar의 알림을 허용해주세요.', '알림 권한 필요');
+        Linking.openSettings().catch(() => {});
+      }
+    } else {
+      // 앱이 OS 권한을 직접 해제할 수 없음 → 설정으로 안내
+      notify('알림 해제는 시스템 설정에서 변경할 수 있어요.', '알림 권한');
+      Linking.openSettings().catch(() => {});
+    }
+  }, []);
 
   const handleDeleteAccount = () => {
     router.push('/account-delete');
@@ -100,9 +161,10 @@ export default function SettingsScreen() {
             rightEl={
               <Switch
                 value={notifEnabled}
-                onValueChange={setNotifEnabled}
+                onValueChange={handleNotifToggle}
                 trackColor={{ false: Colors.border.default, true: Colors.brand.primaryLight }}
                 thumbColor={notifEnabled ? Colors.brand.primary : Colors.bg.secondary}
+                accessibilityLabel="알림 권한"
               />
             }
           />

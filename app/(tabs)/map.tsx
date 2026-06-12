@@ -12,8 +12,9 @@ import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import {
   View, Text, StyleSheet, SafeAreaView,
   TouchableOpacity, ScrollView, TextInput, Dimensions,
-  Animated, PanResponder, Linking, Platform,
+  Animated, PanResponder, Linking, Platform, RefreshControl,
 } from 'react-native';
+import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -78,6 +79,7 @@ export default function ExploreScreen() {
   const insets = useSafeAreaInsets();
 
   const [viewMode,      setViewMode]      = useState<ViewMode>('map');
+  const { refreshing, onRefresh } = usePullToRefresh();
   const [activeFilter,  setActiveFilter]  = useState<FilterKey>('all');
   const [searchQuery,   setSearchQuery]   = useState('');
   const [selectedId,    setSelectedId]    = useState<string | null>(null);
@@ -770,7 +772,19 @@ export default function ExploreScreen() {
 
       {/* ── 리스트 뷰 ── */}
       {viewMode === 'list' && (
-        <ScrollView style={s.listScroll} contentContainerStyle={s.listContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={s.listScroll}
+          contentContainerStyle={s.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Colors.brand.primary}
+              colors={[Colors.brand.primary]}
+            />
+          }
+        >
           <View style={s.listResultHeader}>
             <Text style={s.listResultText}>{sortedCards.length}개의 장소</Text>
           </View>

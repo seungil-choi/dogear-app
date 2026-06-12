@@ -82,6 +82,11 @@ interface AppState {
     photoUri?: string;
     visibility: VisibilityLevel;
   };
+  /** 마지막으로 제출한 발도장의 공개 범위 — 다음 발도장의 기본값으로 사용 (persist) */
+  lastUsedVisibility?: VisibilityLevel;
+  /** 주변 스팟 페치 진행 중 (useNearbySpots가 set) — 홈/지도 스켈레톤 노출용. persist 안 함. */
+  isSpotsLoading: boolean;
+  setSpotsLoading: (loading: boolean) => void;
 
   // Actions
   completeOnboarding: () => void;
@@ -292,6 +297,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     const { pawFlow, dog, checkins, visitSummaries } = get();
     if (!dog || !pawFlow.selectedSpot) return;
 
+    // 이번 선택을 다음 발도장 기본값으로 기억
+    set({ lastUsedVisibility: pawFlow.visibility });
+
     const newCheckin: PawCheckin = {
       checkin_id: `chk_${Date.now()}`,
       dog_id: dog.dog_id,
@@ -355,7 +363,13 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   setPawVisibility: (v) => set(s => ({ pawFlow: { ...s.pawFlow, visibility: v } })),
   resetPawFlow: () =>
     set(s => ({
-      pawFlow: { step: 1, selectedTags: [], note: '', visibility: s.privacySetting.default_visibility_level },
+      // 마지막 제출 시 선택한 공개 범위 우선, 없으면 프라이버시 기본값
+      pawFlow: {
+        step: 1,
+        selectedTags: [],
+        note: '',
+        visibility: s.lastUsedVisibility ?? s.privacySetting.default_visibility_level,
+      },
     })),
 
   updatePrivacySetting: (updates) =>
@@ -483,6 +497,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     setUserContext({ dog_profile_id: newDog.dog_id });
   },
   setDogs: (dogs) => set({ dogs }),
+
+  isSpotsLoading: false,
+  setSpotsLoading: (isSpotsLoading) => set({ isSpotsLoading }),
 
   deleteDog: async (dog_id) => {
     if (IS_REAL_AUTH) {
@@ -732,6 +749,7 @@ export const useAppStore = DEV_PREVIEW_SEED
           suggestedSpots: state.suggestedSpots,
           blockedUsers: state.blockedUsers,
           currentLocation: state.currentLocation,
+          lastUsedVisibility: state.lastUsedVisibility,
         }),
       })
     );

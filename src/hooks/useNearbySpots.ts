@@ -9,6 +9,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
+import { registerRefreshHandler } from '@/utils/refreshBus';
 import type { SpotCardViewModel, Spot } from '@/types';
 
 interface UseNearbySpotsReturn {
@@ -26,6 +27,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
   const currentLocation = useAppStore(s => s.currentLocation);
   const activeDog = useAppStore(s => s.activeDog);
   const setStoreSpots = useAppStore(s => s.setSpots);
+  const setSpotsLoading = useAppStore(s => s.setSpotsLoading);
 
   // 이전 위치 저장 — 동일 위치 중복 fetch 방지
   const prevLocationRef = useRef<{ lat: number; lng: number } | null>(null);
@@ -37,6 +39,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
     }
 
     setIsLoading(true);
+    setSpotsLoading(true);  // 화면 스켈레톤 노출용 (store)
     setError(null);
 
     try {
@@ -99,8 +102,9 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
       setError('스팟을 불러오지 못했어요');
     } finally {
       setIsLoading(false);
+      setSpotsLoading(false);
     }
-  }, [currentLocation, activeDog, radiusMeters, setStoreSpots]);
+  }, [currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotsLoading]);
 
   // 위치가 처음 설정되거나 의미있게 변할 때 자동 fetch
   useEffect(() => {
@@ -117,6 +121,9 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
     prevLocationRef.current = { lat: currentLocation.latitude, lng: currentLocation.longitude };
     refresh();
   }, [currentLocation]);
+
+  // pull-to-refresh 버스에 등록 — 화면의 RefreshControl이 refreshAll()로 트리거
+  useEffect(() => registerRefreshHandler(refresh), [refresh]);
 
   return { spots, isLoading, error, refresh };
 }
