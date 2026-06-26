@@ -14,9 +14,9 @@ import React, { useCallback, useRef, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Switch,
   StyleSheet, SafeAreaView, Dimensions, NativeScrollEvent,
-  NativeSyntheticEvent,
+  NativeSyntheticEvent, Linking,
 } from 'react-native';
-import { confirm } from '../../src/utils/dialog';
+import { confirm, notify } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
@@ -159,6 +159,11 @@ export default function ProfileScreen() {
       router.replace('/(auth)/splash');
     }
   }, [logout, router]);
+
+  const openSupport = useCallback(() => {
+    Linking.openURL('mailto:support@9factorial.com?subject=DogEar%20%EB%AC%B8%EC%9D%98')
+      .catch(() => notify('support@9factorial.com으로 직접 문의해 주세요.', '메일 앱을 열 수 없어요'));
+  }, []);
 
   // 현재 보이는 슬롯 인덱스 (강아지 카드 + 추가 카드)
   const [pageIndex, setPageIndex] = useState(0);
@@ -318,43 +323,44 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            3) 활동 — 자주 쓰는 기능들 (알림 / 차단)
+            3) 설정 — 알림 / 차단 / 계정 관리
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
-            <Icon name="bell" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>활동</Text>
+            <Icon name="settings" size={15} color={Colors.text.secondary} />
+            <Text style={s.sectionTitle}>설정</Text>
           </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="bell"   label="알림"           onPress={() => router.push('/notifications')} />
-            <SettingsRow icon="person" label="차단한 사용자"   onPress={() => router.push('/blocked-users')} />
+            <SettingsRow icon="bell"     label="알림"        onPress={() => router.push('/notifications')} />
+            <SettingsRow icon="person"   label="차단한 사용자" onPress={() => router.push('/blocked-users')} />
+            <SettingsRow icon="person"   label="계정 관리"    onPress={() => router.push('/account-delete')} />
           </View>
         </View>
 
         {/* ══════════════════════════════════════
-            4) 계정 — 로그아웃은 마이에서 직관 노출 (자주는 아니지만 중요)
+            4) 약관 및 지원
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
-            <Icon name="person" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>계정</Text>
+            <Icon name="document" size={15} color={Colors.text.secondary} />
+            <Text style={s.sectionTitle}>약관 및 지원</Text>
           </View>
           <View style={s.settingsCard}>
-            <SettingsRow icon="logout"   label="로그아웃" onPress={handleLogout} danger />
+            <SettingsRow icon="document" label="약관 및 정책"  onPress={() => router.push('/settings')} />
+            <SettingsRow icon="help"     label="고객센터 문의" onPress={openSupport} />
           </View>
         </View>
 
         {/* ══════════════════════════════════════
-            5) 설정 진입 (권한/약관/도움말/계정관리)
+            5) 로그아웃 — 조용한 단일 행
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.settingsCard}>
-            <SettingsRow icon="settings" label="설정"  onPress={() => router.push('/settings')} />
+            <SettingsRow icon="logout" label="로그아웃" onPress={handleLogout} />
           </View>
-          <Text style={s.sectionFootnote}>
-            권한 · 약관 · 도움말 · 계정 관리는 설정에서 확인할 수 있어요.
-          </Text>
         </View>
+
+        <Text style={s.versionText}>버전 1.0.0</Text>
 
         <View style={{ height: Spacing[16] }} />
       </ScrollView>
@@ -566,6 +572,12 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
     paddingHorizontal: Spacing[16],
     paddingTop: Spacing[6],
+  },
+  versionText: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    paddingTop: Spacing[16],
   },
   sectionTitleDog: {
     ...Typography.label.m,

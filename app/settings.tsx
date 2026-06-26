@@ -124,15 +124,6 @@ export default function SettingsScreen() {
     }
   }, []);
 
-  const handleDeleteAccount = () => {
-    router.push('/account-delete');
-  };
-
-  const openSupport = () => {
-    Linking.openURL('mailto:support@9factorial.com?subject=DogEar%20%EB%AC%B8%EC%9D%98')
-      .catch(() => notify('support@9factorial.com으로 직접 문의해 주세요.', '메일 앱을 열 수 없어요'));
-  };
-
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
       {/* 헤더 */}
@@ -140,7 +131,7 @@ export default function SettingsScreen() {
         <TouchableOpacity style={s.backBtn} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityLabel="뒤로 가기">
           <Icon name="back" size={22} color={Colors.text.primary} />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>설정</Text>
+        <Text style={s.headerTitle}>약관 및 정책</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -189,22 +180,7 @@ export default function SettingsScreen() {
           <SettingsRow icon="document" label="위치기반서비스 이용약관" onPress={() => router.push('/(legal)/location-terms')} />
         </View>
 
-        {/* ──────────────────────────────────────────
-            3) 도움말
-        ────────────────────────────────────────── */}
-        <SectionTitle label="도움말" />
-        <View style={s.card}>
-          <SettingsRow icon="help" label="고객센터 문의" onPress={openSupport} />
-        </View>
-
-        {/* ──────────────────────────────────────────
-            4) 계정 관리 — 회원 탈퇴 등 드물지만 시스템 영역
-              로그아웃은 마이 탭 직관 노출 (중복 제거)
-        ────────────────────────────────────────── */}
-        <SectionTitle label="계정 관리" />
-        <View style={s.card}>
-          <SettingsRow icon="person" label="계정 관리 / 회원 탈퇴" onPress={handleDeleteAccount} />
-        </View>
+        {/* 도움말·계정 관리는 내 정보 화면으로 이동(중복 제거) */}
 
         {/* 앱 버전 */}
         <Text style={s.version}>버전 1.0.0 (MVP)</Text>
