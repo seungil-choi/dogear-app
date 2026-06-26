@@ -1,0 +1,112 @@
+/**
+ * Edge Function: naver-auth
+ *
+ * 네이버 access token을 받아 사용자를 검증하고 Supabase 세션을 생성한다.
+ * (kakao-auth와 동일한 패턴 — 외부 토큰 검증 후 magiclink OTP 발급)
+ *
+ * 흐름:
+ *  1. 클라이언트(앱)에서 네이버 SDK로 로그인 → access_token 획득
+ *  2. 이 함수에 access_token 전달
+ *  3. 네이버 API로 사용자 정보 조회 (id, email, nickname)
+ *  4. Supabase auth.users에 등록(없으면 생성)
+ *  5. magiclink OTP(otp, hashed_token) 반환 → 클라이언트가 verifyOtp
+ *
+ * 환경변수:
+ *  - SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (Supabase가 자동 주입)
+ *  - 네이버는 외부 토큰 검증만 하므로 별도 시크릿 불필요
+ */
+
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  try {
+    const { naverAccessToken } = await req.json();
+    if (!naverAccessToken) {
+      return new Response(JSON.stringify({ error: 'naverAccessToken required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // 1. 네이버 사용자 정보 조회
+    const naverRes = await fetch('https://openapi.naver.com/v1/nid/me', {
+      headers: { Authorization: `Bearer ${naverAccessToken}` },
+    });
+    if (!naverRes.ok) {
+      return new Response(JSON.stringify({ error: 'invalid naver token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const naverBody = await naverRes.json();
+    // 네이버 응답: { resultcode: '00', message: 'success', response: { id, email, nickname, ... } }
+    if (naverBody.resultcode !== '00' || !naverBody.response) {
+      return new Response(JSON.stringify({ error: 'naver profile fetch failed' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const naverUser = naverBody.response;
+    const naverId = String(naverUser.id);
+    const email = naverUser.email ?? `naver_${naverId}@naver.local`;
+    const nickname = naverUser.nickname ?? naverUser.name ?? '네이버사용자';
+
+    // 2. Supabase admin client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+
+    // 3. 기존 사용자 확인 또는 생성
+    const userMetadata = { provider: 'naver', naver_id: naverId, nickname };
+
+    const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
+    if (listError) throw listError;
+
+    const existing = users?.find((u: any) => u.email === email);
+    if (!existing) {
+      const { error: createError } = await supabase.auth.admin.createUser({
+        email,
+        email_confirm: true,
+        user_metadata: userMetadata,
+      });
+      if (createError) throw createError;
+    }
+
+    // 4. magic link로 일회성 토큰 발급 → 클라이언트에서 verifyOtp
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email,
+    });
+    if (linkError) throw linkError;
+
+    return new Response(JSON.stringify({
+      email,
+      nickname,
+      otp: (linkData as any).properties?.email_otp,
+      hashed_token: (linkData as any).properties?.hashed_token,
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  } catch (err: any) {
+    console.error('naver-auth error:', err);
+    return new Response(JSON.stringify({ error: err.message ?? 'internal error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+});
