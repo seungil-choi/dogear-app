@@ -34,6 +34,9 @@ import {
 import { supabase } from '../../src/lib/supabase';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
+import { TextField } from '../../src/components/common/TextField';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Google Sign-In 초기 설정
 if (IS_REAL_AUTH && Platform.OS !== 'web') {
@@ -74,6 +77,7 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [busy, setBusy] = useState(false);
 
   // 신규 흐름: consent → dog-setup → permissions → tabs
@@ -92,12 +96,11 @@ export default function LoginScreen() {
   // 이메일 로그인
   const handleEmailLogin = async () => {
     const trimmed = email.trim();
-    if (!trimmed) { notify('이메일을 입력해주세요.'); return; }
-    if (!password) { notify('비밀번호를 입력해주세요.'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      notify('올바른 이메일 형식이 아니에요.');
+    if (!trimmed || !EMAIL_RE.test(trimmed)) {
+      setEmailError('올바른 이메일을 입력해주세요.');
       return;
     }
+    if (!password) { notify('비밀번호를 입력해주세요.'); return; }
 
     setBusy(true);
     try {
@@ -263,83 +266,14 @@ export default function LoginScreen() {
             </Text>
           </View>
 
-          {/* ── 이메일 / 비밀번호 ── */}
-          <View style={s.formArea}>
-            <View style={s.inputRow}>
-              <Icon name="mail" size={16} color={Colors.text.tertiary} />
-              <TextInput
-                style={s.input}
-                placeholder="이메일"
-                placeholderTextColor={Colors.text.tertiary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!busy}
-                accessibilityLabel="이메일"
-                textContentType="emailAddress"
-                autoComplete="email"
-                returnKeyType="next"
-              />
-            </View>
-            <View style={s.inputRow}>
-              <Icon name="lock" size={16} color={Colors.text.tertiary} />
-              <TextInput
-                style={s.input}
-                placeholder="비밀번호"
-                placeholderTextColor={Colors.text.tertiary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                editable={!busy}
-                accessibilityLabel="비밀번호"
-                textContentType="password"
-                autoComplete="password"
-                returnKeyType="done"
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[s.primaryBtn, busy && s.primaryBtnBusy]}
-              onPress={handleEmailLogin}
-              activeOpacity={0.88}
-              disabled={busy}
-            >
-              <Text style={s.primaryBtnText}>{busy ? '로그인 중…' : '로그인하기'}</Text>
-            </TouchableOpacity>
-
-            <View style={s.formLinks}>
-              <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
-                <Text style={s.linkText}>비밀번호 찾기</Text>
-              </TouchableOpacity>
-              <View style={s.linkSep} />
-              <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-                <Text style={[s.linkText, s.linkStrong]}>이메일로 가입하기</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* ── SNS 구분선 ── */}
-          <View style={s.dividerRow}>
-            <View style={s.dividerLine} />
-            <Text style={s.dividerText}>SNS 계정으로 시작하기</Text>
-            <View style={s.dividerLine} />
-          </View>
-
-          {/* ── SNS 4종 (정확한 로고) ── */}
+          {/* ── 간편 로그인 (SNS 우선) ── */}
+          <Text style={s.snsHeading}>간편하게 시작하기</Text>
           <View style={s.snsRow}>
             <SnsBubble
               onPress={handleKakaoLogin}
               bgColor="#FEE500"
               logo={<KakaoLogo size={22} />}
               ariaLabel="카카오로 시작하기"
-            />
-            <SnsBubble
-              onPress={handleNaverLogin}
-              bgColor="#03C75A"
-              logo={<NaverLogo size={22} />}
-              ariaLabel="네이버로 시작하기"
             />
             <SnsBubble
               onPress={handleGoogleLogin}
@@ -355,6 +289,63 @@ export default function LoginScreen() {
                 ariaLabel="애플로 시작하기"
               />
             )}
+          </View>
+
+          {/* ── 또는 이메일 ── */}
+          <View style={s.dividerRow}>
+            <View style={s.dividerLine} />
+            <Text style={s.dividerText}>또는 이메일로</Text>
+            <View style={s.dividerLine} />
+          </View>
+
+          {/* ── 이메일 / 비밀번호 ── */}
+          <View style={s.formArea}>
+            <TextField
+              label="이메일"
+              placeholder="name@example.com"
+              value={email}
+              onChangeText={(t) => { setEmail(t); if (emailError) setEmailError(''); }}
+              error={emailError}
+              valid={EMAIL_RE.test(email.trim())}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!busy}
+              textContentType="emailAddress"
+              autoComplete="email"
+              returnKeyType="next"
+            />
+            <TextField
+              label="비밀번호"
+              placeholder="비밀번호 입력"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              editable={!busy}
+              textContentType="password"
+              autoComplete="password"
+              returnKeyType="done"
+              onSubmitEditing={handleEmailLogin}
+            />
+
+            <TouchableOpacity
+              style={[s.primaryBtn, busy && s.primaryBtnBusy]}
+              onPress={handleEmailLogin}
+              activeOpacity={0.88}
+              disabled={busy}
+            >
+              <Text style={s.primaryBtnText}>{busy ? '로그인 중…' : '이메일로 로그인'}</Text>
+            </TouchableOpacity>
+
+            <View style={s.formLinks}>
+              <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')}>
+                <Text style={s.linkText}>비밀번호 찾기</Text>
+              </TouchableOpacity>
+              <View style={s.linkSep} />
+              <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
+                <Text style={[s.linkText, s.linkStrong]}>이메일로 가입하기</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* ── 게스트 ── */}
@@ -444,11 +435,18 @@ const s = StyleSheet.create({
   dividerText: { ...Typography.caption, color: Colors.text.tertiary, fontWeight: '500' },
 
   // SNS 버블
+  snsHeading: {
+    ...Typography.label.l,
+    fontWeight: '600',
+    color: Colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: Spacing[14],
+  },
   snsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: Spacing[16],
-    marginBottom: Spacing[28],
+    marginBottom: Spacing[4],
   },
   snsBubble: {
     width: 50, height: 50,
