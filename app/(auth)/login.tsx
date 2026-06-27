@@ -240,9 +240,6 @@ export default function LoginScreen() {
     }
   };
 
-  // 게스트로 시작
-  const handleGuestLogin = () => proceedAfterAuth();
-
   return (
     <SafeAreaView style={s.safe}>
       <KeyboardAvoidingView
@@ -347,12 +344,6 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* ── 게스트 ── */}
-          <TouchableOpacity style={s.guestBtn} onPress={handleGuestLogin} activeOpacity={0.75}>
-            <Text style={s.guestBtnText}>둘러보기</Text>
-          </TouchableOpacity>
-          <Text style={s.guestNote}>로그인 없이 기능을 미리 살펴볼 수 있어요</Text>
 
           {/* ── 약관 안내 ── */}
           <Text style={s.disclaimer}>
