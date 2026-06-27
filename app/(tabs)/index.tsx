@@ -378,7 +378,7 @@ export default function HomeScreen() {
         {dog && (
           <TouchableOpacity
             style={[s.profileCard, Shadow.s]}
-            onPress={() => router.push('/dog-edit')}
+            onPress={() => router.push('/dog-detail' as any)}
             activeOpacity={0.85}
           >
             {/* 아바타 */}
