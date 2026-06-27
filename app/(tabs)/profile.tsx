@@ -65,12 +65,12 @@ function SettingsRow({
 function DogProfileCard({
   dog,
   isActive,
-  onActivate,
+  onOpenDetail,
   onEdit,
 }: {
   dog: Dog;
   isActive: boolean;
-  onActivate: () => void;
+  onOpenDetail: () => void;
   onEdit: () => void;
 }) {
   const metaParts = [
@@ -82,8 +82,8 @@ function DogProfileCard({
   return (
     <TouchableOpacity
       style={[s.dogCard, isActive ? s.dogCardActive : s.dogCardInactive]}
-      onPress={isActive ? undefined : onActivate}
-      activeOpacity={isActive ? 1 : 0.78}
+      onPress={onOpenDetail}
+      activeOpacity={0.85}
     >
       {/* 아바타 */}
       <View style={[s.dogAvatarWrap, isActive && s.dogAvatarWrapActive]}>
@@ -181,14 +181,10 @@ export default function ProfileScreen() {
     [],
   );
 
-  const handleActivate = useCallback((dog: Dog) => {
-    setActiveDog(dog);
-    // 활성화된 강아지 카드로 스크롤 이동
-    const idx = dogs.findIndex(d => d.dog_id === dog.dog_id);
-    if (idx >= 0) {
-      scrollRef.current?.scrollTo({ x: idx * (CARD_W + CARD_GAP), animated: true });
-    }
-  }, [setActiveDog, dogs]);
+  const handleOpenDetail = useCallback((dog: Dog) => {
+    setActiveDog(dog);            // 상세는 활성 강아지 기준 데이터를 보여줌
+    router.push('/dog-detail' as any);
+  }, [setActiveDog, router]);
 
   const handleEdit = useCallback((dog: Dog) => {
     setActiveDog(dog);
@@ -270,7 +266,7 @@ export default function ProfileScreen() {
                 key={dog.dog_id}
                 dog={dog}
                 isActive={dog.dog_id === activeDog.dog_id}
-                onActivate={() => handleActivate(dog)}
+                onOpenDetail={() => handleOpenDetail(dog)}
                 onEdit={() => handleEdit(dog)}
               />
             ))}
