@@ -3,10 +3,13 @@
  *
  * - 웹: HTML <img> 직접 사용 (RNW Image / expo-image 둘 다 웹에서 렌더링 실패)
  * - 네이티브: react-native Image
+ * - 로드 실패(호스트 장애·404 등) 시 깨진 이미지 대신 브랜드 플레이스홀더로 폴백
  */
-import React from 'react';
-import { Image, Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Image, Platform, StyleSheet, View } from 'react-native';
 import type { StyleProp, ImageStyle } from 'react-native';
+import { Colors } from '../../constants/tokens';
+import { Icon } from './Icon';
 
 interface AppImageProps {
   source: { uri?: string } | null | undefined;
@@ -25,7 +28,26 @@ export function AppImage({
   accessibilityLabel,
   decorative,
 }: AppImageProps) {
+  const [errored, setErrored] = useState(false);
+
+  // uri 자체가 없으면 이미지 영역 없음(의도된 상태)
   if (!source?.uri) return null;
+
+  // 로드 실패 → 브랜드 플레이스홀더(깨진 이미지 방지)
+  if (errored) {
+    return (
+      <View
+        style={[style, s.fallback]}
+        accessible={!decorative}
+        accessibilityLabel={decorative ? undefined : (accessibilityLabel ?? '이미지를 불러올 수 없어요')}
+        accessibilityRole={decorative ? 'none' : 'image'}
+        accessibilityElementsHidden={decorative}
+        importantForAccessibility={decorative ? 'no' : 'auto'}
+      >
+        <Icon name="paw" size={28} color={Colors.text.tertiary} />
+      </View>
+    );
+  }
 
   if (Platform.OS === 'web') {
     const flat = StyleSheet.flatten(style) as React.CSSProperties | undefined;
@@ -36,6 +58,7 @@ export function AppImage({
       // @ts-ignore — web only
       <img
         src={source.uri}
+        onError={() => setErrored(true)}
         style={{
           display: 'block',
           objectFit,
@@ -54,6 +77,7 @@ export function AppImage({
       source={{ uri: source.uri }}
       style={style}
       resizeMode={resizeMode}
+      onError={() => setErrored(true)}
       accessible={!decorative}
       accessibilityLabel={decorative ? undefined : accessibilityLabel}
       accessibilityRole={decorative ? 'none' : 'image'}
@@ -62,3 +86,11 @@ export function AppImage({
     />
   );
 }
+
+const s = StyleSheet.create({
+  fallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.bg.secondary,
+  },
+});
