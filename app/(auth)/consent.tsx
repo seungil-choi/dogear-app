@@ -23,6 +23,7 @@ interface ConsentItem {
 }
 
 const ITEMS: ConsentItem[] = [
+  { key: 'age',       label: '만 14세 이상입니다',             required: true },
   { key: 'terms',     label: '서비스 이용약관 동의',           required: true,  detailRoute: '/(legal)/terms' },
   { key: 'privacy',   label: '개인정보 수집·이용 동의',        required: true,  detailRoute: '/(legal)/privacy-policy' },
   { key: 'location',  label: '위치기반서비스 이용약관 동의',    required: true,  detailRoute: '/(legal)/location-terms' },
@@ -33,9 +34,9 @@ export default function ConsentScreen() {
   const router = useRouter();
   const setConsent = useAppStore(s => s.setConsent);
 
-  const [checks, setChecks] = useState<Record<string, boolean>>({
-    terms: false, privacy: false, location: false, marketing: false,
-  });
+  const [checks, setChecks] = useState<Record<string, boolean>>(
+    Object.fromEntries(ITEMS.map(it => [it.key, false])),
+  );
 
   const allChecked = ITEMS.every(it => checks[it.key]);
   const requiredChecked = useMemo(
@@ -45,7 +46,7 @@ export default function ConsentScreen() {
 
   const toggleAll = () => {
     const next = !allChecked;
-    setChecks({ terms: next, privacy: next, location: next, marketing: next });
+    setChecks(Object.fromEntries(ITEMS.map(it => [it.key, next])));
   };
   const toggle = (key: string) => setChecks(prev => ({ ...prev, [key]: !prev[key] }));
 
