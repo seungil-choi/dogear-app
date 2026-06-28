@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
+import { useInteractedSpots } from '../src/hooks/useInteractedSpots';
 import { Icon } from '../src/components/common/Icon';
 import { AppImage } from '../src/components/common/AppImage';
 import { ListSpotCard } from '../src/components/spot/SpotCard';
@@ -29,11 +30,9 @@ export default function DogDetailScreen() {
   const checkins     = useAppStore(s => s.checkins);
   const savedSpots   = useAppStore(s => s.savedSpots);
   const visits       = useAppStore(s => s.visitSummaries);
-  const spots        = useAppStore(s => s.spots);
 
   const [tab, setTab] = useState<TabKey>('paw');
 
-  const spotOf = (spotId: string): Spot | undefined => spots.find(sp => sp.spot_id === spotId);
   const isSaved = (spotId: string) => savedSpots.some(sv => sv.spot_id === spotId);
 
   // 발도장 남긴 "곳" = 발도장의 unique spot + 곳별 횟수
@@ -54,6 +53,18 @@ export default function DogDetailScreen() {
     return m;
   }, [visits]);
 
+  // 상호작용한 모든 장소(발도장/저장/방문)의 Spot 정보 — 주변 여부와 무관하게 조회
+  const allSpotIds = useMemo(
+    () => Array.from(new Set([
+      ...pawSpotIds,
+      ...savedSpots.map(sv => sv.spot_id),
+      ...visits.map(v => v.spot_id),
+    ])),
+    [pawSpotIds, savedSpots, visits],
+  );
+  const spotMap = useInteractedSpots(allSpotIds);
+  const spotOf = (spotId: string): Spot | undefined => spotMap[spotId];
+
   if (!dog) {
     return (
       <SafeAreaView style={s.safe} edges={['top']}>
@@ -68,10 +79,15 @@ export default function DogDetailScreen() {
   }
 
   const counts = { paw: pawSpotIds.length, saved: savedSpots.length, visit: visits.length };
-  const listIds =
+  const rawListIds =
     tab === 'paw'   ? pawSpotIds :
     tab === 'saved' ? savedSpots.map(sv => sv.spot_id) :
                       visits.map(v => v.spot_id);
+  // 실제 Spot 정보가 확보된 것만 렌더 — 미해결 장소로 인한 "빈 화면(안내 없음)" 방지
+  const listIds = rawListIds.filter(id => spotMap[id]);
+  // 아직 조회 중(해결 대기)인 항목이 남았는지 — 빈 안내를 섣불리 띄우지 않기 위함
+  const isResolving = rawListIds.length > 0 && listIds.length === 0 &&
+    rawListIds.some(id => !spotMap[id]);
   const emptyText =
     tab === 'paw'   ? '아직 발도장을 남긴 곳이 없어요.' :
     tab === 'saved' ? '아직 저장한 곳이 없어요.' :
@@ -123,7 +139,9 @@ export default function DogDetailScreen() {
         {/* 리스트 */}
         <View style={s.list}>
           {listIds.length === 0 ? (
-            <View style={s.empty}><Text style={s.emptyText}>{emptyText}</Text></View>
+            <View style={s.empty}>
+              <Text style={s.emptyText}>{isResolving ? '불러오는 중…' : emptyText}</Text>
+            </View>
           ) : (
             listIds.map(spotId => {
               const spot = spotOf(spotId);
