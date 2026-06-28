@@ -13,6 +13,7 @@ import { setUserContext } from '../utils/analytics';
 
 // haversineDistance는 utils/geo로 이관 (SSOT)
 import { haversineDistance } from '../utils/geo';
+import { notify } from '../utils/dialog';
 import {
   computeSpotAggregate, buildHomeSpotCard, computeRegularStatus,
   buildFamiliarDogCards, buildTraceList, computeDogMapPinVariant,
@@ -264,13 +265,22 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     const existing = savedSpots.find(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
     if (existing) {
       set({ savedSpots: savedSpots.filter(s => s.saved_spot_id !== existing.saved_spot_id) });
-      // 실 환경: DB에서 삭제 (fire-and-forget)
+      // 실 환경: DB에서 삭제 — 실패 시 낙관적 변경을 되돌림(저장 상태가 새로고침 후 되살아나는 클레임 방지)
       if (IS_REAL_AUTH) {
         supabase.from('saved_spots')
           .delete()
           .eq('dog_id', dog.dog_id)
           .eq('spot_id', spotId)
-          .then(({ error }) => { if (error) console.error('saved_spots delete failed:', error); });
+          .then(({ error }) => {
+            if (error) {
+              console.error('saved_spots delete failed:', error);
+              const cur = get().savedSpots;
+              if (!cur.some(s => s.saved_spot_id === existing.saved_spot_id)) {
+                set({ savedSpots: [...cur, existing] });
+              }
+              notify('저장 해제에 실패했어요. 잠시 후 다시 시도해주세요.');
+            }
+          });
       }
     } else {
       // 이미 방문한 적 있는 장소면 "다시 가고 싶다", 없으면 "가보고 싶다"
@@ -284,11 +294,17 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         saved_at: new Date().toISOString(),
       };
       set({ savedSpots: [...savedSpots, newSaved] });
-      // 실 환경: DB에 저장 (fire-and-forget)
+      // 실 환경: DB에 저장 — 실패 시 낙관적 추가를 되돌림(저장했는데 사라지는 클레임 방지)
       if (IS_REAL_AUTH) {
         supabase.from('saved_spots')
           .insert({ dog_id: dog.dog_id, spot_id: spotId, saved_type: savedType })
-          .then(({ error }) => { if (error) console.error('saved_spots insert failed:', error); });
+          .then(({ error }) => {
+            if (error) {
+              console.error('saved_spots insert failed:', error);
+              set({ savedSpots: get().savedSpots.filter(s => s.saved_spot_id !== newSaved.saved_spot_id) });
+              notify('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
+            }
+          });
       }
     }
   },
