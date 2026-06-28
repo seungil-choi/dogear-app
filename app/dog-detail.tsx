@@ -36,13 +36,23 @@ export default function DogDetailScreen() {
   const spotOf = (spotId: string): Spot | undefined => spots.find(sp => sp.spot_id === spotId);
   const isSaved = (spotId: string) => savedSpots.some(sv => sv.spot_id === spotId);
 
-  // 발도장 남긴 "곳" = 발도장의 unique spot
+  // 발도장 남긴 "곳" = 발도장의 unique spot + 곳별 횟수
+  const pawCountBySpot = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const c of checkins) m[c.spot_id] = (m[c.spot_id] ?? 0) + 1;
+    return m;
+  }, [checkins]);
   const pawSpotIds = useMemo(() => {
     const seen = new Set<string>();
     const ids: string[] = [];
     for (const c of checkins) { if (!seen.has(c.spot_id)) { seen.add(c.spot_id); ids.push(c.spot_id); } }
     return ids;
   }, [checkins]);
+  const visitCountBySpot = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const v of visits) m[v.spot_id] = v.visit_count;
+    return m;
+  }, [visits]);
 
   if (!dog) {
     return (
@@ -124,7 +134,10 @@ export default function DogDetailScreen() {
                   name={spot.name}
                   categoryLabel={categoryLabel[spot.category]}
                   coverImageUrl={spot.cover_image_url}
-                  distanceText=""
+                  distanceText={
+                    tab === 'paw'   ? `발도장 ${pawCountBySpot[spotId] ?? 0}회` :
+                    tab === 'visit' ? `방문 ${visitCountBySpot[spotId] ?? 0}회` : ''
+                  }
                   isSaved={isSaved(spotId)}
                   onPress={() => router.push(`/spot/${spotId}`)}
                 />
