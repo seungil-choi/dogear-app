@@ -448,24 +448,6 @@ const s = StyleSheet.create({
     borderColor: 'rgba(0,0,0,0.08)',
   },
 
-  // 게스트
-  guestBtn: {
-    height: 48,
-    borderRadius: Radius.round,
-    borderWidth: 1.5,
-    borderColor: Colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surface.default,
-  },
-  guestBtnText: { ...Typography.label.l, fontWeight: '600', color: Colors.text.secondary },
-  guestNote: {
-    ...Typography.caption,
-    color: Colors.text.tertiary,
-    textAlign: 'center',
-    marginTop: Spacing[4],
-    marginBottom: Spacing[20],
-  },
 
   // 약관
   disclaimer: {
