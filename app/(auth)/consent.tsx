@@ -16,7 +16,7 @@ import { Icon } from '../../src/components/common/Icon';
 import { useAppStore } from '../../src/store/useAppStore';
 
 interface ConsentItem {
-  key: 'terms' | 'privacy' | 'location' | 'marketing';
+  key: 'age' | 'terms' | 'privacy' | 'location' | 'marketing';
   label: string;
   required: boolean;
   detailRoute?: string;
