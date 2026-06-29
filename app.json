@@ -75,6 +75,20 @@
           "color": "#C47848",
           "defaultChannel": "default"
         }
+      ],
+      [
+        "@react-native-seoul/kakao-login",
+        {
+          "kakaoAppKey": "8dfd3d035c15b72d4ed49561d2232b61"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
+          }
+        }
       ]
     ],
     "experiments": {
