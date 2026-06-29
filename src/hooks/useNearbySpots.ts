@@ -27,6 +27,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
   const currentLocation = useAppStore(s => s.currentLocation);
   const activeDog = useAppStore(s => s.activeDog);
   const setStoreSpots = useAppStore(s => s.setSpots);
+  const setSpotAggregates = useAppStore(s => s.setSpotAggregates);
   const setSpotsLoading = useAppStore(s => s.setSpotsLoading);
 
   // 이전 위치 저장 — 동일 위치 중복 fetch 방지
@@ -97,6 +98,17 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
       }));
       setStoreSpots(storeSpots);
 
+      // 서버가 계산한 커뮤니티 집계 — 화면이 로컬(내 강아지) checkins로 재계산하지 않도록 보관
+      const aggregates: Record<string, { checkinCount: number; atmosphereState: any; topFeelingTags: any }> = {};
+      for (const sp of rawList) {
+        aggregates[sp.spot_id] = {
+          checkinCount: sp.checkin_count ?? 0,
+          atmosphereState: sp.atmosphere_state ?? 'unknown',
+          topFeelingTags: sp.top_feeling_tags ?? [],
+        };
+      }
+      setSpotAggregates(aggregates);
+
     } catch (err: any) {
       console.error('useNearbySpots error:', err);
       setError('스팟을 불러오지 못했어요');
@@ -104,7 +116,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
       setIsLoading(false);
       setSpotsLoading(false);
     }
-  }, [currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotsLoading]);
+  }, [currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading]);
 
   // 위치가 처음 설정되거나 의미있게 변할 때 자동 fetch
   useEffect(() => {

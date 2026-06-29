@@ -1,11 +1,12 @@
 import type {
   PawCheckin, SpotVisitSummary, FamiliarDogSignal, PrivacySetting,
   AtmosphereState, FeelingTag, RegularStatus, PinVariant, HomeSpotCardViewModel,
-  Spot, Dog,
+  Spot, Dog, DogSize, SpotDetailApiViewModel, SpotDetailViewModel,
 } from '../types';
-import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel } from './labels';
+import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel, regularStatusLabel, visitDateText } from './labels';
 import type { FamiliarDogCardViewModel, TraceListItemViewModel, SpotAggregate } from '../types';
 import { FAMILIAR_LAYER_POLICY } from '../config/familiar-layer';
+import { haversineDistance } from './geo';
 
 const HOURS_72 = 72 * 60 * 60 * 1000;
 const DAYS_14 = 14 * 24 * 60 * 60 * 1000;
@@ -244,4 +245,94 @@ export function computeDogMapPinVariant(
   if (status === 'regular') return 'regular';
   if (isWithin(summary.last_visit_at, DAYS_7)) return 'recent';
   return 'visited';
+}
+
+// ─── 서버 상세(spot-detail) → 화면 뷰모델 어댑터 ─────────────
+// 서버가 전체 강아지 기준으로 계산한 분위기/흔적/익숙한 강아지를 화면용 VM으로 변환.
+// 익숙한 강아지의 정확한 시간·횟수는 절대 노출하지 않고 기존 완화 로직(softenedRecencyLabel/spotRelationText) 재사용.
+// 거리·지역은 클라이언트(현재 위치)에서 계산, 정적 정보(설명/시설/주의)는 store spot에서 병합.
+export function buildSpotDetailFromApi(
+  api: SpotDetailApiViewModel,
+  ctx: { currentLocation: { latitude: number; longitude: number } | null; storeSpot?: Spot },
+): SpotDetailViewModel {
+  const spot = api.spot;
+
+  const distanceMeters = ctx.currentLocation
+    ? haversineDistance(ctx.currentLocation.latitude, ctx.currentLocation.longitude, spot.latitude, spot.longitude)
+    : null;
+  const distance_text =
+    distanceMeters == null ? '거리 정보 없음'
+    : distanceMeters < 100 ? '바로 근처'
+    : distanceMeters < 1000 ? `${Math.round(distanceMeters / 10) * 10}m`
+    : `${(distanceMeters / 1000).toFixed(1)}km`;
+
+  const addrParts = (spot.address_text || '').split(' ');
+  const sidoRaw = addrParts[0] ?? '';
+  const sidoShort = sidoRaw === '서울특별시' ? '서울'
+    : sidoRaw === '경기도' ? '경기'
+    : sidoRaw.replace(/특별시|광역시|도$/, '');
+  const sigunguRaw = addrParts[1] ?? (spot.neighborhood ?? '');
+  const regionSummary = sigunguRaw ? `${sidoShort} ${sigunguRaw}` : sidoShort;
+
+  const familiar_dogs: FamiliarDogCardViewModel[] = api.familiar_dogs.map(d => {
+    const sizeLbl = sizeLabel[d.size as DogSize] ?? '';
+    return {
+      dog_id: d.dog_id,
+      name: d.name || '강아지',
+      avatar_url: d.avatar_url ?? undefined,
+      breed_text: '',
+      size_label: sizeLbl,
+      breed_age_text: sizeLbl,
+      temperament_preview: (d.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),
+      recency_label: softenedRecencyLabel(d.recent_checkin_count, d.last_seen_at),
+      relation_text: spotRelationText(d.recent_checkin_count),
+    };
+  });
+
+  const recent_traces: TraceListItemViewModel[] = api.recent_traces.map(c => ({
+    trace_id: c.checkin_id,
+    relative_time_text: relativeTime(c.checked_in_at),
+    primary_tag_label: c.feeling_tags[0] ? feelingTagLabel[c.feeling_tags[0]] : '',
+    secondary_text: c.note ?? (c.feeling_tags[1] ? feelingTagLabel[c.feeling_tags[1]] : undefined),
+    has_photo: !!c.photo_url,
+    photo_count: c.photo_url ? 1 : 0,
+  }));
+
+  const ur = api.user_relation;
+  const user_relation = ur && ur.visit_count > 0
+    ? {
+        first_visit_text: ur.first_visit_at ? visitDateText(ur.first_visit_at) : '',
+        visit_count: ur.visit_count,
+        last_visit_text: ur.last_visit_at ? relativeTime(ur.last_visit_at) : '',
+        regular_status_label: regularStatusLabel[ur.regular_status],
+        regular_status: ur.regular_status,
+      }
+    : undefined;
+
+  return {
+    spot_id: spot.spot_id,
+    name: spot.name,
+    category_label: categoryLabel[spot.category],
+    distance_text,
+    latitude: spot.latitude,
+    longitude: spot.longitude,
+    neighborhood: spot.neighborhood ?? undefined,
+    region_summary: regionSummary || undefined,
+    cover_image_url: spot.cover_image_url ?? undefined,
+    is_saved: !!(ur && ur.saved_type),
+    atmosphere_summary: atmosphereLabel[api.atmosphere.state],
+    atmosphere_state: api.atmosphere.state,
+    recent_trace_count: api.atmosphere.recent_checkin_count,
+    unique_visitor_count: api.atmosphere.recent_checkin_count,
+    dominant_tags: api.atmosphere.top_feeling_tags,
+    user_relation,
+    familiar_dogs,
+    recent_traces,
+    // 서버 상세 응답엔 없는 정적 정보는 store spot에서 병합 (있으면)
+    address_text: spot.address_text ?? ctx.storeSpot?.address_text,
+    opening_hours: ctx.storeSpot?.opening_hours,
+    features: ctx.storeSpot?.features,
+    description: ctx.storeSpot?.description,
+    caution: ctx.storeSpot?.caution,
+  };
 }

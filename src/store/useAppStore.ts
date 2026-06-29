@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { IS_REAL_AUTH, IS_DEV_SEED } from '../config/env';
 import type {
   User, Dog, Spot, PawCheckin, SavedSpot, SavedType, SpotVisitSummary,
-  FamiliarDogSignal, PrivacySetting, VisibilityLevel, FeelingTag,
+  FamiliarDogSignal, PrivacySetting, VisibilityLevel, FeelingTag, AtmosphereState,
   HomeSpotCardViewModel, SuggestedSpot, NearbyDuplicate, SpotCategory,
   Report, BlockedUser, ConsentRecord, ReportTargetType, ReportReason,
 } from '../types';
@@ -40,6 +40,26 @@ const defaultPrivacySetting: PrivacySetting = {
   updated_at: new Date().toISOString(),
 };
 
+// spots-nearby Edge Function이 계산한 장소별 커뮤니티 집계 (전체 강아지 기준)
+export interface SpotServerAggregate {
+  checkinCount: number;
+  atmosphereState: AtmosphereState;
+  topFeelingTags: FeelingTag[];
+}
+
+// 서버 집계(전체 강아지) → computeSpotAggregate가 반환하는 SpotAggregate 형태로 변환
+// 서버는 유니크 강아지 수를 따로 주지 않으므로 checkinCount를 trace/visitor 수의 대용으로 사용
+function serverAggregateToSpotAggregate(spotId: string, agg?: SpotServerAggregate) {
+  if (!agg) return null;
+  return {
+    spot_id: spotId,
+    recent_trace_count: agg.checkinCount,
+    recent_unique_dog_count: agg.checkinCount,
+    dominant_feeling_tags: agg.topFeelingTags,
+    atmosphere_state: agg.atmosphereState,
+  };
+}
+
 // paw-checkin Edge Function이 돌려준 권위 있는 방문 집계 (로컬 추정 대신 이 값을 사용)
 export interface PawCheckinServerResult {
   checkinId?: string;
@@ -69,6 +89,8 @@ interface AppState {
 
   // Data — Supabase 연동 전까지는 빈 배열로 시작 (mock 데이터 출시 빌드 차단)
   spots: Spot[];
+  // 서버(spots-nearby)가 계산한 장소별 커뮤니티 집계 — 로컬 checkins(내 강아지 한정)로 재계산하지 않도록 보관
+  spotAggregates: Record<string, SpotServerAggregate>;
   checkins: PawCheckin[];
   savedSpots: SavedSpot[];
   visitSummaries: SpotVisitSummary[];
@@ -150,6 +172,7 @@ interface AppState {
 
   // 데이터 주입 (Supabase 페치 결과 반영용)
   setSpots: (spots: Spot[]) => void;
+  setSpotAggregates: (aggregates: Record<string, SpotServerAggregate>) => void;
   setCheckins: (checkins: PawCheckin[]) => void;
   setSavedSpots: (savedSpots: SavedSpot[]) => void;
   setVisitSummaries: (visitSummaries: SpotVisitSummary[]) => void;
@@ -189,6 +212,7 @@ const initialState = DEV_PREVIEW_SEED
       consent: null,
       currentLocation: { latitude: 37.5443, longitude: 127.0376, accuracy: 10 },
       spots: mockSpots,
+      spotAggregates: {},
       checkins: mockCheckins,
       savedSpots: mockSavedSpots,
       visitSummaries: mockVisitSummaries,
@@ -210,6 +234,7 @@ const initialState = DEV_PREVIEW_SEED
       consent: null,
       currentLocation: null,
       spots: [],
+      spotAggregates: {},
       checkins: [],
       savedSpots: [],
       visitSummaries: [],
@@ -256,6 +281,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     isAuthenticated: false,                                 // 명시적으로 false
     isAuthLoading: false,
     spots: [],
+    spotAggregates: {},
     checkins: [],
     visitSummaries: [],
     savedSpots: [],
@@ -555,6 +581,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   setCurrentLocation: (currentLocation) => set({ currentLocation }),
 
   setSpots: (spots) => set({ spots }),
+  setSpotAggregates: (spotAggregates) => set({ spotAggregates }),
   setCheckins: (checkins) => set({ checkins }),
   setSavedSpots: (savedSpots) => set({ savedSpots }),
   setVisitSummaries: (visitSummaries) => set({ visitSummaries }),
@@ -628,7 +655,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   // ─── Computed: Home Cards ───────────────────────────────────
   // 거리는 currentLocation 기반으로 실제 계산 (mock random 제거)
   getHomeCards: () => {
-    const { spots, checkins, visitSummaries, dog, currentLocation, blockedUsers } = get();
+    const { spots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers } = get();
     if (!dog) return [];
 
     // 차단한 사용자/강아지의 발도장 제외
@@ -638,7 +665,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     return spots
       .filter(s => s.status === 'active')
       .map(spot => {
-        const agg = computeSpotAggregate(spot.spot_id, filteredCheckins);
+        // 서버 집계(전체 강아지)가 있으면 우선 사용, 없으면(데모/오프라인) 로컬 checkins로 폴백
+        const agg = serverAggregateToSpotAggregate(spot.spot_id, spotAggregates[spot.spot_id])
+          ?? computeSpotAggregate(spot.spot_id, filteredCheckins);
         const summary = visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spot.spot_id);
         // currentLocation이 있으면 실제 거리, 없으면 0 (UI에서 "거리 정보 없음" 처리)
         const distanceMeters = currentLocation
@@ -651,7 +680,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   // ─── Computed: Spot Detail ───────────────────────────────────
   getSpotDetail: (spotId) => {
     const {
-      spots, checkins, visitSummaries, familiarSignals, dog,
+      spots, spotAggregates, checkins, visitSummaries, familiarSignals, dog,
       savedSpots, privacySetting, currentLocation, blockedUsers, dogs,
     } = get();
     const spot = spots.find(s => s.spot_id === spotId);
@@ -662,7 +691,8 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     const blockedDogIds = new Set(blockedUsers.map(b => b.blocked_dog_id).filter(Boolean) as string[]);
     const filteredCheckins = checkins.filter(c => !blockedDogIds.has(c.dog_id));
 
-    const agg = computeSpotAggregate(spotId, filteredCheckins);
+    const agg = serverAggregateToSpotAggregate(spotId, spotAggregates[spotId])
+      ?? computeSpotAggregate(spotId, filteredCheckins);
     const summary = visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spotId);
     const isSaved = savedSpots.some(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
 

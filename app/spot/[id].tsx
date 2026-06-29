@@ -11,7 +11,7 @@
  *  - 하단 CTA (저장 / 발도장 남기기)
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,6 +26,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
+import { useSpotDetail } from '../../src/hooks/useSpotDetail';
+import { buildSpotDetailFromApi } from '../../src/utils/rules';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
@@ -43,8 +45,23 @@ export default function SpotDetailScreen() {
   const toggleSaveSpot = useAppStore(s => s.toggleSaveSpot);
   const setPawSpot     = useAppStore(s => s.setPawSpot);
   const getHomeCards   = useAppStore(s => s.getHomeCards);
+  const spots          = useAppStore(s => s.spots);
+  const currentLocation = useAppStore(s => s.currentLocation);
 
-  const vm = getSpotDetail(id);
+  // 서버(spot-detail Edge Function)가 전체 강아지 기준으로 계산한 상세를 우선 사용.
+  // 도착 전/실패/데모(DEV_SEED)에는 로컬 getSpotDetail로 폴백 — 분위기·흔적·익숙한 강아지가
+  // 내 강아지 데이터로만 계산되던 정합성 문제를 실모드에서 해소.
+  const serverDetail = useSpotDetail(id);
+  const localVm = getSpotDetail(id);
+  const vm = useMemo(() => {
+    if (serverDetail.data) {
+      return buildSpotDetailFromApi(serverDetail.data, {
+        currentLocation,
+        storeSpot: spots.find(sp => sp.spot_id === id),
+      });
+    }
+    return localVm;
+  }, [serverDetail.data, localVm, currentLocation, spots, id]);
 
   // 장소 상세 진입 추적
   useEffect(() => {

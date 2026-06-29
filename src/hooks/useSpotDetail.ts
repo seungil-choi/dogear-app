@@ -7,51 +7,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
-import type { SpotCategory, AtmosphereState, RegularStatus, SavedType, FeelingTag } from '@/types';
-
-/** Edge Function spot-detail 응답 기반 뷰모델 */
-export interface SpotDetailApiViewModel {
-  spot: {
-    spot_id: string;
-    name: string;
-    category: SpotCategory;
-    latitude: number;
-    longitude: number;
-    address_text: string | null;
-    neighborhood: string | null;
-    cover_image_url: string | null;
-  };
-  atmosphere: {
-    state: AtmosphereState;
-    top_feeling_tags: FeelingTag[];
-    recent_checkin_count: number;
-    total_checkin_count: number;
-  };
-  user_relation: {
-    visit_count: number;
-    last_visit_at: string | null;
-    first_visit_at: string | null;
-    regular_status: RegularStatus;
-    saved_type: SavedType | null;
-    saved_at: string | null;
-  } | null;
-  familiar_dogs: {
-    dog_id: string;
-    name: string;
-    avatar_url: string | null;
-    size: string;
-    temperament_tags: string[];
-    recent_checkin_count: number;
-    last_seen_at: string;
-  }[];
-  recent_traces: {
-    checkin_id: string;
-    feeling_tags: FeelingTag[];
-    note: string | null;
-    photo_url: string | null;
-    checked_in_at: string;
-  }[];
-}
+import type { SpotDetailApiViewModel } from '@/types';
 
 interface UseSpotDetailReturn {
   data: SpotDetailApiViewModel | null;
