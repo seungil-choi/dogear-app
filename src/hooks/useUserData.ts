@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 import { registerRefreshHandler } from '@/utils/refreshBus';
-import type { PawCheckin, SavedSpot, SpotVisitSummary, FamiliarDogSignal } from '@/types';
+import type { PawCheckin, SavedSpot, SpotVisitSummary } from '@/types';
 
 export function useUserData() {
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
@@ -24,7 +24,6 @@ export function useUserData() {
   const setCheckins       = useAppStore(s => s.setCheckins);
   const setSavedSpots     = useAppStore(s => s.setSavedSpots);
   const setVisitSummaries = useAppStore(s => s.setVisitSummaries);
-  const setFamiliarSignals = useAppStore(s => s.setFamiliarSignals);
 
   // 한 번만 로드하도록 dog_id 추적
   const loadedDogRef = useRef<string | null>(null);
@@ -46,7 +45,10 @@ export function useUserData() {
   }, [activeDog?.dog_id]);
 
   async function loadUserData(dogId: string) {
-    const [checkinRes, savedRes, summaryRes, familiarRes] = await Promise.allSettled([
+    // 익숙한 강아지(familiar) 신호는 직접 조회하지 않는다 — 프라이버시상 RLS로 직접 접근을
+    // 차단했고(정확한 last_seen/횟수 노출 방지), 화면엔 spot-detail/familiar-dogs Edge Function이
+    // 6조건 검증 + 완화해 제공한다.
+    const [checkinRes, savedRes, summaryRes] = await Promise.allSettled([
       // 발도장 목록 (최근 200개)
       supabase
         .from('paw_checkins')
@@ -66,13 +68,6 @@ export function useUserData() {
         .from('spot_visit_summaries')
         .select('*')
         .eq('dog_id', dogId),
-
-      // 익숙한 강아지 신호 (exposure_allowed=true만)
-      supabase
-        .from('familiar_dog_signals')
-        .select('*')
-        .eq('exposure_allowed', true)
-        .limit(100),
     ]);
 
     if (checkinRes.status === 'fulfilled' && checkinRes.value.data) {
@@ -117,19 +112,6 @@ export function useUserData() {
         updated_at: s.updated_at,
       }));
       setVisitSummaries(mapped);
-    }
-
-    if (familiarRes.status === 'fulfilled' && familiarRes.value.data) {
-      const mapped: FamiliarDogSignal[] = familiarRes.value.data.map((f: any) => ({
-        familiar_signal_id: f.familiar_signal_id,
-        spot_id: f.spot_id,
-        visible_dog_id: f.visible_dog_id,
-        recent_visible_checkin_count: f.recent_visible_checkin_count,
-        recent_last_seen_at: f.recent_last_seen_at,
-        exposure_allowed: f.exposure_allowed,
-        updated_at: f.updated_at,
-      }));
-      setFamiliarSignals(mapped);
     }
   }
 }
