@@ -123,6 +123,31 @@ export default function SpotDetailScreen() {
     }
   }, [vm]);
 
+  // 타인 강아지(익숙한 강아지) 신고/차단 — Apple UGC 1.2: 콘텐츠가 보이는 자리에서 신고·차단
+  const handleReportDog = useCallback(async (dog: FamiliarDogCardViewModel) => {
+    const idx = await actionSheet(dog.name, [
+      { label: '이 강아지 신고하기', destructive: true },
+      { label: '이 사용자 차단하기', destructive: true },
+    ]);
+    if (idx === 0 || idx === 1) {
+      setSelectedDog(null);
+      router.push({
+        pathname: '/report',
+        params: { target_type: 'dog', target_id: dog.dog_id, dog_id: dog.dog_id },
+      });
+    }
+  }, [router]);
+
+  // 타인 흔적(메모/사진) 신고 — Apple UGC 1.2
+  const handleReportTrace = useCallback(async (traceId: string) => {
+    const idx = await actionSheet('이 흔적', [
+      { label: '이 흔적 신고하기', destructive: true },
+    ]);
+    if (idx === 0) {
+      router.push({ pathname: '/report', params: { target_type: 'checkin', target_id: traceId } });
+    }
+  }, [router]);
+
   const handleMore = useCallback(async () => {
     const idx = await actionSheet(vm?.name ?? '장소', [
       { label: '길찾기 (네이버 지도)' },
@@ -387,6 +412,9 @@ export default function SpotDetailScreen() {
                   style={[s.traceRow, idx < vm.recent_traces.length - 1 && s.traceRowBorder]}
                   activeOpacity={0.75}
                   onPress={() => router.push(`/visit-history/${id}`)}
+                  onLongPress={() => handleReportTrace(trace.trace_id)}
+                  delayLongPress={400}
+                  accessibilityHint="길게 누르면 이 흔적을 신고할 수 있어요"
                 >
                   <View style={s.traceIconWrap}>
                     <Icon name="paw-filled" size={14} color={Colors.brand.primary} />
@@ -503,6 +531,18 @@ export default function SpotDetailScreen() {
                     <Text style={s.sheetRelation}>{selectedDog.relation_text}</Text>
                     <Text style={s.sheetRecency}>{selectedDog.recency_label}</Text>
                   </View>
+
+                  {/* ── 신고/차단 (Apple UGC 1.2) ── */}
+                  <TouchableOpacity
+                    style={s.sheetReportBtn}
+                    onPress={() => handleReportDog(selectedDog)}
+                    activeOpacity={0.7}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${selectedDog.name} 신고 또는 차단`}
+                  >
+                    <Icon name="flag" size={15} color={Colors.text.tertiary} />
+                    <Text style={s.sheetReportText}>신고·차단</Text>
+                  </TouchableOpacity>
                 </>
               );
             })()}
@@ -879,6 +919,18 @@ const s = StyleSheet.create({
   },
   sheetRecency: {
     ...Typography.caption,
+    color: Colors.text.tertiary,
+  },
+  sheetReportBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[6],
+    marginTop: Spacing[16],
+    paddingVertical: Spacing[10],
+  },
+  sheetReportText: {
+    ...Typography.label.m,
     color: Colors.text.tertiary,
   },
 
