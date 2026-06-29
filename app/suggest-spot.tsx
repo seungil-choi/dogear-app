@@ -17,6 +17,7 @@ import {
   StyleSheet, SafeAreaView, ActivityIndicator, Platform, KeyboardAvoidingView,
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
+import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import * as ImagePicker from 'expo-image-picker';
 import { AppImage } from '../src/components/common/AppImage';
@@ -150,6 +151,12 @@ export default function SuggestSpotScreen() {
 
   // ── 최종 제출 ─────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
+    // UGC 텍스트 사전 필터 (Apple 1.2) — 제안한 장소명/설명은 전체에게 노출됨
+    if (isObjectionable(name) || isObjectionable(description)) {
+      notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
+      return;
+    }
+
     // hard_block 안전망 — duplicate_check 단계에서 우회되더라도 최종 제출 직전 재검증
     if (hasHardBlock) {
       notify(

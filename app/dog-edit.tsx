@@ -21,6 +21,7 @@ import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
 import { notify, actionSheet, confirm } from '../src/utils/dialog';
+import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 
 import { IS_REAL_AUTH } from '../src/config/env';
@@ -131,6 +132,12 @@ export default function DogEditScreen() {
   // ─── 저장 ────────────────────────────────────────────
   async function handleSave() {
     if (!dog) return;
+
+    // 0. UGC 텍스트 사전 필터 (Apple 1.2) — 이름/견종은 타인에게 노출되므로 부적절어 차단
+    if (isObjectionable(name) || isObjectionable(breed)) {
+      notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
+      return;
+    }
 
     // 1. 새 아바타가 로컬 URI(file:// 또는 blob:)이면 Storage 업로드
     let finalAvatarUrl = avatarUri;

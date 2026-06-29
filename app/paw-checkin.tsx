@@ -21,6 +21,7 @@ import {
   StyleSheet, SafeAreaView, Linking, Platform,
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
+import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
@@ -196,6 +197,12 @@ export default function PawCheckinModal() {
   }, [step, setPawStep, handleClose, isPresetSpot]);
 
   const handleSubmit = useCallback(async () => {
+    // ── UGC 텍스트 사전 필터 (Apple 1.2) ──────────────────────
+    // 메모는 흔적(trace)으로 타인에게 노출되므로 부적절어 차단
+    if (isObjectionable(pawFlow.note)) {
+      notify(MODERATION_BLOCK_MESSAGE, '메모 확인');
+      return;
+    }
     // ── 강아지 등록 가드 ──────────────────────────────────────
     // 강아지 없이는 발도장 의미 없음. 등록 화면으로 안내.
     if (!dog) {
