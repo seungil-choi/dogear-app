@@ -151,6 +151,11 @@ export default function DogEditScreen() {
           oldPath: oldPath ?? undefined,
         });
         finalAvatarUrl = result.url;
+        // UGC 이미지 사후 모더레이션 큐 적재 (Apple 1.2) — 관리자 검수 대상. fire-and-forget
+        supabase
+          .from('media_moderation_queue')
+          .insert({ content_type: 'dog_avatar', dog_id: dog.dog_id, image_url: result.url })
+          .then(({ error }) => { if (error) console.error('moderation queue insert failed:', error); });
       } catch (e: any) {
         track(EVENT.photo_upload_failed, {
           screen_name: 'dog_edit',
