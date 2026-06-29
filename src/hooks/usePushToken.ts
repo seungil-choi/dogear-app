@@ -43,15 +43,10 @@ export function usePushToken() {
 }
 
 async function registerToken(userId: string) {
-  // 1. 권한 요청
+  // 1. 권한 "확인"만 — 자동 요청 금지 (Android 13 권장: 권한 요청은 온보딩 permissions
+  //    화면 / 설정 알림 토글 등 명시적 사용자 행동에서만). 여기선 이미 허용된 경우에만 토큰 등록.
   const { status: existing } = await Notifications.getPermissionsAsync();
-  let finalStatus = existing;
-
-  if (existing !== 'granted') {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
-  if (finalStatus !== 'granted') return; // 사용자가 거절 → 조용히 종료
+  if (existing !== 'granted') return; // 미허용 → 조용히 종료 (런치 시 자동 프롬프트 안 띄움)
 
   // 2. Android 채널 설정
   if (Platform.OS === 'android') {
