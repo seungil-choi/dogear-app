@@ -186,9 +186,8 @@ serve(async (req) => {
       inserted += batch.length;
     }
 
-    // ⚠️ 알려진 한계: lat/lng만 upsert되고 location(geography) 컬럼은 안 채워짐.
-    //   → 이 함수로 새로 적재된 spots는 지리 근접 쿼리(spots-nearby)에 안 잡힘.
-    //   별도 backfill(트리거 또는 SQL)이 필요. (현 단계 미구현 — 운영 보고서 항목)
+    // location(geography)은 spots_sync_location 트리거가 INSERT/UPDATE 시 lat/lng로 자동 채움
+    //   → 별도 backfill 불필요(지도 근접 쿼리에 정상 노출).
 
     await finalize({
       status: 'success', raw_count: raw.length,
