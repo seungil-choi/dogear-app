@@ -54,7 +54,8 @@ begin
     raise exception 'invalid transition: % -> %', v_from, p_decision using errcode='22023';
   end if;
 
-  if p_decision = 'hidden' then
+  -- 숨김 + 연결된 강아지가 있을 때만 아바타 제거 및 dog 단위 감사로그 (dog_id NULL 방어)
+  if p_decision = 'hidden' and v_dog is not null then
     update public.dogs set avatar_url = null where dog_id = v_dog and avatar_url = v_old_avatar;
     perform public.record_admin_action('dog_avatar', v_dog, 'hide_avatar', null, 'hidden',
       coalesce(p_reason,'부적절 이미지'), jsonb_build_object('queue_id', p_id, 'image_url', v_old_avatar));
