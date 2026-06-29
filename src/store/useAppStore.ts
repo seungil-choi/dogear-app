@@ -40,6 +40,14 @@ const defaultPrivacySetting: PrivacySetting = {
   updated_at: new Date().toISOString(),
 };
 
+// paw-checkin Edge Function이 돌려준 권위 있는 방문 집계 (로컬 추정 대신 이 값을 사용)
+export interface PawCheckinServerResult {
+  checkinId?: string;
+  visitCount?: number;
+  lastVisitAt?: string;
+  regularStatus?: SpotVisitSummary['regular_status'];
+}
+
 interface AppState {
   // Auth
   user: User | null;
@@ -95,7 +103,7 @@ interface AppState {
   logout: () => void;
   selectSpot: (spotId: string | null) => void;
   toggleSaveSpot: (spotId: string) => void;
-  submitPawCheckin: () => void;
+  submitPawCheckin: (serverResult?: PawCheckinServerResult) => void;
   setPawStep: (step: number) => void;
   setPawSpot: (spot: HomeSpotCardViewModel) => void;
   setPawTags: (tags: FeelingTag[]) => void;
@@ -309,7 +317,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     }
   },
 
-  submitPawCheckin: () => {
+  submitPawCheckin: (serverResult) => {
     const { pawFlow, dog, checkins, visitSummaries } = get();
     if (!dog || !pawFlow.selectedSpot) return;
 
@@ -317,7 +325,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     set({ lastUsedVisibility: pawFlow.visibility });
 
     const newCheckin: PawCheckin = {
-      checkin_id: `chk_${Date.now()}`,
+      checkin_id: serverResult?.checkinId ?? `chk_${Date.now()}`,
       dog_id: dog.dog_id,
       spot_id: pawFlow.selectedSpot.spot_id,
       checked_in_at: new Date().toISOString(),
@@ -335,15 +343,20 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       s => s.dog_id === dog.dog_id && s.spot_id === pawFlow.selectedSpot!.spot_id,
     );
     const now = new Date().toISOString();
+    // 서버 집계가 있으면 그 값을 권위로 사용(로컬 +1 추정과 어긋나는 표시 방지), 없으면(데모) 로컬 추정
+    const svLastVisitAt = serverResult?.lastVisitAt ?? now;
     let newSummaries: SpotVisitSummary[];
     if (existing) {
       newSummaries = visitSummaries.map(s =>
         s.summary_id === existing.summary_id
           ? {
               ...s,
-              last_visit_at: now,
-              visit_count: s.visit_count + 1,
-              last_30d_visit_count: s.last_30d_visit_count + 1,
+              last_visit_at: svLastVisitAt,
+              visit_count: serverResult?.visitCount ?? s.visit_count + 1,
+              last_30d_visit_count: serverResult?.visitCount != null
+                ? s.last_30d_visit_count // 서버 미제공 항목은 다음 동기화에서 보정
+                : s.last_30d_visit_count + 1,
+              regular_status: serverResult?.regularStatus ?? s.regular_status,
               updated_at: now,
             }
           : s,
@@ -355,11 +368,11 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
           summary_id: `svs_${Date.now()}`,
           dog_id: dog.dog_id,
           spot_id: pawFlow.selectedSpot!.spot_id,
-          first_visit_at: now,
-          last_visit_at: now,
-          visit_count: 1,
+          first_visit_at: svLastVisitAt,
+          last_visit_at: svLastVisitAt,
+          visit_count: serverResult?.visitCount ?? 1,
           last_30d_visit_count: 1,
-          regular_status: 'none' as const,
+          regular_status: serverResult?.regularStatus ?? ('none' as const),
           updated_at: now,
         },
       ];

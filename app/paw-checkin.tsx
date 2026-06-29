@@ -274,9 +274,16 @@ export default function PawCheckinModal() {
       }
     }
     // ── 가드 통과 → 실제 제출 ──────────────────────────────────
+    let serverResult: Parameters<typeof submitPawCheckin>[0];
     if (IS_REAL_AUTH) {
       try {
-        await submitToServer(); // Edge Function → Supabase 저장
+        const r = await submitToServer(); // Edge Function → Supabase 저장
+        serverResult = {
+          checkinId: r.checkinId,
+          visitCount: r.visitSummary?.visitCount,
+          lastVisitAt: r.visitSummary?.lastVisitAt,
+          regularStatus: r.visitSummary?.regularStatus as any,
+        };
       } catch (err: any) {
         // 쿨다운/일일제한 분기 — 메시지 패턴으로 구분
         const msg = err?.message ?? '';
@@ -293,7 +300,7 @@ export default function PawCheckinModal() {
         return;
       }
     }
-    submitPawCheckin(); // 로컬 store 업데이트 (즉각적인 UI 반영)
+    submitPawCheckin(serverResult); // 로컬 store 업데이트 (서버 집계 반영, 즉각적인 UI)
     track(EVENT.pawmark_completed, {
       screen_name: 'paw_checkin',
       place_id: selectedSpot?.spot_id,
