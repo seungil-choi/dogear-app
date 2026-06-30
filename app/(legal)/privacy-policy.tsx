@@ -69,6 +69,11 @@ const SECTIONS: LegalSection[] = [
     body:
       '본 처리방침은 시행일로부터 적용되며, 법령·정책 변경에 따라 개정될 경우 시행 7일 전부터 앱 내 공지를 통해 안내드립니다.',
   },
+  {
+    title: '13. 사업자 정보',
+    body:
+      '본 서비스는 아래 사업자가 운영합니다.\n• 상호: 나인팩토리얼 (9Factorial)\n• 대표자: 최승일\n• 사업자등록번호: 210-44-30615\n• 사업장 소재지: 서울특별시 강북구 한천로143길 34-11, 101호 (수유동, 동아셰르빌 23차)\n• 이메일: seungil.office@gmail.com',
+  },
 ];
 
 export default function PrivacyPolicyScreen() {
