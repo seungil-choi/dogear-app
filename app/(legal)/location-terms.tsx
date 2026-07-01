@@ -52,7 +52,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: '제9조 (위치정보관리책임자)',
     body:
-      '• 책임자: 9Factorial 위치정보 관리 담당\n• 이메일: privacy@9factorial.com',
+      '• 책임자: 9Factorial 위치정보 관리 담당\n• 이메일: seungil.office@gmail.com',
   },
   {
     title: '제10조 (분쟁의 조정)',

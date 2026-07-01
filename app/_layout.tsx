@@ -34,7 +34,7 @@ function AuthGate() {
     notifiedRef.current = user.user_id;
     notify(
       blocked
-        ? '계정이 정지되어 있어요.\n자세한 내용은 고객센터(support@9factorial.com)로 문의해주세요.'
+        ? '계정이 정지되어 있어요.\n자세한 내용은 고객센터(seungil.office@gmail.com)로 문의해주세요.'
         : '삭제된 계정이에요.\n다시 가입하려면 새로 회원가입해주세요.',
       '계정 안내',
     );

@@ -57,7 +57,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: '10. 개인정보 보호책임자',
     body:
-      '• 책임자: 9Factorial 개인정보 보호 담당\n• 이메일: privacy@9factorial.com\n• 처리 기간: 영업일 기준 7일 이내 답변',
+      '• 책임자: 9Factorial 개인정보 보호 담당\n• 이메일: seungil.office@gmail.com\n• 처리 기간: 영업일 기준 7일 이내 답변',
   },
   {
     title: '11. 권익침해 구제 방법',
