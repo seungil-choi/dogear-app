@@ -22,6 +22,8 @@ import {
 } from 'react-native';
 import { notify } from '../src/utils/dialog';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
+import { uploadImage } from '../src/lib/uploadImage';
+import { supabase } from '../src/lib/supabase';
 import { track, EVENT } from '../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
@@ -79,6 +81,7 @@ export default function PawCheckinModal() {
   const setPawStep     = useAppStore(s => s.setPawStep);
   const setPawSpot     = useAppStore(s => s.setPawSpot);
   const setPawTags     = useAppStore(s => s.setPawTags);
+  const setPawPhoto    = useAppStore(s => s.setPawPhoto);
   const setPawVisibility = useAppStore(s => s.setPawVisibility);
   const submitPawCheckin = useAppStore(s => s.submitPawCheckin);
   const resetPawFlow   = useAppStore(s => s.resetPawFlow);
@@ -283,14 +286,50 @@ export default function PawCheckinModal() {
     // ── 가드 통과 → 실제 제출 ──────────────────────────────────
     let serverResult: Parameters<typeof submitPawCheckin>[0];
     if (IS_REAL_AUTH) {
+      // 0) 첨부 사진이 로컬 URI면 Storage 업로드 → public URL 확보 (영속화)
+      //    실패 시 제출 중단 — 사진이 조용히 소실되는 것 방지, 사용자가 재시도/사진 제거 선택
+      let uploadedPhotoUrl: string | undefined;
+      if (pawFlow.photoUri && !pawFlow.photoUri.startsWith('http')) {
+        try {
+          const up = await uploadImage({
+            bucket: 'checkin-photos',
+            uri: pawFlow.photoUri,
+            userId: dog.user_id,
+          });
+          uploadedPhotoUrl = up.url;
+          setPawPhoto(up.url); // store에도 영속 URL 반영 (로컬 기록/성공화면용)
+        } catch (e: any) {
+          track(EVENT.photo_upload_failed, {
+            screen_name: 'paw_checkin',
+            bucket: 'checkin-photos',
+            error_message: (e?.message ?? 'unknown').slice(0, 100),
+          });
+          notify(e?.message ?? '사진 업로드에 실패했어요. 다시 시도하거나 사진을 빼주세요.', '사진 업로드 실패');
+          return;
+        }
+      } else if (pawFlow.photoUri) {
+        uploadedPhotoUrl = pawFlow.photoUri; // 이미 업로드된 URL
+      }
+
       try {
-        const r = await submitToServer(); // Edge Function → Supabase 저장
+        const r = await submitToServer(uploadedPhotoUrl); // Edge Function → Supabase 저장
         serverResult = {
           checkinId: r.checkinId,
           visitCount: r.visitSummary?.visitCount,
           lastVisitAt: r.visitSummary?.lastVisitAt,
           regularStatus: r.visitSummary?.regularStatus as any,
         };
+        // 사진 포함 시 이미지 검수 큐 적재 (Apple 1.2 사후 모더레이션) — fire-and-forget
+        if (uploadedPhotoUrl && r.checkinId) {
+          supabase.from('media_moderation_queue').insert({
+            content_type: 'checkin_photo',
+            dog_id: dog.dog_id,
+            checkin_id: r.checkinId,
+            image_url: uploadedPhotoUrl,
+          }).then(({ error }) => {
+            if (error) console.error('moderation queue insert failed:', error);
+          });
+        }
       } catch (err: any) {
         // 쿨다운/일일제한 분기 — 메시지 패턴으로 구분
         const msg = err?.message ?? '';
@@ -316,7 +355,7 @@ export default function PawCheckinModal() {
       visibility: pawFlow.visibility,
     });
     setIsSuccess(true);
-  }, [submitPawCheckin, submitToServer, selectedSpot, selectedTags, pawFlow, targetSpot, proximity, refreshLocation, dog, resetPawFlow, router, cooldownRemainingMs, cooldownMinLeft]);
+  }, [submitPawCheckin, submitToServer, setPawPhoto, selectedSpot, selectedTags, pawFlow, targetSpot, proximity, refreshLocation, dog, resetPawFlow, router, cooldownRemainingMs, cooldownMinLeft]);
 
   const handleGoHome = useCallback(() => {
     resetPawFlow();
