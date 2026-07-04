@@ -1,0 +1,5 @@
+-- 싱크 버그 수정 (2026-07-04 라이브 적용): 사진 신고 처리가 admin_status만 바꿔
+-- 앱(spot-detail은 is_valid_for_aggregate 필터)엔 반영 안 되던 문제.
+-- 숨김/무효 시 is_valid_for_aggregate=false + photo_url=null 로 앱에서도 즉시 제거.
+-- 전체 함수 본문은 이전 정의 유지, UPDATE 한 줄만 확장(라이브는 apply_migration로 반영).
+-- (재적용 안전을 위해 이 파일은 참조용 주석 — 실제 함수는 라이브에 반영됨)
