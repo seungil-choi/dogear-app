@@ -210,13 +210,16 @@ export default function LoginScreen() {
         notify('네이버 로그인은 다음 업데이트에서 지원돼요.', '준비 중');
         return;
       }
-      const result = await NaverLogin.default.login({
+      // 4.x API: initialize()로 설정 후 login()은 무인자 호출
+      NaverLogin.default.initialize({
         appName: 'Dogear',
         consumerKey: process.env.EXPO_PUBLIC_NAVER_CLIENT_ID ?? '',
         consumerSecret: process.env.EXPO_PUBLIC_NAVER_CLIENT_SECRET ?? '',
-        serviceUrlScheme: 'dogear',
+        serviceUrlSchemeIOS: 'dogear',
       });
-      if (!result?.successResponse?.accessToken) {
+      const result = await NaverLogin.default.login();
+      if (!result?.isSuccess || !result?.successResponse?.accessToken) {
+        if (result?.failureResponse?.isCancel) return; // 사용자 취소
         notify('네이버 인증 정보를 확인할 수 없어요.');
         return;
       }

@@ -84,6 +84,12 @@
         }
       ],
       [
+        "@react-native-seoul/naver-login",
+        {
+          "urlScheme": "dogear"
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {
