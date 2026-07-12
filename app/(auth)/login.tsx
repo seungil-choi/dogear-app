@@ -281,6 +281,12 @@ export default function LoginScreen() {
               logo={<GoogleLogo size={22} />}
               ariaLabel="구글로 시작하기"
             />
+            <SnsBubble
+              onPress={handleNaverLogin}
+              bgColor="#03C75A"
+              logo={<NaverLogo size={22} />}
+              ariaLabel="네이버로 시작하기"
+            />
             {Platform.OS !== 'android' && (
               <SnsBubble
                 onPress={handleAppleLogin}
