@@ -16,7 +16,9 @@
     },
     "preview": {
       "distribution": "internal",
-      "ios": { "simulator": false },
+      "ios": {
+        "simulator": false
+      },
       "android": {
         "buildType": "apk"
       },
@@ -32,7 +34,9 @@
       "env": {
         "EXPO_PUBLIC_DEV_SEED": "false",
         "EXPO_PUBLIC_KAKAO_JS_KEY": "034f48bf73783dcd6f97dcba1f6ba572",
-        "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "8dfd3d035c15b72d4ed49561d2232b61"
+        "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "8dfd3d035c15b72d4ed49561d2232b61",
+        "EXPO_PUBLIC_NAVER_CLIENT_ID": "vHX1kkQRUWDg9QifMaEN",
+        "EXPO_PUBLIC_NAVER_CLIENT_SECRET": "vkfxGrGdVf"
       }
     },
     "production": {
@@ -43,7 +47,9 @@
       "env": {
         "EXPO_PUBLIC_DEV_SEED": "false",
         "EXPO_PUBLIC_KAKAO_JS_KEY": "034f48bf73783dcd6f97dcba1f6ba572",
-        "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "8dfd3d035c15b72d4ed49561d2232b61"
+        "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "8dfd3d035c15b72d4ed49561d2232b61",
+        "EXPO_PUBLIC_NAVER_CLIENT_ID": "vHX1kkQRUWDg9QifMaEN",
+        "EXPO_PUBLIC_NAVER_CLIENT_SECRET": "vkfxGrGdVf"
       }
     }
   },
