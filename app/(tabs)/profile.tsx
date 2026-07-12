@@ -12,10 +12,9 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Switch,
-  StyleSheet, SafeAreaView, Dimensions, NativeScrollEvent,
-  NativeSyntheticEvent, Linking,
+  View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Dimensions, NativeScrollEvent, NativeSyntheticEvent, Linking,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { confirm, notify } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
 import { useRouter } from 'expo-router';

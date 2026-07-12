@@ -13,9 +13,9 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, TextInput,
-  StyleSheet, SafeAreaView, ActivityIndicator, Platform, KeyboardAvoidingView,
+  View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet, ActivityIndicator, Platform, KeyboardAvoidingView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../src/utils/dialog';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';

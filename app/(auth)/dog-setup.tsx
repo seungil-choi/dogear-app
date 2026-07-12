@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  ScrollView, StyleSheet, SafeAreaView,
+  View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter } from 'expo-router';

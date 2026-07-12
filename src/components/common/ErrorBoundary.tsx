@@ -35,8 +35,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
   static getDerivedStateFromError(error: Error): State {
     return {
       hasError: true,
-      // 에러 메시지 100자 truncate (PII 방어)
-      errorMessage: (error?.message ?? 'Unknown error').slice(0, 100),
+      // [임시 진단] 원인 파악 위해 300자까지 — 확인 후 100자로 복원
+      errorMessage: `${error?.name ?? 'Error'}: ${error?.message ?? 'Unknown error'}`.slice(0, 300),
     };
   }
 
@@ -85,9 +85,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
             잠시 후 다시 시도해주세요. 문제가 반복되면 [내 정보 → 고객센터]로 알려주시면 빠르게 살펴볼게요.
           </Text>
 
-          {!IS_REAL && this.state.errorMessage && (
+          {/* [임시 진단] 진입 에러 원인 파악 위해 전 모드에서 에러 메시지 노출 — 원인 확인 후 !IS_REAL 조건 복원 */}
+          {this.state.errorMessage && (
             <View style={s.devBox}>
-              <Text style={s.devLabel}>DEV 에러 메시지</Text>
+              <Text style={s.devLabel}>에러 메시지(디버그)</Text>
               <Text style={s.devMsg}>{this.state.errorMessage}</Text>
             </View>
           )}

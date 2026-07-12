@@ -17,9 +17,9 @@
 import React, { useCallback, useState, useMemo, useEffect, useRef } from 'react';
 import { AppImage } from '../src/components/common/AppImage';
 import {
-  View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, SafeAreaView, Linking, Platform,
+  View, Text, TouchableOpacity, ScrollView, StyleSheet, Linking, Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../src/utils/dialog';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { uploadImage } from '../src/lib/uploadImage';

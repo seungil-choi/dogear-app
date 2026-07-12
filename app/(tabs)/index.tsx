@@ -14,10 +14,9 @@ import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { track, EVENT } from '../../src/utils/analytics';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
-  View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, SafeAreaView, Modal, RefreshControl,
-  Dimensions, NativeScrollEvent, NativeSyntheticEvent,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, RefreshControl, Dimensions, NativeScrollEvent, NativeSyntheticEvent,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';

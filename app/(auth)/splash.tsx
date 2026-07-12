@@ -45,10 +45,9 @@ export default function SplashScreen() {
       } else {
         router.replace('/(tabs)');
       }
-    } else if (hasCompletedOnboarding) {
-      router.replace('/(auth)/login');
     } else {
-      router.replace('/(auth)/onboarding');
+      // 온보딩(튜토리얼) 히든 처리 — 첫 진입도 바로 로그인으로 (온보딩 화면 스킵)
+      router.replace('/(auth)/login');
     }
   }, [animDone, isAuthLoading, isAuthenticated, hasCompletedOnboarding]);
 

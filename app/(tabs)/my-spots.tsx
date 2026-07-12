@@ -11,9 +11,9 @@
 
 import React, { useState, useMemo } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, SafeAreaView, RefreshControl,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';

@@ -10,13 +10,11 @@
 
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, SafeAreaView,
-  TouchableOpacity, ScrollView, TextInput, Dimensions,
-  Animated, PanResponder, Linking, Platform, RefreshControl,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Dimensions, Animated, PanResponder, Linking, Platform, RefreshControl,
 } from 'react-native';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import * as Location from 'expo-location';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';

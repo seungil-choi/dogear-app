@@ -12,8 +12,10 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform,
+  StyleSheet, ScrollView, KeyboardAvoidingView, Platform,
 } from 'react-native';
+// react-native의 SafeAreaView는 Android에서 무동작 → safe-area-context 사용 (하단 겹침 방지)
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants/tokens';
 import { Icon } from '../../src/components/common/Icon';
