@@ -1,8 +1,13 @@
 import React from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, Shadow } from '../../src/constants/tokens';
 import { Icon, type IconName } from '../../src/components/common/Icon';
+
+// 탭바 기본 크기 (여기에 safe-area inset.bottom을 더해 시스템 내비바와 겹침 방지)
+const TAB_BAR_BASE_HEIGHT = 72;
+const TAB_BAR_BASE_PADDING_BOTTOM = Spacing[10];
 
 // ─── 탭 아이콘 컴포넌트 ───────────────────────────────────────
 function TabIcon({
@@ -55,12 +60,20 @@ function PawTabButton({ onPress, children, style }: any) {
 
 export default function TabLayout() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: s.tabBar,
+        // 시스템 내비게이션 바(safe area) 높이를 더해 탭바가 겹치지 않도록 함
+        tabBarStyle: [
+          s.tabBar,
+          {
+            height: TAB_BAR_BASE_HEIGHT + insets.bottom,
+            paddingBottom: TAB_BAR_BASE_PADDING_BOTTOM + insets.bottom,
+          },
+        ],
         tabBarShowLabel: false,
         tabBarItemStyle: s.tabItem,
         tabBarActiveBackgroundColor: 'transparent',
@@ -122,9 +135,9 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.96)',
     borderTopColor: Colors.border.default,
     borderTopWidth: 1,
-    height: 72,
+    height: TAB_BAR_BASE_HEIGHT,
     paddingTop: Spacing[12],
-    paddingBottom: Spacing[10],
+    paddingBottom: TAB_BAR_BASE_PADDING_BOTTOM,
   },
 
   // 탭 아이콘
