@@ -195,7 +195,7 @@ export default function LoginScreen() {
     } catch (e: any) {
       if (e?.code === 'E_CANCELLED_OPERATION') return;
       console.error('Kakao login error:', e);
-      notify('카카오 로그인 중 문제가 발생했어요.');
+      notify(`[진단] ${e?.name ?? 'Error'}: ${e?.message ?? String(e)}`, '카카오 오류(디버그)');
     }
   };
 
@@ -239,7 +239,7 @@ export default function LoginScreen() {
     } catch (e: any) {
       if (e?.code === 'CANCELLED' || e?.message?.includes('cancelled')) return;
       console.error('Naver login error:', e);
-      notify('네이버 로그인 중 문제가 발생했어요.');
+      notify(`[진단] ${e?.name ?? 'Error'}: ${e?.message ?? String(e)}`, '네이버 오류(디버그)');
     }
   };
 

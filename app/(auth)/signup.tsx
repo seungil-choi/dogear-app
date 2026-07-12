@@ -75,8 +75,9 @@ export default function SignupScreen() {
         '인증 메일 발송',
       );
       router.replace('/(auth)/login');
-    } catch {
-      notify('가입 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', '오류');
+    } catch (e: any) {
+      // [임시 진단] 실제 네이티브 에러를 화면에 노출 — 원인 파악 후 원복 예정
+      notify(`[진단] ${e?.name ?? 'Error'}: ${e?.message ?? String(e)}`, '가입 오류(디버그)');
     } finally {
       setBusy(false);
     }
