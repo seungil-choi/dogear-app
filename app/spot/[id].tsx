@@ -117,7 +117,7 @@ export default function SpotDetailScreen() {
 
   const handleShare = useCallback(() => {
     if (Platform.OS === 'web' && typeof navigator !== 'undefined' && (navigator as any).share && vm) {
-      (navigator as any).share({ title: vm.name, url: typeof window !== 'undefined' ? window.location.href : '' }).catch(() => {});
+      (navigator as any).share({ title: vm.name, url: typeof window !== 'undefined' && window.location ? window.location.href : '' }).catch(() => {});
     } else if (vm) {
       Share.share({ title: vm.name, message: vm.name }).catch(() => {});
     }

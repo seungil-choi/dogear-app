@@ -180,7 +180,8 @@ export default function LoginScreen() {
   const handleKakaoLogin = async () => {
     if (!IS_REAL_AUTH || Platform.OS === 'web') { proceedAfterAuth(); return; }
     try {
-      const KakaoLogin = (await import('@react-native-seoul/kakao-login')).default;
+      // kakao-login은 default export가 없음 → 네임스페이스의 named export(login) 직접 사용
+      const KakaoLogin = await import('@react-native-seoul/kakao-login');
       const token = await KakaoLogin.login();
       const { data, error: fnError } = await supabase.functions.invoke('kakao-auth', {
         body: { kakaoAccessToken: token.accessToken },

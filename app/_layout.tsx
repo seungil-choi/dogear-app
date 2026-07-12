@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, Platform, View } from 'react-native';
@@ -22,9 +22,13 @@ function AuthGate() {
   const user = useAppStore(s => s.user);
   const logout = useAppStore(s => s.logout);
   const notifiedRef = React.useRef<string | null>(null);
+  // 루트 네비게이터가 마운트되기 전 router.replace 호출 방지
+  // ("Attempted to navigate before mounting the Root Layout" 크래시 차단)
+  const navReady = !!useRootNavigationState()?.key;
 
   // 운영자가 차단/삭제 처리한 사용자 → 자동 로그아웃 + 안내
   useEffect(() => {
+    if (!navReady) return;
     if (!user) return;
     const blocked = user.status === 'blocked';
     const deleted = user.status === 'deleted';
@@ -40,16 +44,17 @@ function AuthGate() {
     );
     logout();
     router.replace('/(auth)/login');
-  }, [user, logout, router]);
+  }, [navReady, user, logout, router]);
 
   useEffect(() => {
+    if (!navReady) return;
     const seg0 = segments[0] as string | undefined;
     // (auth) 그룹과 (legal) 그룹은 비로그인 상태에서도 접근 허용
     const isPublic = seg0 === '(auth)' || seg0 === '(legal)';
     if (!isAuthenticated && !isPublic) {
       router.replace('/(auth)/splash');
     }
-  }, [isAuthenticated, segments, router]);
+  }, [navReady, isAuthenticated, segments, router]);
 
   return null;
 }

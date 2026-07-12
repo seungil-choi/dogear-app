@@ -38,7 +38,10 @@ export default function ForgotPasswordScreen() {
         return;
       }
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined,
+        redirectTo:
+          typeof window !== 'undefined' && window.location
+            ? `${window.location.origin}/reset-password`
+            : undefined,
       });
       if (error) {
         notify(error.message ?? '재설정 메일 발송에 실패했어요.', '발송 실패');

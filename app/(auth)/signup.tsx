@@ -64,7 +64,9 @@ export default function SignupScreen() {
         password,
         options: {
           // 가입 시 이메일 확인 메일 자동 발송 (Supabase Auth 기본)
-          emailRedirectTo: typeof window !== 'undefined' ? window.location.origin : undefined,
+          // RN에는 window가 있어도 window.location이 없음 → location 존재까지 확인 (undefined.origin 크래시 방지)
+          emailRedirectTo:
+            typeof window !== 'undefined' && window.location ? window.location.origin : undefined,
         },
       });
       if (error) {
