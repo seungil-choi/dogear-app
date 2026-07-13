@@ -17,9 +17,6 @@ export function useAuth() {
   const setDogs = useAppStore(s => s.setDogs);
   const setAuthLoading = useAppStore(s => s.setAuthLoading);
   const completeOnboarding = useAppStore(s => s.completeOnboarding);
-  // hasCompletedOnboarding 플래그 직접 조작용 (고아 상태 복구)
-  const resetOnboardingState = () =>
-    useAppStore.setState({ hasCompletedOnboarding: false });
 
   useEffect(() => {
     setAuthLoading(true);
@@ -100,14 +97,11 @@ export function useAuth() {
       setDogs(mappedDogs);
       setActiveDog(mappedDogs[0]);
     } else {
-      // 고아 상태 복구:
-      //   사용자는 인증됐지만 활성 강아지가 DB에 없음
-      //   (예: dog-setup 중 네트워크 끊김 / 강아지 삭제 후 재진입)
-      //   → AsyncStorage에 남아있는 hasCompletedOnboarding=true를 false로 되돌려
-      //     dog-setup 흐름으로 다시 안내
+      // 강아지가 없어도 온보딩 완료 플래그는 되돌리지 않는다.
+      //   (건너뛰기/삭제 후에도 사용자가 마이 탭에서 로그아웃·탈퇴·설정에 접근해야 함)
+      //   dog-setup으로 강제 복귀시키면 그 화면들에 도달할 수 없어 막힘 → 프로필 탭에서 비차단 등록 유도로 처리
       setDogs([]);
       setActiveDog(null);
-      resetOnboardingState();
     }
 
     // last_active_at 갱신 (비동기, 에러 무시)

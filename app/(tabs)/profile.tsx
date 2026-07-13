@@ -194,22 +194,65 @@ export default function ProfileScreen() {
     router.push('/(auth)/dog-setup');
   }, [router]);
 
-  // 강아지 없음 → 온보딩 유도
+  // 강아지 없음 → 등록 유도(비차단) + 설정/로그아웃/탈퇴는 계속 접근 가능해야 함
   if (!activeDog || dogs.length === 0) {
     return (
       <SafeAreaView style={s.safe}>
-        <View style={s.loginPrompt}>
-          <View style={s.loginIconWrap}>
-            <Icon name="dog" size={48} color={Colors.brand.primary} />
+        <ScrollView
+          style={s.scroll}
+          contentContainerStyle={s.content}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* 강아지 등록 유도 카드 (막지 않음 — 나중에 등록 가능) */}
+          <View style={s.loginPrompt}>
+            <View style={s.loginIconWrap}>
+              <Icon name="dog" size={48} color={Colors.brand.primary} />
+            </View>
+            <Text style={s.loginTitle}>강아지 프로필을 만들어주세요</Text>
+            <Text style={s.emptyHint}>지금 등록하면 맞춤 산책 추천을 받을 수 있어요. 나중에 등록해도 괜찮아요.</Text>
+            <Button
+              label="강아지 등록하기"
+              onPress={() => router.push('/(auth)/dog-setup')}
+              variant="primary"
+              size="l"
+            />
           </View>
-          <Text style={s.loginTitle}>강아지 프로필을 만들어주세요</Text>
-          <Button
-            label="시작하기"
-            onPress={() => router.push('/(auth)/onboarding')}
-            variant="primary"
-            size="l"
-          />
-        </View>
+
+          {/* 설정 — 강아지 없이도 접근 가능 */}
+          <View style={s.section}>
+            <View style={s.sectionTitleRow}>
+              <Icon name="settings" size={15} color={Colors.text.secondary} />
+              <Text style={s.sectionTitle}>설정</Text>
+            </View>
+            <View style={s.settingsCard}>
+              <SettingsRow icon="bell"     label="알림"        onPress={() => router.push('/notifications')} />
+              <SettingsRow icon="person"   label="차단한 사용자" onPress={() => router.push('/blocked-users')} />
+              <SettingsRow icon="person"   label="계정 관리"    onPress={() => router.push('/account-delete')} />
+            </View>
+          </View>
+
+          {/* 약관 및 지원 */}
+          <View style={s.section}>
+            <View style={s.sectionTitleRow}>
+              <Icon name="document" size={15} color={Colors.text.secondary} />
+              <Text style={s.sectionTitle}>약관 및 지원</Text>
+            </View>
+            <View style={s.settingsCard}>
+              <SettingsRow icon="document" label="약관 및 정책"  onPress={() => router.push('/settings')} />
+              <SettingsRow icon="help"     label="고객센터 문의" onPress={openSupport} />
+            </View>
+          </View>
+
+          {/* 로그아웃 */}
+          <View style={s.section}>
+            <View style={s.settingsCard}>
+              <SettingsRow icon="logout" label="로그아웃" onPress={handleLogout} />
+            </View>
+          </View>
+
+          <Text style={s.versionText}>버전 1.0.0</Text>
+          <View style={{ height: Spacing[16] }} />
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -371,8 +414,8 @@ const s = StyleSheet.create({
 
   // 로그인 유도
   loginPrompt: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: Spacing[32], gap: Spacing[16],
+    alignItems: 'center', justifyContent: 'center',
+    paddingVertical: Spacing[40], paddingHorizontal: Spacing[24], gap: Spacing[12],
   },
   loginIconWrap: {
     width: 96, height: 96, borderRadius: 48,
@@ -382,6 +425,7 @@ const s = StyleSheet.create({
     borderColor: Colors.border.brand,
   },
   loginTitle: { ...Typography.title.m, color: Colors.text.primary, textAlign: 'center' },
+  emptyHint: { ...Typography.body.s, color: Colors.text.tertiary, textAlign: 'center', marginBottom: Spacing[4] },
 
   // 캐러셀 섹션
   carouselSection: {
