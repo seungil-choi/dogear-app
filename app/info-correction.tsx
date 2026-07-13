@@ -83,7 +83,7 @@ export default function InfoCorrectionScreen() {
   };
 
   return (
-    <SafeAreaView style={s.safe} edges={['top']}>
+    <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
       {/* 헤더 */}
       <View style={s.header}>
         <TouchableOpacity style={s.backBtn} onPress={() => router.back()} hitSlop={8}>

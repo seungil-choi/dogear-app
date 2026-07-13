@@ -104,7 +104,7 @@ export default function ReportScreen() {
   };
 
   return (
-    <SafeAreaView style={s.safe} edges={['top']}>
+    <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
       <View style={s.header}>
         <TouchableOpacity style={s.backBtn} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityLabel="닫기">
           <Icon name="close" size={22} color={Colors.text.primary} />

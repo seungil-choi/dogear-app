@@ -22,7 +22,7 @@ const ROWS: [string, string][] = [
 export default function BusinessInfoScreen() {
   const router = useRouter();
   return (
-    <SafeAreaView style={s.safe} edges={['top']}>
+    <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
       <View style={s.header}>
         <TouchableOpacity style={s.backBtn} onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityLabel="뒤로 가기">
           <Icon name="back" size={22} color={Colors.text.primary} />

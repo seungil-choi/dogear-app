@@ -42,3 +42,16 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     detectSessionInUrl: false,
   },
 });
+
+// Supabase 공식 Expo 가이드 패턴: 앱이 포그라운드일 때만 토큰 자동 갱신을 돌린다.
+// (백그라운드 타이머 제한으로 인한 세션 만료/갱신 실패 방지)
+if (Platform.OS !== 'web') {
+  const { AppState } = require('react-native');
+  AppState.addEventListener('change', (state: string) => {
+    if (state === 'active') {
+      supabase.auth.startAutoRefresh();
+    } else {
+      supabase.auth.stopAutoRefresh();
+    }
+  });
+}

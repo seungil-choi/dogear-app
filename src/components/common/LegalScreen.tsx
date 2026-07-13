@@ -26,7 +26,7 @@ export function LegalScreen({ title, effectiveDate, intro, sections }: Props) {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={s.safe} edges={['top']}>
+    <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
       <View style={s.header}>
         <TouchableOpacity
           style={s.backBtn}

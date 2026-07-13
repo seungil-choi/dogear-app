@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
+import { Stack, useRouter, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, Platform, View } from 'react-native';
@@ -17,8 +17,6 @@ import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 //          + 정지/삭제 사용자 자동 로그아웃 처리
 function AuthGate() {
   const router = useRouter();
-  const segments = useSegments();
-  const isAuthenticated = useAppStore(s => s.isAuthenticated);
   const user = useAppStore(s => s.user);
   const logout = useAppStore(s => s.logout);
   const notifiedRef = React.useRef<string | null>(null);
@@ -46,16 +44,9 @@ function AuthGate() {
     router.replace('/(auth)/login');
   }, [navReady, user, logout, router]);
 
-  useEffect(() => {
-    if (!navReady) return;
-    const seg0 = segments[0] as string | undefined;
-    // (auth) 그룹과 (legal) 그룹은 비로그인 상태에서도 접근 허용
-    const isPublic = seg0 === '(auth)' || seg0 === '(legal)';
-    if (!isAuthenticated && !isPublic) {
-      router.replace('/(auth)/splash');
-    }
-  }, [navReady, isAuthenticated, segments, router]);
-
+  // 비로그인 보호는 Stack.Protected(선언적 가드)가 담당 — 여기서 imperative 리다이렉트를 하면
+  // 루트 Stack 마운트 전에 navigate가 발생해 "Attempted to navigate before mounting the
+  // Root Layout" 크래시가 남 (expo-router 공식 인증 가이드 권장 패턴으로 이관).
   return null;
 }
 
@@ -82,6 +73,7 @@ const RootContainer = Platform.OS === 'web' ? View : GestureHandlerRootView;
 
 function RootLayoutInner() {
   const router = useRouter();
+  const isAuthenticated = useAppStore(s => s.isAuthenticated);
   return (
     <ErrorBoundary onResetToHome={() => router.replace('/(tabs)')}>
       <StatusBar style="dark" backgroundColor={Colors.bg.primary} />
@@ -89,8 +81,20 @@ function RootLayoutInner() {
       {IS_REAL_AUTH && <DataProvider />}
       <AuthGate />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
+        {/* 공개 구역 — (auth)가 첫 화면(앵커): 콜드 스타트·로그아웃 시 splash부터 시작 */}
         <Stack.Screen name="(auth)" />
+        <Stack.Screen
+          name="(legal)"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
+        {/* 보호 구역 — 비로그인 접근 시 선언적으로 앵커((auth))로 회수.
+            expo-router 공식 인증 패턴: useEffect+router.replace 대신 Stack.Protected 사용
+            (루트 마운트 전 imperative navigate로 인한 크래시 방지) */}
+        <Stack.Protected guard={isAuthenticated}>
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="spot/[id]"
           options={{
@@ -148,13 +152,6 @@ function RootLayoutInner() {
           }}
         />
         <Stack.Screen
-          name="(legal)"
-          options={{
-            presentation: 'card',
-            animation: 'slide_from_right',
-          }}
-        />
-        <Stack.Screen
           name="report"
           options={{
             presentation: 'modal',
@@ -182,6 +179,7 @@ function RootLayoutInner() {
             animation: 'slide_from_right',
           }}
         />
+        </Stack.Protected>
       </Stack>
     </ErrorBoundary>
   );

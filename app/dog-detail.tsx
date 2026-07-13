@@ -67,7 +67,7 @@ export default function DogDetailScreen() {
 
   if (!dog) {
     return (
-      <SafeAreaView style={s.safe} edges={['top']}>
+      <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
         <View style={s.header}>
           <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityLabel="뒤로 가기">
             <Icon name="back" size={22} color={Colors.text.primary} />
@@ -94,7 +94,7 @@ export default function DogDetailScreen() {
                       '아직 방문한 곳이 없어요.';
 
   return (
-    <SafeAreaView style={s.safe} edges={['top']}>
+    <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityLabel="뒤로 가기">
           <Icon name="back" size={22} color={Colors.text.primary} />

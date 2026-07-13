@@ -118,7 +118,7 @@ export default function NotificationsScreen() {
   const hasUnread = notifications.some(n => !n.read);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity

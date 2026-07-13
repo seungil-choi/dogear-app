@@ -130,7 +130,10 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     <View style={[styles.container, props.style]}>
       <WebView
         ref={webRef}
-        source={{ html }}
+        // baseUrl 필수: 없으면 WebView origin이 about:blank → 카카오 JS SDK가
+        // 등록 도메인 검증에서 거부해 지도가 빈 화면이 됨. 카카오 콘솔의
+        // JS SDK 도메인에 등록된 도메인(웹 데모와 동일)을 origin으로 사용.
+        source={{ html, baseUrl: 'https://dogear-demo.vercel.app' }}
         originWhitelist={['*']}
         javaScriptEnabled
         domStorageEnabled
