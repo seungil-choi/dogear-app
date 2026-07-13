@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, Platform, View } from 'react-native';
 import { Colors } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
+import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/hooks/useAuth';
 import { notify } from '../src/utils/dialog';
 import { useLocation } from '../src/hooks/useLocation';
@@ -40,6 +41,8 @@ function AuthGate() {
         : '삭제된 계정이에요.\n다시 가입하려면 새로 회원가입해주세요.',
       '계정 안내',
     );
+    // 서버 세션까지 종료 (store만 비우면 잔존 세션이 복원돼 차단 사용자가 다시 로그인됨)
+    supabase.auth.signOut().catch(() => {});
     logout();
     router.replace('/(auth)/login');
   }, [navReady, user, logout, router]);
