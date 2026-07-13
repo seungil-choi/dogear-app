@@ -57,10 +57,14 @@ const FILTER_CATEGORIES: Partial<Record<FilterKey, SpotCategory[]>> = {
   long_walk:  ['park', 'trail'],
 };
 
-// 필터별 거리 반경 (m) — 짧게 걷기는 500m, 그 외는 기본 2km
+// 필터별 거리 반경 (m) — 짧게 걷기는 500m, 오래 걷기는 1.5~3km 대역, 그 외 기본 1km
 const FILTER_RADIUS: Partial<Record<FilterKey, number>> = {
   short_walk: 500,
-  long_walk:  2000,
+  long_walk:  3000,
+};
+// 필터별 최소 거리 (m) — 오래 걷기는 1.5km 이상 떨어진 곳(왕복 산책 기준)
+const FILTER_MIN_DIST: Partial<Record<FilterKey, number>> = {
+  long_walk: 1500,
 };
 
 type ViewMode = 'map' | 'list';
@@ -259,17 +263,25 @@ export default function ExploreScreen() {
   // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 + 반경 제한 ──
   // 검색 중일 때는 반경 제한 우회 (이름으로 찾는 장소는 거리 무관 노출)
   const isSearching = searchQuery.trim().length > 0;
+
+  // 검색 시작 시 패널이 접혀 있으면 자동으로 올림 — 결과/빈 상태("결과가 없어요")가 보이도록
+  useEffect(() => {
+    if (isSearching && snapState === 'min') snapToHeight('peek');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSearching]);
   // 줌 레벨에 따른 동적 반경 — 줌아웃 시 더 넓은 영역을 클러스터로 보여줌
   // 카카오 줌: 1=가장 가까움 ~ 14=가장 멀음
   const zoomBasedRadiusM =
-    zoomLevel <= 4 ? 2000 :
+    zoomLevel <= 4 ? 1000 :
     zoomLevel === 5 ? 3500 :
     zoomLevel === 6 ? 7000 :
     zoomLevel === 7 ? 15000 :
     30000;
   const activeRadiusM = isSearching
     ? Number.MAX_SAFE_INTEGER  // 검색 시: 반경 제한 없음
-    : Math.max(FILTER_RADIUS[activeFilter] ?? 2000, zoomBasedRadiusM);
+    : Math.max(FILTER_RADIUS[activeFilter] ?? 1000, zoomBasedRadiusM);
+  // 오래 걷기 등 최소 거리 필터 (검색 시에는 미적용)
+  const activeMinDistM = isSearching ? 0 : (FILTER_MIN_DIST[activeFilter] ?? 0);
 
   const sortedCards = useMemo(() => {
     return filteredCards
@@ -278,6 +290,7 @@ export default function ExploreScreen() {
         if (!spot) return null;
         const dist = haversineMeters(mapCenter.lat, mapCenter.lng, spot.latitude, spot.longitude);
         if (dist > activeRadiusM) return null;   // 반경 초과 제외
+        if (dist < activeMinDistM) return null;  // 최소 거리 미만 제외 (오래 걷기)
         return { card, dist };
       })
       .filter((x): x is { card: typeof filteredCards[0]; dist: number } => x !== null)
@@ -286,7 +299,7 @@ export default function ExploreScreen() {
         ...card,
         distance_text: distanceText(dist),
       }));
-  }, [filteredCards, spots, mapCenter, activeRadiusM]);
+  }, [filteredCards, spots, mapCenter, activeRadiusM, activeMinDistM]);
 
   // 선택된 핀의 카드 = hero 영역에 항상 노출, 나머지는 주변 다른 장소로 분리
   // 선택된 hero 카드 — 3단계 fallback으로 어떤 핀이든 카드 표시 보장

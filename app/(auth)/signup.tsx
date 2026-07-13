@@ -59,7 +59,7 @@ export default function SignupScreen() {
         router.replace('/(auth)/consent');
         return;
       }
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -74,6 +74,12 @@ export default function SignupScreen() {
         return;
       }
       track(EVENT.signup_completed, { screen_name: 'signup', provider: 'email' });
+      if (data.session) {
+        // 이메일 인증 생략(autoconfirm) 설정 시: 가입 즉시 세션 발급 → 바로 시작
+        login();
+        router.replace('/(auth)/consent');
+        return;
+      }
       notify(
         `${email.trim()}으로 인증 메일을 보냈어요. 메일의 링크를 눌러 인증을 완료한 뒤 다시 로그인해주세요.`,
         '인증 메일 발송',

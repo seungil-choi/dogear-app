@@ -7,7 +7,7 @@
  *  - "나중에 허용"하는 사용자도 있으므로 skip 허용
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform, Linking,
 } from 'react-native';
@@ -129,6 +129,18 @@ export default function PermissionsScreen() {
     if (key === 'location') requestLocation();
     else if (key === 'notification') requestNotification();
   };
+
+  // 진입 시 OS 권한 다이얼로그 자동 표시 (위치 → 알림 순차) — 버튼을 누르지 않아도 바로 뜸
+  const autoRan = useRef(false);
+  useEffect(() => {
+    if (autoRan.current) return;
+    autoRan.current = true;
+    (async () => {
+      await requestLocation();
+      await requestNotification();
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const proceed = () => router.replace('/(tabs)');
 

@@ -231,7 +231,13 @@ export default function LoginScreen() {
         body: { naverAccessToken: result.successResponse.accessToken },
       });
       if (fnError || !data?.email) {
-        notify('네이버 로그인 처리에 실패했어요. 운영자에게 문의해주세요.');
+        // [임시 진단] edge fn이 반환한 step/error를 노출 — 원인 확인 후 원복
+        let detail = '';
+        try {
+          const body = await (fnError as any)?.context?.json?.();
+          if (body?.error) detail = `\n[진단 ${body.step ?? '?'}] ${body.error}`;
+        } catch { /* 본문 없음 */ }
+        notify(`네이버 로그인 처리에 실패했어요.${detail}`);
         return;
       }
       const { error: verifyError } = await supabase.auth.verifyOtp({
@@ -278,12 +284,15 @@ export default function LoginScreen() {
               logo={<KakaoLogo size={22} />}
               ariaLabel="카카오로 시작하기"
             />
-            <SnsBubble
-              onPress={handleGoogleLogin}
-              bgColor="#FFFFFF"
-              logo={<GoogleLogo size={22} />}
-              ariaLabel="구글로 시작하기"
-            />
+            {/* 구글은 웹 클라이언트 ID 설정 완료 전까지 숨김 (동작 안 하는 버튼 노출 방지) */}
+            {!!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID && (
+              <SnsBubble
+                onPress={handleGoogleLogin}
+                bgColor="#FFFFFF"
+                logo={<GoogleLogo size={22} />}
+                ariaLabel="구글로 시작하기"
+              />
+            )}
             <SnsBubble
               onPress={handleNaverLogin}
               bgColor="#03C75A"
@@ -357,15 +366,13 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          {/* ── 약관 안내 ── */}
+          {/* ── 약관 링크 (간결하게 링크만) ── */}
           <Text style={s.disclaimer}>
-            로그인 후 다음 단계에서{' '}
             <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/terms')}>이용약관</Text>
             {' · '}
             <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/privacy-policy')}>개인정보 처리방침</Text>
             {' · '}
             <Text style={s.disclaimerLink} onPress={() => router.push('/(legal)/location-terms')}>위치기반서비스 약관</Text>
-            에 직접 동의하게 돼요.
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>

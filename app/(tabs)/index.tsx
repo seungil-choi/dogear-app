@@ -321,21 +321,7 @@ export default function HomeScreen() {
     toggleSaveSpot(spotId);
   }, [toggleSaveSpot, savedSpots, dog]);
 
-  // 강아지 미등록 → 온보딩 유도
-  if (!dog) {
-    return (
-      <SafeAreaView style={s.safe}>
-        <View style={s.noDogWrap}>
-          <Icon name="paw" size={56} color={Colors.brand.primary} />
-          <Text style={s.noDogTitle}>강아지를 등록해주세요</Text>
-          <Text style={s.noDogDesc}>산책 스팟 추천과 발도장 기록을{'\n'}시작하려면 강아지 프로필이 필요해요.</Text>
-          <TouchableOpacity style={s.noDogBtn} onPress={() => router.push('/(auth)/dog-setup')}>
-            <Text style={s.noDogBtnText}>강아지 등록하기</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  // 강아지 미등록이어도 홈은 그대로 노출(장소 추천·섹션 유지) — 프로필 카드 자리에 등록 유도 배너만 표시
 
   return (
     <SafeAreaView style={s.safe}>
@@ -372,6 +358,25 @@ export default function HomeScreen() {
             <Icon name="bell" size={22} color={Colors.text.secondary} />
           </TouchableOpacity>
         </View>
+
+        {/* ── 강아지 미등록: 컴팩트 등록 유도 배너 (홈 기능은 그대로 사용 가능) ── */}
+        {!dog && (
+          <TouchableOpacity
+            style={[s.noDogBanner, Shadow.s]}
+            onPress={() => router.push('/(auth)/dog-setup')}
+            activeOpacity={0.85}
+            accessibilityLabel="강아지 등록하기"
+          >
+            <View style={s.noDogBannerIcon}>
+              <Icon name="paw-filled" size={20} color={Colors.brand.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.noDogBannerTitle}>강아지를 등록해보세요</Text>
+              <Text style={s.noDogBannerSub}>맞춤 추천과 발도장 기록이 열려요</Text>
+            </View>
+            <Icon name="forward" size={16} color={Colors.brand.primary} />
+          </TouchableOpacity>
+        )}
 
         {/* ── 강아지 프로필 카드 ── */}
         {dog && (
@@ -420,17 +425,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* ── 강아지 미등록 안내 ── */}
-        {!dog && (
-          <View style={s.emptyWrap}>
-            <EmptyState
-              headline="우리 아이를 먼저 소개해주세요"
-              description="강아지 프로필을 만들면 맞춤 산책 장소를 추천해드려요."
-              ctaLabel="강아지 등록하기"
-              onCta={() => router.push('/dog-edit')}
-            />
-          </View>
-        )}
+        {/* (강아지 미등록 안내는 상단 noDogBanner로 통합 — dog-setup으로 라우팅) */}
 
         {/* ── 로딩 스켈레톤 (주변 스팟 페치 중 + 아직 카드 없음) ── */}
         {dog && cards.length === 0 && isSpotsLoading && (
@@ -461,7 +456,17 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ── 오늘의 추천 스팟 (3개, 가로 스와이프) ── */}
+        {/* ── 오늘의 추천 스팟 (3개, 가로 스와이프) — 비어 있어도 영역 노출 ── */}
+        {featuredCards.length === 0 && (
+          <View style={s.sectionWrap}>
+            <View style={s.sectionHead}>
+              <Text style={s.sectionTitle}>오늘의 추천 스팟</Text>
+            </View>
+            <View style={s.sectionEmpty}>
+              <Text style={s.sectionEmptyText}>주변 장소를 찾으면 추천이 여기에 표시돼요.{'\n'}탐색 탭에서 지도를 옮겨 둘러보세요.</Text>
+            </View>
+          </View>
+        )}
         {featuredCards.length > 0 && (
           <View style={s.sectionWrap}>
             <View style={s.sectionHead}>
@@ -511,18 +516,20 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ── 최근 간 장소 ── */}
-        {recentCards.length > 0 && (
-          <View style={s.sectionWrap}>
-            <View style={s.sectionHead}>
-              <Text style={s.sectionTitle}>최근 간 장소</Text>
+        {/* ── 최근 간 장소 — 비어 있어도 영역 노출 ── */}
+        <View style={s.sectionWrap}>
+          <View style={s.sectionHead}>
+            <Text style={s.sectionTitle}>최근 간 장소</Text>
+            {recentCards.length > 0 && (
               <TouchableOpacity onPress={() => router.push('/(tabs)/my-spots')}>
                 <View style={s.sectionMoreBtn}>
                   <Text style={s.sectionMore}>전체보기</Text>
                   <Icon name="forward" size={11} color={Colors.text.tertiary} />
                 </View>
               </TouchableOpacity>
-            </View>
+            )}
+          </View>
+          {recentCards.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -536,21 +543,27 @@ export default function HomeScreen() {
                 />
               ))}
             </ScrollView>
-          </View>
-        )}
+          ) : (
+            <View style={s.sectionEmpty}>
+              <Text style={s.sectionEmptyText}>아직 다녀온 곳이 없어요. 첫 발도장을 남겨보세요!</Text>
+            </View>
+          )}
+        </View>
 
-        {/* ── 자주 가는 장소 ── */}
-        {regularCards.length > 0 && (
-          <View style={s.sectionWrap}>
-            <View style={s.sectionHead}>
-              <Text style={s.sectionTitle}>자주 가는 장소</Text>
+        {/* ── 자주 가는 장소 — 비어 있어도 영역 노출 ── */}
+        <View style={s.sectionWrap}>
+          <View style={s.sectionHead}>
+            <Text style={s.sectionTitle}>자주 가는 장소</Text>
+            {regularCards.length > 0 && (
               <TouchableOpacity onPress={() => router.push('/(tabs)/my-spots')}>
                 <View style={s.sectionMoreBtn}>
                   <Text style={s.sectionMore}>전체보기</Text>
                   <Icon name="forward" size={11} color={Colors.text.tertiary} />
                 </View>
               </TouchableOpacity>
-            </View>
+            )}
+          </View>
+          {regularCards.length > 0 ? (
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -564,8 +577,12 @@ export default function HomeScreen() {
                 />
               ))}
             </ScrollView>
-          </View>
-        )}
+          ) : (
+            <View style={s.sectionEmpty}>
+              <Text style={s.sectionEmptyText}>같은 곳에 발도장이 쌓이면 여기에 표시돼요.</Text>
+            </View>
+          )}
+        </View>
 
         {/* ── 첫 사용자 가이드 — 발도장 0개 + 자주 가는 장소 0개일 때 ── */}
         {dog && cards.length > 0 && recentCards.length === 0 && regularCards.length === 0 && (
@@ -678,6 +695,33 @@ const s = StyleSheet.create({
     borderRadius: Radius.round, backgroundColor: Colors.brand.primary,
   },
   noDogBtnText: { ...Typography.label.l, color: '#FFFFFF', fontWeight: '700' },
+
+  // 강아지 미등록 배너 (홈 비차단)
+  noDogBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[12],
+    marginHorizontal: Spacing[20], marginBottom: Spacing[16],
+    padding: Spacing[16],
+    borderRadius: Radius.l,
+    backgroundColor: Colors.surface.default,
+    borderWidth: 1, borderColor: Colors.border.brand,
+  },
+  noDogBannerIcon: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  noDogBannerTitle: { ...Typography.title.s, color: Colors.text.primary, fontWeight: '700' },
+  noDogBannerSub:   { ...Typography.body.s, color: Colors.text.tertiary, marginTop: 2 },
+
+  // 빈 섹션 상태 (영역은 유지)
+  sectionEmpty: {
+    marginHorizontal: Spacing[20],
+    paddingVertical: Spacing[20], paddingHorizontal: Spacing[16],
+    borderRadius: Radius.l,
+    backgroundColor: Colors.bg.secondary,
+    borderWidth: 1, borderColor: Colors.border.subtle,
+  },
+  sectionEmptyText: { ...Typography.body.s, color: Colors.text.tertiary, textAlign: 'center' },
 
   // ── 상단 로고 바 ──
   topBar: {
