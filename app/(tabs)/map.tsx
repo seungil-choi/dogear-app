@@ -116,6 +116,8 @@ export default function ExploreScreen() {
   }, [currentLocation]);
 
   const requestLocationPerm = useCallback(async () => {
+    // 탐색에서는 권한을 직접 요청하지 않는다(온보딩이 전담) — 시스템 설정으로만 안내
+    if (Platform.OS !== 'web') { Linking.openSettings().catch(() => {}); return; }
     try {
       if (Platform.OS === 'web') {
         if (typeof navigator === 'undefined' || !navigator.geolocation) return;
@@ -133,18 +135,7 @@ export default function ExploreScreen() {
         );
         return;
       }
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const loc = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        });
-        setCurrentLocation({
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
-          accuracy: loc.coords.accuracy ?? undefined,
-        });
-        setLocationPermDenied(false);
-      } else {
+      {
         // OS가 차단 상태일 가능성 → 설정 안내
         setLocationPermDenied(true);
       }
@@ -401,12 +392,9 @@ export default function ExploreScreen() {
 
     setIsLocating(true);
     try {
+      // 탐색에서는 권한을 직접 요청하지 않음 — 상태만 확인, 미허용 시 시스템 설정으로 안내
       const existing = await Location.getForegroundPermissionsAsync();
-      let status = existing.status;
-      if (status !== 'granted') {
-        const req = await Location.requestForegroundPermissionsAsync();
-        status = req.status;
-      }
+      const status = existing.status;
       if (status !== 'granted') {
         if (await confirm('내 위치를 보려면 설정에서 위치 권한을 허용해 주세요.', {
           title: '위치 권한이 필요해요',

@@ -284,15 +284,12 @@ export default function LoginScreen() {
               logo={<KakaoLogo size={22} />}
               ariaLabel="카카오로 시작하기"
             />
-            {/* 구글은 웹 클라이언트 ID 설정 완료 전까지 숨김 (동작 안 하는 버튼 노출 방지) */}
-            {!!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID && (
-              <SnsBubble
-                onPress={handleGoogleLogin}
-                bgColor="#FFFFFF"
-                logo={<GoogleLogo size={22} />}
-                ariaLabel="구글로 시작하기"
-              />
-            )}
+            <SnsBubble
+              onPress={handleGoogleLogin}
+              bgColor="#FFFFFF"
+              logo={<GoogleLogo size={22} />}
+              ariaLabel="구글로 시작하기"
+            />
             <SnsBubble
               onPress={handleNaverLogin}
               bgColor="#03C75A"

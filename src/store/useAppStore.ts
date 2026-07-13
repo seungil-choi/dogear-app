@@ -656,7 +656,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   // 거리는 currentLocation 기반으로 실제 계산 (mock random 제거)
   getHomeCards: () => {
     const { spots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers } = get();
-    if (!dog) return [];
+    // 강아지가 없어도 주변 장소 추천은 노출한다(개인화만 생략). 홈이 텅 비지 않도록.
 
     // 차단한 사용자/강아지의 발도장 제외
     const blockedDogIds = new Set(blockedUsers.map(b => b.blocked_dog_id).filter(Boolean) as string[]);
@@ -668,7 +668,10 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         // 서버 집계(전체 강아지)가 있으면 우선 사용, 없으면(데모/오프라인) 로컬 checkins로 폴백
         const agg = serverAggregateToSpotAggregate(spot.spot_id, spotAggregates[spot.spot_id])
           ?? computeSpotAggregate(spot.spot_id, filteredCheckins);
-        const summary = visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spot.spot_id);
+        // 강아지가 있을 때만 방문 요약(개인화) 조회
+        const summary = dog
+          ? visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spot.spot_id)
+          : undefined;
         // currentLocation이 있으면 실제 거리, 없으면 0 (UI에서 "거리 정보 없음" 처리)
         const distanceMeters = currentLocation
           ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
