@@ -8,7 +8,7 @@
  * 신고 사유 선택 + 상세 입력 → reportContent 액션 호출.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, TextInput,
   StyleSheet, KeyboardAvoidingView, Platform,
@@ -52,6 +52,7 @@ export default function ReportScreen() {
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [detail, setDetail] = useState('');
   const [alsoHide, setAlsoHide] = useState(true); // 기본 체크: 사용자가 신고할 정도면 보통 안 보고 싶음
+  const submittedRef = useRef(false);
 
   const submit = () => {
     if (!reason) {
@@ -62,6 +63,8 @@ export default function ReportScreen() {
       notify('신고 대상을 확인할 수 없어요.', '오류');
       return;
     }
+    if (submittedRef.current) return; // 더블탭 이중 신고·이중 back 방지
+    submittedRef.current = true;
     reportContent(targetType, targetId, reason, detail.trim() || undefined);
     // 대상 유형에 따라 이벤트 분기 (place vs photo)
     track(targetType === 'spot' ? EVENT.report_place_submitted : EVENT.report_photo_submitted, {

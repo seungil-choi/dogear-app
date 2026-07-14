@@ -279,12 +279,16 @@ export default function LoginScreen() {
               logo={<KakaoLogo size={22} />}
               ariaLabel="카카오로 시작하기"
             />
-            <SnsBubble
-              onPress={handleGoogleLogin}
-              bgColor="#FFFFFF"
-              logo={<GoogleLogo size={22} />}
-              ariaLabel="구글로 시작하기"
-            />
+            {/* 구글: 웹 클라이언트 ID가 설정된 경우에만 노출 — 미설정 시 100% 실패(DEVELOPER_ERROR)라
+                버튼을 숨겨 데드엔드 방지. ID를 eas.json/.env에 넣으면 자동으로 다시 나타남. */}
+            {!!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID && (
+              <SnsBubble
+                onPress={handleGoogleLogin}
+                bgColor="#FFFFFF"
+                logo={<GoogleLogo size={22} />}
+                ariaLabel="구글로 시작하기"
+              />
+            )}
             <SnsBubble
               onPress={handleNaverLogin}
               bgColor="#03C75A"

@@ -61,6 +61,7 @@ export default function DogEditScreen() {
   const [walkingStyleTags, setWalkingStyleTags] = useState<string[]>(
     dog?.walking_style_tags ?? [],
   );
+  const [saving, setSaving] = useState(false);
 
   // 활성 강아지가 바뀌면 폼 상태도 동기화 (Picker로 강아지 전환 시)
   useEffect(() => {
@@ -132,12 +133,25 @@ export default function DogEditScreen() {
   // ─── 저장 ────────────────────────────────────────────
   async function handleSave() {
     if (!dog) return;
+    if (saving) return;            // 더블탭 이중 업로드·이중 back 방지
 
     // 0. UGC 텍스트 사전 필터 (Apple 1.2) — 이름/견종은 타인에게 노출되므로 부적절어 차단
     if (isObjectionable(name) || isObjectionable(breed)) {
       notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
       return;
     }
+
+    // 1.5 체중 검증 (dog-setup과 동일 규칙) — 잘못된 값이 로컬/서버에 desync로 남지 않도록
+    if (weightKg.trim()) {
+      const w = parseFloat(weightKg);
+      if (Number.isNaN(w) || w <= 0 || w >= 100) {
+        notify('체중은 0보다 크고 100kg 미만의 숫자로 입력해주세요.', '체중 확인');
+        return;
+      }
+    }
+
+    setSaving(true);
+    try {
 
     // 1. 새 아바타가 로컬 URI(file:// 또는 blob:)이면 Storage 업로드
     let finalAvatarUrl = avatarUri;
@@ -203,6 +217,9 @@ export default function DogEditScreen() {
     setActiveDog(updatedDog);
     setDogs(dogs.map(d => (d.dog_id === dog.dog_id ? updatedDog : d)));
     router.back();
+    } finally {
+      setSaving(false);
+    }
   }
 
   // ─── 강아지 삭제 ──────────────────────────────────────
@@ -263,12 +280,13 @@ export default function DogEditScreen() {
         <Text style={styles.headerTitle} accessibilityRole="header">프로필 수정</Text>
         <TouchableOpacity
           onPress={handleSave}
-          style={styles.saveBtn}
+          style={[styles.saveBtn, saving && { opacity: 0.6 }]}
           hitSlop={8}
+          disabled={saving}
           accessibilityLabel="저장"
           accessibilityRole="button"
         >
-          <Text style={styles.saveBtnText}>저장</Text>
+          <Text style={styles.saveBtnText}>{saving ? '저장 중…' : '저장'}</Text>
         </TouchableOpacity>
       </View>
 

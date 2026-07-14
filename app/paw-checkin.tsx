@@ -94,6 +94,7 @@ export default function PawCheckinModal() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isRefreshingLocation, setIsRefreshingLocation] = useState(false);
   const { submit: submitToServer, isSubmitting } = usePawCheckin();
+  const submitLockRef = useRef(false);
 
   // 발도장 가능 spot의 진짜 좌표/카테고리 (selectedSpot은 ViewModel이라 lat/lng 없음)
   const targetSpot = useMemo(() => {
@@ -200,6 +201,11 @@ export default function PawCheckinModal() {
   }, [step, setPawStep, handleClose, isPresetSpot]);
 
   const handleSubmit = useCallback(async () => {
+    // 사진 업로드~서버 저장 전 구간에서 더블탭 시 이중 업로드·이중 발도장 방지.
+    // isSubmitting은 submitToServer 내부에서만 켜져 업로드 구간을 못 덮으므로 별도 락 사용.
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+    try {
     // ── UGC 텍스트 사전 필터 (Apple 1.2) ──────────────────────
     // 메모는 흔적(trace)으로 타인에게 노출되므로 부적절어 차단
     if (isObjectionable(pawFlow.note)) {
@@ -355,6 +361,9 @@ export default function PawCheckinModal() {
       visibility: pawFlow.visibility,
     });
     setIsSuccess(true);
+    } finally {
+      submitLockRef.current = false;
+    }
   }, [submitPawCheckin, submitToServer, setPawPhoto, selectedSpot, selectedTags, pawFlow, targetSpot, proximity, refreshLocation, dog, resetPawFlow, router, cooldownRemainingMs, cooldownMinLeft]);
 
   const handleGoHome = useCallback(() => {

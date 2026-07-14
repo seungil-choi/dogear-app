@@ -59,12 +59,8 @@ export function useLocation(): UseLocationReturn {
       });
     } catch (err) {
       console.warn('위치 조회 실패:', err);
-
-      // 서울 기본값 (성동구 서울숲 근처)
-      setCurrentLocation({
-        latitude: 37.5445,
-        longitude: 127.0370,
-      });
+      // 실패 시 가짜 좌표(서울)를 넣지 않는다 — 거리 왜곡·발도장 근접 가드 우회 방지.
+      // 홈 추천은 서버 폴백(서울 스팟)으로 채워지므로 위치는 비워둔 채로 둔다.
     } finally {
       setIsLocating(false);
     }

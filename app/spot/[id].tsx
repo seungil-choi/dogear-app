@@ -48,6 +48,7 @@ export default function SpotDetailScreen() {
   const spots          = useAppStore(s => s.spots);
   const currentLocation = useAppStore(s => s.currentLocation);
   const dog            = useAppStore(s => s.dog);
+  const savedSpots     = useAppStore(s => s.savedSpots); // 저장 토글 시 즉시 리렌더
 
   // 서버(spot-detail Edge Function)가 전체 강아지 기준으로 계산한 상세를 우선 사용.
   // 도착 전/실패/데모(DEV_SEED)에는 로컬 getSpotDetail로 폴백 — 분위기·흔적·익숙한 강아지가
@@ -63,6 +64,12 @@ export default function SpotDetailScreen() {
     }
     return localVm;
   }, [serverDetail.data, localVm, currentLocation, spots, id]);
+
+  // 저장 상태는 서버 스냅샷(vm.is_saved)이 아니라 로컬 savedSpots로 판단 — 탭 즉시 반영.
+  const locallySaved = useMemo(
+    () => (dog ? savedSpots.some(sv => sv.spot_id === id && sv.dog_id === dog.dog_id) : false),
+    [savedSpots, dog, id],
+  );
 
   // 장소 상세 진입 추적
   useEffect(() => {
@@ -562,17 +569,17 @@ export default function SpotDetailScreen() {
       {/* ── 하단 고정 액션 바 — 저장 + 발도장 ── */}
       <View style={[s.bottomBar, { paddingBottom: insets.bottom + Spacing[8] }]}>
         <TouchableOpacity
-          style={[s.bottomBtnDirections, vm.is_saved && s.bottomBtnSaveActive]}
+          style={[s.bottomBtnDirections, locallySaved && s.bottomBtnSaveActive]}
           onPress={handleSave}
           activeOpacity={0.85}
         >
           <Icon
-            name={vm.is_saved ? 'bookmark-filled' : 'bookmark'}
+            name={locallySaved ? 'bookmark-filled' : 'bookmark'}
             size={18}
             color={Colors.brand.primary}
           />
           <Text style={s.bottomBtnDirectionsText}>
-            {vm.is_saved ? '저장됨' : '저장하기'}
+            {locallySaved ? '저장됨' : '저장하기'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={s.bottomBtnPaw} onPress={handlePawCheckin} activeOpacity={0.88}>

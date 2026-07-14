@@ -190,8 +190,8 @@ export default function SignupScreen() {
           </View>
 
           <Text style={s.note}>
-            가입 후 입력한 이메일로 인증 메일이 발송돼요.{'\n'}
-            메일의 링크를 눌러 인증을 완료해주세요.
+            가입하면 바로 시작할 수 있어요.{'\n'}
+            입력한 이메일과 비밀번호는 다음 로그인에 사용돼요.
           </Text>
         </ScrollView>
 

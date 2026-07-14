@@ -720,11 +720,10 @@ export default function ExploreScreen() {
                         <TouchableOpacity
                           style={[s.heroBtn, s.heroBtnSecondary]}
                           onPress={() => {
-                            const card = sortedCards.find(c => c.spot_id === selectedHeroCard.spot_id);
-                            if (card) {
-                              useAppStore.getState().setPawSpot(card);
-                              router.push('/paw-checkin');
-                            }
+                            // selectedHeroCard를 직접 사용 — 반경 밖 폴백 핀은 sortedCards에 없어
+                            // find가 undefined가 되면서 무반응이던 버그 수정.
+                            useAppStore.getState().setPawSpot(selectedHeroCard as any);
+                            router.push('/paw-checkin');
                           }}
                           activeOpacity={0.85}
                         >

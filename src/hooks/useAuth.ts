@@ -28,6 +28,11 @@ export function useAuth() {
       .then(async ({ data: { session } }) => {
         if (session?.user) {
           await loadUserProfile(session.user.id);
+        } else {
+          // 세션이 없는데 persist로 로그인 상태가 남아있으면 고스트 세션(토큰 만료·revoke).
+          // 그대로 두면 RLS로 전 화면이 빈 채 "로그인됨"으로 갇힘 → 정리해 로그인으로 유도.
+          const st = useAppStore.getState();
+          if (st.isAuthenticated) st.logout();
         }
       })
       .catch((e) => {
@@ -103,7 +108,10 @@ export function useAuth() {
         created_at: d.created_at,
       }));
       setDogs(mappedDogs);
-      setActiveDog(mappedDogs[0]);
+      // 재시작 시 마지막으로 선택한 강아지 유지 — 없거나 삭제됐으면 첫 강아지.
+      const persistedActive = useAppStore.getState().activeDog;
+      const keep = persistedActive && mappedDogs.find(d => d.dog_id === persistedActive.dog_id);
+      setActiveDog(keep ?? mappedDogs[0]);
     } else {
       // 강아지가 없어도 온보딩 완료 플래그는 되돌리지 않는다.
       //   (건너뛰기/삭제 후에도 사용자가 마이 탭에서 로그아웃·탈퇴·설정에 접근해야 함)

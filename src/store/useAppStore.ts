@@ -293,6 +293,11 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     blockedUsers: [],
     reports: [],
     selectedSpotId: null,
+    // 다음 계정이 이전 사용자 값을 상속하지 않도록 개인 설정/임시 데이터도 초기화
+    privacySetting: defaultPrivacySetting,
+    suggestedSpots: [],
+    lastUsedVisibility: undefined,
+    pawFlow: { step: 1, selectedTags: [], note: '', visibility: 'spot_only' },
   }),
 
   selectSpot: (spotId) => set({ selectedSpotId: spotId }),

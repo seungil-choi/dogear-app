@@ -11,7 +11,7 @@
  *   done          — 완료 + 임시 반영 안내 + CTA
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet, ActivityIndicator, Platform, KeyboardAvoidingView,
 } from 'react-native';
@@ -150,7 +150,11 @@ export default function SuggestSpotScreen() {
   }, [isFormValid, name, category, pinLocation, getNearbyDuplicates]);
 
   // ── 최종 제출 ─────────────────────────────────────────────
+  const submittingRef = useRef(false);
   const handleSubmit = useCallback(async () => {
+    if (submittingRef.current) return;  // 더블탭 이중 제안·이중 임시스팟 방지
+    submittingRef.current = true;
+    try {
     // UGC 텍스트 사전 필터 (Apple 1.2) — 제안한 장소명/설명은 전체에게 노출됨
     if (isObjectionable(name) || isObjectionable(description)) {
       notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
@@ -209,6 +213,9 @@ export default function SuggestSpotScreen() {
     });
     setCreatedSpotId(newSpotId);
     setStep('done');
+    } finally {
+      submittingRef.current = false;
+    }
   }, [name, description, category, selectedTags, pinLocation, suggestSpot, user, hasHardBlock, photoUri]);
 
   // ── 기존 장소 사용 ────────────────────────────────────────

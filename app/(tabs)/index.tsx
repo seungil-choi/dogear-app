@@ -182,7 +182,9 @@ export default function HomeScreen() {
   const isSpotsLoading  = useAppStore(s => s.isSpotsLoading);
   const { refreshing, onRefresh } = usePullToRefresh();
 
-  const cards    = useMemo(() => getHomeCards(), [getHomeCards]);
+  // ⚠️ getHomeCards는 안정적인 zustand 액션 참조라 [getHomeCards]로 memo하면 마운트 시 1회만
+  //    계산되고 spots가 비동기 로드돼도 갱신되지 않음 → 실제 데이터 의존값을 dep에 넣어 재계산.
+  const cards    = useMemo(() => getHomeCards(), [getHomeCards, spots, visitSummaries, savedSpots, currentLocation, dog, isSpotsLoading]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [featuredPage, setFeaturedPage] = useState(0);
   const multiDog = dogs.length > 1;
