@@ -98,7 +98,7 @@ export default function MySpotsScreen() {
   };
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top']}>
       {/* 헤더 — 타이틀 제거, 세그먼트 컨트롤만 */}
       <View style={s.header}>
         {/* 세그먼트 컨트롤 */}

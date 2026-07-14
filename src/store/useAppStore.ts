@@ -672,10 +672,10 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         const summary = dog
           ? visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spot.spot_id)
           : undefined;
-        // currentLocation이 있으면 실제 거리, 없으면 0 (UI에서 "거리 정보 없음" 처리)
+        // currentLocation이 있으면 실제 거리, 없으면 undefined (카드에서 "근처"로 표기)
         const distanceMeters = currentLocation
           ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
-          : 0;
+          : undefined;
         return buildHomeSpotCard(spot, agg, summary, distanceMeters);
       });
   },

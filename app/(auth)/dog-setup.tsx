@@ -136,14 +136,14 @@ export default function DogSetupScreen() {
       temperament_count: selectedTemperament.length,
       walking_count: selectedWalking.length,
     });
-    // 등록 완료 후 권한 안내 단계로 (위치 + 알림)
-    router.replace('/(auth)/permissions');
+    // 등록 완료 후 바로 홈으로 (OS 위치·알림 권한은 홈 진입 시 자동 요청)
+    router.replace('/(tabs)');
   };
 
   // 강아지 등록 건너뛰기 — 마이 탭에서 언제든 추가 가능
   const handleSkip = () => {
     completeOnboarding();
-    router.replace('/(auth)/permissions');
+    router.replace('/(tabs)');
   };
 
   const canProceed = name.trim().length > 0 && !isSaving;

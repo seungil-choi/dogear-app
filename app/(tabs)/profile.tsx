@@ -200,7 +200,7 @@ export default function ProfileScreen() {
   // 강아지 없음 → 등록 유도(비차단) + 설정/로그아웃/탈퇴는 계속 접근 가능해야 함
   if (!activeDog || dogs.length === 0) {
     return (
-      <SafeAreaView style={s.safe}>
+      <SafeAreaView style={s.safe} edges={['top']}>
         <ScrollView
           style={s.scroll}
           contentContainerStyle={s.content}
@@ -264,7 +264,7 @@ export default function ProfileScreen() {
   const visibilityText    = visibilityLabel[currentVisibility] ?? currentVisibility;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top']}>
       <ScrollView
         style={s.scroll}
         contentContainerStyle={s.content}

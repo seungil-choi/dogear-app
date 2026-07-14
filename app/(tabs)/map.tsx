@@ -433,7 +433,7 @@ export default function ExploreScreen() {
   }, [isTracking, currentLocation, setCurrentLocation]);
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top']}>
 
       {/* ── 위치 권한 거부 안내 배너 (dismiss 가능) ── */}
       {locationPermDenied && !permBannerDismissed && (

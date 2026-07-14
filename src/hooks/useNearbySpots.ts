@@ -12,6 +12,12 @@ import { useAppStore } from '@/store/useAppStore';
 import { registerRefreshHandler } from '@/utils/refreshBus';
 import type { SpotCardViewModel, Spot } from '@/types';
 
+// 위치가 없거나 주변에 스팟이 없을 때(비수도권 등) 홈이 비지 않도록 쓰는 추천 폴백 중심.
+// 서비스 커버리지 중심(서울 시청) 기준 넉넉한 반경으로 대표 스팟을 채운다.
+const FALLBACK_CENTER = { latitude: 37.5665, longitude: 126.9780 };
+const FALLBACK_RADIUS_M = 50000;
+const FALLBACK_LIMIT = 30;
+
 interface UseNearbySpotsReturn {
   spots: SpotCardViewModel[];
   isLoading: boolean;
@@ -34,28 +40,40 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
   const prevLocationRef = useRef<{ lat: number; lng: number } | null>(null);
 
   const refresh = useCallback(async () => {
-    if (!currentLocation) {
-      setError('위치 정보를 가져올 수 없어요');
-      return;
-    }
-
     setIsLoading(true);
     setSpotsLoading(true);  // 화면 스켈레톤 노출용 (store)
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('spots-nearby', {
-        body: {
-          latitude: currentLocation.latitude,
-          longitude: currentLocation.longitude,
-          radiusMeters,
-          dogId: activeDog?.dog_id ?? null,
-        },
-      });
+      let rawList: any[] = [];
 
-      if (fnError) throw fnError;
+      // 1) 현재 위치가 있으면 위치 기반 조회
+      if (currentLocation) {
+        const { data, error: fnError } = await supabase.functions.invoke('spots-nearby', {
+          body: {
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+            radiusMeters,
+            dogId: activeDog?.dog_id ?? null,
+          },
+        });
+        if (fnError) throw fnError;
+        rawList = data?.spots ?? [];
+      }
 
-      const rawList: any[] = data.spots ?? [];
+      // 2) 주변 결과가 없거나(비수도권·권한 거부 등) 위치가 없으면 → 추천 스팟 폴백
+      //    홈이 절대 비지 않도록 커버리지 중심에서 대표 스팟을 채운다.
+      if (rawList.length === 0) {
+        const { data: fb, error: fbErr } = await supabase.functions.invoke('spots-nearby', {
+          body: {
+            latitude: FALLBACK_CENTER.latitude,
+            longitude: FALLBACK_CENTER.longitude,
+            radiusMeters: FALLBACK_RADIUS_M,
+            dogId: activeDog?.dog_id ?? null,
+          },
+        });
+        if (!fbErr && fb?.spots) rawList = (fb.spots as any[]).slice(0, FALLBACK_LIMIT);
+      }
 
       // SpotCardViewModel (지도/목록 UI용)
       const mapped: SpotCardViewModel[] = rawList.map((s: any) => ({
@@ -118,20 +136,21 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
     }
   }, [currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading]);
 
-  // 위치가 처음 설정되거나 의미있게 변할 때 자동 fetch
+  // 최초 마운트(위치 없어도 폴백 로드) + 위치가 의미있게 변할 때 자동 fetch
   useEffect(() => {
-    if (!currentLocation) return;
-
     const prev = prevLocationRef.current;
-    // 50m 이상 이동했을 때만 re-fetch
-    if (prev) {
+    // 위치가 있고 직전 위치 대비 50m 미만 이동이면 재조회 생략
+    if (currentLocation && prev) {
       const deltaLat = Math.abs(currentLocation.latitude - prev.lat);
       const deltaLng = Math.abs(currentLocation.longitude - prev.lng);
       if (deltaLat < 0.0005 && deltaLng < 0.0005) return; // ~50m 미만
     }
 
-    prevLocationRef.current = { lat: currentLocation.latitude, lng: currentLocation.longitude };
+    if (currentLocation) {
+      prevLocationRef.current = { lat: currentLocation.latitude, lng: currentLocation.longitude };
+    }
     refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLocation]);
 
   // pull-to-refresh 버스에 등록 — 화면의 RefreshControl이 refreshAll()로 트리거

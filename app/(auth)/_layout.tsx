@@ -8,7 +8,6 @@ export default function AuthLayout() {
       <Stack.Screen name="login" />
       <Stack.Screen name="consent" />
       <Stack.Screen name="dog-setup" />
-      <Stack.Screen name="permissions" />
       <Stack.Screen name="signup" />
       <Stack.Screen name="forgot-password" />
     </Stack>

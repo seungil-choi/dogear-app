@@ -324,7 +324,7 @@ export default function HomeScreen() {
   // 강아지 미등록이어도 홈은 그대로 노출(장소 추천·섹션 유지) — 프로필 카드 자리에 등록 유도 배너만 표시
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top']}>
       {pickerOpen && dog && (
         <DogPickerModal
           dogs={dogs}
