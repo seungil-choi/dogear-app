@@ -182,6 +182,13 @@ function RootLayoutInner() {
             animation: 'slide_from_right',
           }}
         />
+        <Stack.Screen
+          name="notification-settings"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
         </Stack.Protected>
       </Stack>
     </ErrorBoundary>

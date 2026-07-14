@@ -77,6 +77,7 @@ interface AppState {
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
   isAuthLoading: boolean;
+  pushEnabled: boolean;   // 푸시 알림 수신 설정 (사용자 토글, 기본 on)
 
   // 약관 동의 (앱스토어/법규 대응)
   consent: ConsentRecord | null;
@@ -169,6 +170,7 @@ interface AppState {
   deleteDog: (dog_id: string) => Promise<boolean>;
   setAuthLoading: (loading: boolean) => void;
   setCurrentLocation: (loc: { latitude: number; longitude: number; accuracy?: number } | null) => void;
+  setPushEnabled: (enabled: boolean) => void;
 
   // 데이터 주입 (Supabase 페치 결과 반영용)
   setSpots: (spots: Spot[]) => void;
@@ -209,6 +211,7 @@ const initialState = DEV_PREVIEW_SEED
       isAuthenticated: true,
       hasCompletedOnboarding: true,
       isAuthLoading: false,
+      pushEnabled: true,
       consent: null,
       currentLocation: { latitude: 37.5443, longitude: 127.0376, accuracy: 10 },
       spots: mockSpots,
@@ -231,6 +234,7 @@ const initialState = DEV_PREVIEW_SEED
       isAuthenticated: false,
       hasCompletedOnboarding: false,
       isAuthLoading: true,
+      pushEnabled: true,
       consent: null,
       currentLocation: null,
       spots: [],
@@ -579,6 +583,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
   setCurrentLocation: (currentLocation) => set({ currentLocation }),
+  setPushEnabled: (pushEnabled) => set({ pushEnabled }),
 
   setSpots: (spots) => set({ spots }),
   setSpotAggregates: (spotAggregates) => set({ spotAggregates }),
@@ -797,6 +802,7 @@ export const useAppStore = DEV_PREVIEW_SEED
         partialize: (state: any) => ({
           isAuthenticated: state.isAuthenticated,
           hasCompletedOnboarding: state.hasCompletedOnboarding,
+          pushEnabled: state.pushEnabled,
           consent: state.consent,
           user: state.user,
           dog: state.dog,

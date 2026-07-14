@@ -91,10 +91,10 @@ export default function AccountManageScreen() {
             </View>
           </View>
 
-          {/* ── 위험 영역 ── */}
+          {/* ── 계정 삭제 ── */}
           <View style={[s.section, { marginTop: Spacing[32] }]}>
-            <Text style={s.dangerLabel}>위험 구역</Text>
-            <Text style={s.dangerDesc}>아래 작업은 되돌릴 수 없어요. 신중하게 진행해 주세요.</Text>
+            <Text style={s.dangerLabel}>계정 삭제</Text>
+            <Text style={s.dangerDesc}>삭제하면 발도장과 단골 장소 등 모든 기록이 사라지고, 되돌릴 수 없어요.</Text>
 
             {!deleteOpen ? (
               /* 삭제 진입 버튼 */
@@ -103,9 +103,8 @@ export default function AccountManageScreen() {
                 onPress={() => setDeleteOpen(true)}
                 activeOpacity={0.8}
               >
-                <Icon name="warning" size={18} color={Colors.status.error.text} />
-                <Text style={s.dangerTriggerText}>계정 삭제</Text>
-                <Icon name="forward" size={16} color={Colors.status.error.text} />
+                <Text style={s.dangerTriggerText}>계정 삭제하기</Text>
+                <Icon name="forward" size={16} color={Colors.text.tertiary} />
               </TouchableOpacity>
             ) : (
               /* 삭제 확인 폼 */
@@ -212,13 +211,13 @@ const s = StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[10] },
   infoText: { ...Typography.body.m, color: Colors.text.primary },
 
-  // ── 위험 구역 ──
-  dangerLabel: { ...Typography.label.l, color: Colors.status.error.text, fontWeight: '700' },
-  dangerDesc:  { ...Typography.body.s, color: Colors.text.secondary },
+  // ── 계정 삭제 (차분한 톤) ──
+  dangerLabel: { ...Typography.label.l, color: Colors.text.secondary, fontWeight: '700' },
+  dangerDesc:  { ...Typography.body.s, color: Colors.text.tertiary, lineHeight: 20 },
   dangerTrigger: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing[12],
-    backgroundColor: Colors.status.error.bg,
-    borderRadius: Radius.l, borderWidth: 1, borderColor: '#FECACA',
+    backgroundColor: Colors.surface.default,
+    borderRadius: Radius.l, borderWidth: 1, borderColor: Colors.border.default,
     padding: Spacing[16],
   },
   dangerTriggerText: { flex: 1, ...Typography.body.m, color: Colors.status.error.text, fontWeight: '600' },

@@ -29,17 +29,35 @@ Notifications.setNotificationHandler({
 export function usePushToken() {
   const user = useAppStore(s => s.user);
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
+  const pushEnabled = useAppStore(s => s.pushEnabled);
 
   useEffect(() => {
     if (!IS_REAL_AUTH) return;
     if (!isAuthenticated || !user?.user_id) return;
     if (Platform.OS === 'web') return;
     if (!Device.isDevice) return; // 시뮬레이터는 알림 미지원
+    if (!pushEnabled) return;     // 사용자가 알림을 끈 상태면 토큰 등록 안 함
 
     registerToken(user.user_id).catch(err => {
       console.warn('push token register failed:', err);
     });
-  }, [isAuthenticated, user?.user_id]);
+  }, [isAuthenticated, user?.user_id, pushEnabled]);
+}
+
+/** 서버에서 이 사용자의 푸시 토큰 제거 — 알림 끄기 시 호출 (실제 발송 차단) */
+export async function unregisterPushTokens(userId: string) {
+  try {
+    await supabase.from('push_tokens').delete().eq('user_id', userId);
+  } catch (err) {
+    console.warn('push token unregister failed:', err);
+  }
+}
+
+/** 현재 기기에서 즉시 토큰 등록 — 알림 켜기 시 호출 (권한 이미 허용된 경우) */
+export async function registerPushTokenNow(userId: string) {
+  if (!IS_REAL_AUTH) return;
+  if (Platform.OS === 'web' || !Device.isDevice) return;
+  await registerToken(userId);
 }
 
 async function registerToken(userId: string) {

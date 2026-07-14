@@ -274,7 +274,7 @@ export default function DogEditScreen() {
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
         <ScrollView
@@ -500,6 +500,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: Layout.screenPadding,
     paddingTop: Spacing[16],
+    paddingBottom: Spacing[24],
   },
 
   // 헤더

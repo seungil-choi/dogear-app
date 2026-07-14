@@ -356,9 +356,12 @@ export default function ExploreScreen() {
     }
   }, [selectSpot, snapState, snapToHeight]);
 
-  // ── 카카오 마커 데이터 — sortedCards(2km 이내)만 렌더 (성능 및 정확도 보장) ──
+  // ── 카카오 마커 데이터 ──
+  // 기본은 반경 내 sortedCards(리스트와 일치). 단, 반경 내 결과가 0이면(비수도권·먼 위치 등)
+  // 지도가 텅 비지 않도록 로드된 전체 장소(homeCards)를 마커로 노출 — 지도를 옮기면 찾을 수 있게.
   const kakaoMarkers = useMemo<KakaoMarker[]>(() => {
-    return sortedCards
+    const source = sortedCards.length > 0 ? sortedCards : homeCards;
+    return source
       .map(card => {
         const spot = spots.find(sp => sp.spot_id === card.spot_id);
         if (!spot) return null;
@@ -371,7 +374,7 @@ export default function ExploreScreen() {
         } as KakaoMarker;
       })
       .filter(Boolean) as KakaoMarker[];
-  }, [sortedCards, spots]);
+  }, [sortedCards, homeCards, spots]);
 
   const [isLocating, setIsLocating] = useState(false);
 
