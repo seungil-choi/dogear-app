@@ -22,12 +22,20 @@ export function useAuth() {
     setAuthLoading(true);
 
     // 현재 세션 확인
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        await loadUserProfile(session.user.id);
-      }
-      setAuthLoading(false);
-    });
+    //  ⚠️ loadUserProfile은 네트워크 호출(users/dogs) — 오프라인/실패 시 reject 가능.
+    //  catch/finally가 없으면 setAuthLoading(false)에 도달하지 못해 스플래시가 영구 정지됨.
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        if (session?.user) {
+          await loadUserProfile(session.user.id);
+        }
+      })
+      .catch((e) => {
+        console.warn('restore session failed:', e);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
 
     // 인증 상태 변화 구독
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

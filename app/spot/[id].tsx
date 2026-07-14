@@ -20,7 +20,7 @@ import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Linking, Platform, Share, Modal, Pressable,
 } from 'react-native';
-import { notify, actionSheet } from '../../src/utils/dialog';
+import { notify, actionSheet, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -47,6 +47,7 @@ export default function SpotDetailScreen() {
   const getHomeCards   = useAppStore(s => s.getHomeCards);
   const spots          = useAppStore(s => s.spots);
   const currentLocation = useAppStore(s => s.currentLocation);
+  const dog            = useAppStore(s => s.dog);
 
   // 서버(spot-detail Edge Function)가 전체 강아지 기준으로 계산한 상세를 우선 사용.
   // 도착 전/실패/데모(DEV_SEED)에는 로컬 getSpotDetail로 폴백 — 분위기·흔적·익숙한 강아지가
@@ -78,6 +79,14 @@ export default function SpotDetailScreen() {
   const [selectedDog, setSelectedDog] = useState<FamiliarDogCardViewModel | null>(null);
 
   const handleSave = useCallback(() => {
+    // 강아지 미등록 사용자는 저장 불가(dog_id 필요) — 조용한 무반응 대신 등록 유도
+    if (!dog) {
+      confirm('강아지를 등록하면 마음에 든 장소를 저장할 수 있어요.', {
+        title: '강아지 등록이 필요해요',
+        confirmText: '등록하러 가기',
+      }).then(ok => { if (ok) router.push('/(auth)/dog-setup'); });
+      return;
+    }
     const wasSaved = vm?.is_saved;
     toggleSaveSpot(id);
     track(wasSaved ? EVENT.place_unsaved : EVENT.place_saved, {
@@ -85,7 +94,7 @@ export default function SpotDetailScreen() {
       place_id: id,
       place_category: vm?.category_label,
     });
-  }, [id, toggleSaveSpot, vm]);
+  }, [id, toggleSaveSpot, vm, dog, router]);
   const handleCopyAddress = useCallback(async (text: string) => {
     try {
       await Clipboard.setStringAsync(text);

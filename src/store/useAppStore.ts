@@ -693,7 +693,8 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     } = get();
     const spot = spots.find(s => s.spot_id === spotId);
     // hidden/blocked/merged 장소는 상세 노출 차단 (어드민에서 비노출 처리한 장소 보호)
-    if (!spot || !dog || spot.status !== 'active') return null;
+    // 강아지 미등록 사용자도 장소 탐색은 가능 — 개인화(방문/저장/익숙한 강아지)만 생략한다.
+    if (!spot || spot.status !== 'active') return null;
 
     // 차단 적용
     const blockedDogIds = new Set(blockedUsers.map(b => b.blocked_dog_id).filter(Boolean) as string[]);
@@ -701,13 +702,15 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
     const agg = serverAggregateToSpotAggregate(spotId, spotAggregates[spotId])
       ?? computeSpotAggregate(spotId, filteredCheckins);
-    const summary = visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spotId);
-    const isSaved = savedSpots.some(s => s.spot_id === spotId && s.dog_id === dog.dog_id);
+    const summary = dog ? visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spotId) : undefined;
+    const isSaved = dog ? savedSpots.some(s => s.spot_id === spotId && s.dog_id === dog.dog_id) : false;
 
-    const psMap = new Map([[dog.dog_id, privacySetting]]);
+    const psMap = new Map(dog ? [[dog.dog_id, privacySetting]] : []);
     // DEV: 익숙한 강아지 정보 조회 — 실사용 시 서버에서 가져옴
     const allDogsForLookup = [...dogs, ...mockOtherDogs];
-    const familiarDogs = buildFamiliarDogCards(spotId, familiarSignals, allDogsForLookup, dog.dog_id, psMap, filteredCheckins);
+    const familiarDogs = dog
+      ? buildFamiliarDogCards(spotId, familiarSignals, allDogsForLookup, dog.dog_id, psMap, filteredCheckins)
+      : [];
     const traces = buildTraceList(spotId, filteredCheckins);
 
     const regularStatus = summary ? computeRegularStatus(summary) : 'none';

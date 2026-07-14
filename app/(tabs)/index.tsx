@@ -12,6 +12,7 @@
 
 import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { track, EVENT } from '../../src/utils/analytics';
+import { confirm } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, RefreshControl, Dimensions, NativeScrollEvent, NativeSyntheticEvent,
@@ -314,12 +315,20 @@ export default function HomeScreen() {
   }, [router]);
 
   const handleFeaturedSave = useCallback((spotId: string) => {
+    // 강아지 미등록이면 저장 불가 — 등록 유도
+    if (!dog) {
+      confirm('강아지를 등록하면 마음에 든 장소를 저장할 수 있어요.', {
+        title: '강아지 등록이 필요해요',
+        confirmText: '등록하러 가기',
+      }).then(ok => { if (ok) router.push('/(auth)/dog-setup'); });
+      return;
+    }
     const wasSaved = savedSpots.some(sv => sv.spot_id === spotId && sv.dog_id === dog?.dog_id);
     track(wasSaved ? EVENT.place_unsaved : EVENT.place_saved, {
       screen_name: 'home', place_id: spotId,
     });
     toggleSaveSpot(spotId);
-  }, [toggleSaveSpot, savedSpots, dog]);
+  }, [toggleSaveSpot, savedSpots, dog, router]);
 
   // 강아지 미등록이어도 홈은 그대로 노출(장소 추천·섹션 유지) — 프로필 카드 자리에 등록 유도 배너만 표시
 

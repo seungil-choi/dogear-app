@@ -74,22 +74,23 @@ function SnsBubble({
 export default function LoginScreen() {
   const router  = useRouter();
   const login   = useAppStore(s => s.login);
-  const consent = useAppStore(s => s.consent);
-  const dog     = useAppStore(s => s.dog);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  // 신규 흐름: consent → dog-setup → permissions → tabs
+  // 인증 완료 후 라우팅
+  //  - 동의 이력이 없으면(신규) → consent → dog-setup → tabs 온보딩
+  //  - 있으면(재로그인) → 홈으로. 강아지는 useAuth가 비동기로 복원하며,
+  //    없더라도 홈에서 등록을 유도하므로 dog-setup으로 강제 튕기지 않는다.
+  //  ⚠️ 렌더 시점의 stale 값이 아니라 최신 store 상태로 판단.
   const proceedAfterAuth = (provider: string = 'guest') => {
     login();
     track(EVENT.login_completed, { screen_name: 'login', provider });
-    if (!consent) {
+    const freshConsent = useAppStore.getState().consent;
+    if (!freshConsent) {
       router.replace('/(auth)/consent');
-    } else if (!dog) {
-      router.replace('/(auth)/dog-setup');
     } else {
       router.replace('/(tabs)');
     }
@@ -198,7 +199,7 @@ export default function LoginScreen() {
     } catch (e: any) {
       if (e?.code === 'E_CANCELLED_OPERATION') return;
       console.error('Kakao login error:', e);
-      notify(`[진단] ${e?.name ?? 'Error'}: ${e?.message ?? String(e)}`, '카카오 오류(디버그)');
+      notify('카카오 로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
     }
   };
 
@@ -231,13 +232,7 @@ export default function LoginScreen() {
         body: { naverAccessToken: result.successResponse.accessToken },
       });
       if (fnError || !data?.email) {
-        // [임시 진단] edge fn이 반환한 step/error를 노출 — 원인 확인 후 원복
-        let detail = '';
-        try {
-          const body = await (fnError as any)?.context?.json?.();
-          if (body?.error) detail = `\n[진단 ${body.step ?? '?'}] ${body.error}`;
-        } catch { /* 본문 없음 */ }
-        notify(`네이버 로그인 처리에 실패했어요.${detail}`);
+        notify('네이버 로그인 처리에 실패했어요. 잠시 후 다시 시도해주세요.');
         return;
       }
       const { error: verifyError } = await supabase.auth.verifyOtp({
@@ -248,7 +243,7 @@ export default function LoginScreen() {
     } catch (e: any) {
       if (e?.code === 'CANCELLED' || e?.message?.includes('cancelled')) return;
       console.error('Naver login error:', e);
-      notify(`[진단] ${e?.name ?? 'Error'}: ${e?.message ?? String(e)}`, '네이버 오류(디버그)');
+      notify('네이버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
     }
   };
 

@@ -38,8 +38,11 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
 
   // 이전 위치 저장 — 동일 위치 중복 fetch 방지
   const prevLocationRef = useRef<{ lat: number; lng: number } | null>(null);
+  // 요청 순번 — 최초 폴백 호출과 위치기반 호출이 경쟁할 때 stale 결과가 최신을 덮지 않도록
+  const reqIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    const myReq = ++reqIdRef.current;
     setIsLoading(true);
     setSpotsLoading(true);  // 화면 스켈레톤 노출용 (store)
     setError(null);
@@ -74,6 +77,9 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         });
         if (!fbErr && fb?.spots) rawList = (fb.spots as any[]).slice(0, FALLBACK_LIMIT);
       }
+
+      // 더 최신 요청이 진행 중이면(예: 폴백 뒤늦게 도착) 결과 폐기 — 최신 위치 데이터 보존
+      if (myReq !== reqIdRef.current) return;
 
       // SpotCardViewModel (지도/목록 UI용)
       const mapped: SpotCardViewModel[] = rawList.map((s: any) => ({
@@ -128,11 +134,16 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
       setSpotAggregates(aggregates);
 
     } catch (err: any) {
-      console.error('useNearbySpots error:', err);
-      setError('스팟을 불러오지 못했어요');
+      if (myReq === reqIdRef.current) {
+        console.error('useNearbySpots error:', err);
+        setError('스팟을 불러오지 못했어요');
+      }
     } finally {
-      setIsLoading(false);
-      setSpotsLoading(false);
+      // 최신 요청만 로딩 상태를 해제 (stale 응답이 최신 로딩을 조기 종료하지 않도록)
+      if (myReq === reqIdRef.current) {
+        setIsLoading(false);
+        setSpotsLoading(false);
+      }
     }
   }, [currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading]);
 
