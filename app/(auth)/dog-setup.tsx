@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet,
+  View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../../src/utils/dialog';
@@ -159,7 +159,7 @@ export default function DogSetupScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+      <ScrollView style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
         <View style={s.titleRow}>
           <Text style={s.title}>강아지를 소개해주세요</Text>
           <View style={s.optionalBadge}>
@@ -228,7 +228,7 @@ export default function DogSetupScreen() {
               <TouchableOpacity
                 key={sz}
                 style={[s.chip, size === sz && s.chipSelected]}
-                onPress={() => setSize(sz)}
+                onPress={() => { Keyboard.dismiss(); setSize(sz); }}
               >
                 <Text style={[s.chipText, size === sz && s.chipTextSelected]}>{sizeLabel[sz]}</Text>
               </TouchableOpacity>
@@ -244,7 +244,7 @@ export default function DogSetupScreen() {
               <TouchableOpacity
                 key={ag}
                 style={[s.chip, ageGroup === ag && s.chipSelected]}
-                onPress={() => setAgeGroup(ag)}
+                onPress={() => { Keyboard.dismiss(); setAgeGroup(ag); }}
               >
                 <Text style={[s.chipText, ageGroup === ag && s.chipTextSelected]}>{ageGroupLabel[ag]}</Text>
               </TouchableOpacity>

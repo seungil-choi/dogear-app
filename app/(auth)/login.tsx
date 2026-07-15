@@ -88,12 +88,10 @@ export default function LoginScreen() {
   const proceedAfterAuth = (provider: string = 'guest') => {
     login();
     track(EVENT.login_completed, { screen_name: 'login', provider });
-    const freshConsent = useAppStore.getState().consent;
-    if (!freshConsent) {
-      router.replace('/(auth)/consent');
-    } else {
-      router.replace('/(tabs)');
-    }
+    // 로그인은 '기존 사용자' 진입 → 항상 홈으로. 신규 약관 동의는 가입(signup) 플로우가 전담한다.
+    // (재설치/기기변경으로 로컬 consent가 비어 있어도 홈으로 — 서버 프로필은 useAuth가 복원.
+    //  이전엔 consent만 보고 판단해 재설치마다 동의→강아지등록으로 튕기던 문제를 제거.)
+    router.replace('/(tabs)');
   };
 
   // 이메일 로그인

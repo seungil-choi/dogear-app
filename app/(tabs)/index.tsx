@@ -27,7 +27,6 @@ import { Icon } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { HomeRailSkeleton } from '../../src/components/common/Skeleton';
-import { EmptyState } from '../../src/components/common/EmptyState';
 import type { Dog, HomeSpotCardViewModel, AtmosphereState } from '../../src/types';
 
 // ─── 추천 카드 강아지 맞춤 설명 생성 ────────────────────────────────
@@ -445,27 +444,7 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* ── 빈 상태 (강아지는 있는데 주변 장소 데이터가 없을 때) ──
-            위치 권한이 원인이면 권한 안내를 우선, 그 외엔 지도 탐색 유도 */}
-        {dog && cards.length === 0 && !isSpotsLoading && (
-          <View style={s.emptyWrap}>
-            {!currentLocation ? (
-              <EmptyState
-                headline="위치 권한이 필요해요"
-                description="내 위치 주변 산책 장소를 추천하려면 위치 권한이 필요해요. 지도 탭에서 허용할 수 있어요."
-                ctaLabel="위치 허용하러 가기"
-                onCta={() => router.push('/(tabs)/map')}
-              />
-            ) : (
-              <EmptyState
-                headline="아직 주변 장소 정보가 없어요"
-                description="지도를 옮기거나 새로운 장소를 제안해보세요."
-                ctaLabel="지도 보기"
-                onCta={() => router.push('/(tabs)/map')}
-              />
-            )}
-          </View>
-        )}
+        {/* 위치 권한/주변 데이터와 무관하게 '오늘의 추천 스팟'은 항상 노출한다(서버 폴백으로 서울 대표 장소). */}
 
         {/* ── 오늘의 추천 스팟 (3개, 가로 스와이프) — 비어 있어도 영역 노출 ── */}
         {featuredCards.length === 0 && (

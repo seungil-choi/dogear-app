@@ -4,7 +4,6 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, Shadow } from '../../src/constants/tokens';
 import { Icon, type IconName } from '../../src/components/common/Icon';
-import { useAppEntryPermissions } from '../../src/hooks/useAppEntryPermissions';
 
 // 탭바 기본 크기 (여기에 safe-area inset.bottom을 더해 시스템 내비바와 겹침 방지)
 const TAB_BAR_BASE_HEIGHT = 72;
@@ -62,9 +61,6 @@ function PawTabButton({ onPress, children, style }: any) {
 export default function TabLayout() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-
-  // 홈(탭) 첫 진입 시 OS 위치·알림 권한 자동 요청 — 별도 안내 화면 없음
-  useAppEntryPermissions();
 
   return (
     <Tabs

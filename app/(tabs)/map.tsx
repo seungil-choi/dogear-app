@@ -387,18 +387,12 @@ export default function ExploreScreen() {
    *    - 권한 거부 시 안내 알림
    */
   const handleMyLocation = useCallback(async () => {
-    // 추적 해제
-    if (isTracking) {
-      setIsTracking(false);
-      return;
-    }
-
+    // 매 탭마다 내 위치로 재이동 (이전엔 추적 토글이 켜지면 다음 탭이 recenter 없이 꺼지기만 함)
     setIsLocating(true);
     try {
       // 탐색에서는 권한을 직접 요청하지 않음 — 상태만 확인, 미허용 시 시스템 설정으로 안내
       const existing = await Location.getForegroundPermissionsAsync();
-      const status = existing.status;
-      if (status !== 'granted') {
+      if (existing.status !== 'granted') {
         if (await confirm('내 위치를 보려면 설정에서 위치 권한을 허용해 주세요.', {
           title: '위치 권한이 필요해요',
           cancelText: '닫기',
@@ -409,11 +403,20 @@ export default function ExploreScreen() {
         return;
       }
 
-      const result = await Location.getCurrentPositionAsync({
-        accuracy: Platform.OS === 'web'
-          ? Location.Accuracy.Balanced
-          : Location.Accuracy.High,
-      });
+      // 1) 마지막으로 알려진 위치가 있으면 즉시 이동 (체감 반응성 — 고정밀 fix는 느릴 수 있음)
+      let moved = false;
+      try {
+        const last = await Location.getLastKnownPositionAsync();
+        if (last) {
+          const c = { latitude: last.coords.latitude, longitude: last.coords.longitude, accuracy: last.coords.accuracy ?? undefined };
+          setCurrentLocation(c);
+          mapRef.current?.setCenter(c.latitude, c.longitude, 4);
+          moved = true;
+        }
+      } catch { /* 무시 */ }
+
+      // 2) 정밀 위치로 갱신 (Balanced — High는 실내/최초 fix에서 자주 타임아웃)
+      const result = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       const fresh = {
         latitude: result.coords.latitude,
         longitude: result.coords.longitude,
@@ -425,7 +428,6 @@ export default function ExploreScreen() {
     } catch (e) {
       // fallback: 캐시된 위치라도 사용
       if (currentLocation) {
-        setIsTracking(true);
         mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
       } else {
         notify('잠시 후 다시 시도해 주세요.', '위치를 가져올 수 없어요');
@@ -500,6 +502,9 @@ export default function ExploreScreen() {
                     query_length: q.length,
                     result_count: sortedCards.length,
                   });
+                  if (sortedCards.length === 0) {
+                    notify(`'${q}'에 대한 검색 결과가 없습니다.`, '검색 결과 없음');
+                  }
                 }
               }}
             />

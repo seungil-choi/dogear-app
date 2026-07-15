@@ -108,9 +108,16 @@ export default function DogDetailScreen() {
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         {/* 프로필 헤더 */}
         <View style={s.profile}>
-          <View style={s.avatar}>
-            <AppImage source={{ uri: dog.avatar_url }} style={{ width: 72, height: 72 }} resizeMode="cover" accessibilityLabel={`${dog.name} 사진`} />
-          </View>
+          {dog.avatar_url ? (
+            <View style={s.avatar}>
+              <AppImage source={{ uri: dog.avatar_url }} style={{ width: 72, height: 72 }} resizeMode="cover" accessibilityLabel={`${dog.name} 사진`} />
+            </View>
+          ) : (
+            // 사진 없으면 이름 첫 글자 (홈 아바타와 동일한 일관성)
+            <View style={[s.avatar, s.avatarPlaceholder]}>
+              <Text style={s.avatarInitial}>{dog.name[0]}</Text>
+            </View>
+          )}
           <Text style={s.name}>{dog.name}</Text>
           <Text style={s.meta}>
             {[dog.breed, sizeLabel[dog.size]].filter(Boolean).join(' · ')}
@@ -182,6 +189,12 @@ const s = StyleSheet.create({
     width: 72, height: 72, borderRadius: 36, overflow: 'hidden',
     backgroundColor: Colors.bg.secondary, marginBottom: Spacing[12],
   },
+  avatarPlaceholder: {
+    backgroundColor: Colors.brand.subtle,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: Colors.border.brand,
+  },
+  avatarInitial: { fontSize: 28, fontWeight: '700', color: Colors.brand.accent },
   name: { ...Typography.title.m, color: Colors.text.primary },
   meta: { ...Typography.body.s, color: Colors.text.secondary, marginTop: Spacing[4] },
 
