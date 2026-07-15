@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,30 @@ import { useRouter } from 'expo-router';
 import { Icon } from '../src/components/common/Icon';
 import { EmptyState } from '../src/components/common/EmptyState';
 import { Colors, Typography, Spacing, Layout } from '../src/constants/tokens';
+import { supabase } from '../src/lib/supabase';
+import { relativeTime } from '../src/utils/labels';
 
-// DEV_SEED 모드에서만 데모 알림 노출 (실 환경에서는 빈 상태로 시작)
-import { IS_DEV_SEED as SHOW_MOCK } from '../src/config/env';
+// DEV_SEED 모드에서만 데모 알림 노출 (실 환경에서는 서버에서 로드)
+import { IS_DEV_SEED as SHOW_MOCK, IS_REAL_AUTH } from '../src/config/env';
+
+// 알림 타입 → 아이콘
+const ICON_BY_TYPE: Record<string, string> = {
+  familiar_dog_visited: 'paw',
+  weekly_summary: 'star',
+  saved_spot_update: 'bookmark',
+};
+
+// created_at → 그룹(오늘/어제/이번 주)
+function groupOf(iso: string): NotificationGroup {
+  const d = new Date(iso);
+  const now = new Date();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startYesterday = new Date(startToday);
+  startYesterday.setDate(startYesterday.getDate() - 1);
+  if (d >= startToday) return '오늘';
+  if (d >= startYesterday) return '어제';
+  return '이번 주';
+}
 
 // ─── 타입 정의 ──────────────────────────────────────────────────
 type NotificationGroup = '오늘' | '어제' | '이번 주';
@@ -91,9 +112,35 @@ export default function NotificationsScreen() {
   const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState<NotificationItem[]>(SHOW_MOCK ? MOCK_NOTIFICATIONS : []);
 
+  // 실 환경: 서버 notifications 테이블에서 로드
+  useEffect(() => {
+    if (!IS_REAL_AUTH) return;
+    (async () => {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (!data) return;
+      setNotifications(data.map((n: any) => ({
+        id: n.notification_id,
+        group: groupOf(n.created_at),
+        icon: ICON_BY_TYPE[n.type] ?? 'bell',
+        title: n.title,
+        desc: n.body,
+        time: relativeTime(n.created_at),
+        read: !!n.read_at,
+        spot_id: n.data?.spot_id,
+      })));
+    })();
+  }, []);
+
   // 모두 읽음 처리
   const handleMarkAllRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    if (IS_REAL_AUTH) {
+      supabase.from('notifications').update({ read_at: new Date().toISOString() }).is('read_at', null).then(() => {});
+    }
   };
 
   // 개별 알림 클릭 — 읽음 처리 + 연결 장소로 이동
@@ -101,6 +148,9 @@ export default function NotificationsScreen() {
     setNotifications(prev =>
       prev.map(n => (n.id === item.id ? { ...n, read: true } : n))
     );
+    if (IS_REAL_AUTH && !item.read) {
+      supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('notification_id', item.id).then(() => {});
+    }
     if (item.spot_id) {
       router.push(`/spot/${item.spot_id}`);
     }

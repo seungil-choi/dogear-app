@@ -36,6 +36,16 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // 내부 전용 — service-role 호출자만 허용 (일반 사용자가 임의 대상에 푸시 발송하는 것 차단)
+  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+  const auth = req.headers.get('Authorization') ?? '';
+  if (!serviceKey || auth !== `Bearer ${serviceKey}`) {
+    return new Response(JSON.stringify({ error: 'Forbidden' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     const payload: PushBody = await req.json();
     if (!payload.title || !payload.body) {

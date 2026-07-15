@@ -353,6 +353,12 @@ export default function PawCheckinModal() {
       }
     }
     submitPawCheckin(serverResult); // 로컬 store 업데이트 (서버 집계 반영, 즉각적인 UI)
+    // 익숙한 강아지 알림 트리거 (best-effort, familiar_layer 발도장일 때만)
+    if (IS_REAL_AUTH && pawFlow.visibility === 'familiar_layer' && dog && targetSpot) {
+      supabase.functions
+        .invoke('notify-familiar', { body: { dogId: dog.dog_id, spotId: targetSpot.spot_id } })
+        .catch(() => {});
+    }
     track(EVENT.pawmark_completed, {
       screen_name: 'paw_checkin',
       place_id: selectedSpot?.spot_id,
