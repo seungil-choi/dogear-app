@@ -40,7 +40,10 @@ export default function ReportScreen() {
     /** user/dog 타깃일 때 차단 옵션을 위한 부가 정보 */
     user_id?: string;
     dog_id?: string;
+    dog_name?: string;         // 차단 목록 표시용
+    dog_avatar_url?: string;
   }>();
+  const blockMeta = { name: params.dog_name, avatar_url: params.dog_avatar_url };
   const reportContent = useAppStore(s => s.reportContent);
   const blockUser     = useAppStore(s => s.blockUser);
 
@@ -85,11 +88,11 @@ export default function ReportScreen() {
           blockUser(targetId);
           hidden = true;
         } else if (targetType === 'dog') {
-          // dog 단위 차단 — user_id 알면 같이 전달
-          blockUser(params.user_id ?? '', targetId);
+          // dog 단위 차단 — user_id 알면 같이 전달, 표시용 이름/아바타 보관
+          blockUser(params.user_id ?? '', targetId, blockMeta);
           hidden = true;
         } else if (targetType === 'checkin' && (params.user_id || params.dog_id)) {
-          blockUser(params.user_id ?? '', params.dog_id);
+          blockUser(params.user_id ?? '', params.dog_id, blockMeta);
           hidden = true;
         }
       } catch {

@@ -409,8 +409,10 @@ export interface Report {
 export interface BlockedUser {
   block_id: string;
   blocker_user_id: string;
-  blocked_user_id: string;
-  blocked_dog_id?: string;     // 강아지 단위로도 차단 가능
+  blocked_user_id?: string;    // 사용자 단위 차단
+  blocked_dog_id?: string;     // 강아지 단위 차단
+  blocked_dog_name?: string;        // 표시용(비정규화) — 타 강아지 이름은 RLS로 못 읽으므로 차단 시점에 보관
+  blocked_dog_avatar_url?: string;  // 표시용(비정규화)
   blocked_at: string;
 }
 

@@ -58,6 +58,7 @@ Deno.serve(async (req: Request) => {
       visitSummaryResult,
       savedSpotResult,
       familiarDogsResult,
+      blocksResult,
     ] = await Promise.all([
       // 스팟 기본 정보
       supabase
@@ -108,6 +109,9 @@ Deno.serve(async (req: Request) => {
             .order('recent_last_seen_at', { ascending: false })
             .limit(MAX_FAMILIAR_DOGS)
         : Promise.resolve({ data: null, error: null }),
+
+      // 호출자 차단 목록 (RLS로 본인 것만) — 차단한 강아지의 흔적/익숙한강아지 제외
+      supabase.from('blocks').select('blocked_dog_id'),
     ]);
 
     if (spotResult.error || !spotResult.data) {
@@ -115,7 +119,11 @@ Deno.serve(async (req: Request) => {
     }
 
     const spot = spotResult.data;
-    const recentCheckins = recentCheckinsResult.data ?? [];
+    const blockedDogIds = new Set(
+      (blocksResult.data ?? []).map((b: any) => b.blocked_dog_id).filter(Boolean)
+    );
+    const recentCheckins = (recentCheckinsResult.data ?? [])
+      .filter((c: any) => !blockedDogIds.has(c.dog_id));
 
     // 전체 체크인 수 (집계용 — 비공개 제외, service-role로 전체 커뮤니티 카운트)
     const { count: totalCheckinCount } = await svc
@@ -130,10 +138,12 @@ Deno.serve(async (req: Request) => {
     const topTags = getTopTags(allTags);
     const atmosphereState = deriveAtmosphereState(topTags);
 
-    // 익숙한 강아지 정보 조회 (dog_id → dog 정보)
+    // 익숙한 강아지 정보 조회 (dog_id → dog 정보) — 차단한 강아지 제외
     let familiarDogs: any[] = [];
-    if (familiarDogsResult.data && familiarDogsResult.data.length > 0) {
-      const familiarDogIds = familiarDogsResult.data.map((f: any) => f.visible_dog_id);
+    const familiarSignals = (familiarDogsResult.data ?? [])
+      .filter((f: any) => !blockedDogIds.has(f.visible_dog_id));
+    if (familiarSignals.length > 0) {
+      const familiarDogIds = familiarSignals.map((f: any) => f.visible_dog_id);
       const { data: dogDetails } = await supabase
         .from('dogs')
         .select('dog_id, name, avatar_url, size, temperament_tags')
@@ -146,7 +156,7 @@ Deno.serve(async (req: Request) => {
           dogMap[d.dog_id] = d;
         });
 
-        familiarDogs = familiarDogsResult.data
+        familiarDogs = familiarSignals
           .filter((f: any) => dogMap[f.visible_dog_id])
           .map((f: any) => {
             const dog = dogMap[f.visible_dog_id];

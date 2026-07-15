@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 import { registerRefreshHandler } from '@/utils/refreshBus';
-import type { PawCheckin, SavedSpot, SpotVisitSummary } from '@/types';
+import type { PawCheckin, SavedSpot, SpotVisitSummary, BlockedUser } from '@/types';
 
 export function useUserData() {
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
@@ -24,6 +24,7 @@ export function useUserData() {
   const setCheckins       = useAppStore(s => s.setCheckins);
   const setSavedSpots     = useAppStore(s => s.setSavedSpots);
   const setVisitSummaries = useAppStore(s => s.setVisitSummaries);
+  const setBlockedUsers   = useAppStore(s => s.setBlockedUsers);
 
   // 한 번만 로드하도록 dog_id 추적
   const loadedDogRef = useRef<string | null>(null);
@@ -48,7 +49,7 @@ export function useUserData() {
     // 익숙한 강아지(familiar) 신호는 직접 조회하지 않는다 — 프라이버시상 RLS로 직접 접근을
     // 차단했고(정확한 last_seen/횟수 노출 방지), 화면엔 spot-detail/familiar-dogs Edge Function이
     // 6조건 검증 + 완화해 제공한다.
-    const [checkinRes, savedRes, summaryRes] = await Promise.allSettled([
+    const [checkinRes, savedRes, summaryRes, blocksRes] = await Promise.allSettled([
       // 발도장 목록 (최근 200개)
       supabase
         .from('paw_checkins')
@@ -68,6 +69,11 @@ export function useUserData() {
         .from('spot_visit_summaries')
         .select('*')
         .eq('dog_id', dogId),
+
+      // 차단 목록 (사용자 단위 — RLS로 본인 것만 반환)
+      supabase
+        .from('blocks')
+        .select('*'),
     ]);
 
     if (checkinRes.status === 'fulfilled' && checkinRes.value.data) {
@@ -112,6 +118,19 @@ export function useUserData() {
         updated_at: s.updated_at,
       }));
       setVisitSummaries(mapped);
+    }
+
+    if (blocksRes.status === 'fulfilled' && blocksRes.value.data) {
+      const mapped: BlockedUser[] = blocksRes.value.data.map((b: any) => ({
+        block_id: b.block_id,
+        blocker_user_id: b.blocker_user_id,
+        blocked_user_id: b.blocked_user_id ?? undefined,
+        blocked_dog_id: b.blocked_dog_id ?? undefined,
+        blocked_dog_name: b.blocked_dog_name ?? undefined,
+        blocked_dog_avatar_url: b.blocked_dog_avatar_url ?? undefined,
+        blocked_at: b.created_at,
+      }));
+      setBlockedUsers(mapped);
     }
   }
 }

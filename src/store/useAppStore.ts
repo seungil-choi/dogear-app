@@ -148,8 +148,9 @@ interface AppState {
 
   // UGC 모더레이션 (App Store 1.2 필수)
   reportContent: (target_type: ReportTargetType, target_id: string, reason: ReportReason, detail?: string) => void;
-  blockUser: (blocked_user_id: string, blocked_dog_id?: string) => void;
+  blockUser: (blocked_user_id: string, blocked_dog_id?: string, meta?: { name?: string; avatar_url?: string }) => void;
   unblockUser: (block_id: string) => void;
+  setBlockedUsers: (blockedUsers: BlockedUser[]) => void;
   isUserBlocked: (user_id: string) => boolean;
 
   // 정보 수정 제안 (어드민 IA "신고 > 정보 수정 제안" 큐로 들어감)
@@ -518,24 +519,53 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     // 추후 백엔드 연결 시 자동으로 어드민 큐에 들어감
   },
 
-  blockUser: (blocked_user_id, blocked_dog_id) => {
+  blockUser: (blocked_user_id, blocked_dog_id, meta) => {
     const { blockedUsers, user } = get();
     if (!user) return;
-    if (blockedUsers.some(b => b.blocked_user_id === blocked_user_id)) return;
+    // dedup: 강아지 차단이면 dog_id 기준, 사용자 차단이면 user_id 기준
+    //   (이전엔 항상 blocked_user_id로만 dedup해서, 익명(빈 user_id) 강아지 2건째가 조용히 무시됨)
+    const dup = blocked_dog_id
+      ? blockedUsers.some(b => b.blocked_dog_id === blocked_dog_id)
+      : blockedUsers.some(b => b.blocked_user_id === blocked_user_id && !b.blocked_dog_id);
+    if (dup) return;
+    const tempId = `blk_${Date.now()}`;
     const newBlock: BlockedUser = {
-      block_id: `blk_${Date.now()}`,
+      block_id: tempId,
       blocker_user_id: user.user_id,
-      blocked_user_id,
+      blocked_user_id: blocked_user_id || undefined,
       blocked_dog_id,
+      blocked_dog_name: meta?.name,
+      blocked_dog_avatar_url: meta?.avatar_url,
       blocked_at: new Date().toISOString(),
     };
-    set({ blockedUsers: [...blockedUsers, newBlock] });
+    set({ blockedUsers: [...blockedUsers, newBlock] });  // 낙관적
+    // 서버 영속화 (실환경) — 성공 시 임시 id를 서버 id로 교체
+    if (IS_REAL_AUTH) {
+      supabase.from('blocks').insert({
+        blocker_user_id: user.user_id,
+        blocked_user_id: blocked_user_id || null,
+        blocked_dog_id: blocked_dog_id ?? null,
+        blocked_dog_name: meta?.name ?? null,
+        blocked_dog_avatar_url: meta?.avatar_url ?? null,
+      }).select('block_id, created_at').single().then(({ data, error }) => {
+        if (error || !data) return;  // 실패해도 로컬 차단은 유지(다음 로그인 시 서버와 재동기화)
+        set(s => ({
+          blockedUsers: s.blockedUsers.map(b =>
+            b.block_id === tempId ? { ...b, block_id: data.block_id, blocked_at: data.created_at } : b),
+        }));
+      });
+    }
   },
 
   unblockUser: (block_id) => {
     const { blockedUsers } = get();
-    set({ blockedUsers: blockedUsers.filter(b => b.block_id !== block_id) });
+    set({ blockedUsers: blockedUsers.filter(b => b.block_id !== block_id) });  // 낙관적
+    if (IS_REAL_AUTH && !block_id.startsWith('blk_')) {
+      supabase.from('blocks').delete().eq('block_id', block_id).then(() => {});
+    }
   },
+
+  setBlockedUsers: (blockedUsers) => set({ blockedUsers }),
 
   isUserBlocked: (user_id) => {
     return get().blockedUsers.some(b => b.blocked_user_id === user_id);

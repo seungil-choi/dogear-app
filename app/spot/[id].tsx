@@ -149,7 +149,13 @@ export default function SpotDetailScreen() {
       setSelectedDog(null);
       router.push({
         pathname: '/report',
-        params: { target_type: 'dog', target_id: dog.dog_id, dog_id: dog.dog_id },
+        params: {
+          target_type: 'dog',
+          target_id: dog.dog_id,
+          dog_id: dog.dog_id,
+          dog_name: dog.name,
+          dog_avatar_url: dog.avatar_url ?? '',
+        },
       });
     }
   }, [router]);

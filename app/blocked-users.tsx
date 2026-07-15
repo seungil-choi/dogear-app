@@ -20,7 +20,6 @@ import type { BlockedUser } from '../src/types';
 export default function BlockedUsersScreen() {
   const router = useRouter();
   const blockedUsers = useAppStore(s => s.blockedUsers);
-  const dogs         = useAppStore(s => s.dogs);
   const unblockUser  = useAppStore(s => s.unblockUser);
 
   const onUnblock = async (item: BlockedUser) => {
@@ -34,8 +33,8 @@ export default function BlockedUsersScreen() {
   };
 
   const renderItem = ({ item }: { item: BlockedUser }) => {
-    const dog = item.blocked_dog_id ? dogs.find(d => d.dog_id === item.blocked_dog_id) : null;
-    const name = dog?.name ?? '익명 사용자';
+    // 차단 시점에 보관한 강아지 이름 사용(타 강아지 이름은 RLS로 조회 불가)
+    const name = item.blocked_dog_name ?? (item.blocked_dog_id ? '차단한 강아지' : '차단한 사용자');
     return (
       <View style={s.row}>
         <View style={s.avatar}>

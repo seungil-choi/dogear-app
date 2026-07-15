@@ -86,6 +86,12 @@ Deno.serve(async (req: Request) => {
       return Response.json({ familiar_dogs: [] }, { headers: corsHeaders });
     }
 
+    // 호출자 차단 강아지 제외 (RLS로 본인 차단목록만 반환)
+    const { data: blocks } = await supabase.from('blocks').select('blocked_dog_id');
+    const blockedDogIds = new Set(
+      (blocks ?? []).map((b: any) => b.blocked_dog_id).filter(Boolean)
+    );
+
     const candidateDogIds = signals.map((s: any) => s.visible_dog_id);
 
     // 조건 3, 4: privacy_settings 확인
@@ -131,7 +137,10 @@ Deno.serve(async (req: Request) => {
 
     // 최종 후보 필터링
     const finalSignals = signals
-      .filter((s: any) => allowedDogIds.has(s.visible_dog_id) && qualifiedDogIds.has(s.visible_dog_id))
+      .filter((s: any) =>
+        allowedDogIds.has(s.visible_dog_id) &&
+        qualifiedDogIds.has(s.visible_dog_id) &&
+        !blockedDogIds.has(s.visible_dog_id))
       .slice(0, MAX_FAMILIAR_DOGS);
 
     if (finalSignals.length === 0) {
