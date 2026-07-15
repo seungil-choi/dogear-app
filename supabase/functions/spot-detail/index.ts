@@ -29,6 +29,13 @@ Deno.serve(async (req: Request) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
+    // 커뮤니티 흔적/집계(타 사용자 체크인)는 RLS 우회 service-role로 읽되,
+    // 공개(spot_only)만 노출해 familiar_layer/private 프라이버시를 보호한다.
+    const svc = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
@@ -60,12 +67,12 @@ Deno.serve(async (req: Request) => {
         .eq('status', 'active')
         .single(),
 
-      // 최근 48시간 체크인 (공개 기준)
-      supabase
+      // 최근 48시간 공개 체크인(흔적) — 공개(spot_only)만, service-role로 전체 조회
+      svc
         .from('paw_checkins')
         .select('checkin_id, feeling_tags, note, photo_url, checked_in_at, visibility_level, dog_id')
         .eq('spot_id', spotId)
-        .neq('visibility_level', 'private')
+        .eq('visibility_level', 'spot_only')
         .eq('is_valid_for_aggregate', true)
         .gte('checked_in_at', since48h)
         .order('checked_in_at', { ascending: false })
@@ -110,12 +117,13 @@ Deno.serve(async (req: Request) => {
     const spot = spotResult.data;
     const recentCheckins = recentCheckinsResult.data ?? [];
 
-    // 전체 체크인 수 (집계용)
-    const { count: totalCheckinCount } = await supabase
+    // 전체 체크인 수 (집계용 — 비공개 제외, service-role로 전체 커뮤니티 카운트)
+    const { count: totalCheckinCount } = await svc
       .from('paw_checkins')
       .select('*', { count: 'exact', head: true })
       .eq('spot_id', spotId)
-      .eq('is_valid_for_aggregate', true);
+      .eq('is_valid_for_aggregate', true)
+      .neq('visibility_level', 'private');
 
     // 분위기 태그 집계
     const allTags: string[] = recentCheckins.flatMap((c: any) => c.feeling_tags ?? []);

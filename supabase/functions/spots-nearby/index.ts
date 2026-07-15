@@ -30,6 +30,15 @@ Deno.serve(async (req: Request) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
+    // 커뮤니티 집계(타 사용자 체크인)는 RLS 우회 service-role로 읽는다.
+    //   - 사용자 JWT 클라이언트로 읽으면 RLS(checkins_own) 때문에 본인 체크인만 반환되어
+    //     분위기/체크인 수 집계가 죽는다.
+    //   - 노출은 공개(spot_only)로 한정해 familiar_layer/private 프라이버시를 보호.
+    const svc = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     // 현재 사용자 확인
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
@@ -92,12 +101,11 @@ Deno.serve(async (req: Request) => {
     }
 
     // 최근 체크인 분위기 태그 집계 (지난 48시간)
-    const { data: recentCheckins } = await supabase
+    const { data: recentCheckins } = await svc
       .from('paw_checkins')
       .select('spot_id, feeling_tags')
       .in('spot_id', spotIds)
       .eq('visibility_level', 'spot_only')
-      .neq('visibility_level', 'private')
       .eq('is_valid_for_aggregate', true)
       .gte('checked_in_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
       .order('checked_in_at', { ascending: false });
@@ -129,12 +137,13 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // 체크인 수 조회
-    const { data: checkinCounts } = await supabase
+    // 체크인 수 조회 (커뮤니티 활동량 — 비공개 제외)
+    const { data: checkinCounts } = await svc
       .from('paw_checkins')
       .select('spot_id')
       .in('spot_id', spotIds)
-      .eq('is_valid_for_aggregate', true);
+      .eq('is_valid_for_aggregate', true)
+      .neq('visibility_level', 'private');
 
     const checkinCountMap: Record<string, number> = {};
     if (checkinCounts) {

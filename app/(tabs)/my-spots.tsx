@@ -50,10 +50,16 @@ export default function MySpotsScreen() {
   const spots          = useAppStore(s => s.spots);
   const visitSummaries = useAppStore(s => s.visitSummaries);
   const savedSpots     = useAppStore(s => s.savedSpots);
+  const currentLocation = useAppStore(s => s.currentLocation);
   const isSaved        = useAppStore(s => s.isSaved);
   const getHomeCards   = useAppStore(s => s.getHomeCards);
 
-  const homeCards = useMemo(() => getHomeCards(), [getHomeCards]);
+  // getHomeCards는 안정적 액션 참조라 [getHomeCards]만으로는 마운트 후 재계산 안 됨
+  // → 비동기 로드된 spots가 반영 안 돼 저장 장소 거리/배지가 죽음. 실데이터 dep으로 재계산.
+  const homeCards = useMemo(
+    () => getHomeCards(),
+    [getHomeCards, spots, visitSummaries, savedSpots, dog, currentLocation],
+  );
 
   // ── 발도장 남긴 곳 ────────────────────────────────────────────
   const visitedSpots = useMemo(() => {

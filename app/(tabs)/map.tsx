@@ -73,6 +73,8 @@ export default function ExploreScreen() {
   const router       = useRouter();
   const getHomeCards    = useAppStore(s => s.getHomeCards);
   const spots           = useAppStore(s => s.spots);
+  const visitSummaries  = useAppStore(s => s.visitSummaries);
+  const dog             = useAppStore(s => s.dog);
   const isSaved         = useAppStore(s => s.isSaved);
   const selectSpot      = useAppStore(s => s.selectSpot);
   const currentLocation     = useAppStore(s => s.currentLocation);
@@ -147,7 +149,11 @@ export default function ExploreScreen() {
   const mapRef = useRef<KakaoMapRef>(null);
   const cardListRef = useRef<ScrollView>(null);
   const cardOffsetsRef = useRef<Record<string, number>>({});
-  const homeCards = getHomeCards();
+  // 실데이터 dep으로 memo화 — 지도 팬 중 매 프레임 카드 전량 재빌드 + WebView 마커 재주입 방지.
+  const homeCards = useMemo(
+    () => getHomeCards(),
+    [getHomeCards, spots, visitSummaries, dog, currentLocation],
+  );
 
   // ── 슬라이드 패널 (네이버 지도 스타일) ────────────────────────
   // 패널은 4단 snap:
