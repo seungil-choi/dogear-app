@@ -273,7 +273,8 @@ export default function ExploreScreen() {
     regionFetchTimer.current = setTimeout(async () => {
       // 서버 상한 10km — 줌아웃해도 중심 기준 10km씩 로드하며 팬으로 누적 탐색
       // (zoomBasedRadiusM은 아래에서 선언되므로 여기선 zoomLevel로 직접 계산)
-      const zoomRadius = zoomLevel <= 4 ? 3000 : zoomLevel === 5 ? 3500 : zoomLevel === 6 ? 7000 : 10000;
+      // 반경을 한 단계 넓게 잡아 주변 팬 시 재페치 없이 핀이 이미 로드돼 있게 함
+      const zoomRadius = zoomLevel <= 4 ? 5000 : zoomLevel === 5 ? 6000 : 10000;
       const radius = Math.min(zoomRadius, 10000);
       const last = lastFetchRef.current;
       if (last) {
@@ -310,7 +311,7 @@ export default function ExploreScreen() {
         }
         useAppStore.getState().mergeSpots(merged, aggs);
       } catch { /* 지역 페치 실패는 조용히 무시 — 기존 핀 유지 */ }
-    }, 700);
+    }, 400);
     return () => { if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current); };
   }, [mapCenter.lat, mapCenter.lng, zoomLevel, dogIdForFetch]);
 

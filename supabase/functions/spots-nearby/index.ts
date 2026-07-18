@@ -11,7 +11,7 @@ import { corsHeaders, handleCors } from '../_shared/cors.ts';
 
 const DEFAULT_RADIUS_M = 2000;
 const MAX_RADIUS_M = 10000;
-const MAX_RESULTS = 50;
+const MAX_RESULTS = 150;   // 넓은 반경(지도 팬/줌아웃)에서 핀 밀도 확보
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req);
