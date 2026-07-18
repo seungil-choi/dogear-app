@@ -1,17 +1,15 @@
 /**
- * 앱 설정 화면
+ * 약관 및 정책 화면
  *
  * profile.tsx의 "설정" 섹션에서 진입.
- * 알림 설정 / 위치 권한 / 고객센터 / 개인정보 처리방침 / 로그아웃 / 계정 삭제
+ * 서비스 이용약관 / 개인정보 처리방침 / 위치기반서비스 이용약관
+ * (OS 권한은 별도 "앱 권한" 화면(app-permissions)으로 분리)
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView,
-  StyleSheet, Linking, Switch, Platform, AppState,
+  View, Text, TouchableOpacity, ScrollView, StyleSheet,
 } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import { notify } from '../src/utils/dialog';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
@@ -61,69 +59,6 @@ function SectionTitle({ label }: { label: string }) {
 export default function SettingsScreen() {
   const router  = useRouter();
 
-  // 알림 권한 — OS 권한 상태와 실시간 동기화
-  //   ON 시도: 권한 요청 → 거부되어 있으면 설정 안내
-  //   OFF 시도: OS에서 앱이 권한을 직접 끌 수 없으므로 설정으로 안내
-  const [notifEnabled, setNotifEnabled] = useState(false);
-
-  const syncNotifPermission = useCallback(async () => {
-    if (Platform.OS === 'web') {
-      if (typeof window !== 'undefined' && 'Notification' in window) {
-        setNotifEnabled(window.Notification.permission === 'granted');
-      }
-      return;
-    }
-    try {
-      const { status } = await Notifications.getPermissionsAsync();
-      setNotifEnabled(status === 'granted');
-    } catch {
-      setNotifEnabled(false);
-    }
-  }, []);
-
-  // 마운트 시 + 백그라운드→포그라운드 복귀 시(OS 설정 변경 반영) 동기화
-  useEffect(() => {
-    syncNotifPermission();
-    const sub = AppState.addEventListener('change', state => {
-      if (state === 'active') syncNotifPermission();
-    });
-    return () => sub.remove();
-  }, [syncNotifPermission]);
-
-  const handleNotifToggle = useCallback(async (next: boolean) => {
-    if (Platform.OS === 'web') {
-      if (typeof window === 'undefined' || !('Notification' in window)) {
-        notify('이 브라우저는 알림을 지원하지 않아요.', '알림 미지원');
-        return;
-      }
-      if (next) {
-        const result = await window.Notification.requestPermission();
-        setNotifEnabled(result === 'granted');
-        if (result !== 'granted') {
-          notify('브라우저 사이트 설정에서 알림을 허용해주세요.', '알림 권한');
-        }
-      } else {
-        notify('알림 해제는 브라우저 사이트 설정에서 변경할 수 있어요.', '알림 권한');
-      }
-      return;
-    }
-
-    if (next) {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status === 'granted') {
-        setNotifEnabled(true);
-      } else {
-        // OS가 다이얼로그를 차단한 상태 → 설정으로 안내
-        notify('설정에서 DogEar의 알림을 허용해주세요.', '알림 권한 필요');
-        Linking.openSettings().catch(() => {});
-      }
-    } else {
-      // 앱이 OS 권한을 직접 해제할 수 없음 → 설정으로 안내
-      notify('알림 해제는 시스템 설정에서 변경할 수 있어요.', '알림 권한');
-      Linking.openSettings().catch(() => {});
-    }
-  }, []);
-
   return (
     <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
       {/* 헤더 */}
@@ -140,37 +75,7 @@ export default function SettingsScreen() {
         contentContainerStyle={s.content}
         showsVerticalScrollIndicator={false}
       >
-        {/* ──────────────────────────────────────────
-            1) 권한 — 시스템 권한 (알림 OS 설정 + 위치)
-              알림 자체는 마이의 활동 섹션에서 관리, 여기는 OS 권한 토글
-        ────────────────────────────────────────── */}
-        <SectionTitle label="권한" />
-        <View style={s.card}>
-          <SettingsRow
-            icon="bell"
-            label="알림 권한"
-            rightEl={
-              <Switch
-                value={notifEnabled}
-                onValueChange={handleNotifToggle}
-                trackColor={{ false: Colors.border.default, true: Colors.brand.primaryLight }}
-                thumbColor={notifEnabled ? Colors.brand.primary : Colors.bg.secondary}
-                accessibilityLabel="알림 권한"
-              />
-            }
-          />
-          <View style={s.divider} />
-          <SettingsRow
-            icon="location"
-            label="위치 권한"
-            value="사용 중"
-            onPress={() => Linking.openSettings()}
-          />
-        </View>
-
-        {/* ──────────────────────────────────────────
-            2) 약관 및 정책 — 한 번 보고 마는 항목들
-        ────────────────────────────────────────── */}
+        {/* 약관 및 정책 — OS 권한은 "앱 권한" 화면으로 분리됨 */}
         <SectionTitle label="약관 및 정책" />
         <View style={s.card}>
           <SettingsRow icon="document" label="서비스 이용약관"        onPress={() => router.push('/(legal)/terms')} />

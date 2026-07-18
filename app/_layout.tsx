@@ -191,6 +191,13 @@ function RootLayoutInner() {
             animation: 'slide_from_right',
           }}
         />
+        <Stack.Screen
+          name="app-permissions"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
         </Stack.Protected>
       </Stack>
     </ErrorBoundary>

@@ -229,7 +229,8 @@ export default function ProfileScreen() {
             </View>
             <View style={s.settingsCard}>
               <SettingsRow icon="bell"     label="알림 설정"     onPress={() => router.push('/notification-settings' as any)} />
-              <SettingsRow icon="person"   label="차단한 사용자" onPress={() => router.push('/blocked-users')} />
+              <SettingsRow icon="settings" label="앱 권한"       onPress={() => router.push('/app-permissions' as any)} />
+            <SettingsRow icon="person"   label="차단한 사용자" onPress={() => router.push('/blocked-users')} />
               <SettingsRow icon="person"   label="계정 관리"    onPress={() => router.push('/account-delete')} />
             </View>
           </View>
@@ -373,6 +374,7 @@ export default function ProfileScreen() {
           </View>
           <View style={s.settingsCard}>
             <SettingsRow icon="bell"     label="알림 설정"     onPress={() => router.push('/notification-settings' as any)} />
+            <SettingsRow icon="settings" label="앱 권한"       onPress={() => router.push('/app-permissions' as any)} />
             <SettingsRow icon="person"   label="차단한 사용자" onPress={() => router.push('/blocked-users')} />
             <SettingsRow icon="person"   label="계정 관리"    onPress={() => router.push('/account-delete')} />
           </View>
