@@ -18,7 +18,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  TextInput, Platform, ScrollView, KeyboardAvoidingView,
+  TextInput, Platform, ScrollView, KeyboardAvoidingView, Image,
 } from 'react-native';
 // react-native의 SafeAreaView는 Android에서 무동작 → safe-area-context 사용 (하단 겹침 방지)
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -256,11 +256,21 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ── 브랜드 ── */}
+          {/* ── 브랜드 (공식 로고: 마크 + 워드마크) ── */}
           <View style={s.brandArea}>
             <View style={s.logoRow}>
-              <Icon name="paw-filled" size={26} color={Colors.brand.primary} />
-              <Text style={s.appName}>Dogear</Text>
+              <Image
+                source={require('../../assets/logo-mark.png')}
+                style={s.logoMark}
+                resizeMode="contain"
+                accessibilityLabel="DogEar 로고"
+              />
+              <Image
+                source={require('../../assets/logo-wordmark.png')}
+                style={s.logoWordmark}
+                resizeMode="contain"
+                accessibilityLabel="DogEar"
+              />
             </View>
             <Text style={s.slogan}>
               우리 아이의 산책 기록을{'\n'}
@@ -385,8 +395,9 @@ const s = StyleSheet.create({
 
   // 브랜드
   brandArea: { gap: Spacing[12], marginBottom: Spacing[32] },
-  logoRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
-  appName: { fontSize: 24, fontWeight: '800', color: Colors.text.primary, letterSpacing: -0.5 },
+  logoRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[8] },
+  logoMark:     { width: 34, height: 35 },   // 마크 비율 403:412
+  logoWordmark: { width: 79, height: 26 },   // 워드마크 비율 511:168
   slogan: { fontSize: 22, fontWeight: '500', color: Colors.text.secondary, lineHeight: 32 },
   sloganHighlight: { fontSize: 26, fontWeight: '800', color: Colors.brand.primary },
 

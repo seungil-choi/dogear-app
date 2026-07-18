@@ -15,7 +15,7 @@ import { track, EVENT } from '../../src/utils/analytics';
 import { confirm } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, RefreshControl, Dimensions, NativeScrollEvent, NativeSyntheticEvent,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, RefreshControl, Dimensions, NativeScrollEvent, NativeSyntheticEvent, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -358,11 +358,21 @@ export default function HomeScreen() {
         }
       >
 
-        {/* ── 상단 로고 헤더 ── */}
+        {/* ── 상단 로고 헤더 (공식 로고: 마크 + 워드마크) ── */}
         <View style={s.topBar}>
           <View style={s.logoRow}>
-            <Icon name="paw-filled" size={20} color={Colors.brand.primary} />
-            <Text style={s.logoText}>Dogear</Text>
+            <Image
+              source={require('../../assets/logo-mark.png')}
+              style={s.logoMark}
+              resizeMode="contain"
+              accessibilityLabel="DogEar 로고"
+            />
+            <Image
+              source={require('../../assets/logo-wordmark.png')}
+              style={s.logoWordmark}
+              resizeMode="contain"
+              accessibilityLabel="DogEar"
+            />
           </View>
           <TouchableOpacity style={s.notifBtn} accessibilityLabel="알림" onPress={() => router.push('/notifications')}>
             <Icon name="bell" size={22} color={Colors.text.secondary} />
@@ -725,15 +735,10 @@ const s = StyleSheet.create({
   logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing[6],
+    gap: Spacing[8],
   },
-  logoText: {
-    ...Typography.title.l,
-    color: Colors.text.primary,
-    fontWeight: '800',
-    letterSpacing: -0.8,
-    fontSize: 22,
-  },
+  logoMark:     { width: 26, height: 27 },   // 마크 비율 403:412
+  logoWordmark: { width: 64, height: 21 },   // 워드마크 비율 511:168
   notifBtn: {
     width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',

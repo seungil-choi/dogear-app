@@ -2,11 +2,10 @@
  * 스플래시 화면 — 앱 진입 시 브랜드 노출 (1.5s)
  */
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
-import { Icon } from '../../src/components/common/Icon';
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -54,11 +53,13 @@ export default function SplashScreen() {
   return (
     <View style={s.container}>
       <Animated.View style={[s.brand, { transform: [{ scale }], opacity }]}>
-        {/* 로고 */}
-        <View style={s.iconWrap}>
-          <Icon name="paw-filled" size={52} color={Colors.brand.primary} />
-        </View>
-        <Text style={s.appName}>Dogear</Text>
+        {/* 공식 로고 (마크 + DogEar 워드마크 록업) */}
+        <Image
+          source={require('../../assets/logo-full.png')}
+          style={s.logo}
+          resizeMode="contain"
+          accessibilityLabel="DogEar"
+        />
         <Text style={s.tagline}>우리 아이의 산책을 지도로</Text>
       </Animated.View>
 
@@ -104,7 +105,7 @@ function LoadingDot({ delay }: { delay: number }) {
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF6F0',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing[48],
@@ -113,20 +114,9 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing[12],
   },
-  iconWrap: {
-    width: 96,
-    height: 96,
-    borderRadius: 28,
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing[8],
-  },
-  appName: {
-    fontSize: 36,
-    fontWeight: '800',
-    color: Colors.text.primary,
-    letterSpacing: -1,
+  logo: {
+    width: 168,
+    height: 200,   // 록업 비율 511:609
   },
   tagline: {
     ...Typography.body.m,
