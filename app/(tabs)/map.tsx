@@ -22,9 +22,11 @@ import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
 import { distanceText, categoryLabel as catLabel } from '../../src/utils/labels';
-import type { SpotCategory } from '../../src/types';
+import type { SpotCategory, Spot } from '../../src/types';
 import { notify, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
+import { supabase } from '../../src/lib/supabase';
+import { IS_REAL_AUTH } from '../../src/config/env';
 
 // ─── 거리 계산 (Haversine) ────────────────────────────────────────
 function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -88,6 +90,8 @@ export default function ExploreScreen() {
   const [searchQuery,   setSearchQuery]   = useState('');
   const [selectedId,    setSelectedId]    = useState<string | null>(null);
   const [isTracking,    setIsTracking]    = useState(false);
+  // 현위치 버튼의 프로그래매틱 이동을 사용자 팬과 구분 — 팬이면 추적 자동 해제
+  const programmaticMoveRef = useRef(false);
   // 지도 중심 좌표 — 사용자가 지도를 드래그하면 갱신되어 카드 목록 정렬에 사용됨
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
     lat: INITIAL_CENTER.latitude,
@@ -257,6 +261,59 @@ export default function ExploreScreen() {
     }
   }, [currentLocation]);
 
+  // ── 지도 이동 시 해당 지역 스팟 로드 (내 위치 주변만 보이던 문제 해결) ──
+  //   중심이 직전 페치 지점에서 충분히 멀어지면(반경의 40%+) 그 지역을 페치해 store에 병합.
+  //   700ms 디바운스로 팬 중 연타 방지. 결과는 spot_id 기준 병합이라 기존 핀 유지.
+  const lastFetchRef = useRef<{ lat: number; lng: number; radius: number } | null>(null);
+  const regionFetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dogIdForFetch = useAppStore(s => s.activeDog?.dog_id ?? null);
+  useEffect(() => {
+    if (!IS_REAL_AUTH) return;  // 데모 모드는 로컬 시드 사용
+    if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current);
+    regionFetchTimer.current = setTimeout(async () => {
+      // 서버 상한 10km — 줌아웃해도 중심 기준 10km씩 로드하며 팬으로 누적 탐색
+      // (zoomBasedRadiusM은 아래에서 선언되므로 여기선 zoomLevel로 직접 계산)
+      const zoomRadius = zoomLevel <= 4 ? 3000 : zoomLevel === 5 ? 3500 : zoomLevel === 6 ? 7000 : 10000;
+      const radius = Math.min(zoomRadius, 10000);
+      const last = lastFetchRef.current;
+      if (last) {
+        const moved = haversineMeters(mapCenter.lat, mapCenter.lng, last.lat, last.lng);
+        if (moved < Math.min(radius, last.radius) * 0.4 && radius <= last.radius) return;
+      }
+      lastFetchRef.current = { lat: mapCenter.lat, lng: mapCenter.lng, radius };
+      try {
+        const { data } = await supabase.functions.invoke('spots-nearby', {
+          body: { latitude: mapCenter.lat, longitude: mapCenter.lng, radiusMeters: radius, dogId: dogIdForFetch },
+        });
+        const raw: any[] = data?.spots ?? [];
+        if (raw.length === 0) return;
+        const merged: Spot[] = raw.map((sp: any) => ({
+          spot_id: sp.spot_id,
+          name: sp.name,
+          category: sp.category,
+          latitude: sp.latitude,
+          longitude: sp.longitude,
+          address_text: sp.address_text ?? undefined,
+          neighborhood: sp.neighborhood ?? undefined,
+          cover_image_url: sp.cover_image_url ?? undefined,
+          status: 'active' as const,
+          created_source: 'seed' as const,
+          created_at: new Date().toISOString(),
+        }));
+        const aggs: Record<string, any> = {};
+        for (const sp of raw) {
+          aggs[sp.spot_id] = {
+            checkinCount: sp.checkin_count ?? 0,
+            atmosphereState: sp.atmosphere_state ?? 'unknown',
+            topFeelingTags: sp.top_feeling_tags ?? [],
+          };
+        }
+        useAppStore.getState().mergeSpots(merged, aggs);
+      } catch { /* 지역 페치 실패는 조용히 무시 — 기존 핀 유지 */ }
+    }, 700);
+    return () => { if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current); };
+  }, [mapCenter.lat, mapCenter.lng, zoomLevel, dogIdForFetch]);
+
   // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 + 반경 제한 ──
   // 검색 중일 때는 반경 제한 우회 (이름으로 찾는 장소는 거리 무관 노출)
   const isSearching = searchQuery.trim().length > 0;
@@ -393,7 +450,12 @@ export default function ExploreScreen() {
    *    - 권한 거부 시 안내 알림
    */
   const handleMyLocation = useCallback(async () => {
-    // 매 탭마다 내 위치로 재이동 (이전엔 추적 토글이 켜지면 다음 탭이 recenter 없이 꺼지기만 함)
+    // 토글 OFF: 추적 중일 때 다시 탭하면 해제 (버튼 색으로 상태 확인 가능)
+    if (isTracking) {
+      setIsTracking(false);
+      return;
+    }
+    // 토글 ON: 내 위치로 이동 + 추적 시작
     setIsLocating(true);
     try {
       // 탐색에서는 권한을 직접 요청하지 않음 — 상태만 확인, 미허용 시 시스템 설정으로 안내
@@ -416,6 +478,7 @@ export default function ExploreScreen() {
         if (last) {
           const c = { latitude: last.coords.latitude, longitude: last.coords.longitude, accuracy: last.coords.accuracy ?? undefined };
           setCurrentLocation(c);
+          programmaticMoveRef.current = true;
           mapRef.current?.setCenter(c.latitude, c.longitude, 4);
           moved = true;
         }
@@ -430,10 +493,13 @@ export default function ExploreScreen() {
       };
       setCurrentLocation(fresh);
       setIsTracking(true);
+      programmaticMoveRef.current = true;
       mapRef.current?.setCenter(fresh.latitude, fresh.longitude, 4);
     } catch (e) {
       // fallback: 캐시된 위치라도 사용
       if (currentLocation) {
+        setIsTracking(true);
+        programmaticMoveRef.current = true;
         mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
       } else {
         notify('잠시 후 다시 시도해 주세요.', '위치를 가져올 수 없어요');
@@ -621,6 +687,12 @@ export default function ExploreScreen() {
             onRegionChange={(lat, lng, lv) => {
               setMapCenter({ lat, lng });
               if (lv != null) setZoomLevel(lv);
+              // 사용자가 직접 지도를 움직이면 현위치 추적 해제 (현위치 버튼 이동은 예외)
+              if (programmaticMoveRef.current) {
+                programmaticMoveRef.current = false;
+              } else if (isTracking) {
+                setIsTracking(false);
+              }
             }}
           />
 

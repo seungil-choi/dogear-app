@@ -176,6 +176,8 @@ interface AppState {
   // 데이터 주입 (Supabase 페치 결과 반영용)
   setSpots: (spots: Spot[]) => void;
   setSpotAggregates: (aggregates: Record<string, SpotServerAggregate>) => void;
+  /** 지도 이동 페치 결과를 기존 spots에 병합 (spot_id 중복 제거, 집계도 병합) — 다른 지역 탐색용 */
+  mergeSpots: (spots: Spot[], aggregates?: Record<string, SpotServerAggregate>) => void;
   setCheckins: (checkins: PawCheckin[]) => void;
   setSavedSpots: (savedSpots: SavedSpot[]) => void;
   setVisitSummaries: (visitSummaries: SpotVisitSummary[]) => void;
@@ -622,6 +624,15 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   setSpots: (spots) => set({ spots }),
   setSpotAggregates: (spotAggregates) => set({ spotAggregates }),
+  mergeSpots: (newSpots, newAggregates) => {
+    const { spots, spotAggregates } = get();
+    const byId = new Map(spots.map(sp => [sp.spot_id, sp]));
+    for (const sp of newSpots) byId.set(sp.spot_id, sp);
+    set({
+      spots: [...byId.values()],
+      spotAggregates: newAggregates ? { ...spotAggregates, ...newAggregates } : spotAggregates,
+    });
+  },
   setCheckins: (checkins) => set({ checkins }),
   setSavedSpots: (savedSpots) => set({ savedSpots }),
   setVisitSummaries: (visitSummaries) => set({ visitSummaries }),
