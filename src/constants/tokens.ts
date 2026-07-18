@@ -2,7 +2,7 @@
 // 브랜드 팔레트: 브랜드 가이드 시트 기준 (2026-07)
 //   Primary   Orange #FF7A30 · Red #FF4D2D
 //   Neutral   Cream #FFF6F0 · Light Gray #F2F2F2 · Gray #BDBDBD · Dark Gray #555555 · Charcoal #222222
-//   BG 변주   Cream #FFF6F0 · Light Peach #FFEDE3 · Orange Light #FFF0E6
+//   BG        화이트 캔버스(#FFFFFF) — Cream/Peach/Orange Light는 브랜드 포인트 전용(전면 배경 금지)
 //   Gradient  Orange #FF9B4D→#FF6A2D · Red #FF6A5A→#FF2E2E
 // 파생 규칙(Derived): 소형 텍스트로 쓰이는 브랜드/그레이는 명도대비 4.5:1(KWCAG)을
 //   만족하도록 짙게 파생한다 — Deep Orange #C2410C, Deep Red #C73620, Mid Gray #6E6E6E.
@@ -22,23 +22,25 @@ export const Colors = {
     accent:       '#C2410C',   // Derived Deep Orange — 텍스트형 강조 (4.5:1 확보)
   },
 
-  // Background / Surface — Cream 캔버스 (브랜드 시트 Background 1순위)
+  // Background / Surface — 화이트 캔버스
+  //   (Cream 캔버스는 전면 적용 시 미세한 오렌지 틴트로 피로감 유발 → 화이트로 확정.
+  //    Cream/Peach는 배경이 아니라 브랜드 '포인트'(brand.subtle 등)에만 쓴다.)
   bg: {
-    primary:   '#FFF6F0',   // Cream — 앱 기본 캔버스
-    secondary: '#FFEDE3',   // Light Peach — 약한 섹션 구분
+    primary:   '#FFFFFF',   // 순수 화이트 캔버스
+    secondary: '#FAFAFA',   // 뉴트럴 스노우 — 약한 섹션 구분
     tertiary:  '#F2F2F2',   // Light Gray — 뉴트럴 카드 내부 배경
   },
   surface: {
-    default:  '#FFFFFF',   // 카드 — 크림 캔버스 위에서 자연스럽게 부상
+    default:  '#FFFFFF',
     elevated: '#FFFFFF',
-    subtle:   '#FFF6F0',   // Cream
+    subtle:   '#FAFAFA',
     sheet:    '#FFFFFF',
-    selected: '#FFF0E6',   // Orange Light — 브랜드 선택 배경
+    selected: '#FFF0E6',   // Orange Light — 브랜드 선택 배경 (의도된 포인트)
   },
 
-  // Border — 웜 뉴트럴 (크림 캔버스와 조화)
+  // Border — 뉴트럴 라이트
   border: {
-    default: '#F0E4DB',   // Derived — Cream 위에서 보이는 웜 라이트 보더
+    default: '#E5E7EB',   // 뉴트럴 라이트 보더
     strong:  '#BDBDBD',   // Gray (브랜드 시트 Neutral)
     subtle:  '#F2F2F2',   // Light Gray
     brand:   '#FFD4B8',   // Derived — Orange 파스텔 보더
