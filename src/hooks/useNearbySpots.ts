@@ -31,6 +31,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
   const [error, setError] = useState<string | null>(null);
 
   const currentLocation = useAppStore(s => s.currentLocation);
+  const isAuthenticated = useAppStore(s => s.isAuthenticated);
   const activeDog = useAppStore(s => s.activeDog);
   const setStoreSpots = useAppStore(s => s.setSpots);
   const setSpotAggregates = useAppStore(s => s.setSpotAggregates);
@@ -42,6 +43,9 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
   const reqIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    // 로그인 전에는 fetch하지 않는다 — spots-nearby는 인증 필수라 401만 나고,
+    // 그 빈 결과가 남아 로그인 직후 홈 추천이 비어 보이던 원인.
+    if (!isAuthenticated) return;
     const myReq = ++reqIdRef.current;
     setIsLoading(true);
     setSpotsLoading(true);  // 화면 스켈레톤 노출용 (store)
@@ -145,10 +149,16 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         setSpotsLoading(false);
       }
     }
-  }, [currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading]);
+  }, [isAuthenticated, currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading]);
 
-  // 최초 마운트(위치 없어도 폴백 로드) + 위치가 의미있게 변할 때 자동 fetch
+  // 로그인 완료 시점 + 위치가 의미있게 변할 때 자동 fetch (위치 없어도 폴백 로드)
   useEffect(() => {
+    if (!isAuthenticated) {
+      // 로그인 전 fetch 금지(401) — 로그인되면 이 effect가 재실행되어 즉시 로드.
+      // 기준점도 초기화해 재로그인 시 50m 가드에 막히지 않게 함(로그아웃이 spots를 비우므로).
+      prevLocationRef.current = null;
+      return;
+    }
     const prev = prevLocationRef.current;
     // 위치가 있고 직전 위치 대비 50m 미만 이동이면 재조회 생략
     if (currentLocation && prev) {
@@ -162,7 +172,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
     }
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation]);
+  }, [currentLocation, isAuthenticated]);
 
   // pull-to-refresh 버스에 등록 — 화면의 RefreshControl이 refreshAll()로 트리거
   useEffect(() => registerRefreshHandler(refresh), [refresh]);
