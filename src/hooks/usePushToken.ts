@@ -72,7 +72,7 @@ async function registerToken(userId: string) {
       name: 'default',
       importance: Notifications.AndroidImportance.DEFAULT,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#C47848',
+      lightColor: '#FF7A30',
     });
   }
 

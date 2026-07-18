@@ -85,9 +85,9 @@ function getDotMarkerImage(kakao: any, fillColor: string, strokeColor: string, s
 //   ※ 클러스터 모드(level≥6)에서는 모든 핀이 숫자 클러스터로 통합되므로
 //     default 흰 빈 원은 디테일 모드(가까이)에서만 노출됨
 const VARIANT_STYLE = {
-  regular: { fill: '#C47848', icon: 'fill',  stroke: '#fff'    },
+  regular: { fill: '#FF7A30', icon: 'fill',  stroke: '#fff'    },
   visited: { fill: '#D89678', icon: 'fill',  stroke: '#fff'    },
-  default: { fill: '#FFFFFF', icon: 'brand', stroke: '#C47848' },
+  default: { fill: '#FFFFFF', icon: 'brand', stroke: '#FF7A30' },
 } as const;
 
 function escapeHtml(s: string): string {
@@ -122,7 +122,7 @@ function pinHtml(id: string, label: string, variant: KakaoMarker['variant'], sel
     ? 'filter:drop-shadow(0 4px 8px rgba(0,0,0,0.32));'
     : 'filter:drop-shadow(0 2px 4px rgba(0,0,0,0.22));';
   // 아이콘 색상: fill variant는 흰색, brand variant(default 안 가본 곳)는 브랜드 컬러
-  const iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
+  const iconColor = v.icon === 'brand' ? '#FF7A30' : '#fff';
   const strokeWidth = selected ? 2.2 : 1.8;
   const iconAttrs = variant === 'visited'
     ? `fill="none" stroke="${iconColor}"`
@@ -313,7 +313,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     const html = `
       <div style="position:relative;width:32px;height:32px;pointer-events:none;">
         <div style="position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;background:rgba(196,120,72,0.18);"></div>
-        <div style="position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;background:#C47848;border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.28);transform:translate(-50%,-50%);"></div>
+        <div style="position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;background:#FF7A30;border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.28);transform:translate(-50%,-50%);"></div>
       </div>
     `;
     if (userOverlayRef.current) {

@@ -79,7 +79,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       position: absolute; left: 50%; top: 50%;
       width: 14px; height: 14px;
       border-radius: 50%;
-      background: #C47848;
+      background: #FF7A30;
       border: 3px solid #fff;
       box-shadow: 0 1px 3px rgba(0,0,0,0.28);
       transform: translate(-50%, -50%);
@@ -116,9 +116,9 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       //   default(안 가본 곳)는 흰 배경 + 브랜드 외곽선 — 디테일 모드(가까이)에서만 노출
       //   클러스터 모드(level>=6)에서는 모두 숫자 클러스터로 통합되어 단일 dot 미노출
       var VARIANT_STYLE = {
-        regular: { fill: '#C47848', stroke: '#fff',    icon: 'fill'  },
+        regular: { fill: '#FF7A30', stroke: '#fff',    icon: 'fill'  },
         visited: { fill: '#D89678', stroke: '#fff',    icon: 'fill'  },
-        default: { fill: '#FFFFFF', stroke: '#C47848', icon: 'brand' },
+        default: { fill: '#FFFFFF', stroke: '#FF7A30', icon: 'brand' },
       };
       var STAR_PATH  = '<polygon points="12 4 14.6 9.5 21 10 16.2 14.4 17.6 21 12 17.6 6.4 21 7.8 14.4 3 10 9.4 9.5 12 4"/>';
       var CHECK_PATH = '<polyline points="6 12 10 16 18 8" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
@@ -130,7 +130,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
                      : variant === 'visited' ? CHECK_PATH
                      : DOT_PATH;
         var size = selected ? 32 : 26;       // 정사각형 — 원형 dot
-        var iconColor = v.icon === 'brand' ? '#C47848' : '#fff';
+        var iconColor = v.icon === 'brand' ? '#FF7A30' : '#fff';
         var iconAttrs = variant === 'visited'
           ? 'fill="none" stroke="' + iconColor + '"'
           : 'fill="' + iconColor + '"';

@@ -1,79 +1,85 @@
-// Dogear Design System Tokens v2.0 — Cohere-inspired
-// 구조: Cohere 디자인 시스템 원칙 적용 (22px 시그니처 카드, 쿨 뉴트럴 보더, shadow-free, pill CTA)
-// 브랜드: DogEar 웜 브라운 계열 유지 (강아지 앱 정체성)
+// Dogear Design System Tokens v3.0 — Brand Refresh (Vivid Orange)
+// 브랜드 팔레트: 브랜드 가이드 시트 기준 (2026-07)
+//   Primary   Orange #FF7A30 · Red #FF4D2D
+//   Neutral   Cream #FFF6F0 · Light Gray #F2F2F2 · Gray #BDBDBD · Dark Gray #555555 · Charcoal #222222
+//   BG 변주   Cream #FFF6F0 · Light Peach #FFEDE3 · Orange Light #FFF0E6
+//   Gradient  Orange #FF9B4D→#FF6A2D · Red #FF6A5A→#FF2E2E
+// 파생 규칙(Derived): 소형 텍스트로 쓰이는 브랜드/그레이는 명도대비 4.5:1(KWCAG)을
+//   만족하도록 짙게 파생한다 — Deep Orange #C2410C, Deep Red #C73620, Mid Gray #6E6E6E.
+// 구조: Cohere 레이아웃 원칙 유지 (22px 시그니처 카드, pill CTA, shadow-free)
 
 // ─────────────────────────────────────────
 // COLOR
 // ─────────────────────────────────────────
 export const Colors = {
-  // Brand — 따뜻한 주황-브라운 (DogEar identity 유지)
+  // Brand — Vivid Orange (브랜드 시트 Primary)
   brand: {
-    primary:      '#C97432',   // CTA, 선택, 핵심 강조
-    primaryLight: '#FDEAD9',   // 선택 배경
-    secondary:    '#A85E28',   // pressed / 강한 강조
-    subtle:       '#FFF7F1',
+    primary:      '#FF7A30',   // Orange — CTA, 선택, 핵심 강조
+    primaryLight: '#FFEDE3',   // Light Peach — 선택 배경
+    secondary:    '#FF6A2D',   // Deep Orange(그라디언트 종점) — pressed / 강한 강조
+    subtle:       '#FFF0E6',   // Orange Light — 브랜드 옅은 배경
     onPrimary:    '#FFFFFF',
-    accent:       '#84481F',   // 텍스트형 강조
+    accent:       '#C2410C',   // Derived Deep Orange — 텍스트형 강조 (4.5:1 확보)
   },
 
-  // Background / Surface — Cohere: 화이트 캔버스 + 쿨 뉴트럴
+  // Background / Surface — Cream 캔버스 (브랜드 시트 Background 1순위)
   bg: {
-    primary:   '#FFFFFF',   // 순수 흰 캔버스 (Cohere Pure White)
-    secondary: '#FAFAFA',   // Snow — 약한 섹션 구분 (Cohere Snow)
-    tertiary:  '#F2F2F2',   // 카드 내부 배경 (Cohere Lightest Gray)
+    primary:   '#FFF6F0',   // Cream — 앱 기본 캔버스
+    secondary: '#FFEDE3',   // Light Peach — 약한 섹션 구분
+    tertiary:  '#F2F2F2',   // Light Gray — 뉴트럴 카드 내부 배경
   },
   surface: {
-    default:  '#FFFFFF',
+    default:  '#FFFFFF',   // 카드 — 크림 캔버스 위에서 자연스럽게 부상
     elevated: '#FFFFFF',
-    subtle:   '#FAFAFA',
+    subtle:   '#FFF6F0',   // Cream
     sheet:    '#FFFFFF',
-    selected: '#FFF3E8',   // 브랜드 선택 배경은 웜 유지
+    selected: '#FFF0E6',   // Orange Light — 브랜드 선택 배경
   },
 
-  // Border — Cohere 쿨 그레이 (기존 웜 보더 → 쿨 뉴트럴로 전환)
+  // Border — 웜 뉴트럴 (크림 캔버스와 조화)
   border: {
-    default: '#E5E7EB',   // Cohere Border Light (Tailwind gray-200)
-    strong:  '#D9D9DD',   // Cohere Border Cool (쿨 퍼플-그레이 틴트)
-    subtle:  '#F2F2F2',   // Cohere Lightest Gray
-    brand:   '#F7D1B0',   // 브랜드 보더 유지
-    active:  '#C97432',   // 활성 보더
+    default: '#F0E4DB',   // Derived — Cream 위에서 보이는 웜 라이트 보더
+    strong:  '#BDBDBD',   // Gray (브랜드 시트 Neutral)
+    subtle:  '#F2F2F2',   // Light Gray
+    brand:   '#FFD4B8',   // Derived — Orange 파스텔 보더
+    active:  '#FF7A30',   // Orange — 활성 보더
   },
 
-  // Text — Cohere: Near Black + Muted Slate
+  // Text — Charcoal 기반 (브랜드 시트 Neutral)
   text: {
-    primary:     '#212121',   // Cohere Near Black
-    secondary:   '#6F6C74',   // 쿨-뉴트럴 보조 (이전 웜 브라운 → 쿨 슬레이트 방향)
-    tertiary:    '#93939F',   // Cohere Muted Slate
+    primary:     '#222222',   // Charcoal
+    secondary:   '#555555',   // Dark Gray
+    tertiary:    '#6E6E6E',   // Derived Mid Gray — 소형 텍스트 4.5:1 확보 (#BDBDBD는 미달)
     inverse:     '#FFFFFF',
-    link:        '#84481F',   // 브랜드 링크 유지
-    placeholder: '#B0B0B8',  // 쿨 플레이스홀더
+    link:        '#C2410C',   // Derived Deep Orange — 링크/텍스트 강조
+    placeholder: '#BDBDBD',   // Gray (입력 힌트 — 관례상 대비 예외 허용)
   },
 
   // Status
   status: {
-    quiet:   { bg: '#F2F2F2', text: '#6E5343' },
-    active:  { bg: '#FFF3E8', text: '#A85E28' },
+    quiet:   { bg: '#F2F2F2', text: '#555555' },
+    active:  { bg: '#FFF0E6', text: '#C2410C' },
     mixed:   { bg: '#F0EEF8', text: '#6B5EA8' },
-    recent:  { bg: '#FDEAD9', text: '#84481F' },
+    recent:  { bg: '#FFEDE3', text: '#C2410C' },
     success: { bg: '#EEF1EC', text: '#4D7A49' },
     warning: { bg: '#FFF8E8', text: '#B87C1A' },
-    error:   { bg: '#FBF0F0', text: '#C7655B' },
+    error:   { bg: '#FFEDE9', text: '#C73620' },   // Derived Deep Red (브랜드 Red 계열)
     info:    { bg: '#F0EEF8', text: '#8C7BCA' },
   },
 
   // Safety
   safety: {
-    private:       { bg: '#F2F2F2', text: '#6E5343', dot: '#93939F' },
-    spotOnly:      { bg: '#FFF3E8', text: '#84481F', dot: '#C97432' },
+    private:       { bg: '#F2F2F2', text: '#555555', dot: '#BDBDBD' },
+    spotOnly:      { bg: '#FFF0E6', text: '#C2410C', dot: '#FF7A30' },
     familiarLayer: { bg: '#F0EEF8', text: '#6B5EA8', dot: '#8C7BCA' },
   },
 
-  // Map pin
+  // Map pin — Orange 계열 위계 (recent < visited < regular)
   pin: {
-    default: '#93939F',
-    recent:  '#C97432',
-    visited: '#A85E28',
-    regular: '#84481F',
+    default: '#BDBDBD',   // Gray
+    recent:  '#FF7A30',   // Orange
+    visited: '#FF6A2D',   // Deep Orange
+    regular: '#FF4D2D',   // Red — 단골(최상위 관계 강조)
   },
 
   // ─────────────────────────────────────────
@@ -87,7 +93,7 @@ export const Colors = {
     trail:     { bg: '#C8A87833', icon: '#A88758' },  // 모래 베이지 (산책로)
     riverside: { bg: '#8AA8C033', icon: '#5C7E9A' },  // 스틸 블루 (강변)
     rest:      { bg: '#B89A7E33', icon: '#8B7A60' },  // 웜 그레이 (쉼터)
-    other:     { bg: '#C4784822', icon: '#C47848' },  // 브랜드 (기타)
+    other:     { bg: '#FF7A3022', icon: '#FF6A2D' },  // 브랜드 Orange (기타)
   },
 
   // ─────────────────────────────────────────
@@ -97,19 +103,25 @@ export const Colors = {
   // ─────────────────────────────────────────
   onboarding: {
     discover: '#3B82F6',  // 블루 (탐색)
-    paw:      '#E76F35',  // 오렌지 (브랜드 변주)
+    paw:      '#FF7A30',  // Orange (브랜드)
     familiar: '#3B5BA9',  // 네이비 (안정)
-    privacy:  '#84481F',  // 브랜드 accent (개인정보 — 신뢰감)
+    privacy:  '#C2410C',  // Deep Orange (개인정보 — 신뢰감)
+  },
+
+  // Gradient — 브랜드 시트 Accent/Gradation (LinearGradient colors 배열용)
+  gradient: {
+    orange: ['#FF9B4D', '#FF6A2D'],
+    red:    ['#FF6A5A', '#FF2E2E'],
   },
 
   // Util
-  overlay:      'rgba(33, 33, 33, 0.32)',   // Cohere Near Black 기반
-  overlayLight: 'rgba(33, 33, 33, 0.06)',
+  overlay:      'rgba(34, 34, 34, 0.32)',   // Charcoal 기반
+  overlayLight: 'rgba(34, 34, 34, 0.06)',
   transparent:  'transparent',
 };
 
 // ─────────────────────────────────────────
-// SPACING — Cohere 8px base unit
+// SPACING — 8px base unit
 // ─────────────────────────────────────────
 export const Spacing = {
   2:  2,
@@ -122,7 +134,7 @@ export const Spacing = {
   14: 14,
   16: 16,
   20: 20,
-  22: 22,   // Cohere 시그니처 카드 패딩
+  22: 22,   // 시그니처 카드 패딩
   24: 24,
   28: 28,
   32: 32,
@@ -134,7 +146,7 @@ export const Spacing = {
 };
 
 // ─────────────────────────────────────────
-// RADIUS — Cohere 22px 시그니처 시스템
+// RADIUS — 22px 시그니처 시스템
 // ─────────────────────────────────────────
 export const Radius = {
   sharp:     4,    // 태그, 작은 배지
@@ -142,12 +154,12 @@ export const Radius = {
   m:        12,    // 중간 카드 내부 요소
   l:        16,    // Featured 컨테이너
   xl:       20,    // 큰 피처 카드
-  card:     22,    // Cohere 시그니처 — 메인 카드/이미지/컨테이너
+  card:     22,    // 시그니처 — 메인 카드/이미지/컨테이너
   round:  9999,    // Pill — 버튼, 칩, 상태 인디케이터
 };
 
 // ─────────────────────────────────────────
-// SHADOW — Cohere: 거의 shadow-free. 깊이는 배경 대비와 보더로 표현.
+// SHADOW — 거의 shadow-free. 깊이는 배경 대비와 보더로 표현.
 // ─────────────────────────────────────────
 export const Shadow = {
   none: {},
@@ -161,7 +173,7 @@ export const Shadow = {
   },
   // Level 2: 극히 약한 엘리베이션 (특수 요소에만)
   m: {
-    shadowColor: '#212121',
+    shadowColor: '#222222',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -169,7 +181,7 @@ export const Shadow = {
   },
   // Level 3: 바텀시트/모달
   l: {
-    shadowColor: '#212121',
+    shadowColor: '#222222',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 16,
@@ -177,7 +189,7 @@ export const Shadow = {
   },
   // 발도장 FAB — 브랜드 컬러 글로우 유지
   paw: {
-    shadowColor: '#C97432',
+    shadowColor: '#FF7A30',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.22,
     shadowRadius: 16,
@@ -202,20 +214,20 @@ export const Typography = {
     m: { fontSize: 17, lineHeight: 22, fontWeight: '600' as const, letterSpacing: -0.2  },
     s: { fontSize: 15, lineHeight: 20, fontWeight: '500' as const, letterSpacing: -0.1  },
   },
-  // Body — 표준 본문. Cohere 원칙: weight 400, size/spacing으로 계층 표현
+  // Body — 표준 본문. weight 400, size/spacing으로 계층 표현
   body: {
-    l: { fontSize: 16, lineHeight: 26, fontWeight: '400' as const },   // 인트로 단락 (Cohere Body Large)
+    l: { fontSize: 16, lineHeight: 26, fontWeight: '400' as const },   // 인트로 단락
     m: { fontSize: 14, lineHeight: 22, fontWeight: '400' as const },   // 표준 본문
     s: { fontSize: 13, lineHeight: 20, fontWeight: '400' as const },   // 보조 설명
   },
-  // Label — 작은 강조. Cohere: weight 500은 소형 버튼/강조 라벨만
+  // Label — 작은 강조. weight 500은 소형 버튼/강조 라벨만
   label: {
     l: { fontSize: 14, lineHeight: 20, fontWeight: '500' as const },
     m: { fontSize: 13, lineHeight: 18, fontWeight: '500' as const },
     s: { fontSize: 12, lineHeight: 16, fontWeight: '500' as const, letterSpacing: 0.2 }, // 코드/태그용 자간
   },
   // Caption — 메타데이터, 푸터 링크
-  caption: { fontSize: 12, lineHeight: 18, fontWeight: '400' as const, color: '#93939F' },
+  caption: { fontSize: 12, lineHeight: 18, fontWeight: '400' as const, color: '#6E6E6E' },
 };
 
 // ─────────────────────────────────────────
@@ -223,8 +235,8 @@ export const Typography = {
 // ─────────────────────────────────────────
 export const Layout = {
   screenPadding: 16,
-  cardPadding:   22,   // Cohere 시그니처 카드 내부 패딩 = 22px
+  cardPadding:   22,   // 시그니처 카드 내부 패딩 = 22px
   tabBarHeight:  60,
   headerHeight:  56,
-  sectionGap:    56,   // 섹션 간 수직 여백 (Cohere: 56–60px)
+  sectionGap:    56,   // 섹션 간 수직 여백
 };

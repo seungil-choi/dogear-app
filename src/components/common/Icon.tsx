@@ -176,7 +176,7 @@ interface IconProps {
   strokeWidth?: number;
 }
 
-export function Icon({ name, size = 24, color = '#1A1A1A', strokeWidth }: IconProps) {
+export function Icon({ name, size = 24, color = '#222222', strokeWidth }: IconProps) {
   const def = ICON_MAP[name];
 
   if (!def) {

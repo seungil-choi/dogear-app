@@ -37,7 +37,7 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="mobile-web-app-capable" content="yes" />
 
         {/* 브라우저 UI 색 (Android Chrome 주소창, iOS Safari 상단바) */}
-        <meta name="theme-color" content="#C47848" />
+        <meta name="theme-color" content="#FF7A30" />
 
         {/*
          * PWA 매니페스트 (Android Chrome + 데스크톱 PWA)

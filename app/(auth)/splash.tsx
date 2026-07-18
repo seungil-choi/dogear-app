@@ -104,7 +104,7 @@ function LoadingDot({ delay }: { delay: number }) {
 const s = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFDF9',
+    backgroundColor: '#FFF6F0',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing[48],
