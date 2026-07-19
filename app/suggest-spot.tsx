@@ -32,8 +32,8 @@ import type { SpotCategory, NearbyDuplicate } from '../src/types';
 
 import { IS_REAL_AUTH } from '../src/config/env';
 
-// react-native-maps — native only (not available on web)
-const RNMapView = Platform.OS !== 'web' ? require('react-native-maps').default : null;
+// 지도는 전 플랫폼 KakaoMap(WebView) 사용 — react-native-maps는 Android에서
+// Google Maps API 키가 없으면 마운트 즉시 네이티브 크래시(앱 튕김)라 제거함.
 
 // ─── 카테고리 옵션 ──────────────────────────────────────────
 const CATEGORY_OPTIONS: { key: SpotCategory; label: string }[] = [
@@ -343,37 +343,18 @@ export default function SuggestSpotScreen() {
               <Text style={s.mapHint}>지도를 움직여 핀을 정확한 위치에 맞춰주세요</Text>
 
               <View style={s.mapWrap}>
-                {Platform.OS !== 'web' && RNMapView ? (
-                  <RNMapView
-                    style={s.mapView}
-                    initialRegion={{
-                      latitude: location.latitude,
-                      longitude: location.longitude,
-                      latitudeDelta: 0.003,
-                      longitudeDelta: 0.003,
-                    }}
-                    onRegionChangeComplete={(region: any) => {
-                      setPinLocation({ latitude: region.latitude, longitude: region.longitude });
-                    }}
-                    showsUserLocation
-                    showsMyLocationButton={false}
-                    showsCompass={false}
-                    toolbarEnabled={false}
-                  />
-                ) : (
-                  // 웹: KakaoMap 으로 동일 UX 제공 (지도 중심 = 핀 위치)
-                  <KakaoMap
-                    style={s.mapView}
-                    initialLatitude={location.latitude}
-                    initialLongitude={location.longitude}
-                    initialLevel={3}
-                    userLocation={currentLocation}
-                    markers={[]}
-                    onRegionChange={(lat, lng) =>
-                      setPinLocation({ latitude: lat, longitude: lng })
-                    }
-                  />
-                )}
+                {/* 전 플랫폼 KakaoMap — 지도 중심 = 핀 위치 (탐색 탭과 동일 스택) */}
+                <KakaoMap
+                  style={s.mapView}
+                  initialLatitude={location.latitude}
+                  initialLongitude={location.longitude}
+                  initialLevel={3}
+                  userLocation={currentLocation}
+                  markers={[]}
+                  onRegionChange={(lat, lng) =>
+                    setPinLocation({ latitude: lat, longitude: lng })
+                  }
+                />
 
                 {/* 지도 중앙 고정 핀 — 모든 플랫폼 공통 */}
                 <View style={s.mapPinOverlay} pointerEvents="none">
