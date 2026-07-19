@@ -163,14 +163,18 @@ export default function ExploreScreen() {
   // 패널은 4단 snap:
   //   min(헤더만 노출, 카드 가려짐) / peek(카드 ~2장) / half(중간) / full(헤더 아래까지)
   const SCREEN_H = Dimensions.get('window').height;
-  const [headerH] = useState(160); // 헤더 측정값 (현재는 고정)
+  // 지도 컨테이너 실측 높이 — 패널은 이 컨테이너(overflow:hidden) 안에 있으므로
+  // FULL 높이가 이를 넘으면 핸들이 위로 잘려나가 다시 내릴 수 없게 된다(실기기 버그).
+  const [containerH, setContainerH] = useState(0);
   const PANEL_MIN_H  = 56;    // 핸들 + "주변 장소 N곳" 헤더만 (카드 완전히 가림)
   const PANEL_PEEK_H = 200;   // 카드 ~2장 보이는 높이
-  const PANEL_HALF_H = Math.round(SCREEN_H * 0.55);
-  const PANEL_FULL_H = Math.max(0, SCREEN_H - headerH - 40);
+  const PANEL_FULL_H = containerH > 0 ? containerH : Math.round(SCREEN_H * 0.6);
+  const PANEL_HALF_H = Math.min(Math.round(SCREEN_H * 0.55), PANEL_FULL_H - 96);
 
   const panelHeight = useRef(new Animated.Value(PANEL_PEEK_H)).current;
   const [snapState, setSnapState] = useState<'min' | 'peek' | 'half' | 'full'>('peek');
+  // PanResponder(메모) 내부에서 최신 snap 상태를 읽기 위한 ref (stale closure 방지)
+  const snapStateRef = useRef<'min' | 'peek' | 'half' | 'full'>('peek');
 
   type PanelSnap = 'min' | 'peek' | 'half' | 'full';
 
@@ -184,6 +188,7 @@ export default function ExploreScreen() {
       toValue: h, useNativeDriver: false, friction: 9, tension: 60,
     }).start();
     setSnapState(snap);
+    snapStateRef.current = snap;
   }, [PANEL_MIN_H, PANEL_PEEK_H, PANEL_HALF_H, PANEL_FULL_H, panelHeight]);
 
   // 드래그 시작 시 현재 높이 기준점
@@ -200,7 +205,12 @@ export default function ExploreScreen() {
       const next = Math.max(PANEL_MIN_H, Math.min(PANEL_FULL_H, dragStartH.current - g.dy));
       panelHeight.setValue(next);
     },
-    onPanResponderRelease: () => {
+    onPanResponderRelease: (_, g) => {
+      // 탭(이동 거의 없음) → 토글: 풀이면 접고, 아니면 펼침 — 드래그 없이도 오르내릴 수 있게
+      if (Math.abs(g.dy) < 6 && Math.abs(g.dx) < 6) {
+        snapToHeight(snapStateRef.current === 'full' ? 'peek' : 'full');
+        return;
+      }
       panelHeight.stopAnimation((value: number) => {
         // 가장 가까운 snap으로 정렬
         const candidates: Array<[PanelSnap, number]> = [
@@ -672,7 +682,10 @@ export default function ExploreScreen() {
 
       {/* ── 지도 뷰: 풀스크린 지도 + 슬라이드 업 패널 ── */}
       {viewMode === 'map' && (
-        <View style={s.mapFullContainer}>
+        <View
+          style={s.mapFullContainer}
+          onLayout={(e) => setContainerH(e.nativeEvent.layout.height)}
+        >
           {/* 지도 풀스크린 */}
           <KakaoMap
             ref={mapRef}
