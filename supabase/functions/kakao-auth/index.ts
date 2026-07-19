@@ -63,24 +63,22 @@ serve(async (req) => {
     // 3. 기존 사용자 확인 또는 생성
     const userMetadata = { provider: 'kakao', kakao_id: kakaoId, nickname };
 
-    // admin API로 user 조회 (email 기준)
-    const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
-    if (listError) throw listError;
-
-    let userId: string;
-    const existing = users?.find((u: any) => u.email === email);
-
-    if (existing) {
-      userId = existing.id;
-    } else {
-      // 신규 사용자 생성
-      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-        email,
-        email_confirm: true,
-        user_metadata: userMetadata,
-      });
-      if (createError) throw createError;
-      userId = newUser.user.id;
+    // createUser를 먼저 시도하고 "이미 존재(email_exists)"는 정상 흐름으로 흡수한다.
+    //   ⚠️ 이전 방식(listUsers로 조회)은 1페이지 50명만 반환 → 사용자 50명 초과 시
+    //      기존 유저를 못 찾고 중복 생성 시도 → 500으로 모든 재로그인이 깨지는 버그.
+    //   generateLink는 기존 사용자에게도 정상 동작하므로 존재 조회 자체가 불필요.
+    const { error: createError } = await supabase.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: userMetadata,
+    });
+    if (createError) {
+      const already =
+        (createError as any).code === 'email_exists' ||
+        (createError as any).status === 422 ||
+        /already|registered|exists/i.test(createError.message ?? '');
+      if (!already) throw createError;
+      // 기존 사용자 → 그대로 진행
     }
 
     // 4. magic link로 일회성 토큰 발급 → 클라이언트에서 verifyOtp
@@ -103,7 +101,8 @@ serve(async (req) => {
 
   } catch (err: any) {
     console.error('kakao-auth error:', err);
-    return new Response(JSON.stringify({ error: err.message ?? 'internal error' }), {
+    // 내부 에러 상세는 로그에만 — 응답 본문으로 유출하지 않음
+    return new Response(JSON.stringify({ error: 'internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
