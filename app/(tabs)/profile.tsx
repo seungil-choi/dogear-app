@@ -23,7 +23,7 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
-import { sizeLabel, visibilityLabel } from '../../src/utils/labels';
+import { visibilityLabel, ageGroupLabel, temperamentLabels, walkingStyleLabels } from '../../src/utils/labels';
 import type { Dog } from '../../src/types';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -73,11 +73,17 @@ function DogProfileCard({
   onOpenDetail: () => void;
   onEdit: () => void;
 }) {
+  // 메타 포맷은 홈 프로필 카드와 동일하게 통일: 품종 · 나이 · 체중
   const metaParts = [
     dog.breed,
-    sizeLabel[dog.size],
+    ageGroupLabel[dog.age_group],
     dog.weight_kg ? `${dog.weight_kg}kg` : null,
   ].filter(Boolean);
+  // 성향 태그도 홈과 동일 문법 (기질 + 산책스타일, 최대 3개)
+  const dogTags = [
+    ...dog.temperament_tags.map(t => temperamentLabels[t]),
+    ...dog.walking_style_tags.map(t => walkingStyleLabels[t]),
+  ].filter(Boolean).slice(0, 3);
 
   return (
     <TouchableOpacity
@@ -109,8 +115,19 @@ function DogProfileCard({
           )}
         </View>
 
-        {/* 견종 · 몸집 · 체중 */}
+        {/* 품종 · 나이 · 체중 (홈과 동일 포맷) */}
         <Text style={s.dogMeta}>{metaParts.join(' · ')}</Text>
+
+        {/* 성향 태그 칩 (홈과 동일 문법) */}
+        {dogTags.length > 0 && (
+          <View style={s.dogTagRow}>
+            {dogTags.map(tag => (
+              <View key={tag} style={s.dogTag}>
+                <Text style={s.dogTagText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* 프로필 편집 버튼 (하단) */}
         <View style={s.dogCardFooter}>
@@ -532,10 +549,29 @@ const s = StyleSheet.create({
     color: Colors.brand.accent,
   },
 
-  // 견종 · 몸집 · 체중
+  // 품종 · 나이 · 체중 (홈과 동일 포맷)
   dogMeta: {
     ...Typography.body.s,
     color: Colors.text.secondary,
+  },
+
+  // 성향 태그 칩 — 홈 profileTag와 동일 토큰
+  dogTagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing[6],
+    marginTop: Spacing[6],
+  },
+  dogTag: {
+    backgroundColor: Colors.brand.primaryLight,
+    paddingHorizontal: Spacing[10],
+    paddingVertical: 3,
+    borderRadius: Radius.round,
+  },
+  dogTagText: {
+    ...Typography.label.s,
+    color: Colors.brand.accent,
+    fontWeight: '600',
   },
 
   // 카드 하단 (배지 or 편집 버튼)
