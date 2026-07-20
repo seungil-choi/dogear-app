@@ -710,22 +710,25 @@ export default function ExploreScreen() {
             }}
           />
 
-          {/* 내 위치 버튼 — 헤더 + 카테고리 아래 우측 상단 고정 */}
-          <View style={s.myLocFloating} pointerEvents="box-none">
-            <TouchableOpacity
-              style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
-              onPress={handleMyLocation}
-              activeOpacity={0.8}
-              accessibilityLabel="현재 위치"
-              disabled={isLocating}
-            >
-              <Icon
-                name={isTracking ? 'location-filled' : 'location'}
-                size={20}
-                color={isTracking ? Colors.brand.onPrimary : Colors.text.primary}
-              />
-            </TouchableOpacity>
-          </View>
+          {/* 내 위치 버튼 — 지도가 보이는 상태(min/peek)에서만 노출.
+              패널이 half/full로 올라오면 목록 위에 떠서 겹치므로 숨긴다. */}
+          {(snapState === 'min' || snapState === 'peek') && (
+            <View style={s.myLocFloating} pointerEvents="box-none">
+              <TouchableOpacity
+                style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
+                onPress={handleMyLocation}
+                activeOpacity={0.8}
+                accessibilityLabel="현재 위치"
+                disabled={isLocating}
+              >
+                <Icon
+                  name={isTracking ? 'location-filled' : 'location'}
+                  size={20}
+                  color={isTracking ? Colors.brand.onPrimary : Colors.text.primary}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* 슬라이드 패널 — 핸들 영역으로 드래그 */}
           <Animated.View style={[s.slidePanel, Shadow.l, { height: panelHeight }]}>
@@ -861,7 +864,9 @@ export default function ExploreScreen() {
                     />
                   </View>
                 ))}
-                <View style={{ height: insets.bottom + 80 }} />
+                {/* 리스트 끝 안내 — 반경 내 장소가 적어 생기는 하단 공백을 안내로 전환 */}
+                <Text style={s.peekListFooter}>지도를 옮기면 주변 장소가 더 표시돼요</Text>
+                <View style={{ height: insets.bottom + 16 }} />
               </ScrollView>
             )}
           </Animated.View>
@@ -1068,6 +1073,12 @@ const s = StyleSheet.create({
   peekEmptySub: { ...Typography.caption, color: Colors.text.tertiary, marginTop: 2, textAlign: 'center' },
   peekScroll: { flex: 1 },
   peekScrollContent: { paddingTop: Spacing[4] },
+  peekListFooter: {
+    ...Typography.body.s,
+    color: Colors.text.tertiary,
+    textAlign: 'center',
+    paddingVertical: Spacing[16],
+  },
   peekCardWrap: {
     backgroundColor: Colors.surface.default,
   },
