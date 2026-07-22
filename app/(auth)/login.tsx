@@ -27,6 +27,7 @@ import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { Icon } from '../../src/components/common/Icon';
@@ -47,6 +48,8 @@ if (IS_REAL_AUTH && Platform.OS !== 'web') {
     scopes: ['profile', 'email'],
     offlineAccess: false,
   });
+  // 카카오 네이티브 SDK 초기화 (New Architecture 정식 지원 라이브러리)
+  initializeKakaoSDK(process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY ?? '');
 }
 
 // ─── SNS 버튼 (정확한 로고) ────────────────────────────────
@@ -179,23 +182,18 @@ export default function LoginScreen() {
   const handleKakaoLogin = async () => {
     if (!IS_REAL_AUTH || Platform.OS === 'web') { proceedAfterAuth(); return; }
     try {
-      // kakao-login은 default export가 없음 → 네임스페이스의 named export(login) 직접 사용
-      const KakaoLogin = await import('@react-native-seoul/kakao-login');
-      const token = await KakaoLogin.login();
-      const { data, error: fnError } = await supabase.functions.invoke('kakao-auth', {
-        body: { kakaoAccessToken: token.accessToken },
-      });
-      if (fnError || !data?.email || !data?.hashed_token) {
-        notify('카카오 로그인 처리에 실패했어요.');
-        return;
-      }
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: data.email, token: data.otp, type: 'magiclink',
-      });
-      if (verifyError) { notify(verifyError.message); return; }
+      // @react-native-kakao/user: 네이티브 로그인 → idToken(OIDC) 획득
+      //  ⚠️ idToken 반환은 카카오 개발자센터에서 OpenID Connect 활성화가 전제.
+      //     구글/애플과 동일한 signInWithIdToken 경로로 통일 (엣지펑션 브리지 제거).
+      const { login } = await import('@react-native-kakao/user');
+      const result = await login();
+      const idToken = (result as any).idToken;
+      if (!idToken) { notify('인증 정보를 확인할 수 없어요. 다시 시도해주세요.'); return; }
+      const { error } = await supabase.auth.signInWithIdToken({ provider: 'kakao', token: idToken });
+      if (error) { notify(error.message); return; }
       proceedAfterAuth();
     } catch (e: any) {
-      if (e?.code === 'E_CANCELLED_OPERATION') return;
+      if (e?.code === 'E_CANCELLED_OPERATION' || /cancel/i.test(e?.message ?? '')) return;
       console.error('Kakao login error:', e);
       notify('카카오 로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
     }
