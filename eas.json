@@ -27,6 +27,7 @@
       }
     },
     "preview-real": {
+      "environment": "preview",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
@@ -36,13 +37,13 @@
         "EXPO_PUBLIC_KAKAO_JS_KEY": "034f48bf73783dcd6f97dcba1f6ba572",
         "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "8dfd3d035c15b72d4ed49561d2232b61",
         "EXPO_PUBLIC_NAVER_CLIENT_ID": "vHX1kkQRUWDg9QifMaEN",
-        "EXPO_PUBLIC_NAVER_CLIENT_SECRET": "vkfxGrGdVf",
         "EXPO_PUBLIC_SUPABASE_URL": "https://ncargfjnfsabmdwmegyn.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jYXJnZmpuZnNhYm1kd21lZ3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NDQxNTgsImV4cCI6MjA5MzIyMDE1OH0.9oCmHk0_oEuzP4MCUYFuTWPjCp6EMWA1mPwE7ZgUeAU",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "479940979212-4gu4jsokp5q8moeu6m2r923sgq59qv89.apps.googleusercontent.com"
       }
     },
     "production": {
+      "environment": "production",
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
@@ -52,7 +53,6 @@
         "EXPO_PUBLIC_KAKAO_JS_KEY": "034f48bf73783dcd6f97dcba1f6ba572",
         "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY": "8dfd3d035c15b72d4ed49561d2232b61",
         "EXPO_PUBLIC_NAVER_CLIENT_ID": "vHX1kkQRUWDg9QifMaEN",
-        "EXPO_PUBLIC_NAVER_CLIENT_SECRET": "vkfxGrGdVf",
         "EXPO_PUBLIC_SUPABASE_URL": "https://ncargfjnfsabmdwmegyn.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jYXJnZmpuZnNhYm1kd21lZ3luIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NDQxNTgsImV4cCI6MjA5MzIyMDE1OH0.9oCmHk0_oEuzP4MCUYFuTWPjCp6EMWA1mPwE7ZgUeAU",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "479940979212-4gu4jsokp5q8moeu6m2r923sgq59qv89.apps.googleusercontent.com"
