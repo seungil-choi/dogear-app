@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants/tokens';
 import { Icon } from '../../src/components/common/Icon';
 import { useAppStore } from '../../src/store/useAppStore';
+import { supabase } from '../../src/lib/supabase';
 
 interface ConsentItem {
   key: 'age' | 'terms' | 'privacy' | 'location' | 'marketing';
@@ -50,18 +51,42 @@ export default function ConsentScreen() {
   };
   const toggle = (key: string) => setChecks(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const onAgree = () => {
+  const onAgree = async () => {
     if (!requiredChecked) {
       notify('필수 항목에 모두 동의해야 서비스를 이용할 수 있어요.', '필수 항목 동의');
       return;
     }
+    const agreedAt = new Date().toISOString();
     setConsent({
       terms_of_service: checks.terms,
       privacy_policy:   checks.privacy,
       location_terms:   checks.location,
       marketing_optin:  checks.marketing,
-      agreed_at:        new Date().toISOString(),
+      agreed_at:        agreedAt,
     });
+
+    // 서버에도 동의 이력을 남긴다.
+    //  · 동의 증빙은 사업자 입증 책임 → 기기에만 두면 재설치 시 사라진다.
+    //  · 로그인 시 신규/기존 판별의 단일 기준이기도 하다.
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('consents').upsert({
+          user_id:     user.id,
+          age_over_14: !!checks.age,
+          terms:       !!checks.terms,
+          privacy:     !!checks.privacy,
+          location:    !!checks.location,
+          marketing:   !!checks.marketing,
+          agreed_at:   agreedAt,
+          updated_at:  agreedAt,
+        });
+      }
+    } catch (e) {
+      // 저장 실패해도 온보딩은 진행 (로컬 동의는 이미 반영됨)
+      console.error('consent save error:', e);
+    }
+
     router.replace('/(auth)/dog-setup');
   };
 

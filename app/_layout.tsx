@@ -8,6 +8,7 @@ import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/hooks/useAuth';
 import { notify } from '../src/utils/dialog';
+import { ToastHost } from '../src/components/common/ToastHost';
 import { useLocation } from '../src/hooks/useLocation';
 import { useAppEntryPermissions } from '../src/hooks/useAppEntryPermissions';
 import { useNearbySpots } from '../src/hooks/useNearbySpots';
@@ -200,6 +201,8 @@ function RootLayoutInner() {
         />
         </Stack.Protected>
       </Stack>
+      {/* 전역 토스트 — Stack 위에 떠야 하므로 형제 중 마지막에 둔다 */}
+      <ToastHost />
     </ErrorBoundary>
   );
 }

@@ -23,6 +23,7 @@ import {
 // react-native의 SafeAreaView는 Android에서 무동작 → safe-area-context 사용 (하단 겹침 방지)
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../../src/utils/dialog';
+import { toast } from '../../src/utils/toast';
 import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
@@ -88,13 +89,41 @@ export default function LoginScreen() {
   //  - 있으면(재로그인) → 홈으로. 강아지는 useAuth가 비동기로 복원하며,
   //    없더라도 홈에서 등록을 유도하므로 dog-setup으로 강제 튕기지 않는다.
   //  ⚠️ 렌더 시점의 stale 값이 아니라 최신 store 상태로 판단.
-  const proceedAfterAuth = (provider: string = 'guest') => {
+  const proceedAfterAuth = async (provider: string = 'guest') => {
     login();
     track(EVENT.login_completed, { screen_name: 'login', provider });
-    // 로그인은 '기존 사용자' 진입 → 항상 홈으로. 신규 약관 동의는 가입(signup) 플로우가 전담한다.
-    // (재설치/기기변경으로 로컬 consent가 비어 있어도 홈으로 — 서버 프로필은 useAuth가 복원.
-    //  이전엔 consent만 보고 판단해 재설치마다 동의→강아지등록으로 튕기던 문제를 제거.)
-    router.replace('/(tabs)');
+
+    // 신규/기존 판별은 '서버의 동의 이력'을 기준으로 한다.
+    //  · 로컬(zustand)로 판단하면 재설치 시 이력이 날아가 매번 온보딩으로 튕겼다.
+    //  · 반대로 무조건 홈으로 보내면 소셜 신규 가입자가 법정 필수 동의를 건너뛴다.
+    //  · 게스트/DEV 모드는 Supabase 세션이 없으므로 자연히 홈으로 빠진다.
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { router.replace('/(tabs)'); return; }
+
+      const meta: any = user.user_metadata ?? {};
+      const name =
+        meta.nickname || meta.name || meta.full_name ||
+        (user.email ? user.email.split('@')[0] : '') || '반려인';
+
+      const { data: consent } = await supabase
+        .from('consents')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!consent) {
+        toast(`반갑습니다, ${name}님`);
+        router.replace('/(auth)/consent');
+        return;
+      }
+      toast(`다시 오셨네요, ${name}님`);
+      router.replace('/(tabs)');
+    } catch (e) {
+      // 조회 실패로 로그인 자체를 막지는 않는다
+      console.error('post-auth routing error:', e);
+      router.replace('/(tabs)');
+    }
   };
 
   // 이메일 로그인
