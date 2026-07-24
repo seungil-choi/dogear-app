@@ -45,6 +45,8 @@ export default function ConsentScreen() {
     [checks],
   );
 
+  const [submitting, setSubmitting] = useState(false);
+
   const toggleAll = () => {
     const next = !allChecked;
     setChecks(Object.fromEntries(ITEMS.map(it => [it.key, next])));
@@ -56,7 +58,35 @@ export default function ConsentScreen() {
       notify('필수 항목에 모두 동의해야 서비스를 이용할 수 있어요.', '필수 항목 동의');
       return;
     }
+    if (submitting) return;
+    setSubmitting(true);
     const agreedAt = new Date().toISOString();
+
+    // SEC-06: 동의 이력을 서버에 '먼저 확정'한 뒤에만 진행한다.
+    //  · 동의 증빙은 사업자 입증 책임 → 저장 실패 시 진행하면 '동의 없이 수집'이 되어 위법.
+    //  · 저장이 확정된 뒤에만 로컬 반영 + 온보딩 진행. 실패는 표면화하고 재시도 유도.
+    try {
+      const { data: { user }, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !user) throw new Error('no-authenticated-user');
+      const { error: upsertErr } = await supabase.from('consents').upsert({
+        user_id:     user.id,
+        age_over_14: !!checks.age,
+        terms:       !!checks.terms,
+        privacy:     !!checks.privacy,
+        location:    !!checks.location,
+        marketing:   !!checks.marketing,
+        agreed_at:   agreedAt,
+        updated_at:  agreedAt,
+      });
+      if (upsertErr) throw upsertErr;
+    } catch (e) {
+      console.error('consent save error:', e);
+      setSubmitting(false);
+      notify('동의 저장에 실패했어요. 네트워크를 확인하고 다시 시도해주세요.', '동의 저장 실패');
+      return;
+    }
+
+    // 서버 저장이 확정된 뒤에만 로컬 반영 + 진행
     setConsent({
       terms_of_service: checks.terms,
       privacy_policy:   checks.privacy,
@@ -64,29 +94,6 @@ export default function ConsentScreen() {
       marketing_optin:  checks.marketing,
       agreed_at:        agreedAt,
     });
-
-    // 서버에도 동의 이력을 남긴다.
-    //  · 동의 증빙은 사업자 입증 책임 → 기기에만 두면 재설치 시 사라진다.
-    //  · 로그인 시 신규/기존 판별의 단일 기준이기도 하다.
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from('consents').upsert({
-          user_id:     user.id,
-          age_over_14: !!checks.age,
-          terms:       !!checks.terms,
-          privacy:     !!checks.privacy,
-          location:    !!checks.location,
-          marketing:   !!checks.marketing,
-          agreed_at:   agreedAt,
-          updated_at:  agreedAt,
-        });
-      }
-    } catch (e) {
-      // 저장 실패해도 온보딩은 진행 (로컬 동의는 이미 반영됨)
-      console.error('consent save error:', e);
-    }
-
     router.replace('/(auth)/dog-setup');
   };
 
@@ -146,12 +153,12 @@ export default function ConsentScreen() {
 
       <View style={s.footer}>
         <TouchableOpacity
-          style={[s.cta, !requiredChecked && s.ctaDisabled]}
+          style={[s.cta, (!requiredChecked || submitting) && s.ctaDisabled]}
           onPress={onAgree}
-          disabled={!requiredChecked}
+          disabled={!requiredChecked || submitting}
           activeOpacity={0.88}
         >
-          <Text style={s.ctaLabel}>동의하고 시작하기</Text>
+          <Text style={s.ctaLabel}>{submitting ? '저장 중…' : '동의하고 시작하기'}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

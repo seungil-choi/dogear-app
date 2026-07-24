@@ -97,10 +97,15 @@ Deno.serve(async (req: Request) => {
         .filter((p: any) => p.allow_familiar_layer_exposure === true && p.default_visibility_level === 'familiar_layer')
         .map((p: any) => p.dog_id)
     );
+    // SEC-09: 액터와 차단관계(양방향)인 유저는 수신 대상에서 제외 — 차단당한 스토커가 위치 알림 수신 방지
+    const { data: blockedUsers } = await supabase.rpc('blocked_counterpart_user_ids');
+    const blockedUserIds = new Set((blockedUsers ?? []).map((r: any) => r.user_id));
+
     const recipients = new Set<string>();
     for (const d of dogs ?? []) {
       if (!optedIn.has(d.dog_id)) continue;
       if (d.user_id === dog.user_id) continue;  // 본인 제외
+      if (blockedUserIds.has(d.user_id)) continue;  // 차단 관계(양방향) 제외
       recipients.add(d.user_id);
     }
     if (recipients.size === 0) {

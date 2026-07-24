@@ -110,8 +110,8 @@ Deno.serve(async (req: Request) => {
             .limit(MAX_FAMILIAR_DOGS)
         : Promise.resolve({ data: null, error: null }),
 
-      // 호출자 차단 목록 (RLS로 본인 것만) — 차단한 강아지의 흔적/익숙한강아지 제외
-      supabase.from('blocks').select('blocked_dog_id'),
+      // SEC-08: 차단 양방향 — 내가↔상대 어느 방향이든 차단관계인 유저 집합(소유주 단위 제외)
+      supabase.rpc('blocked_counterpart_user_ids'),
     ]);
 
     if (spotResult.error || !spotResult.data) {
@@ -119,11 +119,20 @@ Deno.serve(async (req: Request) => {
     }
 
     const spot = spotResult.data;
-    const blockedDogIds = new Set(
-      (blocksResult.data ?? []).map((b: any) => b.blocked_dog_id).filter(Boolean)
-    );
+    // SEC-08: 차단 양방향 제외 — 소유주 단위. 후보 강아지(흔적+익숙강아지)의 소유주를 조회해 차단 유저면 제외
+    const blockedUserIds = new Set((blocksResult.data ?? []).map((r: any) => r.user_id));
+    const candidateDogIds = Array.from(new Set([
+      ...(recentCheckinsResult.data ?? []).map((c: any) => c.dog_id),
+      ...(familiarDogsResult.data ?? []).map((f: any) => f.visible_dog_id),
+    ].filter(Boolean)));
+    const ownerByDog: Record<string, string> = {};
+    if (candidateDogIds.length > 0) {
+      const { data: owners } = await svc.from('dogs').select('dog_id, user_id').in('dog_id', candidateDogIds);
+      for (const d of owners ?? []) ownerByDog[d.dog_id] = d.user_id;
+    }
+    const isBlockedDog = (dId: string) => blockedUserIds.has(ownerByDog[dId]);
     const recentCheckins = (recentCheckinsResult.data ?? [])
-      .filter((c: any) => !blockedDogIds.has(c.dog_id));
+      .filter((c: any) => !isBlockedDog(c.dog_id));
 
     // 전체 체크인 수 (집계용 — 비공개 제외, service-role로 전체 커뮤니티 카운트)
     const { count: totalCheckinCount } = await svc
@@ -141,7 +150,7 @@ Deno.serve(async (req: Request) => {
     // 익숙한 강아지 정보 조회 (dog_id → dog 정보) — 차단한 강아지 제외
     let familiarDogs: any[] = [];
     const familiarSignals = (familiarDogsResult.data ?? [])
-      .filter((f: any) => !blockedDogIds.has(f.visible_dog_id));
+      .filter((f: any) => !isBlockedDog(f.visible_dog_id));
     if (familiarSignals.length > 0) {
       const familiarDogIds = familiarSignals.map((f: any) => f.visible_dog_id);
       const { data: dogDetails } = await supabase
@@ -188,6 +197,7 @@ Deno.serve(async (req: Request) => {
         spot_id: spot.spot_id,
         name: spot.name,
         category: spot.category,
+        subcategory: spot.subcategory ?? null,
         latitude: spot.latitude,
         longitude: spot.longitude,
         address_text: spot.address_text,

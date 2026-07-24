@@ -86,13 +86,19 @@ Deno.serve(async (req: Request) => {
       return Response.json({ familiar_dogs: [] }, { headers: corsHeaders });
     }
 
-    // 호출자 차단 강아지 제외 (RLS로 본인 차단목록만 반환)
-    const { data: blocks } = await supabase.from('blocks').select('blocked_dog_id');
-    const blockedDogIds = new Set(
-      (blocks ?? []).map((b: any) => b.blocked_dog_id).filter(Boolean)
-    );
+    // SEC-08: 차단 양방향 제외 — 내가↔상대 어느 방향이든 차단관계인 유저의 강아지를 소유주 단위로 제외
+    const { data: blockedUsers } = await supabase.rpc('blocked_counterpart_user_ids');
+    const blockedUserIds = new Set((blockedUsers ?? []).map((r: any) => r.user_id));
 
     const candidateDogIds = signals.map((s: any) => s.visible_dog_id);
+
+    // 후보 강아지의 소유주 (차단 판정용)
+    const { data: candidateOwners } = await serviceClient
+      .from('dogs')
+      .select('dog_id, user_id')
+      .in('dog_id', candidateDogIds);
+    const ownerByDog: Record<string, string> = {};
+    for (const d of candidateOwners ?? []) ownerByDog[d.dog_id] = d.user_id;
 
     // 조건 3, 4: privacy_settings 확인
     const { data: privacySettings } = await serviceClient
@@ -135,12 +141,12 @@ Deno.serve(async (req: Request) => {
         .map(([id]) => id)
     );
 
-    // 최종 후보 필터링
+    // 최종 후보 필터링 (차단 양방향 제외 포함)
     const finalSignals = signals
       .filter((s: any) =>
         allowedDogIds.has(s.visible_dog_id) &&
         qualifiedDogIds.has(s.visible_dog_id) &&
-        !blockedDogIds.has(s.visible_dog_id))
+        !blockedUserIds.has(ownerByDog[s.visible_dog_id]))
       .slice(0, MAX_FAMILIAR_DOGS);
 
     if (finalSignals.length === 0) {

@@ -196,7 +196,10 @@ Deno.serve(async (req: Request) => {
     }
 
     // 발도장 삽입 (트리거가 visit_summary 자동 갱신)
-    const { data: checkin, error: insertError } = await supabase
+    // SEC-04: service_role로 삽입 — 위에서 소유권·근접·중복을 유저 클라로 검증한 뒤에만.
+    //   paw_checkins에는 유저 INSERT 정책이 없어(직접 삽입 차단) 이 엣지펑션이 유일 경로다.
+    //   checked_in_at은 컬럼 기본값 now()로 서버가 확정(클라 조작 불가).
+    const { data: checkin, error: insertError } = await serviceClient
       .from('paw_checkins')
       .insert({
         dog_id: dogId,

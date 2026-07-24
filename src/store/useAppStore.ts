@@ -599,9 +599,12 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   deleteDog: async (dog_id) => {
     if (IS_REAL_AUTH) {
+      // SEC-18: soft-delete 시 is_active=false 동시 세팅.
+      //   엣지펑션(familiar-dogs/spot-detail 등)이 is_active로만 필터하므로, deleted_at만 세팅하면
+      //   삭제된 강아지가 익숙한 강아지/신호로 계속 노출된다.
       const { error } = await supabase
         .from('dogs')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted_at: new Date().toISOString(), is_active: false })
         .eq('dog_id', dog_id);
       if (error) {
         console.warn('[deleteDog] supabase update failed:', error.message);
@@ -788,6 +791,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       spot_id: spotId,
       name: spot.name,
       category_label: categoryLabel[spot.category],
+      subcategory: spot.subcategory,
       distance_text: distanceText,
       latitude: spot.latitude,
       longitude: spot.longitude,
