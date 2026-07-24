@@ -161,6 +161,7 @@ Deno.serve(async (req: Request) => {
         spot_id: spot.spot_id,
         name: spot.name,
         category: spot.category,
+        subcategory: spot.subcategory ?? null,
         latitude: spot.latitude,
         longitude: spot.longitude,
         address_text: spot.address_text,

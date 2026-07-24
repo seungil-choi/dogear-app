@@ -101,6 +101,7 @@ export function buildHomeSpotCard(
     spot_id: spot.spot_id,
     name: spot.name,
     category_label: categoryLabel[spot.category],
+    subcategory: spot.subcategory,
     distance_text: distanceMeters != null
       ? `${distanceMeters < 1000 ? Math.round(distanceMeters) + 'm' : (distanceMeters / 1000).toFixed(1) + 'km'}`
       : '근처',
@@ -313,6 +314,7 @@ export function buildSpotDetailFromApi(
     spot_id: spot.spot_id,
     name: spot.name,
     category_label: categoryLabel[spot.category],
+    subcategory: spot.subcategory ?? ctx.storeSpot?.subcategory,
     distance_text,
     latitude: spot.latitude,
     longitude: spot.longitude,

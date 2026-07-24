@@ -51,6 +51,8 @@ export interface Spot {
   spot_id: string;
   name: string;
   category: SpotCategory;
+  /** 공원구분 원본 텍스트 (예: '어린이공원', '근린공원') — 커버 일러스트 매핑 키 */
+  subcategory?: string | null;
   latitude: number;
   longitude: number;
   address_text?: string;
@@ -126,6 +128,8 @@ export interface HomeSpotCardViewModel {
   spot_id: string;
   name: string;
   category_label: string;
+  /** 공원구분 원본 텍스트 — 커버 일러스트 매핑 키 */
+  subcategory?: string | null;
   distance_text: string;
   atmosphere_badges: string[];
   recent_trace_label?: string;
@@ -200,6 +204,7 @@ export interface SpotDetailApiViewModel {
     spot_id: string;
     name: string;
     category: SpotCategory;
+    subcategory: string | null;
     latitude: number;
     longitude: number;
     address_text: string | null;
@@ -242,6 +247,8 @@ export interface SpotDetailViewModel {
   spot_id: string;
   name: string;
   category_label: string;
+  /** 공원구분 원본 텍스트 — 키비주얼 일러스트 매핑 키 */
+  subcategory?: string | null;
   distance_text: string;
   latitude: number;        // 미니맵 썸네일용 좌표
   longitude: number;
@@ -270,6 +277,7 @@ export interface SpotCardViewModel {
   spotId: string;
   name: string;
   category: SpotCategory;
+  subcategory?: string | null;
   latitude: number;
   longitude: number;
   addressText: string | null;

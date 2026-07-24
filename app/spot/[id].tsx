@@ -246,6 +246,7 @@ export default function SpotDetailScreen() {
             <View style={s.keyVisualImage}>
               <CategoryThumb
                 categoryLabel={vm.category_label}
+                subcategory={vm.subcategory}
                 size={260}
                 width="100%"
                 iconSize={72}

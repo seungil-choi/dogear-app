@@ -185,6 +185,7 @@ export default function MySpotsScreen() {
                     key={sv.summary_id}
                     name={sv.spot.name}
                     categoryLabel={catLabel[sv.spot.category]}
+                    subcategory={sv.spot.subcategory}
                     distanceText={`총 ${sv.visit_count}회 방문`}
                     atmosphereSummary={`마지막 방문 ${relativeTime(sv.last_visit_at)}`}
                     relationSummary={regularLabel}
@@ -224,6 +225,7 @@ export default function MySpotsScreen() {
                   key={saved.saved_spot_id}
                   name={spot.name}
                   categoryLabel={catLabel[spot.category]}
+                  subcategory={spot.subcategory}
                   distanceText={card?.distance_text ?? '—'}
                   atmosphereSummary={card?.atmosphere_badges.join(' · ')}
                   isSaved={true}
@@ -247,6 +249,7 @@ export default function MySpotsScreen() {
                   key={saved.saved_spot_id}
                   name={spot.name}
                   categoryLabel={catLabel[spot.category]}
+                  subcategory={spot.subcategory}
                   distanceText={card?.distance_text ?? '—'}
                   atmosphereSummary={card?.atmosphere_badges.join(' · ')}
                   relationSummary="다시 가고 싶은 곳"
