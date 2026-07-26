@@ -1,4 +1,10 @@
 /**
+ * ⚠️ SEC-07 (2026-07-24): 이 함수는 현재 프로덕션에서 **410 스텁으로 중화(비활성)** 되어 있다.
+ *    사유: 토큰 audience(앱 소속) 미검증 → 토큰 치환 계정 탈취 표면. 네이버 로그인은 MVP에서 히든.
+ *    재개 시: (1) 이 파일을 그대로 재배포 + audience 검증 보강 (authorization code↔client_id/secret 교환)
+ *             (2) login.tsx의 네이버 버튼 플래그 true (3) 네이버 콘솔 검수요청.
+ *    ※ 로컬(이 파일)과 배포본(스텁)이 의도적으로 다름 — 재개용 원본 보존.
+ *
  * Edge Function: naver-auth
  *
  * 네이버 access token을 받아 사용자를 검증하고 Supabase 세션을 생성한다.

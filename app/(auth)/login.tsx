@@ -324,12 +324,16 @@ export default function LoginScreen() {
                 ariaLabel="구글로 시작하기"
               />
             )}
-            <SnsBubble
-              onPress={handleNaverLogin}
-              bgColor="#03C75A"
-              logo={<NaverLogo size={22} />}
-              ariaLabel="네이버로 시작하기"
-            />
+            {/* SEC-07: 네이버 로그인 MVP 히든 — naver-auth 브리지의 토큰 audience 미검증 취약점 + 앱 '개발 중' 상태.
+                재개 방법: 아래 false를 true로 + naver-auth 엣지 재배포(현재 410 스텁으로 중화됨) + 네이버 콘솔 검수요청. */}
+            {false && (
+              <SnsBubble
+                onPress={handleNaverLogin}
+                bgColor="#03C75A"
+                logo={<NaverLogo size={22} />}
+                ariaLabel="네이버로 시작하기"
+              />
+            )}
             {Platform.OS !== 'android' && (
               <SnsBubble
                 onPress={handleAppleLogin}
