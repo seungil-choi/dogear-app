@@ -71,10 +71,6 @@ Deno.serve(async (req: Request) => {
       return Response.json({ notified: 0 }, { headers: corsHeaders });
     }
 
-    // 스팟 이름
-    const { data: spot } = await svc.from('spots').select('name').eq('spot_id', spotId).single();
-    const spotName = spot?.name ?? '이 장소';
-
     // 이 스팟의 익숙한(established) 다른 강아지들
     const { data: signals } = await svc
       .from('familiar_dog_signals')
@@ -127,8 +123,10 @@ Deno.serve(async (req: Request) => {
       return Response.json({ notified: 0 }, { headers: corsHeaders });
     }
 
+    // SEC-09: 준실시간 위치 노출 최소화 — 알림 본문에 스팟 이름을 넣지 않는다(어느 장소인지 특정 방지).
+    //   spot_id는 data에만 유지(탭 시 딥링크 + 24h 중복 판정용). 시간/위치는 본문에서 드러내지 않음.
     const title = '익숙한 강아지가 다녀갔어요';
-    const bodyText = `${spotName}에 익숙한 강아지가 발도장을 남겼어요.`;
+    const bodyText = '자주 보이는 강아지가 근처에 다녀갔어요.';
     await svc.from('notifications').insert(
       targets.map((uid) => ({ user_id: uid, type: 'familiar_dog_visited', title, body: bodyText, data: { spot_id: spotId } }))
     );

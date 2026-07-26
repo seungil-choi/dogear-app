@@ -51,6 +51,23 @@ function haversineMeters(lat1: number, lon1: number, lat2: number, lon2: number)
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// ─── SEC-13: 서버측 UGC 모더레이션 (클라 src/utils/moderation.ts 패턴을 미러 — 두 곳 동시 갱신) ───
+const BANNED_PATTERNS: RegExp[] = [
+  /씨발|시발|씨ㅂ|ㅅㅂ|개새끼|니애미|애미뒤|병신|ㅂㅅ|지랄|좆같|좆나|존나|개같|썅놈|썅년/,
+  /꼴페미|김치녀|한남충|틀딱|급식충|똥꼬충|장애인새끼/,
+  /섹스|\bsex\b|porn|야동|성인물|자위행위|에로영상/i,
+  /\bfuck|\bshit\b|\bbitch\b|\bcunt\b|\bnigger\b|\bfaggot\b|\bpussy\b/i,
+];
+function findBannedWord(text: string | null | undefined): string | null {
+  if (!text) return null;
+  const normalized = text.replace(/\s+/g, '');
+  for (const re of BANNED_PATTERNS) {
+    const m = normalized.match(re) ?? text.match(re);
+    if (m) return m[0];
+  }
+  return null;
+}
+
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -104,6 +121,20 @@ Deno.serve(async (req: Request) => {
     if (note && note.length > 200) {
       return Response.json(
         { error: 'note must be 200 characters or less' },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    // SEC-13: 서버측 모더레이션 미러 — note 금칙어 차단 + photo_url 도메인 화이트리스트 (클라 우회 방지)
+    if (findBannedWord(note)) {
+      return Response.json(
+        { error: 'objectionable_content' },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+    if (photoUrl && !String(photoUrl).startsWith((Deno.env.get('SUPABASE_URL') ?? '') + '/storage/v1/object/public/checkin-photos/')) {
+      return Response.json(
+        { error: 'invalid_photo_url' },
         { status: 400, headers: corsHeaders }
       );
     }

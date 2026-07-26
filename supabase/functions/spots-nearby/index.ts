@@ -63,7 +63,9 @@ Deno.serve(async (req: Request) => {
     const radius = Math.min(radiusMeters, MAX_RADIUS_M);
 
     // PostGIS 쿼리: 반경 내 활성 스팟 + 거리 계산
-    const { data: spots, error: spotsError } = await supabase.rpc(
+    // SEC-03: get_spots_nearby는 service_role 전용(authenticated 회수). 스팟 조회는 공개 데이터라
+    //   svc로 호출해도 안전하며, 이로써 로그인 유저의 RPC 직접 스크래핑 경로를 차단한다.
+    const { data: spots, error: spotsError } = await svc.rpc(
       'get_spots_nearby',
       {
         p_lat: latitude,

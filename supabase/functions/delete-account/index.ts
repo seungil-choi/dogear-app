@@ -62,6 +62,23 @@ Deno.serve(async (req: Request) => {
       })
       .eq('auth_id', authUser.id);
 
+    // 1-b. SEC-16: 사용자 업로드 사진(Storage) 삭제 — 방침의 "탈퇴 시 사진 삭제" 이행.
+    //   업로드 경로 컨벤션: {bucket}/{users.user_id}/{filename} (src/lib/uploadImage.ts)
+    //   best-effort: 실패해도 계정 삭제는 진행(삭제 불가로 막지 않음).
+    const { data: appUser } = await adminClient
+      .from('users').select('user_id').eq('auth_id', authUser.id).maybeSingle();
+    if (appUser?.user_id) {
+      for (const bucket of ['dog-avatars', 'checkin-photos', 'spot-suggestions']) {
+        try {
+          const { data: files } = await adminClient.storage.from(bucket).list(appUser.user_id, { limit: 1000 });
+          const paths = (files ?? []).map((f: any) => `${appUser.user_id}/${f.name}`);
+          if (paths.length > 0) await adminClient.storage.from(bucket).remove(paths);
+        } catch (e) {
+          console.error(`storage cleanup failed for ${bucket}:`, e);
+        }
+      }
+    }
+
     // 2. auth.users 영구 삭제 (cascade → dogs, paw_checkins 등 모두 삭제됨)
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(authUser.id);
     if (deleteError) {
