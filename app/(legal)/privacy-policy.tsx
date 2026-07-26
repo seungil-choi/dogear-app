@@ -72,7 +72,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: '13. 개인정보 보호책임자',
     body:
-      '• 성명: 최승일 (대표)\n• 소속: 나인팩토리얼(9Factorial)\n• 이메일: seungil.office@gmail.com\n• 처리 기간: 영업일 기준 7일 이내 답변',
+      '• 성명: 최승일 (대표)\n• 소속: 나인팩토리얼(9Factorial)\n• 이메일: support@9factorial.com\n• 처리 기간: 영업일 기준 7일 이내 답변',
   },
   {
     title: '14. 권익침해 구제 방법',
@@ -87,7 +87,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: '16. 사업자 정보',
     body:
-      '본 서비스는 아래 사업자가 운영합니다.\n• 상호: 나인팩토리얼 (9Factorial)\n• 대표자: 최승일\n• 사업자등록번호: 210-44-30615\n• 사업장 소재지: 서울특별시 강북구 한천로143길 34-11, 101호 (수유동, 동아셰르빌 23차)\n• 이메일: seungil.office@gmail.com',
+      '본 서비스는 아래 사업자가 운영합니다.\n• 상호: 나인팩토리얼 (9Factorial)\n• 대표자: 최승일\n• 사업자등록번호: 210-44-30615\n• 사업장 소재지: 서울특별시 강북구 한천로143길 34-11, 101호 (수유동, 동아셰르빌 23차)\n• 이메일: support@9factorial.com',
   },
 ];
 

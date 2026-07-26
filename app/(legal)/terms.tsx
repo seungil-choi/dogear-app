@@ -62,7 +62,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: '제11조 (문의)',
     body:
-      '서비스 이용 관련 문의는 다음 연락처로 가능합니다.\n• 운영사: 나인팩토리얼(9Factorial)\n• 이메일: seungil.office@gmail.com',
+      '서비스 이용 관련 문의는 다음 연락처로 가능합니다.\n• 운영사: 나인팩토리얼(9Factorial)\n• 이메일: support@9factorial.com',
   },
 ];
 

@@ -180,8 +180,8 @@ export default function ProfileScreen() {
   }, [logout, router]);
 
   const openSupport = useCallback(() => {
-    Linking.openURL('mailto:seungil.office@gmail.com?subject=DogEar%20%EB%AC%B8%EC%9D%98')
-      .catch(() => notify('seungil.office@gmail.com으로 직접 문의해 주세요.', '메일 앱을 열 수 없어요'));
+    Linking.openURL('mailto:support@9factorial.com?subject=DogEar%20%EB%AC%B8%EC%9D%98')
+      .catch(() => notify('support@9factorial.com으로 직접 문의해 주세요.', '메일 앱을 열 수 없어요'));
   }, []);
 
   // 현재 보이는 슬롯 인덱스 (강아지 카드 + 추가 카드)

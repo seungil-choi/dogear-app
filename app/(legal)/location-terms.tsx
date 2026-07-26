@@ -52,7 +52,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: '제9조 (위치정보관리책임자)',
     body:
-      '• 성명: 최승일 (대표)\n• 소속: 나인팩토리얼(9Factorial)\n• 이메일: seungil.office@gmail.com',
+      '• 성명: 최승일 (대표)\n• 소속: 나인팩토리얼(9Factorial)\n• 이메일: support@9factorial.com',
   },
   {
     title: '제10조 (손해배상 및 면책)',
@@ -67,7 +67,7 @@ const SECTIONS: LegalSection[] = [
   {
     title: '제12조 (사업자 정보)',
     body:
-      '• 상호: 나인팩토리얼(9Factorial)\n• 대표자: 최승일\n• 소재지: 서울특별시 강북구 한천로143길 34-11, 101호 (수유동, 동아셰르빌 23차)\n• 이메일: seungil.office@gmail.com\n• 위치기반서비스사업 신고번호: 신고 절차 진행 중이며, 완료 즉시 본 약관에 게시합니다.',
+      '• 상호: 나인팩토리얼(9Factorial)\n• 대표자: 최승일\n• 소재지: 서울특별시 강북구 한천로143길 34-11, 101호 (수유동, 동아셰르빌 23차)\n• 이메일: support@9factorial.com\n• 위치기반서비스사업 신고번호: 신고 절차 진행 중이며, 완료 즉시 본 약관에 게시합니다.',
   },
 ];
 
