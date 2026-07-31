@@ -718,6 +718,12 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     const blockedDogIds = new Set(blockedUsers.map(b => b.blocked_dog_id).filter(Boolean) as string[]);
     const filteredCheckins = checkins.filter(c => !blockedDogIds.has(c.dog_id));
 
+    // 성능: 스팟마다 visitSummaries.find(O(n)) 대신 dog별 방문요약을 spot_id Map으로 1회 인덱싱 → O(1) 조회
+    const summaryBySpot = new Map<string, any>();
+    if (dog) for (const vs of visitSummaries) {
+      if (vs.dog_id === dog.dog_id) summaryBySpot.set(vs.spot_id, vs);
+    }
+
     return spots
       .filter(s => s.status === 'active')
       .map(spot => {
@@ -725,9 +731,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         const agg = serverAggregateToSpotAggregate(spot.spot_id, spotAggregates[spot.spot_id])
           ?? computeSpotAggregate(spot.spot_id, filteredCheckins);
         // 강아지가 있을 때만 방문 요약(개인화) 조회
-        const summary = dog
-          ? visitSummaries.find(s => s.dog_id === dog.dog_id && s.spot_id === spot.spot_id)
-          : undefined;
+        const summary = dog ? summaryBySpot.get(spot.spot_id) : undefined;
         // currentLocation이 있으면 실제 거리, 없으면 undefined (카드에서 "근처"로 표기)
         const distanceMeters = currentLocation
           ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
@@ -830,10 +834,11 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     const { spots, visitSummaries, dog } = get();
     if (!dog) return [];
 
+    const spotsById = new Map(spots.map(sp => [sp.spot_id, sp]));
     return visitSummaries
       .filter(s => s.dog_id === dog.dog_id)
       .map(s => {
-        const spot = spots.find(sp => sp.spot_id === s.spot_id);
+        const spot = spotsById.get(s.spot_id);
         if (!spot) return null;
         return {
           spot_id: spot.spot_id,
@@ -864,7 +869,8 @@ export const useAppStore = DEV_PREVIEW_SEED
           activeDog: state.activeDog,
           dogs: state.dogs,
           privacySetting: state.privacySetting,
-          spots: state.spots,
+          // 성능: spots는 지도 세션 데이터(수백 개)로 앱 진입 시 useNearbySpots가 재fetch하므로 persist 제외.
+          //   (persist하면 매 set()마다 수백 객체 JSON 직렬화 → 핀 탭·팬마다 비용. stale 표시 방지 효과도 있음)
           checkins: state.checkins,
           savedSpots: state.savedSpots,
           visitSummaries: state.visitSummaries,

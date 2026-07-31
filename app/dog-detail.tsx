@@ -158,6 +158,7 @@ export default function DogDetailScreen() {
                   key={spotId}
                   name={spot.name}
                   categoryLabel={categoryLabel[spot.category]}
+                  subcategory={spot.subcategory}
                   coverImageUrl={spot.cover_image_url}
                   distanceText={
                     tab === 'paw'   ? `발도장 ${pawCountBySpot[spotId] ?? 0}회` :

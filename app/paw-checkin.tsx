@@ -153,7 +153,8 @@ export default function PawCheckinModal() {
   }, [setCurrentLocation]);
 
   const { step, selectedSpot, selectedTags, visibility } = pawFlow;
-  const cards = getHomeCards();
+  // 성능: 태그 토글·스텝 이동 등 매 상호작용마다 전체 카드 빌드를 재실행하지 않도록 memoize
+  const cards = useMemo(() => getHomeCards(), [getHomeCards, spots, visitSummaries, dog, currentLocation]);
 
   // ── 진입 경로 감지 ────────────────────────────────────────
   // spot 상세에서 진입(setPawSpot 후 push)한 경우 selectedSpot이 이미 세팅됨

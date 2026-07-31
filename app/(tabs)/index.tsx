@@ -110,6 +110,7 @@ function FeaturedCard({
         <View style={[s.featuredImageWrap, s.featuredImageFallback]}>
           <CategoryThumb
             categoryLabel={card.category_label}
+            subcategory={card.subcategory}
             coverImageUrl={card.cover_image_url}
             size={228}
             width="100%"
@@ -184,6 +185,8 @@ export default function HomeScreen() {
   // ⚠️ getHomeCards는 안정적인 zustand 액션 참조라 [getHomeCards]로 memo하면 마운트 시 1회만
   //    계산되고 spots가 비동기 로드돼도 갱신되지 않음 → 실제 데이터 의존값을 dep에 넣어 재계산.
   const cards    = useMemo(() => getHomeCards(), [getHomeCards, spots, visitSummaries, savedSpots, currentLocation, dog, isSpotsLoading]);
+  // 성능: featuredCards 등에서 spots.find(O(n))를 루프로 돌지 않도록 spot_id → Spot Map 1회 구성
+  const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [featuredPage, setFeaturedPage] = useState(0);
   const multiDog = dogs.length > 1;
@@ -218,7 +221,7 @@ export default function HomeScreen() {
         const latest = mine.reduce((a, b) =>
           new Date(a.last_visit_at) > new Date(b.last_visit_at) ? a : b
         );
-        const lastSpot = spots.find(sp => sp.spot_id === latest.spot_id);
+        const lastSpot = spotsById.get(latest.spot_id);
         if (lastSpot) center = { lat: lastSpot.latitude, lng: lastSpot.longitude };
       }
     }
@@ -230,7 +233,7 @@ export default function HomeScreen() {
     // 2km 이내 후보 추출 + 거리 정렬
     const within = cards
       .map(c => {
-        const sp = spots.find(s => s.spot_id === c.spot_id);
+        const sp = spotsById.get(c.spot_id);
         if (!sp) return null;
         const d = dist(center!.lat, center!.lng, sp.latitude, sp.longitude);
         if (d > 2000 || d < 30) return null;

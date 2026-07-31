@@ -82,6 +82,9 @@ export default function ExploreScreen() {
   const currentLocation     = useAppStore(s => s.currentLocation);
   const setCurrentLocation  = useAppStore(s => s.setCurrentLocation);
 
+  // 성능: 루프에서 spots.find(O(n))를 반복하지 않도록 spot_id → Spot Map을 1회 구성 (팬마다 O(스팟²) 제거)
+  const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
+
   const insets = useSafeAreaInsets();
 
   const [viewMode,      setViewMode]      = useState<ViewMode>('map');
@@ -242,7 +245,7 @@ export default function ExploreScreen() {
       case 'long_walk': {
         const cats = FILTER_CATEGORIES[activeFilter] ?? [];
         result = result.filter(c => {
-          const sp = spots.find(s => s.spot_id === c.spot_id);
+          const sp = spotsById.get(c.spot_id);
           return sp && cats.includes(sp.category as SpotCategory);
         });
         break;
@@ -321,7 +324,7 @@ export default function ExploreScreen() {
         }
         useAppStore.getState().mergeSpots(merged, aggs);
       } catch { /* 지역 페치 실패는 조용히 무시 — 기존 핀 유지 */ }
-    }, 400);
+    }, 250);  // 팬 후 반응성: 250ms 디바운스(+ 이동 40% 임계치로 과다 조회 방지)
     return () => { if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current); };
   }, [mapCenter.lat, mapCenter.lng, zoomLevel, dogIdForFetch]);
 
@@ -351,7 +354,7 @@ export default function ExploreScreen() {
   const sortedCards = useMemo(() => {
     return filteredCards
       .map(card => {
-        const spot = spots.find(s => s.spot_id === card.spot_id);
+        const spot = spotsById.get(card.spot_id);
         if (!spot) return null;
         const dist = haversineMeters(mapCenter.lat, mapCenter.lng, spot.latitude, spot.longitude);
         if (dist > activeRadiusM) return null;   // 반경 초과 제외
@@ -378,7 +381,7 @@ export default function ExploreScreen() {
     const fromHome = homeCards.find(c => c.spot_id === selectedId);
     if (fromHome) return fromHome;
     // 마지막 fallback — spots에서 직접 minimal 카드 빌드
-    const sp = spots.find(s => s.spot_id === selectedId);
+    const sp = spotsById.get(selectedId);
     if (!sp) return null;
     const dist = haversineMeters(mapCenter.lat, mapCenter.lng, sp.latitude, sp.longitude);
     return {
@@ -400,7 +403,7 @@ export default function ExploreScreen() {
   const handlePinPress = useCallback((spotId: string) => {
     setSelectedId(spotId);
     selectSpot(spotId);
-    const spot = spots.find(s => s.spot_id === spotId);
+    const spot = spotsById.get(spotId);
     if (spot && mapRef.current) {
       // 카드 목록이 하단에 있으므로 살짝 위로 보정
       mapRef.current.setCenter(spot.latitude - 0.002, spot.longitude, 4);
@@ -437,7 +440,7 @@ export default function ExploreScreen() {
     const source = sortedCards.length > 0 ? sortedCards : homeCards;
     return source
       .map(card => {
-        const spot = spots.find(sp => sp.spot_id === card.spot_id);
+        const spot = spotsById.get(card.spot_id);
         if (!spot) return null;
         return {
           id: card.spot_id,
@@ -852,6 +855,7 @@ export default function ExploreScreen() {
                     <ListSpotCard
                       name={card.name}
                       categoryLabel={card.category_label}
+                      subcategory={card.subcategory}
                       distanceText={card.distance_text}
                       atmosphereSummary={card.atmosphere_badges.join(' · ')}
                       relationSummary={
@@ -902,6 +906,7 @@ export default function ExploreScreen() {
                 key={card.spot_id}
                 name={card.name}
                 categoryLabel={card.category_label}
+                subcategory={card.subcategory}
                 distanceText={card.distance_text}
                 atmosphereSummary={card.atmosphere_badges.join(' · ')}
                 relationSummary={

@@ -60,6 +60,8 @@ export default function MySpotsScreen() {
     () => getHomeCards(),
     [getHomeCards, spots, visitSummaries, savedSpots, dog, currentLocation],
   );
+  // 성능: 방문/저장 목록에서 spots.find(O(n))를 루프로 돌지 않도록 spot_id → Spot Map 1회 구성
+  const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
 
   // ── 발도장 남긴 곳 ────────────────────────────────────────────
   const visitedSpots = useMemo(() => {
@@ -68,7 +70,7 @@ export default function MySpotsScreen() {
       .map(sv => ({
         ...sv,
         regularStatus: computeRegularStatus(sv),
-        spot: spots.find(sp => sp.spot_id === sv.spot_id),
+        spot: spotsById.get(sv.spot_id),
       }))
       .filter(sv => sv.spot);
 
@@ -91,7 +93,7 @@ export default function MySpotsScreen() {
     savedSpots
       .filter(sv => sv.dog_id === dog?.dog_id)
       .map(saved => {
-        const spot = spots.find(sp => sp.spot_id === saved.spot_id);
+        const spot = spotsById.get(saved.spot_id);
         const card = homeCards.find(c => c.spot_id === saved.spot_id);
         return spot ? { saved, spot, card } : null;
       })

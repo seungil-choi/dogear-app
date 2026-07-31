@@ -86,73 +86,51 @@ Deno.serve(async (req: Request) => {
 
     const spotIds: string[] = spots.map((s: any) => s.spot_id);
 
-    // 방문 요약 (dogId 있을 때만)
-    let visitSummariesMap: Record<string, any> = {};
-    if (dogId) {
-      const { data: summaries } = await supabase
-        .from('spot_visit_summaries')
-        .select('spot_id, visit_count, last_visit_at, regular_status')
-        .eq('dog_id', dogId)
-        .in('spot_id', spotIds);
+    // 성능: spotIds에만 의존하는 4개 독립 쿼리를 병렬로 (직렬 왕복 4회 → 1웨이브). spot-detail과 동일 패턴.
+    const [summariesRes, recentCheckinsRes, savedRes, checkinCountsRes] = await Promise.all([
+      dogId
+        ? supabase.from('spot_visit_summaries')
+            .select('spot_id, visit_count, last_visit_at, regular_status')
+            .eq('dog_id', dogId).in('spot_id', spotIds)
+        : Promise.resolve({ data: null }),
+      svc.from('paw_checkins')
+        .select('spot_id, feeling_tags')
+        .in('spot_id', spotIds)
+        .eq('visibility_level', 'spot_only')
+        .eq('is_valid_for_aggregate', true)
+        .gte('checked_in_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
+        .order('checked_in_at', { ascending: false }),
+      dogId
+        ? supabase.from('saved_spots')
+            .select('spot_id, saved_type')
+            .eq('dog_id', dogId).in('spot_id', spotIds)
+        : Promise.resolve({ data: null }),
+      svc.from('paw_checkins')
+        .select('spot_id')
+        .in('spot_id', spotIds)
+        .eq('is_valid_for_aggregate', true)
+        .neq('visibility_level', 'private'),
+    ]);
 
-      if (summaries) {
-        summaries.forEach((s: any) => {
-          visitSummariesMap[s.spot_id] = s;
-        });
-      }
-    }
+    // 방문 요약
+    const visitSummariesMap: Record<string, any> = {};
+    (summariesRes.data ?? []).forEach((s: any) => { visitSummariesMap[s.spot_id] = s; });
 
-    // 최근 체크인 분위기 태그 집계 (지난 48시간)
-    const { data: recentCheckins } = await svc
-      .from('paw_checkins')
-      .select('spot_id, feeling_tags')
-      .in('spot_id', spotIds)
-      .eq('visibility_level', 'spot_only')
-      .eq('is_valid_for_aggregate', true)
-      .gte('checked_in_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
-      .order('checked_in_at', { ascending: false });
-
-    // 스팟별 태그 집계
+    // 스팟별 분위기 태그 집계 (지난 48시간)
     const atmosphereMap: Record<string, string[]> = {};
-    if (recentCheckins) {
-      for (const checkin of recentCheckins) {
-        if (!atmosphereMap[checkin.spot_id]) {
-          atmosphereMap[checkin.spot_id] = [];
-        }
-        atmosphereMap[checkin.spot_id].push(...(checkin.feeling_tags ?? []));
-      }
+    for (const checkin of recentCheckinsRes.data ?? []) {
+      (atmosphereMap[checkin.spot_id] ??= []).push(...(checkin.feeling_tags ?? []));
     }
 
-    // 저장 여부 (dogId 있을 때만)
+    // 저장 여부
     const savedMap: Record<string, string> = {};
-    if (dogId) {
-      const { data: saved } = await supabase
-        .from('saved_spots')
-        .select('spot_id, saved_type')
-        .eq('dog_id', dogId)
-        .in('spot_id', spotIds);
+    (savedRes.data ?? []).forEach((s: any) => { savedMap[s.spot_id] = s.saved_type; });
 
-      if (saved) {
-        saved.forEach((s: any) => {
-          savedMap[s.spot_id] = s.saved_type;
-        });
-      }
-    }
-
-    // 체크인 수 조회 (커뮤니티 활동량 — 비공개 제외)
-    const { data: checkinCounts } = await svc
-      .from('paw_checkins')
-      .select('spot_id')
-      .in('spot_id', spotIds)
-      .eq('is_valid_for_aggregate', true)
-      .neq('visibility_level', 'private');
-
+    // 체크인 수 (커뮤니티 활동량 — 비공개 제외)
     const checkinCountMap: Record<string, number> = {};
-    if (checkinCounts) {
-      checkinCounts.forEach((c: any) => {
-        checkinCountMap[c.spot_id] = (checkinCountMap[c.spot_id] ?? 0) + 1;
-      });
-    }
+    (checkinCountsRes.data ?? []).forEach((c: any) => {
+      checkinCountMap[c.spot_id] = (checkinCountMap[c.spot_id] ?? 0) + 1;
+    });
 
     // 뷰모델 조립
     const result = spots.map((spot: any) => {
