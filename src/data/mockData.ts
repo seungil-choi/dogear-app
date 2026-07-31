@@ -9,6 +9,7 @@ import { seedParkSpots } from './seedParkSpots';
 // ─────────────────────────────────────────
 export const mockUser: User = {
   user_id: 'usr_001',
+  auth_id: 'auth_usr_001',   // DEV_SEED 전용 더미 — 실 auth.uid()와 무관
   login_type: 'apple',
   created_at: '2026-03-01T09:00:00+09:00',
   last_active_at: '2026-04-21T08:30:00+09:00',

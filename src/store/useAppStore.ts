@@ -577,7 +577,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   setUser: (user) => {
     set({ user, isAuthenticated: !!user });
     // analytics 컨텍스트 동기화
-    setUserContext({ user_id: user?.user_id ?? null });
+    //   events.user_id는 FK가 auth.users(id)이고 RLS도 auth.uid()로 검사하므로
+    //   앱 내부 식별자(user_id)가 아니라 auth_id를 넣어야 INSERT가 통과한다.
+    setUserContext({ user_id: user?.auth_id ?? null });
   },
   setActiveDog: (dog) => {
     set({ activeDog: dog, dog });

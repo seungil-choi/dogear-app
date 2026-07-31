@@ -74,6 +74,7 @@ export function useAuth() {
 
     const user: User = {
       user_id: userData.user_id,
+      auth_id: userData.auth_id ?? authId,
       login_type: userData.login_type,
       status: userData.status,
       last_active_at: userData.last_active_at,

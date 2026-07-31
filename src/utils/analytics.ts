@@ -97,6 +97,15 @@ const SESSION_ID = `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 let userCtx: UserContext = { session_id: SESSION_ID };
 let currentScreen: string | null = null;
 
+// 세션 내 적재 실패 횟수 — 첫 실패만 크게 알리기 위한 카운터
+let insertFailures = 0;
+
+/**
+ * 분석 컨텍스트 설정.
+ * @param ctx.user_id **auth.uid()(User.auth_id)** 를 넣을 것.
+ *   events.user_id는 FK가 auth.users(id)이고 RLS도 auth.uid()로 검사하므로,
+ *   앱 내부 식별자(User.user_id)를 넣으면 모든 INSERT가 조용히 거부된다.
+ */
 export function setUserContext(ctx: { user_id?: string | null; dog_profile_id?: string | null }) {
   userCtx = { ...userCtx, ...ctx };
 }
@@ -154,9 +163,19 @@ export function track(name: EventName, props: TrackProps = {}): void {
   // 실 환경 — fire-and-forget INSERT
   supabase.from('events').insert(payload).then(({ error }) => {
     if (error) {
-      // 분석 실패는 사용자 흐름에 영향 안 가게 silent
-      // eslint-disable-next-line no-console
-      console.warn('[event] insert failed:', error.message);
+      // 분석 실패는 사용자 흐름에 영향 안 가게 silent 처리하되,
+      // "조용히 계속 실패"는 지표 공백으로 이어지므로(2026-07 계측 유실 사고)
+      // 세션 첫 실패만 원인 진단이 가능한 형태로 크게 남긴다.
+      insertFailures += 1;
+      if (insertFailures === 1) {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[event] ⚠️ 이벤트 적재 실패 — 지표가 수집되지 않습니다.\n` +
+          `  event=${name} user_id=${payload.user_id ?? 'null'}\n` +
+          `  reason=${error.message}\n` +
+          `  ※ user_id는 auth.uid()(User.auth_id)여야 합니다. 앱 내부 user_id를 넣으면 RLS/FK에서 거부됩니다.`
+        );
+      }
     }
   });
 }

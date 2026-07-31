@@ -24,6 +24,12 @@ export type FeelingTag =
 // ─────────────────────────────────────────
 export interface User {
   user_id: string;
+  /**
+   * Supabase Auth의 사용자 ID(auth.users.id = auth.uid()).
+   * user_id(앱 내부 식별자)와 값이 다르므로 혼동 금지.
+   *  - RLS가 auth.uid()로 검사하는 곳(events 등)에는 반드시 이 값을 쓴다.
+   */
+  auth_id: string;
   login_type: 'apple' | 'google' | 'email';
   created_at: string;
   last_active_at?: string;
