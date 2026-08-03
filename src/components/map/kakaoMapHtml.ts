@@ -147,55 +147,86 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
                '</div>';
       }
 
-      function clearMarkers() {
-        markers.forEach(function(m) { m.setMap(null); });
-        markers = [];
-        markerById = {};
+      // 오버레이 1개 생성
+      function createOverlay(item) {
+        var overlay = new kakao.maps.CustomOverlay({
+          position: new kakao.maps.LatLng(item.latitude, item.longitude),
+          content: pinHtml(item.id, item.label, item.variant, item.id === selectedId),
+          xAnchor: 0.5,
+          yAnchor: 0.5,           // 원형 dot — 중심이 LatLng
+          clickable: true,
+        });
+        overlay.setMap(map);
+        return overlay;
       }
 
+      // 핀 1개만 다시 그린다(선택 강조 등). 전체 재생성 대비 압도적으로 싸다.
+      function repaint(id) {
+        var entry = markerById[id];
+        if (!entry) return;
+        entry.overlay.setContent(
+          pinHtml(entry.item.id, entry.item.label, entry.item.variant, id === selectedId)
+        );
+      }
+
+      /**
+       * 마커 동기화 — diff 방식.
+       *
+       * 이전 구현은 팬/선택 때마다 전체 오버레이를 파괴 후 재생성해(최대 150개)
+       * 지도가 눈에 띄게 버벅였다. 지금은 실제로 바뀐 것만 건드린다.
+       *   - 사라진 핀만 제거 / 새 핀만 생성
+       *   - 남아있는 핀은 좌표·라벨·variant가 바뀐 경우에만 갱신
+       */
       function setMarkers(items) {
-        clearMarkers();
+        var next = {};
+        items.forEach(function(item) { next[item.id] = item; });
+
+        // 1) 사라진 핀 제거
+        Object.keys(markerById).forEach(function(id) {
+          if (!next[id]) {
+            markerById[id].overlay.setMap(null);
+            delete markerById[id];
+          }
+        });
+
+        // 2) 추가 / 변경
         items.forEach(function(item) {
-          var pos = new kakao.maps.LatLng(item.latitude, item.longitude);
-          var content = pinHtml(item.id, item.label, item.variant, item.id === selectedId);
-          var overlay = new kakao.maps.CustomOverlay({
-            position: pos,
-            content: content,
-            xAnchor: 0.5,
-            yAnchor: 0.5,           // 원형 dot — 중심이 LatLng
-            clickable: true,
-          });
-          overlay.setMap(map);
-          markers.push(overlay);
-          markerById[item.id] = { overlay: overlay, item: item };
+          var entry = markerById[item.id];
+          if (!entry) {
+            markerById[item.id] = { overlay: createOverlay(item), item: item };
+            return;
+          }
+          var prev = entry.item;
+          if (prev.latitude !== item.latitude || prev.longitude !== item.longitude) {
+            entry.overlay.setPosition(new kakao.maps.LatLng(item.latitude, item.longitude));
+          }
+          if (prev.label !== item.label || prev.variant !== item.variant) {
+            entry.overlay.setContent(
+              pinHtml(item.id, item.label, item.variant, item.id === selectedId)
+            );
+          }
+          entry.item = item;
         });
-        // 클릭 처리: data-marker-id로 정확 타겟팅
-        requestAnimationFrame(function() {
-          bindMarkerClicks();
-          setTimeout(bindMarkerClicks, 100);
-        });
+
+        markers = Object.keys(markerById).map(function(id) { return markerById[id].overlay; });
       }
 
-      function bindMarkerClicks() {
-        document.querySelectorAll('[data-marker-id]').forEach(function(el) {
-          var id = el.getAttribute('data-marker-id');
-          if (!id) return;
-          el.onclick = function(e) {
-            e.stopPropagation();
-            postMsg({ type: 'markerClick', id: id });
-          };
-        });
-      }
+      // 클릭은 위임(delegation) 1회 등록 — 마커가 바뀔 때마다 재바인딩하지 않는다.
+      document.addEventListener('click', function(e) {
+        var el = e.target && e.target.closest ? e.target.closest('[data-marker-id]') : null;
+        if (!el) return;
+        var id = el.getAttribute('data-marker-id');
+        if (!id) return;
+        e.stopPropagation();
+        postMsg({ type: 'markerClick', id: id });
+      }, true);
 
       function selectMarker(id) {
+        var prev = selectedId;
         selectedId = id;
-        if (markerById[id]) {
-          var item = markerById[id].item;
-          // 선택된 핀만 다시 그려서 강조
-          // 단순히 모든 핀 재렌더 (성능 OK 50개 이하)
-          var items = Object.values(markerById).map(function(m) { return m.item; });
-          setMarkers(items);
-        }
+        // 이전 선택 + 새 선택, 최대 2개만 다시 그린다
+        if (prev && prev !== id) repaint(prev);
+        if (id) repaint(id);
       }
 
       function setCenter(lat, lng, lv) {

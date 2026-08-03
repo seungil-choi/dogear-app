@@ -65,7 +65,14 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
   }), [send]);
 
   // markers prop 변경 시 동기화
+  //   배열 identity만 바뀌고 내용이 같은 경우(리렌더)에는 WebView 왕복 자체를 생략한다.
+  const markerSigRef = useRef<string>('');
   useEffect(() => {
+    const sig = props.markers
+      .map(m => `${m.id}|${m.latitude}|${m.longitude}|${m.variant}|${m.label}`)
+      .join(';');
+    if (sig === markerSigRef.current) return;
+    markerSigRef.current = sig;
     send({ type: 'setMarkers', markers: props.markers });
   }, [props.markers, send]);
 

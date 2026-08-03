@@ -39,11 +39,11 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // 현재 사용자 확인
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
-    }
+    // 인증은 플랫폼의 verify_jwt(활성)가 이미 강제한다.
+    //   과거에는 여기서 auth.getUser()를 호출했는데, 반환값을 null 체크에만 쓰면서
+    //   지도 팬마다 GoTrue 왕복이 한 번씩 더 붙어 체감 지연의 원인이 됐다.
+    //   개인화 데이터(방문요약·저장)는 사용자 JWT 클라이언트로 조회하므로 RLS가 그대로 적용되고,
+    //   스팟 자체는 공개 데이터라 추가 신원확인이 필요하지 않다.
 
     const body = await req.json();
     const {

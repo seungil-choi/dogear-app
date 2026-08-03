@@ -388,6 +388,8 @@ export default function ExploreScreen() {
       spot_id: sp.spot_id,
       name: sp.name,
       category_label: catLabel[sp.category],
+      // subcategory 누락 시 카드가 기본 공원 일러스트로 떨어져 상세 화면과 썸네일이 달라진다
+      subcategory: sp.subcategory,
       distance_text: distanceText(dist),
       atmosphere_badges: [],
       has_visited: false,
