@@ -305,6 +305,8 @@ export default function ExploreScreen() {
           spot_id: sp.spot_id,
           name: sp.name,
           category: sp.category,
+          // subcategory가 빠지면 카드가 기본 공원 일러스트로 떨어져 상세와 썸네일이 어긋난다
+          subcategory: sp.subcategory ?? undefined,
           latitude: sp.latitude,
           longitude: sp.longitude,
           address_text: sp.address_text ?? undefined,
@@ -323,7 +325,11 @@ export default function ExploreScreen() {
           };
         }
         useAppStore.getState().mergeSpots(merged, aggs);
-      } catch { /* 지역 페치 실패는 조용히 무시 — 기존 핀 유지 */ }
+      } catch (e) {
+        // 기존 핀은 유지하되, 실패를 조용히 삼키면 "지도가 안 뜬다"의 원인을 못 찾는다
+        // eslint-disable-next-line no-console
+        console.error('[map] 지역 스팟 로드 실패:', e);
+      }
     }, 250);  // 팬 후 반응성: 250ms 디바운스(+ 이동 40% 임계치로 과다 조회 방지)
     return () => { if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current); };
   }, [mapCenter.lat, mapCenter.lng, zoomLevel, dogIdForFetch]);

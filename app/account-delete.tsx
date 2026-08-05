@@ -20,6 +20,7 @@ import { supabase } from '../src/lib/supabase';
 import { notify, confirm as dialogConfirm } from '../src/utils/dialog';
 
 import { IS_REAL_AUTH } from '../src/config/env';
+import { severSocialSessions } from '@/lib/socialSession';
 
 const CONFIRM_WORD = '삭제';
 
@@ -54,9 +55,12 @@ export default function AccountManageScreen() {
     setSubmitting(true);
     try {
       await deleteAccount(reason.trim() || undefined);
-      // 실 환경: Supabase 세션도 만료
+      // 실 환경: Supabase 세션도 만료 + 소셜 연결 자체를 해제(unlink)
+      //   해제하지 않으면 탈퇴 후에도 SDK 세션이 남아 곧바로 재가입/재로그인이 되어
+      //   "탈퇴했다"는 사용자 기대와 어긋난다.
       if (IS_REAL_AUTH) {
         await supabase.auth.signOut();
+        await severSocialSessions({ unlink: true });
       }
       router.replace('/(auth)/login');
     } catch {

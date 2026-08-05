@@ -30,6 +30,14 @@ import {
 // 프로덕션 빌드: .env.production에 EXPO_PUBLIC_DEV_SEED=false 설정
 const DEV_PREVIEW_SEED = IS_DEV_SEED;
 
+/**
+ * 메모리에 유지할 스팟 최대 개수.
+ * 지도 팬마다 최대 150개씩 병합되는데 상한이 없으면 계속 쌓여
+ * 카드·마커 계산이 매번 전체를 훑게 되고 지도가 점점 느려진다.
+ * 화면에 필요한 건 현재 지역 주변뿐이므로 최근 갱신분만 남긴다.
+ */
+const MAX_CACHED_SPOTS = 600;
+
 // ─── 기본 개인정보 설정 (강아지 신규 가입 시 사용) ─────────────────
 const defaultPrivacySetting: PrivacySetting = {
   privacy_setting_id: 'ps_default',
@@ -632,9 +640,28 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   mergeSpots: (newSpots, newAggregates) => {
     const { spots, spotAggregates } = get();
     const byId = new Map(spots.map(sp => [sp.spot_id, sp]));
-    for (const sp of newSpots) byId.set(sp.spot_id, sp);
+    for (const sp of newSpots) {
+      const prev = byId.get(sp.spot_id);
+      // 필드 단위 병합 — 새 객체에 없는(undefined) 값이 기존 값을 지우지 않게 한다.
+      //   지도 팬 페치처럼 일부 필드만 담아 오는 경로가 있어서, 통째로 덮으면
+      //   subcategory 같은 값이 사라지고 목록 썸네일이 상세와 달라진다.
+      if (!prev) { byId.set(sp.spot_id, sp); continue; }
+      const merged: Spot = { ...prev };
+      for (const [k, v] of Object.entries(sp)) {
+        if (v !== undefined && v !== null) (merged as any)[k] = v;
+      }
+      // Map의 삽입 순서를 "최근 갱신" 순으로 유지하기 위해 재삽입
+      byId.delete(sp.spot_id);
+      byId.set(sp.spot_id, merged);
+    }
+
+    // 누적 상한 — 팬으로 계속 쌓이면 카드/마커 계산이 전체를 훑어 점점 느려진다.
+    //   최근 갱신된 것부터 남기고 오래된 것을 버린다(현재 보고 있는 지역이 가장 최신).
+    let next = [...byId.values()];
+    if (next.length > MAX_CACHED_SPOTS) next = next.slice(next.length - MAX_CACHED_SPOTS);
+
     set({
-      spots: [...byId.values()],
+      spots: next,
       spotAggregates: newAggregates ? { ...spotAggregates, ...newAggregates } : spotAggregates,
     });
   },

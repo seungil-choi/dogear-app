@@ -25,6 +25,7 @@ import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 import { visibilityLabel, ageGroupLabel, temperamentLabels, walkingStyleLabels } from '../../src/utils/labels';
 import type { Dog } from '../../src/types';
+import { severSocialSessions } from '@/lib/socialSession';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 // 카드 좌우 여백 — 옆 카드가 살짝 보이도록
@@ -174,6 +175,10 @@ export default function ProfileScreen() {
     if (await confirm('정말 로그아웃할까요?', { title: '로그아웃', confirmText: '로그아웃', destructive: true })) {
       // 서버 세션까지 종료해야 함 — store만 비우면 useAuth가 잔존 세션을 복원해 자동 재로그인됨
       try { await supabase.auth.signOut(); } catch { /* 세션 없음 등은 무시 */ }
+      // 카카오/구글 SDK 세션도 함께 끊는다.
+      //   남겨두면 다음 로그인 때 계정 선택 없이 직전 계정으로 자동 재로그인되어
+      //   계정 전환이 불가능하고, 기기를 넘겨받은 사람이 이전 계정에 들어갈 수 있다.
+      await severSocialSessions();
       logout();
       router.replace('/(auth)/splash');
     }

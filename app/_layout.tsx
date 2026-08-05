@@ -45,6 +45,9 @@ function AuthGate() {
     );
     // 서버 세션까지 종료 (store만 비우면 잔존 세션이 복원돼 차단 사용자가 다시 로그인됨)
     supabase.auth.signOut().catch(() => {});
+    // 소셜 SDK 세션도 끊는다 — 남겨두면 로그인 버튼을 누르는 즉시 같은(차단/삭제된) 계정으로
+    // 재인증되어 같은 안내가 반복되고, 다른 계정으로 갈아탈 수도 없다.
+    severSocialSessions().catch(() => {});
     logout();
     router.replace('/(auth)/login');
   }, [navReady, user, logout, router]);
@@ -57,6 +60,7 @@ function AuthGate() {
 
 // DEV_PREVIEW_SEED=false일 때만 실 Supabase 인증 + 데이터 로드 활성화
 import { IS_REAL_AUTH } from '../src/config/env';
+import { severSocialSessions } from '@/lib/socialSession';
 
 // 실 Supabase 인증 세션 복원 (IS_REAL_AUTH=true일 때만 마운트)
 function AuthProvider() {
