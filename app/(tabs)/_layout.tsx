@@ -29,11 +29,16 @@ function TabIcon({
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
     >
-      <Icon
-        name={focused ? iconFocused : icon}
-        size={22}
-        color={focused ? Colors.brand.accent : Colors.text.tertiary}
-      />
+      {/* 활성 표시는 브랜드 오렌지로 통일.
+          오렌지는 흰 배경에서 명도대비가 낮아 글자만으로는 약하므로,
+          옅은 브랜드 배경(알약)을 함께 깔아 가독성을 보강한다. */}
+      <View style={[s.tabIconWrap, focused && s.tabIconWrapFocused]}>
+        <Icon
+          name={focused ? iconFocused : icon}
+          size={22}
+          color={focused ? Colors.brand.primary : Colors.text.tertiary}
+        />
+      </View>
       <Text style={[s.tabLabel, focused ? s.labelFocused : s.labelDefault]}>
         {label}
       </Text>
@@ -147,9 +152,26 @@ const s = StyleSheet.create({
     gap: 4,
     paddingTop: Spacing[4],
   },
+  // 활성 아이콘 뒤 알약 배경 — 오렌지가 흰 배경에서 옅게 보이는 것을 보강
+  tabIconWrap: {
+    width: 40,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 13,
+  },
+  // 다른 화면의 선택 상태(칩·세그먼트)와 같은 문법: 옅은 오렌지 배경 + 오렌지 테두리
+  tabIconWrapFocused: {
+    backgroundColor: Colors.surface.selected,
+    borderWidth: 1,
+    borderColor: Colors.brand.primary,
+  },
+
   tabLabel: { fontSize: 10, lineHeight: 14, fontWeight: '500' },
   labelDefault: { color: Colors.text.tertiary },
-  labelFocused: { color: Colors.brand.accent, fontWeight: '600' },
+  // 라벨은 10px 소형 텍스트라 옅은 오렌지로는 읽히지 않는다.
+  //   칩·세그먼트와 동일하게 accent를 쓰고, 브랜드 오렌지는 아이콘·배경·테두리가 담당한다.
+  labelFocused: { color: Colors.brand.accent, fontWeight: '700' },
 
   // 발도장 CTA — 중앙 float
   pawTabBtn: {
