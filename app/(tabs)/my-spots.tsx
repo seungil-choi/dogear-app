@@ -284,11 +284,12 @@ const s = StyleSheet.create({
   screenTitle: { ...Typography.display.s, color: Colors.text.primary },
 
   // ── 세그먼트 컨트롤 ──────────────────────────────────────
+  //   흰 배경 트랙 + 활성 세그먼트만 브랜드 오렌지로 채운 알약형. 그림자 없음.
   segmentedControl: {
     flexDirection: 'row',
-    backgroundColor: Colors.bg.secondary,
-    borderRadius: Radius.m,
-    padding: 3,
+    backgroundColor: Colors.surface.default,
+    borderRadius: Radius.round,
+    padding: 4,
     borderWidth: 1,
     borderColor: Colors.border.default,
   },
@@ -298,26 +299,25 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing[6],
-    paddingVertical: Spacing[12],
+    paddingVertical: Spacing[10],
     paddingHorizontal: Spacing[8],
-    borderRadius: 8,
+    borderRadius: Radius.round,
   },
   segmentActive: {
-    backgroundColor: Colors.surface.default,
-    borderWidth: 1,
-    borderColor: Colors.border.brand,
+    backgroundColor: Colors.brand.primary,
   },
   segmentText:       { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '500' },
-  segmentTextActive: { color: Colors.brand.accent, fontWeight: '700' },
+  segmentTextActive: { color: Colors.brand.onPrimary, fontWeight: '700' },
   segCount: {
     minWidth: 17, height: 17, borderRadius: 8.5,
     backgroundColor: Colors.border.default,
     alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  segCountActive:     { backgroundColor: Colors.brand.primaryLight },
+  // 활성 알약 위에 얹히므로 반투명 화이트로 — 오렌지 위에서 숫자가 묻히지 않게
+  segCountActive:     { backgroundColor: 'rgba(255,255,255,0.28)' },
   segCountText:       { ...Typography.label.s, color: Colors.text.tertiary },
-  segCountTextActive: { color: Colors.brand.accent, fontWeight: '700' },
+  segCountTextActive: { color: Colors.brand.onPrimary, fontWeight: '700' },
 
   sortBar: {
     flexDirection: 'row',
