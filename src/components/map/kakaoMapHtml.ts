@@ -50,7 +50,12 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       position: absolute;
       top: 100%; left: 50%;
       transform: translate(-50%, 3px);
-      max-width: 140px;
+      /* 라벨은 26px짜리 핀(.pin, position:relative) 안의 absolute 요소라
+         폭을 지정하지 않으면 컨테이닝 블록(26px)에 갇혀 두 글자씩 세로로 접힌다.
+         max-width만으로는 상한만 정해질 뿐 갇힌 폭이 넓어지지 않으므로
+         width:max-content로 내용 기준 폭을 잡고 max-width로 상한을 둔다. */
+      width: max-content;
+      max-width: 132px;
       padding: 3px 8px;
       background: rgba(255,255,255,0.96);
       border-radius: 10px;
@@ -60,7 +65,14 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       font-weight: 600;
       white-space: normal;
       text-align: center;
+      /* 한국어는 어절 단위로 끊고, 끊을 데 없는 긴 이름만 예외적으로 강제 줄바꿈 */
       word-break: keep-all;
+      overflow-wrap: anywhere;
+      /* 최대 2줄 — 더 길면 말줄임 */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
       box-shadow: 0 1px 3px rgba(0,0,0,0.18);
       pointer-events: none;
     }
