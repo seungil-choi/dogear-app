@@ -55,6 +55,8 @@ export function useInteractedSpots(spotIds: string[]): Record<string, Spot> {
           spot_id: s.spot_id,
           name: s.name,
           category: s.category,
+          // 빠뜨리면 카드가 기본 공원 일러스트로 떨어져 상세 화면과 썸네일이 어긋난다
+          subcategory: s.subcategory ?? undefined,
           latitude: s.latitude,
           longitude: s.longitude,
           address_text: s.address_text ?? undefined,
