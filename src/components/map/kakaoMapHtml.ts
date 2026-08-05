@@ -76,6 +76,20 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       box-shadow: 0 1px 3px rgba(0,0,0,0.18);
       pointer-events: none;
     }
+    /* 클러스터 뱃지 — 겹친 핀을 개수로 묶어 보여준다 */
+    .cluster {
+      border-radius: 50%;
+      background: #FF7A30;
+      border: 2.5px solid #fff;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.28);
+      cursor: pointer;
+      pointer-events: auto;
+      box-sizing: border-box;
+    }
     /* 사용자 위치 — 외곽 링 + 내부 점 (브랜드 컬러로 통일) */
     .user-loc-wrap {
       position: relative; width: 32px; height: 32px;
@@ -159,10 +173,13 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
                '</div>';
       }
 
-      // 오버레이 1개 생성
-      function createOverlay(item) {
+      // 오버레이 1개 생성 (lat/lng를 넘기면 그 위치에 — spiderfy 펼침용)
+      function createOverlay(item, lat, lng) {
         var overlay = new kakao.maps.CustomOverlay({
-          position: new kakao.maps.LatLng(item.latitude, item.longitude),
+          position: new kakao.maps.LatLng(
+            lat != null ? lat : item.latitude,
+            lng != null ? lng : item.longitude
+          ),
           content: pinHtml(item.id, item.label, item.variant, item.id === selectedId),
           xAnchor: 0.5,
           yAnchor: 0.5,           // 원형 dot — 중심이 LatLng
@@ -181,51 +198,165 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         );
       }
 
-      /**
-       * 마커 동기화 — diff 방식.
-       *
-       * 이전 구현은 팬/선택 때마다 전체 오버레이를 파괴 후 재생성해(최대 150개)
-       * 지도가 눈에 띄게 버벅였다. 지금은 실제로 바뀐 것만 건드린다.
-       *   - 사라진 핀만 제거 / 새 핀만 생성
-       *   - 남아있는 핀은 좌표·라벨·variant가 바뀐 경우에만 갱신
-       */
-      function setMarkers(items) {
-        var next = {};
-        items.forEach(function(item) { next[item.id] = item; });
+      // ── 클러스터링 ────────────────────────────────────────────────
+      //  왜 필요한가:
+      //   1) 원천 데이터에 **서로 다른 공원이 같은 좌표**에 찍힌 묶음이 55곳 있다
+      //      (지구 대표좌표를 쓴 탓). 겹쳐서 하나만 보이고 나머지는 누를 수 없다.
+      //   2) 줌아웃하면 최대 150개 핀이 한 화면에 몰려 오버레이 생성 비용이 크다.
+      //  겹친 핀은 숫자 뱃지로 묶고, 확대하면 풀린다.
+      //  좌표가 사실상 동일해 확대해도 안 풀리는 묶음은 탭하면 방사형으로 펼친다(spiderfy).
 
-        // 1) 사라진 핀 제거
-        Object.keys(markerById).forEach(function(id) {
-          if (!next[id]) {
-            markerById[id].overlay.setMap(null);
-            delete markerById[id];
+      var allItems = [];        // RN이 내려준 전체 마커
+      var clusterById = {};     // key -> { overlay, count }
+      var spiderKey = null;     // 현재 펼쳐진 클러스터 key
+
+      // 레벨이 클수록(축소) 격자를 넓게 — 화면상 묶임 간격을 일정하게 유지
+      function gridDeg() { return 0.00008 * Math.pow(2, map ? map.getLevel() : 4); }
+
+      function groupKeyOf(item, g) {
+        return Math.round(item.latitude / g) + ':' + Math.round(item.longitude / g);
+      }
+
+      function clusterHtml(key, count) {
+        var size = count < 10 ? 34 : (count < 50 ? 40 : 46);
+        return '<div class="cluster" data-cluster-key="' + escapeHtml(key) + '" ' +
+               'style="width:' + size + 'px;height:' + size + 'px;line-height:' + size + 'px;">' +
+               count + '</div>';
+      }
+
+      /** 묶음 내 좌표가 사실상 동일한가(확대해도 안 풀리는가) */
+      function isTight(list) {
+        var la0 = list[0].latitude, ln0 = list[0].longitude;
+        for (var i = 1; i < list.length; i++) {
+          if (Math.abs(list[i].latitude - la0) > 0.00005 ||
+              Math.abs(list[i].longitude - ln0) > 0.00005) return false;
+        }
+        return true;   // 약 5m 이내
+      }
+
+      /** 현재 줌 기준으로 개별 핀 / 클러스터를 계산해 화면과 동기화 */
+      function renderMarkers() {
+        if (!map) return;
+        var g = gridDeg();
+
+        // 1) 그룹핑
+        var groups = {};
+        allItems.forEach(function(item) {
+          var k = groupKeyOf(item, g);
+          (groups[k] || (groups[k] = [])).push(item);
+        });
+
+        // 2) 이번 렌더에서 개별 핀으로 보여줄 것 / 클러스터로 묶을 것 결정
+        var wantPins = {};      // id -> {item, offset?}
+        var wantClusters = {};  // key -> {count, lat, lng}
+        Object.keys(groups).forEach(function(k) {
+          var list = groups[k];
+          var expanded = (k === spiderKey);
+          // 선택된 핀이 든 묶음은 항상 펼친다 — 목록 카드와 지도가 어긋나지 않게
+          var hasSelected = selectedId && list.some(function(it) { return it.id === selectedId; });
+
+          if (list.length === 1 || expanded || hasSelected) {
+            if (list.length > 1 && (expanded || hasSelected) && isTight(list)) {
+              // 좌표가 겹쳐 그냥 두면 서로 가려진다 → 원형으로 펼침
+              var r = g * 0.8;
+              list.forEach(function(it, i) {
+                var a = (2 * Math.PI * i) / list.length;
+                wantPins[it.id] = { item: it, dLat: r * Math.sin(a), dLng: r * Math.cos(a) };
+              });
+            } else {
+              list.forEach(function(it) { wantPins[it.id] = { item: it, dLat: 0, dLng: 0 }; });
+            }
+          } else {
+            var sLa = 0, sLn = 0;
+            list.forEach(function(it) { sLa += it.latitude; sLn += it.longitude; });
+            wantClusters[k] = { count: list.length, lat: sLa / list.length, lng: sLn / list.length };
           }
         });
 
-        // 2) 추가 / 변경
-        items.forEach(function(item) {
-          var entry = markerById[item.id];
+        // 3) 개별 핀 diff
+        Object.keys(markerById).forEach(function(id) {
+          if (!wantPins[id]) { markerById[id].overlay.setMap(null); delete markerById[id]; }
+        });
+        Object.keys(wantPins).forEach(function(id) {
+          var w = wantPins[id], item = w.item;
+          var lat = item.latitude + (w.dLat || 0), lng = item.longitude + (w.dLng || 0);
+          var entry = markerById[id];
           if (!entry) {
-            markerById[item.id] = { overlay: createOverlay(item), item: item };
+            markerById[id] = { overlay: createOverlay(item, lat, lng), item: item, lat: lat, lng: lng };
             return;
           }
-          var prev = entry.item;
-          if (prev.latitude !== item.latitude || prev.longitude !== item.longitude) {
-            entry.overlay.setPosition(new kakao.maps.LatLng(item.latitude, item.longitude));
+          if (entry.lat !== lat || entry.lng !== lng) {
+            entry.overlay.setPosition(new kakao.maps.LatLng(lat, lng));
+            entry.lat = lat; entry.lng = lng;
           }
-          if (prev.label !== item.label || prev.variant !== item.variant) {
-            entry.overlay.setContent(
-              pinHtml(item.id, item.label, item.variant, item.id === selectedId)
-            );
+          if (entry.item.label !== item.label || entry.item.variant !== item.variant) {
+            entry.overlay.setContent(pinHtml(item.id, item.label, item.variant, item.id === selectedId));
           }
           entry.item = item;
+        });
+
+        // 4) 클러스터 diff
+        Object.keys(clusterById).forEach(function(k) {
+          if (!wantClusters[k]) { clusterById[k].overlay.setMap(null); delete clusterById[k]; }
+        });
+        Object.keys(wantClusters).forEach(function(k) {
+          var c = wantClusters[k], entry = clusterById[k];
+          if (!entry) {
+            var ov = new kakao.maps.CustomOverlay({
+              position: new kakao.maps.LatLng(c.lat, c.lng),
+              content: clusterHtml(k, c.count),
+              xAnchor: 0.5, yAnchor: 0.5, clickable: true,
+            });
+            ov.setMap(map);
+            clusterById[k] = { overlay: ov, count: c.count };
+            return;
+          }
+          if (entry.count !== c.count) {
+            entry.overlay.setContent(clusterHtml(k, c.count));
+            entry.count = c.count;
+          }
+          entry.overlay.setPosition(new kakao.maps.LatLng(c.lat, c.lng));
         });
 
         markers = Object.keys(markerById).map(function(id) { return markerById[id].overlay; });
       }
 
+      /** RN이 마커 목록을 내려줄 때 */
+      function setMarkers(items) {
+        allItems = items || [];
+        // 사라진 스팟이 펼침 상태였다면 해제
+        if (spiderKey && !allItems.length) spiderKey = null;
+        renderMarkers();
+      }
+
       // 클릭은 위임(delegation) 1회 등록 — 마커가 바뀔 때마다 재바인딩하지 않는다.
       document.addEventListener('click', function(e) {
-        var el = e.target && e.target.closest ? e.target.closest('[data-marker-id]') : null;
+        if (!e.target || !e.target.closest) return;
+
+        var cl = e.target.closest('[data-cluster-key]');
+        if (cl) {
+          e.stopPropagation();
+          var key = cl.getAttribute('data-cluster-key');
+          var g = gridDeg(), list = [];
+          allItems.forEach(function(it) { if (groupKeyOf(it, g) === key) list.push(it); });
+          if (!list.length) return;
+          var sLa = 0, sLn = 0;
+          list.forEach(function(it) { sLa += it.latitude; sLn += it.longitude; });
+          var center = new kakao.maps.LatLng(sLa / list.length, sLn / list.length);
+
+          if (isTight(list) || map.getLevel() <= 1) {
+            // 확대해도 안 풀리는 묶음 → 그 자리에서 펼친다
+            spiderKey = key;
+            renderMarkers();
+          } else {
+            spiderKey = null;
+            map.setLevel(Math.max(1, map.getLevel() - 2), { anchor: center });
+            renderMarkers();
+          }
+          return;
+        }
+
+        var el = e.target.closest('[data-marker-id]');
         if (!el) return;
         var id = el.getAttribute('data-marker-id');
         if (!id) return;
@@ -236,7 +367,11 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       function selectMarker(id) {
         var prev = selectedId;
         selectedId = id;
-        // 이전 선택 + 새 선택, 최대 2개만 다시 그린다
+        // 선택이 클러스터 안에 있으면 그 묶음을 펼쳐야 하므로 전체 재계산.
+        // 그 외에는 최대 2개만 다시 그린다.
+        var needsRerender = false;
+        if (id && !markerById[id]) needsRerender = true;
+        if (needsRerender) { renderMarkers(); return; }
         if (prev && prev !== id) repaint(prev);
         if (id) repaint(id);
       }
@@ -293,14 +428,24 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         };
         map = new kakao.maps.Map(container, options);
 
-        // 클릭(빈 영역) — 핀 닫기 신호
+        // 클릭(빈 영역) — 핀 닫기 신호 + 펼쳐둔 클러스터 접기
         kakao.maps.event.addListener(map, 'click', function() {
+          if (spiderKey) { spiderKey = null; renderMarkers(); }
           postMsg({ type: 'mapClick' });
         });
 
-        // 영역 변경 — 디바운스 후 알림
-        var dbTimer = null;
+        // 영역 변경 — 알림
         kakao.maps.event.addListener(map, 'dragend', function() {
+          var c = map.getCenter();
+          postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
+        });
+
+        // 줌 변경 — 클러스터를 다시 계산하고 RN에도 알린다.
+        //   이전에는 dragend만 있어서 줌아웃해도 RN의 zoomLevel이 갱신되지 않았고,
+        //   그 결과 넓은 반경 재조회가 트리거되지 않아 "줌아웃하면 핀이 안 늘어나는" 문제가 있었다.
+        kakao.maps.event.addListener(map, 'zoom_changed', function() {
+          spiderKey = null;          // 줌이 바뀌면 펼침 상태는 해제
+          renderMarkers();
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
         });
