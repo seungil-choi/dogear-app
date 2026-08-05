@@ -408,6 +408,15 @@ export default function ExploreScreen() {
     [sortedCards, selectedId],
   );
 
+  // 목록은 가상화되지 않은 ScrollView라 반경 내 전부를 그리면 비용이 그대로 늘어난다.
+  //   밀집 지역(동탄 기준) 실측: 2km 76곳 · 5km 255곳 · 10km 626곳.
+  //   줌아웃 시 수백 개 카드가 팬마다 재렌더되므로, 가까운 순으로 끊어서 보여준다.
+  //   지도 핀은 전부 그대로 노출되므로 발견성은 줄지 않는다.
+  const LIST_PAGE = 30;
+  const [visibleCount, setVisibleCount] = useState(LIST_PAGE);
+  // 반경·필터·검색이 바뀌면 처음부터 다시
+  useEffect(() => { setVisibleCount(LIST_PAGE); }, [activeFilter, activeRadiusM, searchQuery]);
+
   const handlePinPress = useCallback((spotId: string) => {
     setSelectedId(spotId);
     selectSpot(spotId);
@@ -854,7 +863,7 @@ export default function ExploreScreen() {
                 )}
 
                 {/* ── 나머지 장소 (선택 안 된 경우 sortedCards 전체, 선택 시 restCards) ── */}
-                {(selectedHeroCard ? restCards : sortedCards).map(card => (
+                {(selectedHeroCard ? restCards : sortedCards).slice(0, visibleCount).map(card => (
                   <View
                     key={card.spot_id}
                     onLayout={(e) => { cardOffsetsRef.current[card.spot_id] = e.nativeEvent.layout.y; }}
@@ -876,6 +885,18 @@ export default function ExploreScreen() {
                     />
                   </View>
                 ))}
+                {/* 더 보기 — 목록을 끊어 그리므로 남은 개수를 알리고 이어서 펼친다 */}
+                {(selectedHeroCard ? restCards : sortedCards).length > visibleCount && (
+                  <TouchableOpacity
+                    style={s.listMoreBtn}
+                    onPress={() => setVisibleCount(v => v + LIST_PAGE)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={s.listMoreText}>
+                      {(selectedHeroCard ? restCards : sortedCards).length - visibleCount}곳 더 보기
+                    </Text>
+                  </TouchableOpacity>
+                )}
                 {/* 리스트 끝 안내 — 반경 내 장소가 적어 생기는 하단 공백을 안내로 전환 */}
                 <Text style={s.peekListFooter}>지도를 옮기면 주변 장소가 더 표시돼요</Text>
                 <View style={{ height: insets.bottom + 16 }} />
@@ -909,7 +930,7 @@ export default function ExploreScreen() {
               <Text style={s.listEmptyText}>해당하는 장소가 없어요</Text>
             </View>
           ) : (
-            sortedCards.map(card => (
+            sortedCards.slice(0, visibleCount).map(card => (
               <ListSpotCard
                 key={card.spot_id}
                 name={card.name}
@@ -926,6 +947,15 @@ export default function ExploreScreen() {
                 onPress={() => router.push(`/spot/${card.spot_id}`)}
               />
             ))
+          )}
+          {sortedCards.length > visibleCount && (
+            <TouchableOpacity
+              style={s.listMoreBtn}
+              onPress={() => setVisibleCount(v => v + LIST_PAGE)}
+              activeOpacity={0.8}
+            >
+              <Text style={s.listMoreText}>{sortedCards.length - visibleCount}곳 더 보기</Text>
+            </TouchableOpacity>
           )}
         </ScrollView>
       )}
@@ -1091,6 +1121,21 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
     textAlign: 'center',
     paddingVertical: Spacing[16],
+  },
+  listMoreBtn: {
+    marginHorizontal: Spacing[16],
+    marginTop: Spacing[8],
+    paddingVertical: Spacing[12],
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+    backgroundColor: Colors.bg.primary,
+    alignItems: 'center',
+  },
+  listMoreText: {
+    ...Typography.body.m,
+    color: Colors.text.secondary,
+    fontWeight: '600',
   },
   peekCardWrap: {
     backgroundColor: Colors.surface.default,
