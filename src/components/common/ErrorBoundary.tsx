@@ -44,9 +44,12 @@ export class ErrorBoundary extends React.Component<Props, State> {
     try {
       track(EVENT.unexpected_error_caught, {
         screen_name: 'error_boundary',
-        error_message: (error?.message ?? 'unknown').slice(0, 100),
-        // component stack 첫 줄만 (PII / 코드 노출 최소화)
-        component_stack: (info?.componentStack ?? '').split('\n')[0]?.slice(0, 100) ?? '',
+        // 100자로 자르면 원인 파악이 안 된다(과거 기록이 전부 같은 문장에서 잘려 있었다).
+        error_name: error?.name ?? 'Error',
+        error_message: (error?.message ?? 'unknown').slice(0, 400),
+        // 어느 컴포넌트에서 터졌는지 — 상위 3개 프레임까지 (PII 없음, 코드 위치만)
+        component_stack: (info?.componentStack ?? '')
+          .split('\n').filter(Boolean).slice(0, 3).join(' < ').slice(0, 300),
       });
     } catch {
       // analytics 실패는 무시

@@ -267,9 +267,16 @@ export default function ExploreScreen() {
     track(EVENT.explore_viewed, { screen_name: 'explore' });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 지도 중심이 "확정"됐는지 — 위치가 반영됐거나 사용자가 직접 지도를 움직인 시점부터 true.
+  //   확정 전(=앱 기본 좌표)에 지역 페치를 쏘면 사용자가 있지도 않은 지역을 불러온 뒤
+  //   위치가 잡히면 곧바로 다시 부르게 된다(진입 시 왕복 낭비).
+  //   위치를 못 받는 경우는 useNearbySpots의 폴백이 이미 담당하므로 지도가 비지 않는다.
+  const centerSettledRef = useRef(false);
+
   // ── 사용자 현재 위치가 잡히면 지도 중심도 거기로 동기화 (최초 1회) ──
   useEffect(() => {
     if (currentLocation) {
+      centerSettledRef.current = true;
       setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
     }
   }, [currentLocation]);
@@ -282,6 +289,7 @@ export default function ExploreScreen() {
   const dogIdForFetch = useAppStore(s => s.activeDog?.dog_id ?? null);
   useEffect(() => {
     if (!IS_REAL_AUTH) return;  // 데모 모드는 로컬 시드 사용
+    if (!centerSettledRef.current) return;  // 중심 확정 전에는 쏘지 않는다(진입 시 중복 왕복 방지)
     if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current);
     regionFetchTimer.current = setTimeout(async () => {
       // 서버 상한 10km — 줌아웃해도 중심 기준 10km씩 로드하며 팬으로 누적 탐색
@@ -719,6 +727,8 @@ export default function ExploreScreen() {
             onMarkerClick={handlePinPress}
             onMapClick={handleMapClick}
             onRegionChange={(lat, lng, lv) => {
+              // 사용자가 직접 움직였으면 중심이 확정된 것으로 본다(위치 권한 거부 상황 포함)
+              centerSettledRef.current = true;
               setMapCenter({ lat, lng });
               if (lv != null) setZoomLevel(lv);
               // 사용자가 직접 지도를 움직이면 현위치 추적 해제 (현위치 버튼 이동은 예외)
