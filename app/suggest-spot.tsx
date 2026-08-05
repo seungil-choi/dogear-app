@@ -600,7 +600,7 @@ const s = StyleSheet.create({
     borderColor: Colors.border.default,
     padding: Spacing[16],
   },
-  dupCardBlock: { borderColor: '#E8B0AB', backgroundColor: Colors.status.error.bg },
+  dupCardBlock: { borderColor: Colors.status.error.border, backgroundColor: Colors.status.error.bg },
   dupCardMain: { flexDirection: 'row', alignItems: 'center', gap: Spacing[12] },
   dupCardInfo: { flex: 1, gap: Spacing[4] },
   dupName: { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
@@ -611,7 +611,7 @@ const s = StyleSheet.create({
     paddingHorizontal: Spacing[8], paddingVertical: Spacing[4],
     backgroundColor: Colors.status.error.bg,
     borderRadius: Radius.round,
-    borderWidth: 1, borderColor: '#E8B0AB',
+    borderWidth: 1, borderColor: Colors.status.error.border,
   },
   blockBadgeText: { ...Typography.label.s, color: Colors.status.error.text },
 
@@ -633,7 +633,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.status.error.bg,
     borderRadius: Radius.m,
     borderWidth: 1,
-    borderColor: '#E8B0AB',
+    borderColor: Colors.status.error.border,
   },
   hardBlockText: { flex: 1, ...Typography.body.s, color: Colors.status.error.text, lineHeight: 20 },
 

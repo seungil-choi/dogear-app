@@ -11,13 +11,22 @@
 // ─────────────────────────────────────────
 // COLOR
 // ─────────────────────────────────────────
+/**
+ * 브랜드 옅은 배경(Peach) — 선택/활성 상태의 단일 출처.
+ *
+ * 과거에 brand.subtle(#FFF0E6) · surface.selected(#FFF0E6) · brand.primaryLight(#FFEDE3)
+ * 세 토큰이 모두 "선택 배경"으로 쓰여, 값이 같거나(앞 둘) 육안 구분이 안 되는 차이(3/255)로
+ * 갈려 있었다. 하나로 묶어 브랜드 톤을 조정할 때 일부만 바뀌는 사고를 막는다.
+ */
+const BRAND_PEACH = '#FFF0E6';
+
 export const Colors = {
   // Brand — Vivid Orange (브랜드 시트 Primary)
   brand: {
     primary:      '#FF7A30',   // Orange — CTA, 선택, 핵심 강조
-    primaryLight: '#FFEDE3',   // Light Peach — 선택 배경
+    primaryLight: BRAND_PEACH, // Light Peach — 선택 배경 (surface.selected와 동일 값)
     secondary:    '#FF6A2D',   // Deep Orange(그라디언트 종점) — pressed / 강한 강조
-    subtle:       '#FFF0E6',   // Orange Light — 브랜드 옅은 배경
+    subtle:       BRAND_PEACH, // Orange Light — 브랜드 옅은 배경
     onPrimary:    '#FFFFFF',
     accent:       '#C2410C',   // Derived Deep Orange — 텍스트형 강조 (4.5:1 확보)
   },
@@ -35,7 +44,7 @@ export const Colors = {
     elevated: '#FFFFFF',
     subtle:   '#FAFAFA',
     sheet:    '#FFFFFF',
-    selected: '#FFF0E6',   // Orange Light — 브랜드 선택 배경 (의도된 포인트)
+    selected: BRAND_PEACH, // Orange Light — 브랜드 선택 배경 (의도된 포인트)
   },
 
   // Border — 뉴트럴 라이트
@@ -65,7 +74,9 @@ export const Colors = {
     recent:  { bg: '#FFEDE3', text: '#C2410C' },
     success: { bg: '#EEF1EC', text: '#4D7A49' },
     warning: { bg: '#FFF8E8', text: '#B87C1A' },
-    error:   { bg: '#FFEDE9', text: '#C73620' },   // Derived Deep Red (브랜드 Red 계열)
+    // border는 error.bg 위에 얹는 '부드러운 경계'용 — text(#C73620)를 테두리로 쓰면
+    // 경고 카드가 과하게 강해진다. 강조가 필요한 곳(입력 오류 등)은 계속 text를 쓴다.
+    error:   { bg: '#FFEDE9', text: '#C73620', border: '#E8B0AB' },   // Derived Deep Red (브랜드 Red 계열)
     info:    { bg: '#F0EEF8', text: '#8C7BCA' },
   },
 
