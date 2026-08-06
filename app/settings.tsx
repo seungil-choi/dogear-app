@@ -87,6 +87,13 @@ export default function SettingsScreen() {
 
         {/* 도움말·계정 관리는 내 정보 화면으로 이동(중복 제거) */}
 
+        {/* 자가진단 — 기기에서 서버·인증·계측·데이터 상태를 직접 점검 */}
+        <SectionTitle label="문제 진단" />
+        <View style={s.card}>
+          {/* as any — expo-router 타입 라우트는 자동 생성물이라 새 화면은 빌드 후 반영된다(기존 화면들과 동일 처리) */}
+          <SettingsRow icon="warning" label="자가진단 실행" onPress={() => router.push('/self-check' as any)} />
+        </View>
+
         {/* 앱 버전 */}
         <Text style={s.version}>버전 1.0.0 (MVP)</Text>
       </ScrollView>

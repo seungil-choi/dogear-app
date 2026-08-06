@@ -148,6 +148,13 @@ function RootLayoutInner() {
           }}
         />
         <Stack.Screen
+          name="self-check"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
           name="suggest-spot"
           options={{
             presentation: 'modal',
