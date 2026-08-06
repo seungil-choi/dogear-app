@@ -210,8 +210,21 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       var clusterById = {};     // key -> { overlay, count }
       var spiderKey = null;     // 현재 펼쳐진 클러스터 key
 
+      // 클러스터링을 적용할 최소 축소 레벨.
+      //   카카오는 레벨이 클수록 축소. 이 레벨보다 확대된 상태(=레벨이 작음)에서는
+      //   좌표가 사실상 같은 묶음만 뭉치고, 떨어져 있는 핀은 절대 합치지 않는다.
+      //   (확대했는데 멀쩡하던 핀이 합쳐지는 문제 방지)
+      var CLUSTER_MIN_LEVEL = 7;
+
       // 레벨이 클수록(축소) 격자를 넓게 — 화면상 묶임 간격을 일정하게 유지
-      function gridDeg() { return 0.00008 * Math.pow(2, map ? map.getLevel() : 4); }
+      function gridDeg() { return 0.00004 * Math.pow(2, map ? map.getLevel() : 4); }
+
+      // 좌표가 사실상 동일한 것만 묶기 위한 아주 촘촘한 격자(약 5m)
+      var TIGHT_GRID = 0.00005;
+      function activeGrid() {
+        var lv = map ? map.getLevel() : 4;
+        return lv >= CLUSTER_MIN_LEVEL ? gridDeg() : TIGHT_GRID;
+      }
 
       function groupKeyOf(item, g) {
         return Math.round(item.latitude / g) + ':' + Math.round(item.longitude / g);
@@ -237,7 +250,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       /** 현재 줌 기준으로 개별 핀 / 클러스터를 계산해 화면과 동기화 */
       function renderMarkers() {
         if (!map) return;
-        var g = gridDeg();
+        var g = activeGrid();
 
         // 1) 그룹핑
         var groups = {};
@@ -337,7 +350,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         if (cl) {
           e.stopPropagation();
           var key = cl.getAttribute('data-cluster-key');
-          var g = gridDeg(), list = [];
+          var g = activeGrid(), list = [];
           allItems.forEach(function(it) { if (groupKeyOf(it, g) === key) list.push(it); });
           if (!list.length) return;
           var sLa = 0, sLn = 0;
@@ -444,7 +457,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         //   이전에는 dragend만 있어서 줌아웃해도 RN의 zoomLevel이 갱신되지 않았고,
         //   그 결과 넓은 반경 재조회가 트리거되지 않아 "줌아웃하면 핀이 안 늘어나는" 문제가 있었다.
         kakao.maps.event.addListener(map, 'zoom_changed', function() {
-          spiderKey = null;          // 줌이 바뀌면 펼침 상태는 해제
+          // 펼침 상태는 유지한다. 줌마다 접으면 "확대했더니 핀이 도로 합쳐지는" 것처럼 보인다.
           renderMarkers();
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
