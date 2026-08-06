@@ -289,8 +289,12 @@ export default function ExploreScreen() {
   const dogIdForFetch = useAppStore(s => s.activeDog?.dog_id ?? null);
   useEffect(() => {
     if (!IS_REAL_AUTH) return;  // 데모 모드는 로컬 시드 사용
-    if (!centerSettledRef.current) return;  // 중심 확정 전에는 쏘지 않는다(진입 시 중복 왕복 방지)
     if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current);
+    // 중심이 아직 확정되지 않았으면(위치 수신 대기) 조금 더 기다렸다 쏜다.
+    //   곧 위치가 오면 이 타이머는 취소되고 실제 위치로 한 번만 조회된다.
+    //   끝내 위치를 못 받아도(권한 거부 등) 기본 중심으로 조회해 지도가 비지 않게 한다.
+    //   ⚠️ 여기서 아예 막으면 위치 없는 사용자는 핀을 영영 못 본다(실제로 그렇게 회귀했었다).
+    const delay = centerSettledRef.current ? 250 : 1200;
     regionFetchTimer.current = setTimeout(async () => {
       // 서버 상한 10km — 줌아웃해도 중심 기준 10km씩 로드하며 팬으로 누적 탐색
       // (zoomBasedRadiusM은 아래에서 선언되므로 여기선 zoomLevel로 직접 계산)
@@ -338,7 +342,7 @@ export default function ExploreScreen() {
         // eslint-disable-next-line no-console
         console.error('[map] 지역 스팟 로드 실패:', e);
       }
-    }, 250);  // 팬 후 반응성: 250ms 디바운스(+ 이동 40% 임계치로 과다 조회 방지)
+    }, delay);  // 팬 후 반응성(+ 이동 40% 임계치로 과다 조회 방지)
     return () => { if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current); };
   }, [mapCenter.lat, mapCenter.lng, zoomLevel, dogIdForFetch]);
 
@@ -459,11 +463,12 @@ export default function ExploreScreen() {
   }, [selectSpot, snapState, snapToHeight]);
 
   // ── 카카오 마커 데이터 ──
-  // 기본은 반경 내 sortedCards(리스트와 일치). 단, 반경 내 결과가 0이면(비수도권·먼 위치 등)
-  // 지도가 텅 비지 않도록 로드된 전체 장소(homeCards)를 마커로 노출 — 지도를 옮기면 찾을 수 있게.
+  // 항상 목록(sortedCards)과 동일한 소스를 쓴다.
+  //   예전에는 반경 내 결과가 0일 때 homeCards(로드된 전체)로 대체했는데,
+  //   그러면 지도에는 멀리 있는 핀이 뜨고 목록은 "0곳"이라 서로 어긋났다.
+  //   반경 내에 없으면 지도도 비어야 상태가 일치한다(그 경우 안내 문구가 뜬다).
   const kakaoMarkers = useMemo<KakaoMarker[]>(() => {
-    const source = sortedCards.length > 0 ? sortedCards : homeCards;
-    return source
+    return sortedCards
       .map(card => {
         const spot = spotsById.get(card.spot_id);
         if (!spot) return null;
@@ -476,7 +481,7 @@ export default function ExploreScreen() {
         } as KakaoMarker;
       })
       .filter(Boolean) as KakaoMarker[];
-  }, [sortedCards, homeCards, spots]);
+  }, [sortedCards, spots]);
 
   const [isLocating, setIsLocating] = useState(false);
 

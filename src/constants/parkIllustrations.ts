@@ -39,11 +39,26 @@ const BY_SUBCATEGORY: Record<string, ImageSourcePropType> = {
  * @param subcategory spots.subcategory (원본 공원구분 텍스트)
  * @param category    spot.category 또는 한국어 라벨('공원') — subcategory 매칭 실패 시 park 여부 판단용
  */
+// 공원구분이 없는 카테고리(산책로·강변·쉼터)용 대표 일러스트.
+//   이게 없으면 해당 스팟만 '카테고리 컬러 + 라인 아이콘'으로 떨어져
+//   공원 일러스트와 뒤섞여 보인다(합정 메세나폴리스 광장·경의선 책거리 숲길 등).
+const BY_CATEGORY: Record<string, ImageSourcePropType> = {
+  park:       PARK_DEFAULT,
+  '공원':      PARK_DEFAULT,
+  trail:      require('../../assets/illustrations/park-street.png'),
+  '산책로':    require('../../assets/illustrations/park-street.png'),
+  riverside:  require('../../assets/illustrations/park-waterside.png'),
+  '강변':      require('../../assets/illustrations/park-waterside.png'),
+  rest_spot:  require('../../assets/illustrations/park-small.png'),
+  '쉼터':      require('../../assets/illustrations/park-small.png'),
+};
+
 export function parkIllustration(
   subcategory?: string | null,
   category?: string | null,
 ): ImageSourcePropType | null {
   if (subcategory && BY_SUBCATEGORY[subcategory]) return BY_SUBCATEGORY[subcategory];
-  if (category === 'park' || category === '공원') return PARK_DEFAULT;
-  return null;
+  if (category && BY_CATEGORY[category]) return BY_CATEGORY[category];
+  // 그래도 못 찾으면 기본 일러스트 — 카드마다 다른 종류가 섞이지 않게 한다
+  return PARK_DEFAULT;
 }

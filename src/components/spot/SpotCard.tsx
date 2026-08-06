@@ -227,7 +227,8 @@ export function ListSpotCard({
         <View style={s.listContent}>
           {/* 장소명 + 저장됨 인라인 */}
           <View style={s.listNameRow}>
-            <Text style={s.listName} numberOfLines={1}>{name}</Text>
+            {/* 장소명이 길면 한 줄로 잘라내지 않고 최대 2줄로 접는다(10자 초과 기준) */}
+            <Text style={s.listName} numberOfLines={name.length > 10 ? 2 : 1}>{name}</Text>
             {isSaved && (
               <View style={s.savedChip}>
                 <Icon name="bookmark-filled" size={10} color={Colors.brand.primary} />

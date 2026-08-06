@@ -906,6 +906,26 @@ export const useAppStore = DEV_PREVIEW_SEED
       persist(storeImpl as any, {
         name: 'dogear-v1',
         storage: createJSONStorage(() => AsyncStorage),
+        /**
+         * 저장본 버전.
+         *
+         * 데모(DEV_SEED) 빌드를 쓰던 기기에 실환경 빌드를 덮어 설치하면 AsyncStorage가 남아
+         * 목 데이터(강아지 '보리'·'콩이'·'아몬드', 목 스팟)가 그대로 복원됐다.
+         * 실제로 가입한 사용자에게 테스트 강아지가 보이던 원인.
+         * 버전을 올리면 이전 저장본은 migrate에서 폐기된다.
+         */
+        version: 2,
+        migrate: (persisted: any, from: number) => {
+          // v2 미만은 목 데이터가 섞였을 수 있으므로 계정 관련 상태를 신뢰하지 않는다.
+          //   서버에서 다시 불러오면 되는 값들이라 버려도 손실이 없다.
+          if (from < 2) {
+            return {
+              hasCompletedOnboarding: persisted?.hasCompletedOnboarding ?? false,
+              consent: persisted?.consent ?? null,
+            };
+          }
+          return persisted;
+        },
         partialize: (state: any) => ({
           isAuthenticated: state.isAuthenticated,
           hasCompletedOnboarding: state.hasCompletedOnboarding,

@@ -290,8 +290,6 @@ const s = StyleSheet.create({
     backgroundColor: Colors.surface.default,
     borderRadius: Radius.round,
     padding: 4,
-    borderWidth: 1,
-    borderColor: Colors.border.default,
   },
   segment: {
     flex: 1,
