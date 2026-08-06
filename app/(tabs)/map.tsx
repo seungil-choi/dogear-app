@@ -1041,8 +1041,6 @@ const s = StyleSheet.create({
   filterLabel:       { ...Typography.label.s, color: Colors.text.secondary },
   filterLabelActive: { color: Colors.brand.onPrimary, fontWeight: '600' },
 
-  mapContainer: { flex: 1, position: 'relative', overflow: 'hidden' },
-  map:          { flex: 1 },
 
   // 풀스크린 지도 + 슬라이드 업 패널
   mapFullContainer: { flex: 1, position: 'relative', backgroundColor: Colors.bg.primary, overflow: 'hidden' },
@@ -1096,34 +1094,6 @@ const s = StyleSheet.create({
   myLocBtnActive: { backgroundColor: Colors.brand.primary },
 
   // ── 하단 카드 목록 (peek sheet) ──
-  peekSheet: {
-    flex: 1,
-    minHeight: 0, // ScrollView가 부모 안에서 정확한 높이 계산 (flex shrink 허용)
-    backgroundColor: Colors.surface.default,
-    borderTopLeftRadius: Radius.xl,
-    borderTopRightRadius: Radius.xl,
-    paddingTop: Spacing[8],
-    marginTop: -Spacing[8], // 지도 영역과 살짝 겹쳐 둥근 모서리 강조
-    zIndex: 5,
-    overflow: 'hidden', // 내부 scrollview의 둥근 모서리 유지
-  },
-  peekHandle: {
-    width: 36, height: 4, borderRadius: 2,
-    backgroundColor: Colors.border.default,
-    alignSelf: 'center',
-    marginBottom: Spacing[8],
-  },
-  peekHeader: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
-    paddingHorizontal: Spacing[16], paddingBottom: Spacing[10],
-    borderBottomWidth: 1, borderBottomColor: Colors.border.subtle,
-  },
-  peekTitle: { ...Typography.label.l, color: Colors.text.primary, fontWeight: '700' },
-  peekCountBadge: {
-    backgroundColor: Colors.brand.subtle,
-    paddingHorizontal: Spacing[10], paddingVertical: 2, borderRadius: Radius.round,
-  },
-  peekCount: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
   peekEmpty: {
     alignItems: 'center', gap: Spacing[8], paddingVertical: Spacing[40],
   },
@@ -1154,9 +1124,6 @@ const s = StyleSheet.create({
   },
   peekCardWrap: {
     backgroundColor: Colors.surface.default,
-  },
-  peekCardWrapSelected: {
-    backgroundColor: Colors.brand.subtle,
   },
 
   // 선택 hero 카드 — 핀 클릭 시 패널 최상단 강조

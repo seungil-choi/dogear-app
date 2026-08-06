@@ -114,7 +114,6 @@ function FeaturedCard({
             coverImageUrl={card.cover_image_url}
             size={228}
             width="100%"
-            iconSize={64}
             rounded={0}
           />
         </View>

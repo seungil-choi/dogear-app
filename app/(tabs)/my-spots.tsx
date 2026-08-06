@@ -280,8 +280,6 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
     gap: Spacing[14],
   },
-  headerTitle: { ...Typography.display.s, color: Colors.text.primary },
-  screenTitle: { ...Typography.display.s, color: Colors.text.primary },
 
   // ── 세그먼트 컨트롤 ──────────────────────────────────────
   //   흰 배경 트랙 + 활성 세그먼트만 브랜드 오렌지로 채운 알약형. 그림자 없음.

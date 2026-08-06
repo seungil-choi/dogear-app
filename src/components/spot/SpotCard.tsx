@@ -1,26 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Colors, Typography, Radius, Spacing } from '../../constants/tokens';
-import { Icon, type IconName } from '../common/Icon';
+import { Icon } from '../common/Icon';
 import { AppImage } from '../common/AppImage';
 import { parkIllustration } from '../../constants/parkIllustrations';
 import type { HomeSpotCardViewModel } from '../../types';
-
-/**
- * 카테고리 컬러 박스 — 이미지 자리표시자 통일 시스템
- *  - 운영 무비용 원칙: 장소 실사 이미지 없이도 식별 가능
- *  - 카테고리별 컬러 + 라인 아이콘으로 즉시 분류 인지
- *  - 모든 spot card에서 동일하게 사용
- *  - 컬러는 Colors.category.* 토큰 SSOT 사용
- */
-const CATEGORY_THUMB: Record<string, { bg: string; icon: IconName; iconColor: string }> = {
-  // 한국어 라벨 기반 매핑 (categoryLabel과 일치)
-  '공원':   { bg: Colors.category.park.bg,      icon: 'leaf',     iconColor: Colors.category.park.icon },
-  '산책로': { bg: Colors.category.trail.bg,     icon: 'trail',    iconColor: Colors.category.trail.icon },
-  '강변':   { bg: Colors.category.riverside.bg, icon: 'location', iconColor: Colors.category.riverside.icon },
-  '쉼터':   { bg: Colors.category.rest.bg,      icon: 'rest',     iconColor: Colors.category.rest.icon },
-  '기타':   { bg: Colors.category.other.bg,     icon: 'paw',      iconColor: Colors.category.other.icon },
-};
 
 interface CategoryThumbProps {
   categoryLabel: string;
@@ -28,11 +12,10 @@ interface CategoryThumbProps {
   subcategory?: string | null; // 공원구분 — 커버 일러스트 매핑 키 (사진 없을 때 사용)
   size: number;               // 정사각형 사이즈, 또는 height (width 별도 지정 시)
   width?: number | string;    // 가로 커스텀 (풀폭 카드 등)
-  iconSize?: number;
   rounded?: number;
 }
 
-export function CategoryThumb({ categoryLabel, coverImageUrl, subcategory, size, width, iconSize, rounded = Radius.card }: CategoryThumbProps) {
+export function CategoryThumb({ categoryLabel, coverImageUrl, subcategory, size, width, rounded = Radius.card }: CategoryThumbProps) {
   const w = width ?? size;
   // 1순위: 실사진(cover_image_url) — 장소 상세 키비주얼과 일관
   if (coverImageUrl) {
@@ -42,29 +25,19 @@ export function CategoryThumb({ categoryLabel, coverImageUrl, subcategory, size,
       </View>
     );
   }
-  // 2순위: 공원구분 일러스트 (번들 에셋, 무비용) — 브랜드 톤 배경 위 중앙 배치
-  const illo = parkIllustration(subcategory, categoryLabel);
-  if (illo) {
-    return (
-      <View style={{
-        width: w as any, height: size, borderRadius: rounded, overflow: 'hidden',
-        backgroundColor: Colors.brand.subtle,
-        alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Image source={illo} style={{ width: '80%', height: '80%' }} resizeMode="contain" />
-      </View>
-    );
-  }
-  // 3순위: 카테고리 컬러 + 라인 아이콘
-  const conf = CATEGORY_THUMB[categoryLabel] ?? CATEGORY_THUMB['기타'];
-  const color = conf.iconColor;
+  // 2순위: 공원구분/카테고리 일러스트 (번들 에셋, 무비용) — 브랜드 톤 배경 위 중앙 배치
+  //   parkIllustration은 항상 값을 반환하므로 여기가 최종 폴백이다.
   return (
     <View style={{
-      width: w as any, height: size, borderRadius: rounded,
-      backgroundColor: conf.bg,
+      width: w as any, height: size, borderRadius: rounded, overflow: 'hidden',
+      backgroundColor: Colors.brand.subtle,
       alignItems: 'center', justifyContent: 'center',
     }}>
-      <Icon name={conf.icon} size={iconSize ?? Math.round(size * 0.42)} color={color} />
+      <Image
+        source={parkIllustration(subcategory, categoryLabel)}
+        style={{ width: '80%', height: '80%' }}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -80,7 +53,7 @@ export function FeaturedSpotCard({ card, onPress }: FeaturedProps) {
     <TouchableOpacity style={s.featured} onPress={onPress} activeOpacity={0.88}>
       {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={s.featuredImage}>
-        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={128} width={128} iconSize={36} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={128} width={128} rounded={0} />
         {card.is_regular && (
           <View style={s.featuredRegularBadge}>
             <Text style={s.featuredRegularText}>단골</Text>
@@ -119,7 +92,7 @@ export function CompactSpotCard({ card, onPress }: FeaturedProps) {
     <TouchableOpacity style={s.compact} onPress={onPress} activeOpacity={0.88}>
       {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={s.compactImage}>
-        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={100} width={168} iconSize={28} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={100} width={168} rounded={0} />
         {card.is_regular && (
           <View style={s.compactRegularDot} />
         )}
@@ -155,7 +128,7 @@ export function RecentSpotCard({ card, onPress }: FeaturedProps) {
     <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
       {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={sr.imageWrap}>
-        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={132} width="100%" iconSize={28} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={132} width="100%" rounded={0} />
       </View>
 
       {/* 텍스트 */}
@@ -176,7 +149,7 @@ export function RegularSpotCard({ card, onPress }: FeaturedProps) {
     <TouchableOpacity style={sr.card} onPress={onPress} activeOpacity={0.88}>
       {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
       <View style={sr.imageWrap}>
-        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={132} width="100%" iconSize={28} rounded={0} />
+        <CategoryThumb categoryLabel={card.category_label} subcategory={card.subcategory} coverImageUrl={card.cover_image_url} size={132} width="100%" rounded={0} />
         {/* 단골 뱃지 */}
         {card.is_regular && (
           <View style={sr.regularBadge}>
@@ -220,7 +193,7 @@ export function ListSpotCard({
       <View style={s.listCardInner}>
         {/* 이미지 있으면 AppImage / 없으면 카테고리 컬러 박스 */}
         <View style={s.listImage}>
-          <CategoryThumb categoryLabel={categoryLabel} subcategory={subcategory} coverImageUrl={coverImageUrl} size={60} iconSize={22} rounded={12} />
+          <CategoryThumb categoryLabel={categoryLabel} subcategory={subcategory} coverImageUrl={coverImageUrl} size={60} rounded={12} />
         </View>
 
         {/* 정보 */}
@@ -272,13 +245,6 @@ const s = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
-  featuredImg: { width: '100%', height: '100%' },
-  featuredImgPlaceholder: {
-    flex: 1,
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   featuredRegularBadge: {
     position: 'absolute',
     top: Spacing[8],
@@ -317,13 +283,6 @@ const s = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
-  compactImg: { width: '100%', height: '100%' },
-  compactImgPlaceholder: {
-    flex: 1,
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   compactRegularDot: {
     position: 'absolute',
     top: Spacing[8],
@@ -360,13 +319,6 @@ const s = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     flexShrink: 0,
-  },
-  listImg: { width: '100%', height: '100%' },
-  listImgPlaceholder: {
-    flex: 1,
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   listContent: { flex: 1, gap: 3 },
   listNameRow: {
@@ -443,13 +395,6 @@ const sr = StyleSheet.create({
     height: 132,
     position: 'relative',
     overflow: 'hidden',
-  },
-  image: { width: '100%', height: '100%' },
-  imagePlaceholder: {
-    flex: 1,
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   // 단골 뱃지
   regularBadge: {

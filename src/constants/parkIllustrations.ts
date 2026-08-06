@@ -53,12 +53,16 @@ const BY_CATEGORY: Record<string, ImageSourcePropType> = {
   '쉼터':      require('../../assets/illustrations/park-small.png'),
 };
 
+/**
+ * 항상 일러스트를 반환한다(널 없음).
+ * 매칭 실패 시에도 기본 일러스트로 떨어뜨려, 카드마다 다른 종류의 비주얼이
+ * 섞이지 않도록 보장한다. 반환 타입이 non-null이라 호출부에 폴백 분기가 필요 없다.
+ */
 export function parkIllustration(
   subcategory?: string | null,
   category?: string | null,
-): ImageSourcePropType | null {
+): ImageSourcePropType {
   if (subcategory && BY_SUBCATEGORY[subcategory]) return BY_SUBCATEGORY[subcategory];
   if (category && BY_CATEGORY[category]) return BY_CATEGORY[category];
-  // 그래도 못 찾으면 기본 일러스트 — 카드마다 다른 종류가 섞이지 않게 한다
   return PARK_DEFAULT;
 }

@@ -249,7 +249,6 @@ export default function SpotDetailScreen() {
                 subcategory={vm.subcategory}
                 size={260}
                 width="100%"
-                iconSize={72}
                 rounded={0}
               />
             </View>
