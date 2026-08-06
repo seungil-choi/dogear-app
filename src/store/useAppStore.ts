@@ -20,6 +20,7 @@ import {
 } from '../utils/rules';
 import { categoryLabel, atmosphereLabel, regularStatusLabel, visitDateText, relativeTime } from '../utils/labels';
 import type { SpotDetailViewModel, DogMapSpotViewModel } from '../types';
+import { mergeSpotList } from './spotMerge';
 import {
   mockUser, mockDog, mockDogs, mockSpots, mockCheckins, mockSavedSpots,
   mockVisitSummaries, mockFamiliarDogSignals, mockPrivacySetting,
@@ -36,7 +37,6 @@ const DEV_PREVIEW_SEED = IS_DEV_SEED;
  * 카드·마커 계산이 매번 전체를 훑게 되고 지도가 점점 느려진다.
  * 화면에 필요한 건 현재 지역 주변뿐이므로 최근 갱신분만 남긴다.
  */
-const MAX_CACHED_SPOTS = 600;
 
 // ─── 기본 개인정보 설정 (강아지 신규 가입 시 사용) ─────────────────
 const defaultPrivacySetting: PrivacySetting = {
@@ -639,47 +639,12 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   setSpotAggregates: (spotAggregates) => set({ spotAggregates }),
   mergeSpots: (newSpots, newAggregates) => {
     const { spots, spotAggregates, savedSpots, visitSummaries, selectedSpotId } = get();
-    const byId = new Map(spots.map(sp => [sp.spot_id, sp]));
-    for (const sp of newSpots) {
-      const prev = byId.get(sp.spot_id);
-      // 필드 단위 병합 — 새 객체에 없는(undefined) 값이 기존 값을 지우지 않게 한다.
-      //   지도 팬 페치처럼 일부 필드만 담아 오는 경로가 있어서, 통째로 덮으면
-      //   subcategory 같은 값이 사라지고 목록 썸네일이 상세와 달라진다.
-      if (!prev) { byId.set(sp.spot_id, sp); continue; }
-      const merged: Spot = { ...prev };
-      for (const [k, v] of Object.entries(sp)) {
-        if (v !== undefined && v !== null) (merged as any)[k] = v;
-      }
-      // Map의 삽입 순서를 "최근 갱신" 순으로 유지하기 위해 재삽입
-      byId.delete(sp.spot_id);
-      byId.set(sp.spot_id, merged);
-    }
-
-    // 누적 상한 — 팬으로 계속 쌓이면 카드/마커 계산이 전체를 훑어 점점 느려진다.
-    //   최근 갱신된 것부터 남기고 오래된 것을 버린다(현재 보고 있는 지역이 가장 최신).
-    //   ⚠️ 단, 사용자가 관계를 맺은 장소(저장·방문·현재 선택)는 절대 버리지 않는다.
-    //      my-spots·방문기록 화면이 store.spots에서 조회 후 없으면 항목을 걸러내기 때문에,
-    //      멀리 팬했다는 이유로 evict되면 "내 장소"가 사라져 보인다.
-    let next = [...byId.values()];
-    if (next.length > MAX_CACHED_SPOTS) {
-      const protectedIds = new Set<string>();
-      for (const s of savedSpots) protectedIds.add(s.spot_id);
-      for (const v of visitSummaries) protectedIds.add(v.spot_id);
-      if (selectedSpotId) protectedIds.add(selectedSpotId);
-      // 이번에 불러온 것(= 지금 보고 있는 지역)은 절대 버리지 않는다.
-      //   보호 대상이 상한을 넘길 때 현재 지역 핀이 사라지는 것을 막는다.
-      for (const sp of newSpots) protectedIds.add(sp.spot_id);
-
-      // 보호 대상이 아닌 것 중 오래된 것부터 필요한 만큼만 버린다(원래 순서 유지).
-      const dropCount = next.length - MAX_CACHED_SPOTS;
-      const toDrop = new Set<string>();
-      for (const sp of next) {
-        if (toDrop.size >= dropCount) break;
-        if (!protectedIds.has(sp.spot_id)) toDrop.add(sp.spot_id);
-      }
-      if (toDrop.size > 0) next = next.filter(sp => !toDrop.has(sp.spot_id));
-    }
-
+    // 병합 규칙(필드 단위 병합 · 누적 상한 · 내 장소 보호)은 순수 함수로 분리해 테스트한다.
+    const next = mergeSpotList(spots, newSpots, {
+      savedSpotIds:   savedSpots.map(sv => sv.spot_id),
+      visitedSpotIds: visitSummaries.map(v => v.spot_id),
+      selectedSpotId,
+    });
     set({
       spots: next,
       spotAggregates: newAggregates ? { ...spotAggregates, ...newAggregates } : spotAggregates,
