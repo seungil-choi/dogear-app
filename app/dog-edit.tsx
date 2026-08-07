@@ -161,7 +161,6 @@ export default function DogEditScreen() {
         const result = await uploadImage({
           bucket: 'dog-avatars',
           uri: avatarUri,
-          userId: dog.user_id,
           oldPath: oldPath ?? undefined,
         });
         finalAvatarUrl = result.url;

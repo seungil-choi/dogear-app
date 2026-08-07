@@ -14,7 +14,6 @@ export type ImageBucket = 'dog-avatars' | 'checkin-photos' | 'spot-suggestions';
 interface UploadOptions {
   bucket: ImageBucket;
   uri: string;          // ImagePicker에서 받은 로컬 URI
-  userId: string;
   /** 기존 파일 삭제할 경로 (선택) */
   oldPath?: string;
 }
@@ -39,7 +38,7 @@ function extFromUri(uri: string): string {
  * DEV 모드에서는 로컬 URI 그대로 반환 (mock 데이터용)
  */
 export async function uploadImage(opts: UploadOptions): Promise<UploadResult> {
-  const { bucket, uri, userId, oldPath } = opts;
+  const { bucket, uri, oldPath } = opts;
 
   if (!IS_REAL_AUTH) {
     return { url: uri, path: '' };
@@ -50,10 +49,19 @@ export async function uploadImage(opts: UploadOptions): Promise<UploadResult> {
     await supabase.storage.from(bucket).remove([oldPath]).catch(() => {});
   }
 
+  // ⚠️ 경로 첫 세그먼트는 반드시 auth.uid()여야 한다.
+  //    스토리지 정책이 `(storage.foldername(name))[1] = auth.uid()::text`로 소유자를 판정하는데,
+  //    호출부들이 앱 ID(users.user_id)를 넘기고 있어 **모든 업로드가 조용히 403**이었다.
+  //    (storage.objects 전 버킷 0건 · 모든 avatar_url null로 확인)
+  //    두 ID는 서로 다른 공간이라 호출부가 고를 여지를 아예 없애고 여기서 세션에서 읽는다.
+  const { data: authData } = await supabase.auth.getUser();
+  const ownerId = authData?.user?.id;
+  if (!ownerId) throw new Error('로그인이 만료됐어요. 다시 로그인해주세요.');
+
   const blob = await uriToBlob(uri);
   const ext = extFromUri(uri);
   const filename = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const path = `${userId}/${filename}`;
+  const path = `${ownerId}/${filename}`;
 
   const { error } = await supabase.storage
     .from(bucket)

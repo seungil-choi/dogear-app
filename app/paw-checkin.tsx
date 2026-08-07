@@ -301,7 +301,6 @@ export default function PawCheckinModal() {
           const up = await uploadImage({
             bucket: 'checkin-photos',
             uri: pawFlow.photoUri,
-            userId: dog.user_id,
           });
           uploadedPhotoUrl = up.url;
           setPawPhoto(up.url); // store에도 영속 URL 반영 (로컬 기록/성공화면용)

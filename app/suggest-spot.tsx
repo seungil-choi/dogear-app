@@ -25,6 +25,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
+import { uploadImage } from '../src/lib/uploadImage';
 import { Button } from '../src/components/common/Button';
 import { Icon } from '../src/components/common/Icon';
 import KakaoMap from '../src/components/map/KakaoMap';
@@ -173,6 +174,22 @@ export default function SuggestSpotScreen() {
       return;
     }
 
+    // 사진은 반드시 먼저 스토리지에 올린다.
+    //   예전에는 photoUri(기기 로컬 file:// 경로)를 그대로 DB에 넣었는데,
+    //   그 값은 다른 기기에서 열리지 않고 승인 시 공개 장소의 커버 이미지로 복사돼
+    //   모두에게 깨진 이미지가 된다. 업로드 실패는 제안 자체를 막지 않고 사진만 포기한다.
+    let coverImageUrl: string | undefined;
+    if (photoUri && IS_REAL_AUTH) {
+      try {
+        const up = await uploadImage({ bucket: 'spot-suggestions', uri: photoUri });
+        coverImageUrl = up.url;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('[suggest-spot] 사진 업로드 실패 — 사진 없이 제안을 이어갑니다:', e);
+        notify('사진은 첨부하지 못했어요. 장소는 그대로 제안됩니다.', '사진 업로드 실패');
+      }
+    }
+
     const payload = {
       name: name.trim(),
       description: description.trim(),
@@ -180,7 +197,7 @@ export default function SuggestSpotScreen() {
       additional_tags: selectedTags,
       latitude: pinLocation.latitude,
       longitude: pinLocation.longitude,
-      cover_image_url: photoUri ?? undefined,  // 로컬 URI 또는 추후 업로드된 URL
+      cover_image_url: coverImageUrl,   // 업로드된 public URL만 (로컬 경로 금지)
     };
 
     // 서버가 발급한 진짜 spot_id. 이게 있어야 발도장·상세 조회가 동작한다.
@@ -191,6 +208,10 @@ export default function SuggestSpotScreen() {
       //    예전에는 spot_suggestions만 넣고 spot_id는 로컬에서 `spot_user_<ts>`로 지어냈는데,
       //    spots.spot_id는 uuid라 그 값으로는 조회조차 되지 않아 제안 직후 발도장이 항상
       //    404로 실패했다. hidden이라 검토 전까지 남에게는 보이지 않는다.
+      //
+      //    suggested_by_user_id는 반드시 넣는다 — RLS가 이 값으로 소유자를 판정한다.
+      //    빠지면 INSERT 자체가 42501로 거부된다(정책이 소유자 일치를 요구).
+      //
       const { data: spotRow, error: spotError } = await supabase
         .from('spots')
         .insert({
@@ -203,6 +224,7 @@ export default function SuggestSpotScreen() {
           cover_image_url: payload.cover_image_url ?? null,
           status: 'hidden',
           created_source: 'user_suggested',
+          suggested_by_user_id: user.user_id,
         })
         .select('spot_id')
         .single();
@@ -231,6 +253,9 @@ export default function SuggestSpotScreen() {
         });
 
       if (error) {
+        // 제안 레코드가 안 만들어졌으면 임시 장소만 남아 검토 큐에 잡히지 않는 유령이 된다.
+        // 방금 내가 만든 hidden 행이라 RLS상 지울 수 있다(실패해도 사용자 흐름엔 영향 없음).
+        await supabase.from('spots').delete().eq('spot_id', serverSpotId);
         track(EVENT.place_suggestion_submit_failed, { screen_name: 'suggest_spot' });
         notify('장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.', '제안 실패');
         return;
