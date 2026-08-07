@@ -194,6 +194,11 @@ interface AppState {
   // Spot 제안 actions
   // 임시 반영: suggestedSpots 와 spots 양쪽에 모두 추가하여 제안 직후
   // 발도장 찍기 / 저장 등이 가능하도록 함. 새 spot_id를 반환.
+  /**
+   * 제안한 장소를 로컬에 즉시 반영하고 spot_id를 돌려준다.
+   * @param serverSpotId 서버가 발급한 uuid. 실환경에서는 반드시 이 값을 넘길 것.
+   *   넘기지 않으면 로컬 전용 임시 id가 되어 발도장·상세 조회가 서버에서 404가 난다.
+   */
   suggestSpot: (data: {
     name: string;
     description: string;
@@ -201,7 +206,7 @@ interface AppState {
     additional_tags: string[];
     latitude: number;
     longitude: number;
-  }) => string;
+  }, serverSpotId?: string | null) => string;
   getNearbyDuplicates: (lat: number, lng: number, name: string, category: SpotCategory) => NearbyDuplicate[];
 
   // Computed helpers
@@ -662,7 +667,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   },
 
   // ─── 장소 제안 ────────────────────────────────────────────────
-  suggestSpot: ({ name, description, category, additional_tags, latitude, longitude }) => {
+  suggestSpot: ({ name, description, category, additional_tags, latitude, longitude }, serverSpotId) => {
     const { dog, suggestedSpots, spots } = get();
     if (!dog) return '';
     const now = new Date().toISOString();
@@ -679,10 +684,12 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       status: 'proposed',
       suggested_at: now,
     };
-    // 임시 반영 — 실제 spots 에도 active 로 추가하여
-    // 발도장 찍기/저장 등 후속 액션이 가능하도록 함
+    // 임시 반영 — 로컬 spots 에도 넣어 제안 직후 카드·상세가 바로 뜨게 한다.
+    //   spot_id는 서버가 발급한 uuid를 그대로 쓴다. 예전처럼 로컬에서 지어낸
+    //   `spot_user_<ts>`를 쓰면 spots.spot_id(uuid)로 조회가 안 돼
+    //   발도장·상세가 서버에서 100% 404가 난다.
     const tempSpot: Spot = {
-      spot_id: `spot_user_${ts}`,
+      spot_id: serverSpotId ?? `spot_user_${ts}`,
       name,
       category,
       latitude,
@@ -821,6 +828,13 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       atmosphere_state: agg.atmosphere_state,
       recent_trace_count: agg.recent_trace_count,
       unique_visitor_count: agg.recent_unique_dog_count,
+      // 로컬 폴백(데모·오프라인)에는 커뮤니티 누적 집계가 없다.
+      // 0으로 두면 화면이 해당 지표를 숨기므로, 없는 숫자를 지어내지 않는다.
+      total_checkin_count: agg.recent_trace_count,
+      saved_count: 0,
+      regular_dog_count: 0,
+      first_checkin_at: null,
+      facility_tags: spot.features ?? [],
       dominant_tags: agg.dominant_feeling_tags,
       description: spot.description,
       address_text: spot.address_text,

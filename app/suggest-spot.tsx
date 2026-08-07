@@ -7,7 +7,7 @@
  * 단계:
  *   checking      — 주변 중복 자동 검사 (로딩)
  *   duplicate_check — 반경 15m 내 유사 장소 있을 때
- *   form          — 제안 입력 (이름·카테고리·한줄설명 필수, 태그 선택)
+ *   form          — 제안 입력 (이름·카테고리 필수 / 설명·태그·사진 선택)
  *   done          — 완료 + 임시 반영 안내 + CTA
  */
 
@@ -98,9 +98,11 @@ export default function SuggestSpotScreen() {
   }, []);
 
   // ── 폼 유효성 ─────────────────────────────────────────────
+  // 설명은 선택 — 산책 중 한 손으로 등록하는 상황이 기본이라, 필수로 두면 등록 자체를 포기한다.
+  // 이름·카테고리·좌표만 있으면 장소로서 성립하고, 설명은 나중에 채울 수 있다.
   const isFormValid = useMemo(
-    () => name.trim().length > 0 && description.trim().length > 0 && !!category,
-    [name, description, category],
+    () => name.trim().length > 0 && !!category,
+    [name, category],
   );
 
   // ── 태그 토글 ──────────────────────────────────────────────
@@ -181,7 +183,38 @@ export default function SuggestSpotScreen() {
       cover_image_url: photoUri ?? undefined,  // 로컬 URI 또는 추후 업로드된 URL
     };
 
+    // 서버가 발급한 진짜 spot_id. 이게 있어야 발도장·상세 조회가 동작한다.
+    let serverSpotId: string | null = null;
+
     if (IS_REAL_AUTH && user) {
+      // 1) 먼저 spots에 임시 장소(hidden)를 만든다.
+      //    예전에는 spot_suggestions만 넣고 spot_id는 로컬에서 `spot_user_<ts>`로 지어냈는데,
+      //    spots.spot_id는 uuid라 그 값으로는 조회조차 되지 않아 제안 직후 발도장이 항상
+      //    404로 실패했다. hidden이라 검토 전까지 남에게는 보이지 않는다.
+      const { data: spotRow, error: spotError } = await supabase
+        .from('spots')
+        .insert({
+          name: payload.name,
+          category: payload.category,
+          latitude: payload.latitude,
+          longitude: payload.longitude,
+          description: payload.description || null,
+          tags: payload.additional_tags,
+          cover_image_url: payload.cover_image_url ?? null,
+          status: 'hidden',
+          created_source: 'user_suggested',
+        })
+        .select('spot_id')
+        .single();
+
+      if (spotError || !spotRow) {
+        track(EVENT.place_suggestion_submit_failed, { screen_name: 'suggest_spot' });
+        notify('장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.', '제안 실패');
+        return;
+      }
+      serverSpotId = spotRow.spot_id;
+
+      // 2) 검토 큐에 올릴 제안 레코드 — 임시 장소와 연결해둔다(승인 시 active로 전환).
       const { error } = await supabase
         .from('spot_suggestions')
         .insert({
@@ -194,6 +227,7 @@ export default function SuggestSpotScreen() {
           latitude: payload.latitude,
           longitude: payload.longitude,
           cover_image_url: payload.cover_image_url ?? null,
+          provisional_spot_id: serverSpotId,
         });
 
       if (error) {
@@ -203,8 +237,8 @@ export default function SuggestSpotScreen() {
       }
     }
 
-    // 로컬 store에도 반영 (즉각적인 UI 피드백) — spot_id 반환됨
-    const newSpotId = suggestSpot(payload);
+    // 로컬 store에도 반영 (즉각적인 UI 피드백). 서버 id가 있으면 그걸 쓴다.
+    const newSpotId = suggestSpot(payload, serverSpotId);
     track(EVENT.place_suggestion_submitted, {
       screen_name: 'suggest_spot',
       place_id: newSpotId,
@@ -426,12 +460,12 @@ export default function SuggestSpotScreen() {
             </View>
 
             <View style={s.formSection}>
-              <Text style={s.formSectionTitle}>한 줄 설명 <Text style={s.required}>*</Text></Text>
+              <Text style={s.formSectionTitle}>한 줄 설명 <Text style={s.optional}>(선택)</Text></Text>
               <TextInput
                 style={[s.textInput, s.textInputMulti]}
                 value={description}
                 onChangeText={setDescription}
-                placeholder="이 장소를 한 문장으로 설명해 주세요"
+                placeholder="그늘이 많아요, 바닥이 흙이에요 같은 한마디"
                 placeholderTextColor={Colors.text.tertiary}
                 multiline
                 maxLength={80}
@@ -513,7 +547,7 @@ export default function SuggestSpotScreen() {
             <View style={s.doneSummaryCard}>
               <DoneSummaryRow label="장소 이름" value={name} />
               <DoneSummaryRow label="카테고리"  value={CATEGORY_OPTIONS.find(o => o.key === category)?.label ?? category} />
-              <DoneSummaryRow label="설명"       value={description} />
+              {description.trim().length > 0 && <DoneSummaryRow label="설명" value={description} />}
             </View>
           </ScrollView>
 

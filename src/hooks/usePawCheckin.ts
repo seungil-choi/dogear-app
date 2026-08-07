@@ -69,18 +69,39 @@ export function usePawCheckin(): UsePawCheckinReturn {
       });
 
       if (fnError) {
+        // supabase-js는 non-2xx를 전부 "Edge Function returned a non-2xx status code"라는
+        // 한 문장으로 뭉갠다. 그대로 띄우면 사용자도 우리도 원인을 알 수 없으므로
+        // 상태 코드별로 실제 사유를 풀어준다.
+        const status = fnError.context?.status;
+        const serverMsg: string | undefined =
+          fnError.context?.body?.message ?? fnError.context?.body?.error;
+
         // 중복 체크인
-        if (fnError.message?.includes('409') || fnError.context?.status === 409) {
+        if (status === 409 || fnError.message?.includes('409')) {
           throw new Error('최근 1시간 내에 이미 발도장을 남겼어요');
         }
-        // 위치 가드 (403) — 서버가 보낸 메시지를 그대로 노출
-        if (fnError.context?.status === 403) {
-          const serverMsg = fnError.context?.body?.message
-            ?? fnError.context?.body?.error
-            ?? '장소 근처에서만 발도장을 남길 수 있어요';
-          throw new Error(serverMsg);
+        // 위치 가드 — 서버가 보낸 거리 안내를 그대로 노출
+        if (status === 403) {
+          throw new Error(serverMsg ?? '장소 근처에서만 발도장을 남길 수 있어요');
         }
-        throw fnError;
+        // 대상이 서버에 없음 — 아직 승인되지 않은 제안 장소가 대표적이다
+        if (status === 404) {
+          throw new Error(
+            serverMsg === 'Dog not found'
+              ? '강아지 정보를 찾을 수 없어요. 앱을 다시 시작해주세요.'
+              : '아직 등록 검토가 끝나지 않은 장소예요. 승인되면 발도장을 남길 수 있어요.',
+          );
+        }
+        // 좌표 이상 등 서버가 사유를 명시한 경우
+        if (status === 422 || status === 400) {
+          throw new Error(serverMsg ?? '입력값을 확인해주세요.');
+        }
+        if (status === 401) {
+          throw new Error('로그인이 만료됐어요. 다시 로그인해주세요.');
+        }
+        throw new Error(
+          serverMsg ?? `발도장을 저장하지 못했어요${status ? ` (오류 ${status})` : ''}. 잠시 후 다시 시도해주세요.`,
+        );
       }
 
       return {

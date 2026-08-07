@@ -152,15 +152,27 @@ Deno.serve(async (req: Request) => {
     }
 
     // 스팟 존재 확인 (좌표/카테고리 포함 — 근접성 검증용)
+    //
+    // hidden도 허용하는 이유: 사용자가 방금 제안한 장소는 검토 전까지 status='hidden'이다.
+    //   "내가 발견한 곳에 첫 발도장을 남긴다"가 등록의 가장 큰 동기인데,
+    //   active만 허용하면 제안 직후 발도장이 항상 404로 막혔다.
+    //   남의 hidden 스팟은 RLS(spots_read_own_provisional)가 걸러주므로,
+    //   여기서 hidden을 열어도 제안자 본인만 통과한다.
     const { data: spot, error: spotError } = await supabase
       .from('spots')
       .select('spot_id, name, latitude, longitude, category')
       .eq('spot_id', spotId)
-      .eq('status', 'active')
+      .in('status', ['active', 'hidden'])
       .single();
 
     if (spotError || !spot) {
-      return Response.json({ error: 'Spot not found' }, { status: 404, headers: corsHeaders });
+      return Response.json(
+        {
+          error: 'Spot not found',
+          message: '장소를 찾을 수 없어요. 목록에서 다시 선택해주세요.',
+        },
+        { status: 404, headers: corsHeaders },
+      );
     }
 
     // spot 좌표 무결성 (DB 누락/null island 방지)
