@@ -86,51 +86,39 @@ Deno.serve(async (req: Request) => {
 
     const spotIds: string[] = spots.map((s: any) => s.spot_id);
 
-    // 성능: spotIds에만 의존하는 4개 독립 쿼리를 병렬로 (직렬 왕복 4회 → 1웨이브). spot-detail과 동일 패턴.
-    const [summariesRes, recentCheckinsRes, savedRes, checkinCountsRes] = await Promise.all([
+    // 성능: spotIds에만 의존하는 독립 쿼리를 병렬로 (직렬 왕복 → 1웨이브).
+    //   예전에는 paw_checkins를 두 번 쳤다 — 48시간 분위기용 1회, **개수만 세려고 전량** 1회.
+    //   두 번째는 시간 제한이 없어 체크인이 쌓일수록 지도 팬마다 전량을 실어 날랐다.
+    //   집계를 DB(spot_list_stats)로 내려 스팟당 한 줄만 받는다.
+    const [summariesRes, savedRes, statsRes] = await Promise.all([
       dogId
         ? supabase.from('spot_visit_summaries')
             .select('spot_id, visit_count, last_visit_at, regular_status')
             .eq('dog_id', dogId).in('spot_id', spotIds)
         : Promise.resolve({ data: null }),
-      svc.from('paw_checkins')
-        .select('spot_id, feeling_tags')
-        .in('spot_id', spotIds)
-        .eq('visibility_level', 'spot_only')
-        .eq('is_valid_for_aggregate', true)
-        .gte('checked_in_at', new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString())
-        .order('checked_in_at', { ascending: false }),
       dogId
         ? supabase.from('saved_spots')
             .select('spot_id, saved_type')
             .eq('dog_id', dogId).in('spot_id', spotIds)
         : Promise.resolve({ data: null }),
-      svc.from('paw_checkins')
-        .select('spot_id')
-        .in('spot_id', spotIds)
-        .eq('is_valid_for_aggregate', true)
-        .neq('visibility_level', 'private'),
+      svc.rpc('spot_list_stats', { p_spot_ids: spotIds, p_recent_hours: 48 }),
     ]);
 
     // 방문 요약
     const visitSummariesMap: Record<string, any> = {};
     (summariesRes.data ?? []).forEach((s: any) => { visitSummariesMap[s.spot_id] = s; });
 
-    // 스팟별 분위기 태그 집계 (지난 48시간)
-    const atmosphereMap: Record<string, string[]> = {};
-    for (const checkin of recentCheckinsRes.data ?? []) {
-      (atmosphereMap[checkin.spot_id] ??= []).push(...(checkin.feeling_tags ?? []));
-    }
-
     // 저장 여부
     const savedMap: Record<string, string> = {};
     (savedRes.data ?? []).forEach((s: any) => { savedMap[s.spot_id] = s.saved_type; });
 
-    // 체크인 수 (커뮤니티 활동량 — 비공개 제외)
+    // 스팟별 집계 — DB가 계산한 값을 그대로 받는다(누적 발도장 수 + 최근 48시간 감정 태그)
+    const atmosphereMap: Record<string, string[]> = {};
     const checkinCountMap: Record<string, number> = {};
-    (checkinCountsRes.data ?? []).forEach((c: any) => {
-      checkinCountMap[c.spot_id] = (checkinCountMap[c.spot_id] ?? 0) + 1;
-    });
+    for (const row of (statsRes.data ?? []) as any[]) {
+      checkinCountMap[row.spot_id] = row.checkin_count ?? 0;
+      atmosphereMap[row.spot_id] = row.recent_tags ?? [];
+    }
 
     // 뷰모델 조립
     const result = spots.map((spot: any) => {
@@ -148,7 +136,8 @@ Deno.serve(async (req: Request) => {
         neighborhood: spot.neighborhood,
         cover_image_url: spot.cover_image_url,
         // DB에 이미 있는데 응답에서 빠져 있던 값들 — 목록 카드에서 쓴다
-        description: meaningfulDescription(spot.description, spot.subcategory),
+        // 설명 정제 규칙은 앱의 authoredDescription 한 곳에만 둔다(서버에 두면 규칙이 둘로 갈라진다)
+        description: spot.description ?? null,
         facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
         distance_m: Math.round(spot.distance_m),
         checkin_count: checkinCountMap[spot.spot_id] ?? 0,
@@ -161,23 +150,17 @@ Deno.serve(async (req: Request) => {
       };
     });
 
-    return Response.json({ spots: result }, { headers: corsHeaders });
+    // 상한에 걸려 잘렸는지 알린다. 서버가 총계를 세면(=반경 전체 count) KNN 이득이 사라지므로
+    // 반환 개수만으로 판단한다. 앱은 이 값으로 '더 좁혀 보세요' 안내를 띄울 수 있다.
+    return Response.json(
+      { spots: result, truncated: result.length >= MAX_RESULTS },
+      { headers: corsHeaders },
+    );
   } catch (err) {
     console.error('spots-nearby error:', err);
     return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 });
-
-/**
- * 정보가 없는 설명은 버린다.
- * 원천 데이터의 절반(2,742곳 / 51.6%)은 description이 subcategory를 그대로 반복한다
- * ("어린이공원" 아래 "설명: 어린이공원"). 그대로 내리면 화면이 잡음으로 채워진다.
- */
-function meaningfulDescription(desc?: string | null, subcategory?: string | null): string | null {
-  const d = (desc ?? '').trim();
-  if (!d) return null;
-  return d === (subcategory ?? '').trim() ? null : d;
-}
 
 /** 태그 빈도 집계 → 상위 3개 반환 */
 function getTopTags(tags: string[]): string[] {

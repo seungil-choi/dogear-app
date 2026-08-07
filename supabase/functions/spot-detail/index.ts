@@ -207,7 +207,8 @@ Deno.serve(async (req: Request) => {
         cover_image_url: spot.cover_image_url,
         // 아래 두 필드는 DB에 채워져 있는데 응답에서 빠져 있어 화면에 닿지 못하고 있었다.
         //   설명 실질 정보 2,487곳(46.8%) · 편의시설 2,171곳(40.8%)
-        description: meaningfulDescription(spot.description, spot.subcategory),
+        // 설명 정제 규칙은 앱의 authoredDescription 한 곳에만 둔다
+        description: spot.description ?? null,
         facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
         // 검토 대기(hidden) 상태를 화면이 알 수 있게 — 제안자 본인에게만 보이는 상태다
         is_pending_review: spot.status === 'hidden',
@@ -244,17 +245,6 @@ Deno.serve(async (req: Request) => {
     return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 });
-
-/**
- * 정보가 없는 설명은 버린다.
- * 원천 데이터의 절반(2,742곳 / 51.6%)은 description이 subcategory를 그대로 반복한다
- * ("어린이공원" 아래 "설명: 어린이공원"). 그대로 내리면 화면이 잡음으로 채워진다.
- */
-function meaningfulDescription(desc?: string | null, subcategory?: string | null): string | null {
-  const d = (desc ?? '').trim();
-  if (!d) return null;
-  return d === (subcategory ?? '').trim() ? null : d;
-}
 
 function getTopTags(tags: string[]): string[] {
   const freq: Record<string, number> = {};
