@@ -30,6 +30,7 @@ import { useSpotDetail } from '../../src/hooks/useSpotDetail';
 import { buildSpotDetailFromApi } from '../../src/utils/rules';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
+import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
 import type { FamiliarDogCardViewModel } from '../../src/types';
 
@@ -278,45 +279,102 @@ export default function SpotDetailScreen() {
           </View>
         </View>
 
-        {/* ── 관계 요약 카드 (아이콘으로 판독성 강화) ── */}
-        <View style={s.statsCard}>
-          <View style={s.statItem}>
-            <View style={s.statIconWrap}>
-              <Icon name="leaf-filled" size={16} color={Colors.brand.primary} />
-            </View>
-            <Text style={s.statValue}>{vm.unique_visitor_count}</Text>
-            <Text style={s.statLabel}>방문한 강아지</Text>
+        {/* ── 검토 대기 안내 — 내가 방금 제안한 장소는 나에게만 보인다 ── */}
+        {vm.is_pending_review && (
+          <View style={s.pendingBanner}>
+            <Icon name="info" size={15} color={Colors.brand.accent} />
+            <Text style={s.pendingText}>
+              검토 중인 장소예요. 지금은 나에게만 보이지만, 발도장은 남길 수 있어요.
+            </Text>
           </View>
-          <View style={s.statDivider} />
-          <View style={s.statItem}>
-            <View style={s.statIconWrap}>
-              <Icon name="paw-filled" size={16} color={Colors.brand.primary} />
+        )}
+
+        {/* ── 관계 요약 카드 ──
+            아직 아무도 다녀가지 않은 장소에 0이 줄지어 있으면 죽은 서비스로 보인다.
+            그래서 값이 0인 지표는 빼고, 남는 게 없으면 카드 자체를 감춘다. */}
+        {(() => {
+          const stats = [
+            {
+              key: 'dogs', icon: 'leaf-filled' as const,
+              value: `${vm.unique_visitor_count}`, label: '발도장 남긴 강아지',
+              show: vm.unique_visitor_count > 0,
+            },
+            {
+              key: 'checkins', icon: 'paw-filled' as const,
+              value: `${vm.total_checkin_count}`, label: '발도장',
+              show: vm.total_checkin_count > 0,
+            },
+            {
+              key: 'saved', icon: 'bookmark-filled' as const,
+              value: `${vm.saved_count}`, label: '저장한 강아지',
+              show: vm.saved_count > 0,
+            },
+            {
+              key: 'mine', icon: 'star-filled' as const,
+              value: `${vm.user_relation?.visit_count ?? 0}회`, label: '내 방문',
+              show: (vm.user_relation?.visit_count ?? 0) > 0,
+            },
+          ].filter(st => st.show);
+
+          if (stats.length === 0) {
+            // 아무 기록도 없는 장소 — 숫자 대신 첫 발도장을 권한다
+            return (
+              <View style={s.statsEmptyCard}>
+                <Icon name="paw" size={18} color={Colors.brand.primary} />
+                <Text style={s.statsEmptyText}>아직 아무도 발도장을 남기지 않았어요</Text>
+              </View>
+            );
+          }
+          return (
+            <View style={s.statsCard}>
+              {stats.map((st, i) => (
+                <React.Fragment key={st.key}>
+                  {i > 0 && <View style={s.statDivider} />}
+                  <View style={s.statItem}>
+                    <View style={s.statIconWrap}>
+                      <Icon name={st.icon} size={16} color={Colors.brand.primary} />
+                    </View>
+                    <Text style={s.statValue}>{st.value}</Text>
+                    <Text style={s.statLabel} numberOfLines={1}>{st.label}</Text>
+                  </View>
+                </React.Fragment>
+              ))}
             </View>
-            <Text style={s.statValue}>{vm.recent_trace_count}</Text>
-            <Text style={s.statLabel}>최근 발도장</Text>
-          </View>
-          <View style={s.statDivider} />
-          <View style={s.statItem}>
-            <View style={s.statIconWrap}>
-              <Icon name="star-filled" size={16} color={Colors.brand.primary} />
-            </View>
-            <Text style={s.statValue}>{vm.user_relation?.visit_count ?? 0}회</Text>
-            <Text style={s.statLabel}>내 방문</Text>
-          </View>
-        </View>
+          );
+        })()}
 
         {/* ── 장소 정보 섹션 (라벨/값 테이블 구조) ── */}
         <View style={s.section}>
           <Text style={s.sectionTitle}>장소 정보</Text>
 
+          {(() => {
+            // 원본 시설명(조합놀이대·그네…)을 견주 판단 기준으로 번역해 보여준다.
+            // 서버가 준 facility_tags가 우선, 없으면 store의 features(사용자 제안 태그).
+            const chips = facilityChips(
+              vm.facility_tags && vm.facility_tags.length > 0 ? vm.facility_tags : vm.features,
+            );
+            const hasChips = chips.length > 0;
+            return (
           <View style={s.infoTable}>
-            {vm.features && vm.features.length > 0 && (
+            {hasChips && (
               <View style={s.infoRow}>
-                <Text style={s.infoKey}>주요 태그</Text>
-                <View style={s.featureChips}>
-                  {vm.features.slice(0, 6).map(f => (
-                    <View key={f} style={s.featureChip}>
-                      <Text style={s.featureChipText}>{f}</Text>
+                <Text style={s.infoKey}>편의·주의</Text>
+                <View style={s.facilityWrap}>
+                  {chips.map(c => (
+                    <View
+                      key={c.key}
+                      style={[s.facilityChip, c.tone === 'caution' && s.facilityChipCaution]}
+                    >
+                      <Icon
+                        name={c.icon}
+                        size={11}
+                        color={c.tone === 'caution' ? Colors.status.warning.text : Colors.text.tertiary}
+                      />
+                      <Text
+                        style={[s.facilityChipText, c.tone === 'caution' && s.facilityChipTextCaution]}
+                      >
+                        {c.label}
+                      </Text>
                     </View>
                   ))}
                 </View>
@@ -324,7 +382,7 @@ export default function SpotDetailScreen() {
             )}
             {vm.description && (
               <>
-                {vm.features && vm.features.length > 0 && <View style={s.infoSep} />}
+                {hasChips && <View style={s.infoSep} />}
                 <View style={s.infoRow}>
                   <Text style={s.infoKey}>설명</Text>
                   <Text style={s.infoVal}>{vm.description}</Text>
@@ -353,6 +411,8 @@ export default function SpotDetailScreen() {
               </>
             )}
           </View>
+            );
+          })()}
 
           {/* 위치 미니맵 — 정보 테이블과 동일 너비 */}
           <View style={s.locationMap} pointerEvents="none">
@@ -731,6 +791,55 @@ const s = StyleSheet.create({
     height: 56,
     backgroundColor: Colors.border.default,
   },
+  // 기록이 하나도 없는 장소 — 0을 나열하는 대신 상태를 한 줄로 말한다
+  statsEmptyCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[8],
+    backgroundColor: Colors.surface.default,
+    paddingVertical: Spacing[16],
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.border.subtle,
+  },
+  statsEmptyText: { ...Typography.body.s, color: Colors.text.secondary },
+
+  // 검토 대기 안내 (제안 직후 — 본인에게만 보이는 상태)
+  pendingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[8],
+    backgroundColor: Colors.brand.subtle,
+    paddingHorizontal: Spacing[16],
+    paddingVertical: Spacing[10],
+  },
+  pendingText: { flex: 1, ...Typography.label.s, color: Colors.brand.accent, lineHeight: 18 },
+
+  // 편의시설 칩 — info(중립) / caution(주의) 두 톤
+  facilityWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing[6],
+    flex: 1,
+  },
+  facilityChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: Spacing[10],
+    paddingVertical: 4,
+    borderRadius: Radius.round,
+    borderWidth: 1,
+    backgroundColor: Colors.bg.secondary,
+    borderColor: Colors.border.default,
+  },
+  facilityChipCaution: {
+    backgroundColor: Colors.status.warning.bg,
+    // warning 토큰엔 border가 없다 — 텍스트 색을 옅게 깔아 경계만 만든다(과한 강조 방지)
+    borderColor: 'rgba(184,124,26,0.28)',
+  },
+  facilityChipText: { ...Typography.label.s, color: Colors.text.secondary },
+  facilityChipTextCaution: { color: Colors.status.warning.text },
 
   // ── 공통 섹션 래퍼 ───────────────────────────────────────────────
   section: {

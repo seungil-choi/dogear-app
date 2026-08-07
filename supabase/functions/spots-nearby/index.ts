@@ -147,6 +147,9 @@ Deno.serve(async (req: Request) => {
         address_text: spot.address_text,
         neighborhood: spot.neighborhood,
         cover_image_url: spot.cover_image_url,
+        // DB에 이미 있는데 응답에서 빠져 있던 값들 — 목록 카드에서 쓴다
+        description: meaningfulDescription(spot.description, spot.subcategory),
+        facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
         distance_m: Math.round(spot.distance_m),
         checkin_count: checkinCountMap[spot.spot_id] ?? 0,
         top_feeling_tags: topTags,
@@ -164,6 +167,17 @@ Deno.serve(async (req: Request) => {
     return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 });
+
+/**
+ * 정보가 없는 설명은 버린다.
+ * 원천 데이터의 절반(2,742곳 / 51.6%)은 description이 subcategory를 그대로 반복한다
+ * ("어린이공원" 아래 "설명: 어린이공원"). 그대로 내리면 화면이 잡음으로 채워진다.
+ */
+function meaningfulDescription(desc?: string | null, subcategory?: string | null): string | null {
+  const d = (desc ?? '').trim();
+  if (!d) return null;
+  return d === (subcategory ?? '').trim() ? null : d;
+}
 
 /** 태그 빈도 집계 → 상위 3개 반환 */
 function getTopTags(tags: string[]): string[] {

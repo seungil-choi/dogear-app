@@ -7,6 +7,7 @@ import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabe
 import type { FamiliarDogCardViewModel, TraceListItemViewModel, SpotAggregate } from '../types';
 import { FAMILIAR_LAYER_POLICY } from '../config/familiar-layer';
 import { haversineDistance } from './geo';
+import { authoredDescription } from './spotDescription';
 
 const HOURS_72 = 72 * 60 * 60 * 1000;
 const DAYS_14 = 14 * 24 * 60 * 60 * 1000;
@@ -325,7 +326,15 @@ export function buildSpotDetailFromApi(
     atmosphere_summary: atmosphereLabel[api.atmosphere.state],
     atmosphere_state: api.atmosphere.state,
     recent_trace_count: api.atmosphere.recent_checkin_count,
-    unique_visitor_count: api.atmosphere.recent_checkin_count,
+    // 예전에는 여기에 recent_checkin_count를 그대로 넣어, 화면의 "방문한 강아지"와
+    // "최근 발도장"이 항상 같은 숫자로 보였다. 이제 서버가 distinct 집계를 내려준다.
+    unique_visitor_count: api.community?.unique_dog_count ?? 0,
+    total_checkin_count:  api.atmosphere.total_checkin_count ?? 0,
+    saved_count:          api.community?.saved_count ?? 0,
+    regular_dog_count:    api.community?.regular_dog_count ?? 0,
+    first_checkin_at:     api.community?.first_checkin_at ?? null,
+    is_pending_review:    !!spot.is_pending_review,
+    facility_tags:        spot.facility_tags ?? [],
     dominant_tags: api.atmosphere.top_feeling_tags,
     user_relation,
     familiar_dogs,
@@ -334,7 +343,13 @@ export function buildSpotDetailFromApi(
     address_text: spot.address_text ?? ctx.storeSpot?.address_text,
     opening_hours: ctx.storeSpot?.opening_hours,
     features: ctx.storeSpot?.features,
-    description: ctx.storeSpot?.description,
+    // 설명은 "사람이 쓴 것"만 노출한다. 원천 데이터의 설명은 카테고리·시설의
+    // 기계적 재서술이라, 그대로 두면 화면에 같은 정보가 두 번 나온다.
+    // (서버도 부분 필터를 하지만 판정 규칙의 기준은 authoredDescription 한 곳이다)
+    description: authoredDescription(
+      spot.description ?? ctx.storeSpot?.description,
+      spot.subcategory ?? ctx.storeSpot?.subcategory,
+    ),
     caution: ctx.storeSpot?.caution,
   };
 }

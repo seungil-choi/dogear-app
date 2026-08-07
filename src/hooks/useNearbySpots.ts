@@ -10,6 +10,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 import { registerRefreshHandler } from '@/utils/refreshBus';
+import { authoredDescription } from '@/utils/spotDescription';
 import type { SpotCardViewModel, Spot } from '@/types';
 
 // 위치가 없거나 주변에 스팟이 없을 때(비수도권 등) 홈이 비지 않도록 쓰는 추천 폴백 중심.
@@ -119,8 +120,11 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         neighborhood: s.neighborhood ?? undefined,
         cover_image_url: s.cover_image_url ?? undefined,
         opening_hours: s.opening_hours ?? undefined,
-        features: s.features ?? undefined,
-        description: s.description ?? undefined,
+        // 서버는 편의시설을 facility_tags로 내려준다(DB 컬럼명은 tags).
+        // 앱 타입의 features와 이름이 달라 그동안 매핑이 성립하지 않았다.
+        features: s.facility_tags ?? s.features ?? undefined,
+        // 기계 생성 설명(카테고리·시설 재서술)은 버린다 — 판정 기준은 authoredDescription 한 곳
+        description: authoredDescription(s.description, s.subcategory),
         caution: s.caution ?? undefined,
         status: 'active' as const,
         created_source: (s.created_source ?? 'seed') as Spot['created_source'],

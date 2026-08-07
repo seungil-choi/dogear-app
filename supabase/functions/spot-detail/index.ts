@@ -61,11 +61,13 @@ Deno.serve(async (req: Request) => {
       blocksResult,
     ] = await Promise.all([
       // 스팟 기본 정보
+      //   hidden 허용 — 사용자가 방금 제안한(검토 대기) 장소의 상세를 본인은 볼 수 있어야 한다.
+      //   남의 hidden은 RLS(spots_read_own_provisional)가 막는다.
       supabase
         .from('spots')
         .select('*')
         .eq('spot_id', spotId)
-        .eq('status', 'active')
+        .in('status', ['active', 'hidden'])
         .single(),
 
       // 최근 48시간 공개 체크인(흔적) — 공개(spot_only)만, service-role로 전체 조회
@@ -134,13 +136,13 @@ Deno.serve(async (req: Request) => {
     const recentCheckins = (recentCheckinsResult.data ?? [])
       .filter((c: any) => !isBlockedDog(c.dog_id));
 
-    // 전체 체크인 수 (집계용 — 비공개 제외, service-role로 전체 커뮤니티 카운트)
-    const { count: totalCheckinCount } = await svc
-      .from('paw_checkins')
-      .select('*', { count: 'exact', head: true })
-      .eq('spot_id', spotId)
-      .eq('is_valid_for_aggregate', true)
-      .neq('visibility_level', 'private');
+    // 공개 집계 — 발도장 수 / 남긴 강아지 수 / 저장 수 / 단골 수 / 첫 발도장 시각.
+    //   distinct 집계라 PostgREST로 표현할 수 없어 DB 함수 한 번으로 끝낸다.
+    //   (예전에는 총 발도장 수만 셌고, 화면의 "방문한 강아지"는 최근 발도장 수를
+    //    그대로 재사용해 두 지표가 항상 같은 숫자로 보였다.)
+    const { data: statsRows } = await svc.rpc('spot_public_stats', { p_spot_id: spotId });
+    const stats = (Array.isArray(statsRows) ? statsRows[0] : statsRows) ?? {};
+    const totalCheckinCount: number = stats.checkin_count ?? 0;
 
     // 분위기 태그 집계
     const allTags: string[] = recentCheckins.flatMap((c: any) => c.feeling_tags ?? []);
@@ -203,12 +205,26 @@ Deno.serve(async (req: Request) => {
         address_text: spot.address_text,
         neighborhood: spot.neighborhood,
         cover_image_url: spot.cover_image_url,
+        // 아래 두 필드는 DB에 채워져 있는데 응답에서 빠져 있어 화면에 닿지 못하고 있었다.
+        //   설명 실질 정보 2,487곳(46.8%) · 편의시설 2,171곳(40.8%)
+        description: meaningfulDescription(spot.description, spot.subcategory),
+        facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
+        // 검토 대기(hidden) 상태를 화면이 알 수 있게 — 제안자 본인에게만 보이는 상태다
+        is_pending_review: spot.status === 'hidden',
       },
       atmosphere: {
         state: atmosphereState,
         top_feeling_tags: topTags,
         recent_checkin_count: recentCheckins.length,
         total_checkin_count: totalCheckinCount ?? 0,
+      },
+      // 커뮤니티 집계 — 0이면 화면에서 숨긴다(빈 0의 나열은 죽은 서비스로 보인다)
+      community: {
+        unique_dog_count:  stats.unique_dog_count ?? 0,
+        saved_count:       stats.saved_count ?? 0,
+        regular_dog_count: stats.regular_dog_count ?? 0,
+        first_checkin_at:  stats.first_checkin_at ?? null,
+        last_checkin_at:   stats.last_checkin_at ?? null,
       },
       user_relation: dogId ? {
         visit_count: visitSummaryResult.data?.visit_count ?? 0,
@@ -228,6 +244,17 @@ Deno.serve(async (req: Request) => {
     return Response.json({ error: 'Internal server error' }, { status: 500, headers: corsHeaders });
   }
 });
+
+/**
+ * 정보가 없는 설명은 버린다.
+ * 원천 데이터의 절반(2,742곳 / 51.6%)은 description이 subcategory를 그대로 반복한다
+ * ("어린이공원" 아래 "설명: 어린이공원"). 그대로 내리면 화면이 잡음으로 채워진다.
+ */
+function meaningfulDescription(desc?: string | null, subcategory?: string | null): string | null {
+  const d = (desc ?? '').trim();
+  if (!d) return null;
+  return d === (subcategory ?? '').trim() ? null : d;
+}
 
 function getTopTags(tags: string[]): string[] {
   const freq: Record<string, number> = {};

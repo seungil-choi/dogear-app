@@ -216,12 +216,26 @@ export interface SpotDetailApiViewModel {
     address_text: string | null;
     neighborhood: string | null;
     cover_image_url: string | null;
+    /** subcategory를 그대로 반복한 무의미한 설명은 서버가 걸러 null로 내린다 */
+    description: string | null;
+    /** 원천 데이터의 편의시설(화장실·음수대·주차장·놀이터 등) */
+    facility_tags: string[];
+    /** 검토 대기(hidden) — 제안자 본인에게만 보이는 상태 */
+    is_pending_review: boolean;
   };
   atmosphere: {
     state: AtmosphereState;
     top_feeling_tags: FeelingTag[];
     recent_checkin_count: number;
     total_checkin_count: number;
+  };
+  /** 커뮤니티 누적 집계 (0이면 화면에서 숨긴다) */
+  community: {
+    unique_dog_count: number;
+    saved_count: number;
+    regular_dog_count: number;
+    first_checkin_at: string | null;
+    last_checkin_at: string | null;
   };
   user_relation: {
     visit_count: number;
@@ -265,7 +279,20 @@ export interface SpotDetailViewModel {
   atmosphere_summary: string;
   atmosphere_state: AtmosphereState;
   recent_trace_count: number;
+  /** 발도장을 남긴 서로 다른 강아지 수 (누적) */
   unique_visitor_count: number;
+  /** 누적 발도장 수 */
+  total_checkin_count: number;
+  /** 이 장소를 저장한 강아지 수 */
+  saved_count: number;
+  /** 단골로 판정된 강아지 수 */
+  regular_dog_count: number;
+  /** 첫 발도장이 찍힌 날 */
+  first_checkin_at?: string | null;
+  /** 검토 대기(제안 직후) 상태 — 본인에게만 보인다는 안내를 띄운다 */
+  is_pending_review?: boolean;
+  /** 원천 데이터의 편의시설 태그 */
+  facility_tags?: string[];
   dominant_tags: string[];
   user_relation?: UserRelation;
   familiar_dogs: FamiliarDogCardViewModel[];

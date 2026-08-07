@@ -338,6 +338,9 @@ export default function ExploreScreen() {
           address_text: sp.address_text ?? undefined,
           neighborhood: sp.neighborhood ?? undefined,
           cover_image_url: sp.cover_image_url ?? undefined,
+          // 지역 페치에서도 빠뜨리면 병합 시 상세와 목록이 어긋난다(subcategory 때와 같은 함정)
+          description: sp.description ?? undefined,
+          features: sp.facility_tags ?? undefined,
           status: 'active' as const,
           created_source: 'seed' as const,
           created_at: new Date().toISOString(),
