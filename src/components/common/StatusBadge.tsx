@@ -45,14 +45,14 @@ export function TraceBadge({ count }: { count: number }) {
 }
 
 // ─── 공개 범위 칩 ─────────────────────────────
+// 표시 전용 칩 — 탭 동작이 필요하면 호출부에서 감싼다(예전엔 onPress를 받고도 무시해
+// 눌러도 아무 일이 없었다)
 export function PrivacyChip({
   level,
   selected,
-  onPress,
 }: {
   level: VisibilityLevel;
   selected?: boolean;
-  onPress?: () => void;
 }) {
   const colorMap = {
     private:        Colors.safety.private,

@@ -18,7 +18,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  TextInput, Platform, ScrollView, KeyboardAvoidingView, Image,
+  Platform, ScrollView, KeyboardAvoidingView, Image,
 } from 'react-native';
 // react-native의 SafeAreaView는 Android에서 무동작 → safe-area-context 사용 (하단 겹침 방지)
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,7 +31,6 @@ import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-si
 import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
-import { Icon } from '../../src/components/common/Icon';
 import {
   AppleLogo, GoogleLogo, KakaoLogo, NaverLogo,
 } from '../../src/components/common/SnsLogos';
@@ -434,19 +433,6 @@ const s = StyleSheet.create({
 
   // 폼
   formArea: { gap: Spacing[10], marginBottom: Spacing[24] },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[10],
-    height: 52,
-    paddingHorizontal: Spacing[16],
-    borderRadius: Radius.l,
-    borderWidth: 1.5,
-    borderColor: Colors.border.subtle,
-    backgroundColor: Colors.surface.default,
-  },
-  input: { flex: 1, ...Typography.body.m, color: Colors.text.primary, paddingVertical: 0 },
-
   primaryBtn: {
     height: 52,
     borderRadius: Radius.round,

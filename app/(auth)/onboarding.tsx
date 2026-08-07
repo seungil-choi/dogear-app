@@ -145,10 +145,6 @@ const s = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: Spacing[8],
   },
-  emoji: {
-    fontSize: 80,
-    lineHeight: 96,
-  },
   title: {
     ...Typography.display.m,
     color: Colors.text.primary,

@@ -43,7 +43,8 @@ function TabIcon({
 }
 
 // ─── 발도장 탭 CTA 버튼 ───────────────────────────────────────
-function PawTabButton({ onPress, children, style }: any) {
+// children은 받지 않는다 — 이 버튼은 라벨 없이 자체 아이콘만 그린다
+function PawTabButton({ onPress, style }: any) {
   return (
     <TouchableOpacity
       onPress={onPress}

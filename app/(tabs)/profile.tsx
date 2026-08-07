@@ -652,12 +652,6 @@ const s = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.3,
   },
-  sectionFootnote: {
-    ...Typography.caption,
-    color: Colors.text.tertiary,
-    paddingHorizontal: Spacing[16],
-    paddingTop: Spacing[6],
-  },
   versionText: {
     ...Typography.caption,
     color: Colors.text.tertiary,

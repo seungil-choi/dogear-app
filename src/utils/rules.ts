@@ -1,6 +1,6 @@
 import type {
   PawCheckin, SpotVisitSummary, FamiliarDogSignal, PrivacySetting,
-  AtmosphereState, FeelingTag, RegularStatus, PinVariant, HomeSpotCardViewModel,
+  AtmosphereState, FeelingTag, RegularStatus, HomeSpotCardViewModel,
   Spot, Dog, DogSize, SpotDetailApiViewModel, SpotDetailViewModel,
 } from '../types';
 import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel, regularStatusLabel, visitDateText } from './labels';
@@ -117,18 +117,6 @@ export function buildHomeSpotCard(
   };
 }
 
-// ─── 지도 핀 variant ─────────────────────────────
-export function computePinVariant(
-  _spot: Spot,
-  aggregate: SpotAggregate,
-  summary?: SpotVisitSummary,
-): PinVariant {
-  if (summary && computeRegularStatus(summary) === 'regular') return 'regular';
-  if (summary) return 'visited';
-  if (aggregate.recent_trace_count > 0) return 'recent_trace';
-  return 'default';
-}
-
 // ─── 자주 찾는 강아지 — 완화된 최근성 텍스트 ──────────────────
 // 정확한 시간·횟수·패턴 절대 노출 금지 (개인정보보호 + 비소셜 원칙)
 function softenedRecencyLabel(checkinCount: number, lastSeenAt: string): string {
@@ -220,23 +208,6 @@ export function buildTraceList(
       has_photo: !!c.photo_url,
       photo_count: c.photo_url ? 1 : 0,
     }));
-}
-
-// ─── 홈 추천 스팟 순위 ─────────────────────────────
-export function sortHomeSpots(
-  items: { card: HomeSpotCardViewModel; summary?: SpotVisitSummary; aggregate: SpotAggregate; distanceMeters: number }[],
-): HomeSpotCardViewModel[] {
-  return items
-    .sort((a, b) => {
-      const aReg = a.summary ? computeRegularStatus(a.summary) : 'none';
-      const bReg = b.summary ? computeRegularStatus(b.summary) : 'none';
-      const regScore = { regular: 2, candidate: 1, none: 0 };
-      if (regScore[bReg] !== regScore[aReg]) return regScore[bReg] - regScore[aReg];
-      if (b.aggregate.recent_trace_count !== a.aggregate.recent_trace_count)
-        return b.aggregate.recent_trace_count - a.aggregate.recent_trace_count;
-      return a.distanceMeters - b.distanceMeters;
-    })
-    .map(i => i.card);
 }
 
 // ─── 방문한 장소 지도 핀 variant (내 강아지의 스팟) ─────────────────────────────

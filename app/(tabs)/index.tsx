@@ -22,6 +22,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
+// 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
+import { haversineDistance } from '../../src/utils/geo';
 import { RecentSpotCard, RegularSpotCard, CategoryThumb } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
@@ -203,16 +205,6 @@ export default function HomeScreen() {
   const featuredCards = useMemo(() => {
     if (cards.length === 0) return [];
 
-    const dist = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-      const R = 6371000;
-      const phi1 = (lat1 * Math.PI) / 180;
-      const phi2 = (lat2 * Math.PI) / 180;
-      const dPhi = ((lat2 - lat1) * Math.PI) / 180;
-      const dLng = ((lng2 - lng1) * Math.PI) / 180;
-      const a = Math.sin(dPhi/2)**2 + Math.cos(phi1)*Math.cos(phi2)*Math.sin(dLng/2)**2;
-      return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    };
-
     let center: { lat: number; lng: number } | null = null;
     if (dog) {
       const mine = visitSummaries.filter(vs => vs.dog_id === dog.dog_id);
@@ -234,7 +226,7 @@ export default function HomeScreen() {
       .map(c => {
         const sp = spotsById.get(c.spot_id);
         if (!sp) return null;
-        const d = dist(center!.lat, center!.lng, sp.latitude, sp.longitude);
+        const d = haversineDistance(center!.lat, center!.lng, sp.latitude, sp.longitude);
         if (d > 2000 || d < 30) return null;
         return { card: c, dist: d };
       })
@@ -682,22 +674,7 @@ const s = StyleSheet.create({
   safe:    { flex: 1, backgroundColor: Colors.bg.primary },
   scroll:  { flex: 1 },
   content: { paddingBottom: 40 },
-  emptyWrap: { minHeight: 280, paddingHorizontal: Spacing[16] },
-
   // 강아지 미등록 빈 상태
-  noDogWrap: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-    padding: Spacing[32], gap: Spacing[16],
-  },
-  noDogTitle: { ...Typography.display.s, color: Colors.text.primary, textAlign: 'center' },
-  noDogDesc:  { ...Typography.body.m, color: Colors.text.secondary, textAlign: 'center', lineHeight: 24 },
-  noDogBtn: {
-    marginTop: Spacing[8],
-    paddingHorizontal: Spacing[28], paddingVertical: Spacing[14],
-    borderRadius: Radius.round, backgroundColor: Colors.brand.primary,
-  },
-  noDogBtnText: { ...Typography.label.l, color: '#FFFFFF', fontWeight: '700' },
-
   // 강아지 미등록 배너 (홈 비차단)
   noDogBanner: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing[12],
@@ -873,10 +850,6 @@ const s = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: Colors.bg.tertiary,
   },
-  featuredImage: {
-    width: '100%',
-    height: '100%',
-  },
   featuredImageFallback: {
     backgroundColor: Colors.brand.subtle,
     alignItems: 'center',
@@ -934,11 +907,6 @@ const s = StyleSheet.create({
   featuredMetaText: {
     ...Typography.body.s,
     color: 'rgba(255,255,255,0.72)',
-  },
-  featuredMetaDot: {
-    width: 3, height: 3,
-    borderRadius: 1.5,
-    backgroundColor: 'rgba(255,255,255,0.4)',
   },
   featuredBadge: {
     position: 'absolute',

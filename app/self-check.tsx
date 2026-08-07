@@ -18,7 +18,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
-import { IS_REAL_AUTH, IS_DEV_SEED } from '../src/config/env';
+import { IS_REAL_AUTH } from '../src/config/env';
 import { mergeSpotList } from '../src/store/spotMerge';
 import { parkIllustration } from '../src/constants/parkIllustrations';
 import type { Spot } from '../src/types';

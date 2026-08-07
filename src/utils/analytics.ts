@@ -110,10 +110,6 @@ export function setUserContext(ctx: { user_id?: string | null; dog_profile_id?: 
   userCtx = { ...userCtx, ...ctx };
 }
 
-export function setCurrentScreen(screen: string | null) {
-  currentScreen = screen;
-}
-
 // ─── 트랙 함수 — 단일 진입점 ────────────────────────────────────
 export interface TrackProps {
   // 화면 컨텍스트

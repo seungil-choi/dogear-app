@@ -1,6 +1,6 @@
 import type {
   DogSize, DogAgeGroup, SpotCategory, VisibilityLevel,
-  RegularStatus, AtmosphereState, FeelingTag, SavedType,
+  RegularStatus, AtmosphereState, FeelingTag,
 } from '../types';
 
 // ─── 강아지 라벨 ─────────────────────────────
@@ -53,12 +53,6 @@ export const visibilityLabel: Record<VisibilityLevel, string> = {
   familiar_layer: '산책 친구 찾기',
 };
 
-export const visibilityDescription: Record<VisibilityLevel, string> = {
-  private: '기록은 저장되지만 다른 곳에는 반영되지 않아요',
-  spot_only: '장소 분위기 집계에만 반영되고, 우리 아이 정보는 보이지 않아요',
-  familiar_layer: '안전 조건을 충족한 경우에만 자주 만나는 강아지에게 최소한의 정보로 소개돼요',
-};
-
 // ─── 단골 상태 라벨 ─────────────────────────────
 export const regularStatusLabel: Record<RegularStatus, string> = {
   none: '',
@@ -82,12 +76,6 @@ export const feelingTagLabel: Record<FeelingTag, string> = {
   come_back_again: '다시 오고 싶어요',
   noisy: '조금 시끄러워요',
   good_for_short_rest: '잠깐 쉬기 좋아요',
-};
-
-// ─── 저장 타입 라벨 ─────────────────────────────
-export const savedTypeLabel: Record<SavedType, string> = {
-  want_to_go: '가보고 싶어요',
-  go_again: '다시 가고 싶어요',
 };
 
 // ─── 상대 시간 ─────────────────────────────
