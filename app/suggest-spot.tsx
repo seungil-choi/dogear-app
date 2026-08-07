@@ -517,32 +517,37 @@ export default function SuggestSpotScreen() {
             </View>
           </ScrollView>
 
-          <View style={s.footer}>
-            {from === 'paw' ? (
-              <Button
-                label="발도장 찍기로 이어가기"
-                onPress={() => {
-                  // 새로 생성된 임시 spot을 pawFlow.selectedSpot 으로 세팅 →
-                  // paw-checkin이 step 1(장소 선택) 건너뛰고 step 2부터 시작
-                  if (createdSpotId) {
-                    const card = getHomeCards().find(c => c.spot_id === createdSpotId);
-                    if (card) setPawSpot(card);
-                  }
-                  router.replace('/paw-checkin');
-                }}
-                variant="primary"
-                size="l"
-                fullWidth
-              />
-            ) : (
-              <Button
-                label="확인"
-                onPress={() => router.back()}
-                variant="primary"
-                size="l"
-                fullWidth
-              />
-            )}
+          {/* 등록을 마친 뒤 갈 곳은 두 갈래다 — 바로 발도장을 찍거나, 등록만 하고 끝내거나.
+              예전에는 발도장 플로우(from==='paw')로 들어온 경우에만 선택지가 있었고,
+              직접 장소를 제안한 사용자는 "확인" 하나로 되돌아갈 뿐이라
+              방금 만든 장소에 발도장을 찍을 길이 없었다. */}
+          <View style={[s.footer, s.doneFooter]}>
+            <Button
+              label="발도장 찍기"
+              onPress={() => {
+                // 새로 생성된 임시 spot을 pawFlow.selectedSpot 으로 세팅 →
+                // paw-checkin이 step 1(장소 선택) 건너뛰고 step 2부터 시작
+                if (createdSpotId) {
+                  const card = getHomeCards().find(c => c.spot_id === createdSpotId);
+                  if (card) setPawSpot(card);
+                }
+                router.replace('/paw-checkin');
+              }}
+              variant="primary"
+              size="l"
+              fullWidth
+            />
+            <Button
+              label={from === 'paw' ? '나중에 찍을게요' : '등록만 하고 끝내기'}
+              onPress={() => {
+                // 방금 만든 장소를 확인할 수 있게 상세로 — 없으면 이전 화면으로
+                if (createdSpotId) router.replace(`/spot/${createdSpotId}`);
+                else router.back();
+              }}
+              variant="secondary"
+              size="l"
+              fullWidth
+            />
           </View>
         </>
       )}
@@ -815,6 +820,8 @@ const s = StyleSheet.create({
     borderTopColor: Colors.border.default,
     backgroundColor: Colors.bg.primary,
   },
+  // 완료 화면은 버튼이 둘(발도장 찍기 / 등록만 하고 끝내기)이라 간격이 필요하다
+  doneFooter: { gap: Spacing[8] },
 });
 
 const ds = StyleSheet.create({
