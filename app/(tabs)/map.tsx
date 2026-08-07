@@ -273,13 +273,25 @@ export default function ExploreScreen() {
   //   위치를 못 받는 경우는 useNearbySpots의 폴백이 이미 담당하므로 지도가 비지 않는다.
   const centerSettledRef = useRef(false);
 
-  // ── 사용자 현재 위치가 잡히면 지도 중심도 거기로 동기화 (최초 1회) ──
+  // ── 위치가 잡히면 "지도 화면" 자체를 거기로 옮긴다 (최초 1회) ──
+  //   예전에는 계산용 좌표(mapCenter)만 갱신하고 지도 뷰는 기본 좌표(합정)에 머물렀다.
+  //   그래서 목록은 내 주변을 기준으로 계산되는데 지도는 엉뚱한 동네를 비추고,
+  //   핀도 화면 밖에 있어 "위치 잡혔는데 탐색에 장소가 반영이 안 된다"로 보였다.
+  //   한 번 옮긴 뒤에는 사용자가 지도의 주인 — GPS 갱신이 화면을 되돌리지 않는다.
+  const mapFollowsLocationRef = useRef(true);
   useEffect(() => {
-    if (currentLocation) {
-      centerSettledRef.current = true;
-      setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
-    }
+    if (!currentLocation) return;
+    centerSettledRef.current = true;
+    if (!mapFollowsLocationRef.current) return;
+    mapFollowsLocationRef.current = false;
+    setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
+    programmaticMoveRef.current = true;
+    mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, INITIAL_CENTER.level);
   }, [currentLocation]);
+
+  // 이 지역에 등록된 장소가 아예 없는지 — 빈 화면의 원인을 사용자에게 설명하기 위함
+  // (현재 데이터 커버리지: 경기 3,467 · 서울 1,847 · 인천 2곳)
+  const [regionEmpty, setRegionEmpty] = useState(false);
 
   // ── 지도 이동 시 해당 지역 스팟 로드 (내 위치 주변만 보이던 문제 해결) ──
   //   중심이 직전 페치 지점에서 충분히 멀어지면(반경의 40%+) 그 지역을 페치해 store에 병합.
@@ -312,6 +324,8 @@ export default function ExploreScreen() {
           body: { latitude: mapCenter.lat, longitude: mapCenter.lng, radiusMeters: radius, dogId: dogIdForFetch },
         });
         const raw: any[] = data?.spots ?? [];
+        // 반경 10km 안에 아무것도 없다 = 서비스 데이터 커버리지 밖
+        setRegionEmpty(raw.length === 0);
         if (raw.length === 0) return;
         const merged: Spot[] = raw.map((sp: any) => ({
           spot_id: sp.spot_id,
@@ -420,16 +434,67 @@ export default function ExploreScreen() {
     [sortedCards, selectedId],
   );
 
+  // ── 클러스터 목록 ──────────────────────────────────────────
+  //   클러스터는 탭해도 지도에서 풀리지 않는다(푸는 건 오직 확대).
+  //   대신 묶인 장소들을 하단 패널에 그대로 펼쳐 보여준다.
+  //   좌표가 완전히 겹쳐 확대해도 안 풀리는 묶음(지구 대표좌표 55곳)도 이 목록으로 도달한다.
+  const [clusterIds, setClusterIds] = useState<string[] | null>(null);
+  const clusterCards = useMemo(() => {
+    if (!clusterIds) return null;
+    const idSet = new Set(clusterIds);
+    const found = sortedCards.filter(c => idSet.has(c.spot_id));
+    // 목록이 비면(반경·필터 변화로 대상이 사라진 경우) 클러스터 모드를 자동 해제한다.
+    // "겹친 장소 0곳"이라는 막다른 화면을 만들지 않기 위함.
+    return found.length > 0 ? found : null;
+  }, [clusterIds, sortedCards]);
+  const isClusterMode = clusterCards !== null;
+
   // 목록은 가상화되지 않은 ScrollView라 반경 내 전부를 그리면 비용이 그대로 늘어난다.
   //   밀집 지역(동탄 기준) 실측: 2km 76곳 · 5km 255곳 · 10km 626곳.
   //   줌아웃 시 수백 개 카드가 팬마다 재렌더되므로, 가까운 순으로 끊어서 보여준다.
   //   지도 핀은 전부 그대로 노출되므로 발견성은 줄지 않는다.
   const LIST_PAGE = 30;
   const [visibleCount, setVisibleCount] = useState(LIST_PAGE);
-  // 반경·필터·검색이 바뀌면 처음부터 다시
-  useEffect(() => { setVisibleCount(LIST_PAGE); }, [activeFilter, activeRadiusM, searchQuery]);
+  // 반경·필터·검색이 바뀌면 처음부터 다시 (펼쳐둔 클러스터 목록도 맥락을 잃으므로 해제)
+  useEffect(() => {
+    setVisibleCount(LIST_PAGE);
+    setClusterIds(null);
+  }, [activeFilter, activeRadiusM, searchQuery]);
+
+  // 반경 밖이라 걸러졌을 뿐, 데이터는 이미 있는 경우 → 가장 가까운 장소까지의 거리.
+  //   저밀도 지역에서 기본 반경(1km) 안이 비면 "장소가 없다"로 보이지만
+  //   실제로는 2km 앞에 있는 경우가 있다. 그때 빈 지도만 보여주면 막다른 길이 된다.
+  //   결과가 있을 때는 계산하지 않는다(팬마다 도는 비용 방지).
+  const nearestOutOfRange = useMemo(() => {
+    if (sortedCards.length > 0) return null;
+    let best: number | null = null;
+    for (const c of homeCards) {
+      const sp = spotsById.get(c.spot_id);
+      if (!sp) continue;
+      const d = haversineMeters(mapCenter.lat, mapCenter.lng, sp.latitude, sp.longitude);
+      if (best == null || d < best) best = d;
+    }
+    // 10km를 넘으면 "조금 넓게 보기"로 해결될 거리가 아니다 → 서비스 지역 안내로 넘긴다
+    return best != null && best <= 10000 ? best : null;
+  }, [sortedCards.length, homeCards, spotsById, mapCenter]);
+
+  // 패널이 실제로 그리는 목록 — 클러스터 모드면 묶인 것만, 아니면 평소대로
+  const panelCards = clusterCards ?? (selectedHeroCard ? restCards : sortedCards);
+  // 클러스터 모드는 clusterCards가 비면 자동 해제되므로, 빈 화면 판정은 반경 내 결과만 보면 된다.
+  const panelEmpty = sortedCards.length === 0;
+
+  const handleClusterPress = useCallback((ids: string[]) => {
+    // 클러스터를 열면 개별 선택은 해제 — 지도의 강조(주황 링)와 목록이 1:1로 맞도록
+    setSelectedId(null);
+    selectSpot(null);
+    setClusterIds(ids);
+    setVisibleCount(LIST_PAGE);
+    if (snapState === 'min' || snapState === 'peek') snapToHeight('half');
+    cardListRef.current?.scrollTo({ y: 0, animated: true });
+  }, [selectSpot, snapState, snapToHeight]);
 
   const handlePinPress = useCallback((spotId: string) => {
+    setClusterIds(null);
     setSelectedId(spotId);
     selectSpot(spotId);
     const spot = spotsById.get(spotId);
@@ -450,6 +515,7 @@ export default function ExploreScreen() {
 
   // 지도 빈 영역 터치 — 선택 해제 + 패널 상태 초기화 (UseFlow 일관성)
   const handleMapClick = useCallback(() => {
+    setClusterIds(null);
     setSelectedId(null);
     selectSpot(null);
     // 핀 클릭으로 펼친 half/full 패널은 peek 상태로 복귀
@@ -523,6 +589,9 @@ export default function ExploreScreen() {
           const c = { latitude: last.coords.latitude, longitude: last.coords.longitude, accuracy: last.coords.accuracy ?? undefined };
           setCurrentLocation(c);
           programmaticMoveRef.current = true;
+          // mapCenter(목록 계산 기준)도 함께 옮긴다 — GPS가 자동으로 화면을 따라오지
+          // 않게 바꾼 뒤로는 여기서 명시적으로 맞춰줘야 지도와 목록이 어긋나지 않는다.
+          setMapCenter({ lat: c.latitude, lng: c.longitude });
           mapRef.current?.setCenter(c.latitude, c.longitude, 4);
           moved = true;
         }
@@ -538,12 +607,14 @@ export default function ExploreScreen() {
       setCurrentLocation(fresh);
       setIsTracking(true);
       programmaticMoveRef.current = true;
+      setMapCenter({ lat: fresh.latitude, lng: fresh.longitude });
       mapRef.current?.setCenter(fresh.latitude, fresh.longitude, 4);
     } catch (e) {
       // fallback: 캐시된 위치라도 사용
       if (currentLocation) {
         setIsTracking(true);
         programmaticMoveRef.current = true;
+        setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
         mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
       } else {
         notify('잠시 후 다시 시도해 주세요.', '위치를 가져올 수 없어요');
@@ -730,17 +801,22 @@ export default function ExploreScreen() {
             selectedId={selectedId}
             markers={kakaoMarkers}
             onMarkerClick={handlePinPress}
+            onClusterClick={handleClusterPress}
             onMapClick={handleMapClick}
             onRegionChange={(lat, lng, lv) => {
               // 사용자가 직접 움직였으면 중심이 확정된 것으로 본다(위치 권한 거부 상황 포함)
               centerSettledRef.current = true;
+              // 지도를 옮기거나 확대하면 펼쳐둔 클러스터 목록은 맥락을 잃는다(지도 쪽도 강조 해제됨)
+              setClusterIds(null);
               setMapCenter({ lat, lng });
               if (lv != null) setZoomLevel(lv);
               // 사용자가 직접 지도를 움직이면 현위치 추적 해제 (현위치 버튼 이동은 예외)
               if (programmaticMoveRef.current) {
                 programmaticMoveRef.current = false;
-              } else if (isTracking) {
-                setIsTracking(false);
+              } else {
+                // 사용자가 직접 옮겼다 → 이후 GPS가 잡혀도 화면을 되돌리지 않는다
+                mapFollowsLocationRef.current = false;
+                if (isTracking) setIsTracking(false);
               }
             }}
           />
@@ -774,11 +850,13 @@ export default function ExploreScreen() {
                 {/* 헤더는 항상 동일한 컨텍스트 표기 — 선택 시 hero 카드에 장소명이
                     이미 노출되므로 헤더에 중복 표시하지 않음 */}
                 <Text style={s.panelTitle} numberOfLines={1}>
-                  {isSearching ? '검색 결과' : '주변 장소'}
+                  {isClusterMode ? '겹친 장소' : isSearching ? '검색 결과' : '주변 장소'}
                 </Text>
                 <View style={s.panelCountBadge}>
                   <Text style={s.panelCount}>
-                    {isSearching
+                    {isClusterMode
+                      ? `${panelCards.length}곳`
+                      : isSearching
                       ? `${sortedCards.length}곳`
                       : `${activeRadiusM >= 1000 ? `${activeRadiusM/1000}km` : `${activeRadiusM}m`} 내 ${sortedCards.length}곳`}
                   </Text>
@@ -798,10 +876,20 @@ export default function ExploreScreen() {
                     color={Colors.text.tertiary}
                   />
                 </TouchableOpacity>
+                {/* 클러스터 목록을 닫고 주변 장소 전체로 돌아가기 */}
+                {isClusterMode && (
+                  <TouchableOpacity
+                    style={s.panelExpandBtn}
+                    onPress={() => setClusterIds(null)}
+                    accessibilityLabel="겹친 장소 목록 닫기"
+                  >
+                    <Icon name="close" size={16} color={Colors.text.tertiary} />
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
-            {sortedCards.length === 0 ? (
+            {panelEmpty ? (
               <View style={s.peekEmpty}>
                 <Icon name={isSearching ? 'search' : 'map'} size={28} color={Colors.text.tertiary} />
                 <Text style={s.peekEmptyText}>
@@ -809,6 +897,8 @@ export default function ExploreScreen() {
                     ? `'${searchQuery.trim()}' 결과가 없어요`
                     : (activeFilter === 'saved'   ? '저장한 곳이 없어요'
                      : activeFilter === 'visited' ? '발도장 남긴 곳이 없어요'
+                     : nearestOutOfRange != null  ? '이 반경 안에는 없어요'
+                     : regionEmpty                ? '이 지역엔 아직 등록된 장소가 없어요'
                      : '반경 내 장소가 없어요')}
                 </Text>
                 <Text style={s.peekEmptySub}>
@@ -818,8 +908,41 @@ export default function ExploreScreen() {
                        ? '마음에 드는 장소를 저장해보세요'
                        : activeFilter === 'visited'
                        ? '산책하면서 발도장을 남겨보세요'
+                       : nearestOutOfRange != null
+                       ? `가장 가까운 장소가 ${distanceText(nearestOutOfRange)}에 있어요`
+                       : regionEmpty
+                       ? '지금은 서울·경기 지역을 중심으로 장소를 채우고 있어요'
                        : '지도를 다른 지역으로 옮겨보세요')}
                 </Text>
+                {/* 빈 지도 앞에서 막다른 길이 되지 않도록 다음 행동을 준다 */}
+                {!isSearching && activeFilter !== 'saved' && activeFilter !== 'visited' && (
+                  nearestOutOfRange != null ? (
+                    // 데이터는 있는데 반경 밖 → 한 단계 넓게 보기(줌아웃하면 반경도 함께 넓어짐)
+                    <TouchableOpacity
+                      style={s.emptyActionBtn}
+                      onPress={() => {
+                        programmaticMoveRef.current = true;
+                        mapRef.current?.setCenter(mapCenter.lat, mapCenter.lng, Math.min(14, zoomLevel + 2));
+                      }}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={s.emptyActionText}>더 넓게 보기</Text>
+                    </TouchableOpacity>
+                  ) : regionEmpty ? (
+                    // 커버리지 밖 → 데이터가 있는 지역으로 안내
+                    <TouchableOpacity
+                      style={s.emptyActionBtn}
+                      onPress={() => {
+                        programmaticMoveRef.current = true;
+                        setMapCenter({ lat: INITIAL_CENTER.latitude, lng: INITIAL_CENTER.longitude });
+                        mapRef.current?.setCenter(INITIAL_CENTER.latitude, INITIAL_CENTER.longitude, INITIAL_CENTER.level);
+                      }}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={s.emptyActionText}>장소가 있는 지역 둘러보기</Text>
+                    </TouchableOpacity>
+                  ) : null
+                )}
               </View>
             ) : (
               <ScrollView
@@ -830,7 +953,7 @@ export default function ExploreScreen() {
                 nestedScrollEnabled
               >
                 {/* ── 선택된 핀의 hero 카드 (있으면 항상 최상단) ── */}
-                {selectedHeroCard && (
+                {!isClusterMode && selectedHeroCard && (
                   <View style={s.heroCardWrap}>
                     <View style={s.heroCard}>
                       <View style={s.heroHeader}>
@@ -877,8 +1000,8 @@ export default function ExploreScreen() {
                   </View>
                 )}
 
-                {/* ── 나머지 장소 (선택 안 된 경우 sortedCards 전체, 선택 시 restCards) ── */}
-                {(selectedHeroCard ? restCards : sortedCards).slice(0, visibleCount).map(card => (
+                {/* ── 목록 본문 (클러스터 모드면 묶인 것만, 선택 시 restCards, 그 외 전체) ── */}
+                {panelCards.slice(0, visibleCount).map(card => (
                   <View
                     key={card.spot_id}
                     onLayout={(e) => { cardOffsetsRef.current[card.spot_id] = e.nativeEvent.layout.y; }}
@@ -901,19 +1024,23 @@ export default function ExploreScreen() {
                   </View>
                 ))}
                 {/* 더 보기 — 목록을 끊어 그리므로 남은 개수를 알리고 이어서 펼친다 */}
-                {(selectedHeroCard ? restCards : sortedCards).length > visibleCount && (
+                {panelCards.length > visibleCount && (
                   <TouchableOpacity
                     style={s.listMoreBtn}
                     onPress={() => setVisibleCount(v => v + LIST_PAGE)}
                     activeOpacity={0.8}
                   >
                     <Text style={s.listMoreText}>
-                      {(selectedHeroCard ? restCards : sortedCards).length - visibleCount}곳 더 보기
+                      {panelCards.length - visibleCount}곳 더 보기
                     </Text>
                   </TouchableOpacity>
                 )}
                 {/* 리스트 끝 안내 — 반경 내 장소가 적어 생기는 하단 공백을 안내로 전환 */}
-                <Text style={s.peekListFooter}>지도를 옮기면 주변 장소가 더 표시돼요</Text>
+                <Text style={s.peekListFooter}>
+                  {isClusterMode
+                    ? '같은 자리에 겹쳐 있는 장소들이에요'
+                    : '지도를 옮기면 주변 장소가 더 표시돼요'}
+                </Text>
                 <View style={{ height: insets.bottom + 16 }} />
               </ScrollView>
             )}
@@ -1094,11 +1221,21 @@ const s = StyleSheet.create({
   myLocBtnActive: { backgroundColor: Colors.brand.primary },
 
   // ── 하단 카드 목록 (peek sheet) ──
+  // peek 높이(200px) 안에서 안내 문구 + 액션 버튼이 잘리지 않아야 한다
+  // (패널이 overflow:hidden이라 넘치면 버튼이 아예 안 보인다)
   peekEmpty: {
-    alignItems: 'center', gap: Spacing[8], paddingVertical: Spacing[40],
+    alignItems: 'center', gap: Spacing[8],
+    paddingVertical: Spacing[24], paddingHorizontal: Spacing[24],
   },
   peekEmptyText: { ...Typography.body.m, color: Colors.text.secondary, fontWeight: '600' },
   peekEmptySub: { ...Typography.caption, color: Colors.text.tertiary, marginTop: 2, textAlign: 'center' },
+  emptyActionBtn: {
+    marginTop: Spacing[12],
+    paddingHorizontal: Spacing[16], paddingVertical: Spacing[10],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.primary,
+  },
+  emptyActionText: { ...Typography.label.m, color: Colors.brand.onPrimary, fontWeight: '700' },
   peekScroll: { flex: 1 },
   peekScrollContent: { paddingTop: Spacing[4] },
   peekListFooter: {
