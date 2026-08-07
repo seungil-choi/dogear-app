@@ -13,9 +13,12 @@
  *   Map → App:
  *     { type: 'ready' }
  *     { type: 'markerClick', id }
+ *     { type: 'clusterClick', key, ids }   // 묶인 장소들을 목록으로 펼쳐 보여달라는 신호
  *     { type: 'mapClick' }
  *     { type: 'regionChange', latitude, longitude, level }
  */
+
+import { CLUSTER_GRID_JS } from './clusterGrid';
 
 export interface KakaoMapInitOpts {
   /** 카카오 JavaScript 키 */
@@ -89,6 +92,11 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       cursor: pointer;
       pointer-events: auto;
       box-sizing: border-box;
+    }
+    /* 목록을 펼쳐둔 클러스터 — 지도에서 어느 묶음을 보고 있는지 알 수 있게 */
+    .cluster-active {
+      background: #E05A0F;
+      box-shadow: 0 0 0 5px rgba(255,122,48,0.28), 0 2px 6px rgba(0,0,0,0.28);
     }
     /* 사용자 위치 — 외곽 링 + 내부 점 (브랜드 컬러로 통일) */
     .user-loc-wrap {
@@ -203,48 +211,34 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       //   1) 원천 데이터에 **서로 다른 공원이 같은 좌표**에 찍힌 묶음이 55곳 있다
       //      (지구 대표좌표를 쓴 탓). 겹쳐서 하나만 보이고 나머지는 누를 수 없다.
       //   2) 줌아웃하면 최대 150개 핀이 한 화면에 몰려 오버레이 생성 비용이 크다.
-      //  겹친 핀은 숫자 뱃지로 묶고, 확대하면 풀린다.
-      //  좌표가 사실상 동일해 확대해도 안 풀리는 묶음은 탭하면 방사형으로 펼친다(spiderfy).
+      //  겹친 핀은 숫자 뱃지로 묶는다.
+      //  ⚠️ 클러스터를 푸는 유일한 방법은 **확대(줌인)** 뿐이다.
+      //     탭으로 방사형 펼치기(spiderfy)나 자동 확대를 하던 시절에는
+      //     "확대했더니 멀쩡히 떨어져 있던 핀이 도로 합쳐진다"는 착시가 났다.
+      //     지금은 탭하면 묶인 장소들을 **하단 목록**으로 넘긴다(clusterClick).
+      //     좌표가 완전히 겹쳐 확대해도 안 풀리는 묶음(지구 대표좌표 55곳)도
+      //     그 목록을 통해 전부 도달할 수 있다.
 
       var allItems = [];        // RN이 내려준 전체 마커
-      var clusterById = {};     // key -> { overlay, count }
-      var spiderKey = null;     // 현재 펼쳐진 클러스터 key
+      var clusterById = {};     // key -> { overlay, count, active }
+      var activeClusterKey = null;   // 목록을 펼쳐둔 클러스터(강조 표시용)
 
-      // 클러스터링을 적용할 최소 축소 레벨.
-      //   카카오는 레벨이 클수록 축소. 이 레벨보다 확대된 상태(=레벨이 작음)에서는
-      //   좌표가 사실상 같은 묶음만 뭉치고, 떨어져 있는 핀은 절대 합치지 않는다.
-      //   (확대했는데 멀쩡하던 핀이 합쳐지는 문제 방지)
-      var CLUSTER_MIN_LEVEL = 7;
+      // 격자 규칙은 clusterGrid.ts에 한 벌만 두고 여기에 그대로 주입한다.
+      //   → 같은 코드를 유닛 테스트(clusterGrid.test.ts)가 평가해
+      //     "확대는 묶음을 쪼개기만 한다"는 성질을 고정한다.
+      //   제공: GRID_BASE, CLUSTER_MIN_LEVEL, activeGridFor(level), groupKeyOf(lat, lng, g)
+${CLUSTER_GRID_JS}
 
-      // 레벨이 클수록(축소) 격자를 넓게 — 화면상 묶임 간격을 일정하게 유지
-      function gridDeg() { return 0.00004 * Math.pow(2, map ? map.getLevel() : 4); }
-
-      // 좌표가 사실상 동일한 것만 묶기 위한 아주 촘촘한 격자(약 5m)
-      var TIGHT_GRID = 0.00005;
       function activeGrid() {
-        var lv = map ? map.getLevel() : 4;
-        return lv >= CLUSTER_MIN_LEVEL ? gridDeg() : TIGHT_GRID;
+        return activeGridFor(map ? map.getLevel() : 4);
       }
 
-      function groupKeyOf(item, g) {
-        return Math.round(item.latitude / g) + ':' + Math.round(item.longitude / g);
-      }
-
-      function clusterHtml(key, count) {
+      function clusterHtml(key, count, active) {
         var size = count < 10 ? 34 : (count < 50 ? 40 : 46);
-        return '<div class="cluster" data-cluster-key="' + escapeHtml(key) + '" ' +
+        return '<div class="cluster' + (active ? ' cluster-active' : '') + '" ' +
+               'data-cluster-key="' + escapeHtml(key) + '" ' +
                'style="width:' + size + 'px;height:' + size + 'px;line-height:' + size + 'px;">' +
                count + '</div>';
-      }
-
-      /** 묶음 내 좌표가 사실상 동일한가(확대해도 안 풀리는가) */
-      function isTight(list) {
-        var la0 = list[0].latitude, ln0 = list[0].longitude;
-        for (var i = 1; i < list.length; i++) {
-          if (Math.abs(list[i].latitude - la0) > 0.00005 ||
-              Math.abs(list[i].longitude - ln0) > 0.00005) return false;
-        }
-        return true;   // 약 5m 이내
       }
 
       /** 현재 줌 기준으로 개별 핀 / 클러스터를 계산해 화면과 동기화 */
@@ -255,35 +249,32 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         // 1) 그룹핑
         var groups = {};
         allItems.forEach(function(item) {
-          var k = groupKeyOf(item, g);
+          var k = groupKeyOf(item.latitude, item.longitude, g);
           (groups[k] || (groups[k] = [])).push(item);
         });
 
         // 2) 이번 렌더에서 개별 핀으로 보여줄 것 / 클러스터로 묶을 것 결정
-        var wantPins = {};      // id -> {item, offset?}
-        var wantClusters = {};  // key -> {count, lat, lng}
+        //    묶인 것은 어떤 경우에도 여기서 풀지 않는다 — 푸는 건 오직 줌인.
+        var wantPins = {};      // id -> {item}
+        var wantClusters = {};  // key -> {count, lat, lng, active}
         Object.keys(groups).forEach(function(k) {
           var list = groups[k];
-          var expanded = (k === spiderKey);
-          // 선택된 핀이 든 묶음은 항상 펼친다 — 목록 카드와 지도가 어긋나지 않게
-          var hasSelected = selectedId && list.some(function(it) { return it.id === selectedId; });
-
-          if (list.length === 1 || expanded || hasSelected) {
-            if (list.length > 1 && (expanded || hasSelected) && isTight(list)) {
-              // 좌표가 겹쳐 그냥 두면 서로 가려진다 → 원형으로 펼침
-              var r = g * 0.8;
-              list.forEach(function(it, i) {
-                var a = (2 * Math.PI * i) / list.length;
-                wantPins[it.id] = { item: it, dLat: r * Math.sin(a), dLng: r * Math.cos(a) };
-              });
-            } else {
-              list.forEach(function(it) { wantPins[it.id] = { item: it, dLat: 0, dLng: 0 }; });
-            }
-          } else {
-            var sLa = 0, sLn = 0;
-            list.forEach(function(it) { sLa += it.latitude; sLn += it.longitude; });
-            wantClusters[k] = { count: list.length, lat: sLa / list.length, lng: sLn / list.length };
+          if (list.length === 1) {
+            wantPins[list[0].id] = { item: list[0] };
+            return;
           }
+          var sLa = 0, sLn = 0, hasSelected = false;
+          list.forEach(function(it) {
+            sLa += it.latitude; sLn += it.longitude;
+            if (selectedId && it.id === selectedId) hasSelected = true;
+          });
+          wantClusters[k] = {
+            count: list.length,
+            lat: sLa / list.length,
+            lng: sLn / list.length,
+            // 목록을 펼쳐둔 묶음, 또는 선택한 장소가 든 묶음을 강조
+            active: (k === activeClusterKey) || hasSelected,
+          };
         });
 
         // 3) 개별 핀 diff
@@ -291,8 +282,8 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
           if (!wantPins[id]) { markerById[id].overlay.setMap(null); delete markerById[id]; }
         });
         Object.keys(wantPins).forEach(function(id) {
-          var w = wantPins[id], item = w.item;
-          var lat = item.latitude + (w.dLat || 0), lng = item.longitude + (w.dLng || 0);
+          var item = wantPins[id].item;
+          var lat = item.latitude, lng = item.longitude;
           var entry = markerById[id];
           if (!entry) {
             markerById[id] = { overlay: createOverlay(item, lat, lng), item: item, lat: lat, lng: lng };
@@ -317,16 +308,17 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
           if (!entry) {
             var ov = new kakao.maps.CustomOverlay({
               position: new kakao.maps.LatLng(c.lat, c.lng),
-              content: clusterHtml(k, c.count),
+              content: clusterHtml(k, c.count, c.active),
               xAnchor: 0.5, yAnchor: 0.5, clickable: true,
             });
             ov.setMap(map);
-            clusterById[k] = { overlay: ov, count: c.count };
+            clusterById[k] = { overlay: ov, count: c.count, active: c.active };
             return;
           }
-          if (entry.count !== c.count) {
-            entry.overlay.setContent(clusterHtml(k, c.count));
+          if (entry.count !== c.count || entry.active !== c.active) {
+            entry.overlay.setContent(clusterHtml(k, c.count, c.active));
             entry.count = c.count;
+            entry.active = c.active;
           }
           entry.overlay.setPosition(new kakao.maps.LatLng(c.lat, c.lng));
         });
@@ -337,8 +329,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       /** RN이 마커 목록을 내려줄 때 */
       function setMarkers(items) {
         allItems = items || [];
-        // 사라진 스팟이 펼침 상태였다면 해제
-        if (spiderKey && !allItems.length) spiderKey = null;
+        if (!allItems.length) activeClusterKey = null;
         renderMarkers();
       }
 
@@ -349,23 +340,17 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         var cl = e.target.closest('[data-cluster-key]');
         if (cl) {
           e.stopPropagation();
+          // 클러스터는 탭으로 풀지 않는다(확대만이 푼다).
+          // 대신 묶인 장소들의 id를 넘겨 하단 목록에 그대로 펼쳐 보여준다.
           var key = cl.getAttribute('data-cluster-key');
-          var g = activeGrid(), list = [];
-          allItems.forEach(function(it) { if (groupKeyOf(it, g) === key) list.push(it); });
-          if (!list.length) return;
-          var sLa = 0, sLn = 0;
-          list.forEach(function(it) { sLa += it.latitude; sLn += it.longitude; });
-          var center = new kakao.maps.LatLng(sLa / list.length, sLn / list.length);
-
-          if (isTight(list) || map.getLevel() <= 1) {
-            // 확대해도 안 풀리는 묶음 → 그 자리에서 펼친다
-            spiderKey = key;
-            renderMarkers();
-          } else {
-            spiderKey = null;
-            map.setLevel(Math.max(1, map.getLevel() - 2), { anchor: center });
-            renderMarkers();
-          }
+          var g = activeGrid(), ids = [];
+          allItems.forEach(function(it) {
+            if (groupKeyOf(it.latitude, it.longitude, g) === key) ids.push(it.id);
+          });
+          if (!ids.length) return;
+          activeClusterKey = key;
+          renderMarkers();
+          postMsg({ type: 'clusterClick', key: key, ids: ids });
           return;
         }
 
@@ -374,17 +359,19 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         var id = el.getAttribute('data-marker-id');
         if (!id) return;
         e.stopPropagation();
+        activeClusterKey = null;
         postMsg({ type: 'markerClick', id: id });
       }, true);
 
       function selectMarker(id) {
         var prev = selectedId;
         selectedId = id;
-        // 선택이 클러스터 안에 있으면 그 묶음을 펼쳐야 하므로 전체 재계산.
+        // 선택이 클러스터 안팎을 오갈 때만 전체 재계산(강조 이동).
         // 그 외에는 최대 2개만 다시 그린다.
-        var needsRerender = false;
-        if (id && !markerById[id]) needsRerender = true;
-        if (needsRerender) { renderMarkers(); return; }
+        if ((id && !markerById[id]) || (prev && !markerById[prev])) {
+          renderMarkers();
+          return;
+        }
         if (prev && prev !== id) repaint(prev);
         if (id) repaint(id);
       }
@@ -441,14 +428,15 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         };
         map = new kakao.maps.Map(container, options);
 
-        // 클릭(빈 영역) — 핀 닫기 신호 + 펼쳐둔 클러스터 접기
+        // 클릭(빈 영역) — 핀 닫기 신호 + 클러스터 강조 해제
         kakao.maps.event.addListener(map, 'click', function() {
-          if (spiderKey) { spiderKey = null; renderMarkers(); }
+          if (activeClusterKey) { activeClusterKey = null; renderMarkers(); }
           postMsg({ type: 'mapClick' });
         });
 
-        // 영역 변경 — 알림
+        // 영역 변경 — 알림. 지도를 옮기면 펼쳐둔 클러스터 목록은 맥락을 잃으므로 해제.
         kakao.maps.event.addListener(map, 'dragend', function() {
+          if (activeClusterKey) { activeClusterKey = null; renderMarkers(); }
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
         });
@@ -456,8 +444,9 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         // 줌 변경 — 클러스터를 다시 계산하고 RN에도 알린다.
         //   이전에는 dragend만 있어서 줌아웃해도 RN의 zoomLevel이 갱신되지 않았고,
         //   그 결과 넓은 반경 재조회가 트리거되지 않아 "줌아웃하면 핀이 안 늘어나는" 문제가 있었다.
+        //   확대하면 격자가 좁아져 묶음이 자연스럽게 풀린다 — 클러스터가 풀리는 유일한 경로.
         kakao.maps.event.addListener(map, 'zoom_changed', function() {
-          // 펼침 상태는 유지한다. 줌마다 접으면 "확대했더니 핀이 도로 합쳐지는" 것처럼 보인다.
+          activeClusterKey = null;
           renderMarkers();
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });

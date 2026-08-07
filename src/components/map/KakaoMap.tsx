@@ -35,6 +35,8 @@ export interface KakaoMapProps {
   userLocation?: { latitude: number; longitude: number } | null;
   selectedId?: string | null;
   onMarkerClick?: (id: string) => void;
+  /** 클러스터 탭 — 묶인 장소 id 목록. 지도는 묶음을 풀지 않고 목록으로 넘긴다. */
+  onClusterClick?: (ids: string[]) => void;
   onMapClick?: () => void;
   onRegionChange?: (lat: number, lng: number, level: number) => void;
   onReady?: () => void;
@@ -112,6 +114,8 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
         props.onReady?.();
       } else if (data.type === 'markerClick') {
         props.onMarkerClick?.(data.id);
+      } else if (data.type === 'clusterClick') {
+        props.onClusterClick?.(Array.isArray(data.ids) ? data.ids : []);
       } else if (data.type === 'mapClick') {
         props.onMapClick?.();
       } else if (data.type === 'regionChange') {
