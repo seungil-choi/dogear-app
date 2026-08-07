@@ -9,6 +9,7 @@ import { supabase } from '../src/lib/supabase';
 import { useAuth } from '../src/hooks/useAuth';
 import { notify } from '../src/utils/dialog';
 import { ToastHost } from '../src/components/common/ToastHost';
+import { ActionSheetHost } from '../src/components/common/ActionSheetHost';
 import { useLocation } from '../src/hooks/useLocation';
 import { useAppEntryPermissions } from '../src/hooks/useAppEntryPermissions';
 import { useNearbySpots } from '../src/hooks/useNearbySpots';
@@ -214,6 +215,8 @@ function RootLayoutInner() {
       </Stack>
       {/* 전역 토스트 — Stack 위에 떠야 하므로 형제 중 마지막에 둔다 */}
       <ToastHost />
+      {/* 전역 액션 시트 — OS Alert의 안드로이드 3버튼 제한을 피하기 위한 자체 레이어 */}
+      <ActionSheetHost />
     </ErrorBoundary>
   );
 }

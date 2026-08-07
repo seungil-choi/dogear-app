@@ -72,6 +72,15 @@ export default function SpotDetailScreen() {
     [savedSpots, dog, id],
   );
 
+  // 화면에 보여줄 저장 수 — 서버 집계는 탭해도 즉시 갱신되지 않는다.
+  //   서버 스냅샷(vm.is_saved)과 로컬 상태가 갈린 만큼만 ±1 보정해,
+  //   저장하자마자 숫자가 그대로 멈춰 있는 어색함을 없앤다.
+  const displaySavedCount = useMemo(() => {
+    if (!vm) return 0;
+    const delta = locallySaved === !!vm.is_saved ? 0 : (locallySaved ? 1 : -1);
+    return Math.max(0, (vm.saved_count ?? 0) + delta);
+  }, [vm, locallySaved]);
+
   // 장소 상세 진입 추적
   useEffect(() => {
     if (!vm) return;
@@ -95,14 +104,15 @@ export default function SpotDetailScreen() {
       }).then(ok => { if (ok) router.push('/(auth)/dog-setup'); });
       return;
     }
-    const wasSaved = vm?.is_saved;
+    // 서버 스냅샷(vm.is_saved)은 탭해도 갱신되지 않는다. 그걸로 판단하면
+    // 저장 직후 해제할 때도 place_saved가 찍혀 계측이 어긋난다 → 로컬 상태로 판단.
     toggleSaveSpot(id);
-    track(wasSaved ? EVENT.place_unsaved : EVENT.place_saved, {
+    track(locallySaved ? EVENT.place_unsaved : EVENT.place_saved, {
       screen_name: 'spot_detail',
       place_id: id,
       place_category: vm?.category_label,
     });
-  }, [id, toggleSaveSpot, vm, dog, router]);
+  }, [id, toggleSaveSpot, vm, dog, router, locallySaved]);
   const handleCopyAddress = useCallback(async (text: string) => {
     try {
       await Clipboard.setStringAsync(text);
@@ -171,16 +181,21 @@ export default function SpotDetailScreen() {
     }
   }, [router]);
 
+  // ⋯ 메뉴. 항목 수 제한이 없다 — 자체 액션시트로 옮겼기 때문.
+  //   (예전엔 OS Alert을 썼는데 안드로이드는 버튼 3개까지라 4번째인 '취소'가 잘려나가
+  //    한번 열면 닫을 수 없었다)
   const handleMore = useCallback(async () => {
     const idx = await actionSheet(vm?.name ?? '장소', [
+      { label: '공유하기' },
       { label: '길찾기 (네이버 지도)' },
       { label: '정보 수정 제안' },
       { label: '이 장소 신고하기', destructive: true },
     ]);
-    if (idx === 0) handleDirections();
-    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id } });
-    else if (idx === 2) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
-  }, [vm, id, router, handleDirections]);
+    if (idx === 0) handleShare();
+    else if (idx === 1) handleDirections();
+    else if (idx === 2) router.push({ pathname: '/info-correction', params: { spot_id: id } });
+    else if (idx === 3) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
+  }, [vm, id, router, handleDirections, handleShare]);
 
   if (!vm) {
     return (
@@ -263,11 +278,21 @@ export default function SpotDetailScreen() {
             pointerEvents="none"
           />
 
-          {/* 텍스트 오버레이 — 카테고리 / 장소명 / 지역·거리 */}
-          <View style={s.keyVisualOverlay} pointerEvents="none">
-            <View style={s.keyVisualBadge}>
-              <Icon name="leaf-filled" size={11} color={Colors.brand.primary} />
-              <Text style={s.keyVisualBadgeText}>{vm.category_label}</Text>
+          {/* 텍스트 오버레이 — 카테고리 / 장소명 / 지역·거리·저장
+              box-none: 오버레이 자체는 터치를 통과시키되 자식(저장 버튼)은 받는다 */}
+          <View style={s.keyVisualOverlay} pointerEvents="box-none">
+            <View style={s.keyVisualBadgeRow} pointerEvents="none">
+              <View style={s.keyVisualBadge}>
+                <Icon name="leaf-filled" size={11} color={Colors.brand.primary} />
+                <Text style={s.keyVisualBadgeText}>{vm.category_label}</Text>
+              </View>
+              {/* 검토 대기 — 배너 대신 칩으로. 썸네일 안에서 상태를 바로 읽게 한다 */}
+              {vm.is_pending_review && (
+                <View style={s.keyVisualPendingChip}>
+                  <Icon name="info" size={11} color="#fff" />
+                  <Text style={s.keyVisualPendingText}>검토 중</Text>
+                </View>
+              )}
             </View>
             <Text style={s.keyVisualName} numberOfLines={2}>{vm.name}</Text>
             <View style={s.keyVisualMetaRow}>
@@ -275,73 +300,59 @@ export default function SpotDetailScreen() {
               <Text style={s.keyVisualMeta} numberOfLines={1}>
                 {[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
               </Text>
+              {/* 저장 — 같은 줄 오른쪽 끝. 좌(위치·거리) ↔ 우(저장) 균형.
+                  하단 저장하기 버튼과 **같은 handleSave·같은 locallySaved**를 쓰므로
+                  두 곳의 상태가 어긋날 수 없다. 눌릴 것처럼 생겼으면 눌려야 한다. */}
+              <TouchableOpacity
+                style={[s.keyVisualSaved, locallySaved && s.keyVisualSavedActive]}
+                onPress={handleSave}
+                activeOpacity={0.8}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel={locallySaved ? '저장 해제' : '저장하기'}
+                accessibilityState={{ selected: locallySaved }}
+              >
+                <Icon
+                  name={locallySaved ? 'bookmark-filled' : 'bookmark'}
+                  size={12}
+                  color="#fff"
+                />
+                {displaySavedCount > 0 && (
+                  <Text style={s.keyVisualSavedText}>{displaySavedCount}</Text>
+                )}
+              </TouchableOpacity>
             </View>
           </View>
         </View>
 
-        {/* ── 검토 대기 안내 — 내가 방금 제안한 장소는 나에게만 보인다 ── */}
-        {vm.is_pending_review && (
-          <View style={s.pendingBanner}>
-            <Icon name="info" size={15} color={Colors.brand.accent} />
-            <Text style={s.pendingText}>
-              검토 중인 장소예요. 지금은 나에게만 보이지만, 발도장은 남길 수 있어요.
-            </Text>
-          </View>
-        )}
-
-        {/* ── 관계 요약 카드 ──
-            아직 아무도 다녀가지 않은 장소에 0이 줄지어 있으면 죽은 서비스로 보인다.
-            그래서 값이 0인 지표는 빼고, 남는 게 없으면 카드 자체를 감춘다. */}
-        {(() => {
-          const stats = [
-            {
-              key: 'dogs', icon: 'leaf-filled' as const,
-              value: `${vm.unique_visitor_count}`, label: '발도장 남긴 강아지',
-              show: vm.unique_visitor_count > 0,
-            },
-            {
-              key: 'checkins', icon: 'paw-filled' as const,
-              value: `${vm.total_checkin_count}`, label: '발도장',
-              show: vm.total_checkin_count > 0,
-            },
-            {
-              key: 'saved', icon: 'bookmark-filled' as const,
-              value: `${vm.saved_count}`, label: '저장한 강아지',
-              show: vm.saved_count > 0,
-            },
-            {
-              key: 'mine', icon: 'star-filled' as const,
-              value: `${vm.user_relation?.visit_count ?? 0}회`, label: '내 방문',
-              show: (vm.user_relation?.visit_count ?? 0) > 0,
-            },
-          ].filter(st => st.show);
-
-          if (stats.length === 0) {
-            // 아무 기록도 없는 장소 — 숫자 대신 첫 발도장을 권한다
-            return (
-              <View style={s.statsEmptyCard}>
-                <Icon name="paw" size={18} color={Colors.brand.primary} />
-                <Text style={s.statsEmptyText}>아직 아무도 발도장을 남기지 않았어요</Text>
-              </View>
-            );
-          }
-          return (
-            <View style={s.statsCard}>
-              {stats.map((st, i) => (
-                <React.Fragment key={st.key}>
-                  {i > 0 && <View style={s.statDivider} />}
-                  <View style={s.statItem}>
-                    <View style={s.statIconWrap}>
-                      <Icon name={st.icon} size={16} color={Colors.brand.primary} />
-                    </View>
-                    <Text style={s.statValue}>{st.value}</Text>
-                    <Text style={s.statLabel} numberOfLines={1}>{st.label}</Text>
-                  </View>
-                </React.Fragment>
-              ))}
+        {/* ── 관계 요약 카드 (아이콘으로 판독성 강화) ── */}
+        <View style={s.statsCard}>
+          <View style={s.statItem}>
+            <View style={s.statIconWrap}>
+              <Icon name="leaf-filled" size={16} color={Colors.brand.primary} />
             </View>
-          );
-        })()}
+            {/* 예전에는 여기에 '최근 발도장 수'가 그대로 들어가 옆 칸과 항상 같은 숫자였다.
+                이제 서버가 계산한 '서로 다른 강아지 수'가 들어간다. */}
+            <Text style={s.statValue}>{vm.unique_visitor_count}</Text>
+            <Text style={s.statLabel}>다녀간 강아지</Text>
+          </View>
+          <View style={s.statDivider} />
+          <View style={s.statItem}>
+            <View style={s.statIconWrap}>
+              <Icon name="paw-filled" size={16} color={Colors.brand.primary} />
+            </View>
+            <Text style={s.statValue}>{vm.total_checkin_count}</Text>
+            <Text style={s.statLabel}>발도장</Text>
+          </View>
+          <View style={s.statDivider} />
+          <View style={s.statItem}>
+            <View style={s.statIconWrap}>
+              <Icon name="star-filled" size={16} color={Colors.brand.primary} />
+            </View>
+            <Text style={s.statValue}>{vm.user_relation?.visit_count ?? 0}회</Text>
+            <Text style={s.statLabel}>내 방문</Text>
+          </View>
+        </View>
 
         {/* ── 장소 정보 섹션 (라벨/값 테이블 구조) ── */}
         <View style={s.section}>
@@ -734,11 +745,58 @@ const s = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing[4],
     marginTop: 2,
+    // 좌(위치·거리) ↔ 우(저장 수) 로 벌리려면 줄이 오버레이 폭을 꽉 채워야 한다
+    alignSelf: 'stretch',
   },
   keyVisualMeta: {
     ...Typography.label.s,
     color: 'rgba(255,255,255,0.92)',
     fontWeight: '500',
+    // 장소명이 길어도 저장 배지를 밀어내지 않도록 이쪽이 먼저 줄어든다
+    flexShrink: 1,
+  },
+  // 카테고리 배지 + 검토 중 칩을 한 줄로
+  keyVisualBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[6],
+  },
+  // 검토 대기 칩 — 배너 대신 썸네일 안에서 상태를 즉시 읽게 한다
+  keyVisualPendingChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: Spacing[8],
+    paddingVertical: 3,
+    borderRadius: Radius.round,
+    backgroundColor: 'rgba(18,12,6,0.55)',
+  },
+  keyVisualPendingText: {
+    ...Typography.label.s,
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  // 저장 버튼 — 같은 줄 오른쪽 끝. 하단 저장하기와 동일 동작·동일 상태.
+  keyVisualSaved: {
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: Spacing[10],
+    paddingVertical: 4,
+    borderRadius: Radius.round,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.34)',
+  },
+  keyVisualSavedActive: {
+    backgroundColor: Colors.brand.primary,
+    borderColor: Colors.brand.primary,
+  },
+  keyVisualSavedText: {
+    ...Typography.label.s,
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
 
   // 위치 미니맵 — 장소 정보 섹션 밑, 정보 테이블과 동일 너비
@@ -791,30 +849,6 @@ const s = StyleSheet.create({
     height: 56,
     backgroundColor: Colors.border.default,
   },
-  // 기록이 하나도 없는 장소 — 0을 나열하는 대신 상태를 한 줄로 말한다
-  statsEmptyCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[8],
-    backgroundColor: Colors.surface.default,
-    paddingVertical: Spacing[16],
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.border.subtle,
-  },
-  statsEmptyText: { ...Typography.body.s, color: Colors.text.secondary },
-
-  // 검토 대기 안내 (제안 직후 — 본인에게만 보이는 상태)
-  pendingBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[8],
-    backgroundColor: Colors.brand.subtle,
-    paddingHorizontal: Spacing[16],
-    paddingVertical: Spacing[10],
-  },
-  pendingText: { flex: 1, ...Typography.label.s, color: Colors.brand.accent, lineHeight: 18 },
-
   // 편의시설 칩 — info(중립) / caution(주의) 두 톤
   facilityWrap: {
     flexDirection: 'row',
@@ -1165,22 +1199,6 @@ const s = StyleSheet.create({
     color: Colors.text.primary,
     lineHeight: 22,
   },
-  featureChips: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing[6],
-  },
-  featureChip: {
-    backgroundColor: Colors.bg.secondary,
-    paddingHorizontal: Spacing[10],
-    paddingVertical: 4,
-    borderRadius: Radius.round,
-    borderWidth: 1,
-    borderColor: Colors.border.default,
-  },
-  featureChipText: { ...Typography.label.s, color: Colors.text.secondary },
-
   // 주소 + 복사 — 한 줄 인라인 (테이블 내)
   infoAddressRow: {
     flex: 1,
