@@ -17,6 +17,7 @@ import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 import { IS_DEV_SEED } from '@/config/env';
 import type { Spot } from '@/types';
+import { authoredDescription } from '@/utils/spotDescription';
 
 export function useInteractedSpots(spotIds: string[]): Record<string, Spot> {
   const storeSpots = useAppStore(s => s.spots);
@@ -64,7 +65,8 @@ export function useInteractedSpots(spotIds: string[]): Record<string, Spot> {
           cover_image_url: s.cover_image_url ?? undefined,
           opening_hours: s.opening_hours ?? undefined,
           features: s.features ?? undefined,
-          description: s.description ?? undefined,
+          // spots를 직접 읽는 경로라 원본 설명이 그대로 온다 — 여기서도 같은 규칙으로 거른다
+          description: authoredDescription(s.description, s.subcategory),
           caution: s.caution ?? undefined,
           status: (s.status ?? 'active') as Spot['status'],
           created_source: (s.created_source ?? 'seed') as Spot['created_source'],

@@ -27,17 +27,10 @@ import { notify, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 import { supabase } from '../../src/lib/supabase';
 import { IS_REAL_AUTH } from '../../src/config/env';
+// 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
+import { haversineDistance as haversineMeters } from '../../src/utils/geo';
+import { authoredDescription } from '../../src/utils/spotDescription';
 
-// ─── 거리 계산 (Haversine) ────────────────────────────────────────
-function haversineMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371000; // 지구 반지름 (m)
-  const phi1 = (lat1 * Math.PI) / 180;
-  const phi2 = (lat2 * Math.PI) / 180;
-  const dPhi = ((lat2 - lat1) * Math.PI) / 180;
-  const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  const a = Math.sin(dPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
 
 // ─── 초기 중심 (서울 마포구) ─────────────────────────────────
 const INITIAL_CENTER = { latitude: 37.5563, longitude: 126.9237, level: 4 };
@@ -339,7 +332,9 @@ export default function ExploreScreen() {
           neighborhood: sp.neighborhood ?? undefined,
           cover_image_url: sp.cover_image_url ?? undefined,
           // 지역 페치에서도 빠뜨리면 병합 시 상세와 목록이 어긋난다(subcategory 때와 같은 함정)
-          description: sp.description ?? undefined,
+          // 설명은 useNearbySpots와 동일하게 authoredDescription으로 거른다 —
+          // 서버는 원본을 그대로 내려주므로 여기서 안 거르면 기계 생성문이 스토어에 섞인다.
+          description: authoredDescription(sp.description, sp.subcategory),
           features: sp.facility_tags ?? undefined,
           status: 'active' as const,
           created_source: 'seed' as const,
@@ -585,7 +580,6 @@ export default function ExploreScreen() {
       }
 
       // 1) 마지막으로 알려진 위치가 있으면 즉시 이동 (체감 반응성 — 고정밀 fix는 느릴 수 있음)
-      let moved = false;
       try {
         const last = await Location.getLastKnownPositionAsync();
         if (last) {
@@ -596,7 +590,6 @@ export default function ExploreScreen() {
           // 않게 바꾼 뒤로는 여기서 명시적으로 맞춰줘야 지도와 목록이 어긋나지 않는다.
           setMapCenter({ lat: c.latitude, lng: c.longitude });
           mapRef.current?.setCenter(c.latitude, c.longitude, 4);
-          moved = true;
         }
       } catch { /* 무시 */ }
 

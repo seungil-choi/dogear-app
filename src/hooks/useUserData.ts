@@ -28,6 +28,9 @@ export function useUserData() {
 
   // 한 번만 로드하도록 dog_id 추적
   const loadedDogRef = useRef<string | null>(null);
+  // 요청 순번 — 강아지를 빠르게 전환하면 이전 강아지의 응답이 늦게 도착해
+  // 최신 강아지의 데이터를 덮어쓸 수 있다(setCheckins 등은 전역 스토어라 영향이 크다).
+  const reqIdRef = useRef(0);
 
   useEffect(() => {
     if (isAuthLoading || !isAuthenticated || !activeDog?.dog_id) return;
@@ -46,6 +49,7 @@ export function useUserData() {
   }, [activeDog?.dog_id]);
 
   async function loadUserData(dogId: string) {
+    const myReq = ++reqIdRef.current;
     // 익숙한 강아지(familiar) 신호는 직접 조회하지 않는다 — 프라이버시상 RLS로 직접 접근을
     // 차단했고(정확한 last_seen/횟수 노출 방지), 화면엔 spot-detail/familiar-dogs Edge Function이
     // 6조건 검증 + 완화해 제공한다.
@@ -75,6 +79,9 @@ export function useUserData() {
         .from('blocks')
         .select('*'),
     ]);
+
+    // 더 최신 요청이 시작됐다면(강아지 전환) 이 응답은 버린다 — 전역 스토어를 덮지 않게.
+    if (myReq !== reqIdRef.current) return;
 
     if (checkinRes.status === 'fulfilled' && checkinRes.value.data) {
       const mapped: PawCheckin[] = checkinRes.value.data.map((c: any) => ({
