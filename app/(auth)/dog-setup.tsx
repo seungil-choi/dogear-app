@@ -153,6 +153,18 @@ export default function DogSetupScreen() {
         return;
       }
 
+      // UGC 이미지 사후 모더레이션 큐 적재 (Apple 1.2) — dog-edit과 같은 규칙.
+      // dog_id는 insert 이후에야 정해지므로 여기서 넣는다.
+      // 이 화면에서 올린 사진이 대부분인데 여기가 비어 있으면 검수 큐가 사실상 놀게 된다.
+      if (avatarUrl) {
+        supabase
+          .from('media_moderation_queue')
+          .insert({ content_type: 'dog_avatar', dog_id: data.dog_id, image_url: avatarUrl })
+          .then(({ error: qError }) => {
+            if (qError) console.error('moderation queue insert failed:', qError);
+          });
+      }
+
       const newDog: Dog = {
         dog_id: data.dog_id,
         user_id: data.user_id,
