@@ -170,7 +170,7 @@ export default function PawCheckinModal() {
         '강아지 등록 필요',
       );
       resetPawFlow();
-      router.replace('/(auth)/dog-setup');
+      router.replace('/(auth)/dog-setup?from=onboarding');
       return;
     }
     if (isPresetSpot && pawFlow.step === 1) {
@@ -221,7 +221,7 @@ export default function PawCheckinModal() {
         '강아지 등록 필요',
       );
       resetPawFlow();
-      router.replace('/(auth)/dog-setup');
+      router.replace('/(auth)/dog-setup?from=onboarding');
       return;
     }
     // ── 위치 근접성 가드 ──────────────────────────────────────
@@ -372,15 +372,18 @@ export default function PawCheckinModal() {
     }
   }, [submitPawCheckin, submitToServer, setPawPhoto, selectedSpot, selectedTags, pawFlow, targetSpot, proximity, refreshLocation, dog, resetPawFlow, router, cooldownRemainingMs, cooldownMinLeft]);
 
-  const handleGoHome = useCallback(() => {
+  /**
+   * 완료 후 닫기 — 온 곳으로 돌려보낸다.
+   *   예전엔 무조건 홈(/(tabs))으로 replace했다. 장소 상세에서 들어온 사람도 홈으로 튕겨
+   *   보고 있던 장소를 잃었다. 돌아갈 화면이 있으면 back, 없으면(딥링크 등) 홈.
+   *   '발도장 다시 찍기'는 없앴다 — 방금 찍은 곳에 1시간 내 재기록은 서버가 409로 막고,
+   *   다른 곳에 찍으려면 장소부터 고르는 게 맞다.
+   */
+  const handleDone = useCallback(() => {
     resetPawFlow();
-    router.replace('/(tabs)');
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)');
   }, [resetPawFlow, router]);
-
-  const handleRestart = useCallback(() => {
-    resetPawFlow();
-    setIsSuccess(false);
-  }, [resetPawFlow]);
 
   const toggleTag = useCallback((tag: FeelingTag) => {
     if (selectedTags.includes(tag)) {
@@ -429,7 +432,7 @@ export default function PawCheckinModal() {
               <View style={s.successSummaryRow}>
                 <Icon name="paw" size={16} color={Colors.text.tertiary} />
                 <Text style={s.successSummaryLabel}>누적 방문</Text>
-                <Text style={[s.successSummaryValue, { color: Colors.brand.accent, fontWeight: '700' }]}>
+                <Text style={[s.successSummaryValue, { color: Colors.brand.primary, fontWeight: '700' }]}>
                   총 {successVisitCount}회
                 </Text>
               </View>
@@ -452,17 +455,7 @@ export default function PawCheckinModal() {
         </View>
 
         <View style={s.footer}>
-          <TouchableOpacity style={s.restartBtn} onPress={handleRestart} activeOpacity={0.75}>
-            <Icon name="paw" size={15} color={Colors.brand.primary} />
-            <Text style={s.restartBtnText}>발도장 다시 찍기</Text>
-          </TouchableOpacity>
-          <Button
-            label="홈으로 돌아가기"
-            onPress={handleGoHome}
-            variant="primary"
-            size="l"
-            fullWidth
-          />
+          <Button label="확인" onPress={handleDone} variant="primary" size="l" fullWidth />
         </View>
       </SafeAreaView>
     );
@@ -1023,19 +1016,6 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
     gap: Spacing[10],
   },
-  restartBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[6],
-    paddingVertical: Spacing[14],
-  },
-  restartBtnText: {
-    ...Typography.label.m,
-    color: Colors.brand.primary,
-    fontWeight: '600',
-  },
-
   // ── 성공 화면 ─────────────────────────────────────────────────────
   successContainer: {
     flex: 1,
