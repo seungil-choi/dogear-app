@@ -40,7 +40,7 @@ export default function SplashScreen() {
       //   useAuth가 dogs=[] 감지 시 hasCompletedOnboarding=false로 복구
       //   → 홈에서 빈 카드 거치지 않고 바로 등록 흐름 재개
       if (!hasCompletedOnboarding) {
-        router.replace('/(auth)/dog-setup');
+        router.replace('/(auth)/dog-setup?from=onboarding');
       } else {
         router.replace('/(tabs)');
       }

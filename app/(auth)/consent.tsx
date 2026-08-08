@@ -94,7 +94,7 @@ export default function ConsentScreen() {
       marketing_optin:  checks.marketing,
       agreed_at:        agreedAt,
     });
-    router.replace('/(auth)/dog-setup');
+    router.replace('/(auth)/dog-setup?from=onboarding');
   };
 
   return (

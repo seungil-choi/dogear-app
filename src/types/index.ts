@@ -41,6 +41,8 @@ export interface Dog {
   user_id: string;
   name: string;
   avatar_url?: string;
+  /** 한 줄 소개 (선택, 최대 80자) — 성격 태그로는 전해지지 않는 한마디 */
+  bio?: string;
   breed?: string;         // 품종 (e.g., '말티즈', '푸들')
   weight_kg?: number;     // 체중
   size: DogSize;

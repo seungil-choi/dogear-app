@@ -50,6 +50,7 @@ export default function DogEditScreen() {
   const [avatarUri, setAvatarUri] = useState<string | undefined>(dog?.avatar_url);
   const [name, setName] = useState(dog?.name ?? '');
   const [breed, setBreed] = useState(dog?.breed ?? '');
+  const [bio, setBio] = useState(dog?.bio ?? '');
   const [weightKg, setWeightKg] = useState(
     dog?.weight_kg != null ? String(dog.weight_kg) : '',
   );
@@ -69,6 +70,7 @@ export default function DogEditScreen() {
     setAvatarUri(dog.avatar_url);
     setName(dog.name ?? '');
     setBreed(dog.breed ?? '');
+    setBio(dog.bio ?? '');
     setWeightKg(dog.weight_kg != null ? String(dog.weight_kg) : '');
     setSize(dog.size);
     setAgeGroup(dog.age_group);
@@ -136,7 +138,7 @@ export default function DogEditScreen() {
     if (saving) return;            // 더블탭 이중 업로드·이중 back 방지
 
     // 0. UGC 텍스트 사전 필터 (Apple 1.2) — 이름/견종은 타인에게 노출되므로 부적절어 차단
-    if (isObjectionable(name) || isObjectionable(breed)) {
+    if (isObjectionable(name) || isObjectionable(breed) || isObjectionable(bio)) {
       notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
       return;
     }
@@ -184,6 +186,7 @@ export default function DogEditScreen() {
       ...dog,
       avatar_url: finalAvatarUrl,
       name: name.trim() || dog.name,
+      bio: bio.trim() || undefined,
       breed: breed.trim() || undefined,
       weight_kg: weightKg ? parseFloat(weightKg) : undefined,
       size,
@@ -198,6 +201,7 @@ export default function DogEditScreen() {
         .update({
           name: updatedDog.name,
           avatar_url: updatedDog.avatar_url ?? null,
+          bio: updatedDog.bio ?? null,
           breed: updatedDog.breed ?? null,
           weight_kg: updatedDog.weight_kg ?? null,
           size: updatedDog.size,
@@ -335,6 +339,19 @@ export default function DogEditScreen() {
                 placeholderTextColor={Colors.text.placeholder}
                 returnKeyType="next"
                 accessibilityLabel="강아지 이름"
+              />
+            </FieldRow>
+            <Divider />
+            <FieldRow label="한 줄 소개">
+              <TextInput
+                style={styles.input}
+                value={bio}
+                onChangeText={setBio}
+                placeholder="낯은 가리지만 냄새 맡는 건 좋아해요"
+                placeholderTextColor={Colors.text.placeholder}
+                maxLength={80}
+                returnKeyType="next"
+                accessibilityLabel="강아지 한 줄 소개"
               />
             </FieldRow>
             <Divider />

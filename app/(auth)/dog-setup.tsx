@@ -5,11 +5,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { AppImage } from '../../src/components/common/AppImage';
+import { uploadImage } from '../../src/lib/uploadImage';
+import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../../src/utils/moderation';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/common/Button';
+import { Icon } from '../../src/components/common/Icon';
 import type { DogSize, DogAgeGroup, Dog } from '../../src/types';
 import { sizeLabel, ageGroupLabel } from '../../src/utils/labels';
 
@@ -40,7 +45,15 @@ export default function DogSetupScreen() {
   const registerDog        = useAppStore(s => s.registerDog);
   const user               = useAppStore(s => s.user);
 
+  // 온보딩 연속 흐름에서 왔는지. 그 경우에만 '건너뛰기'가 의미가 있다
+  // (직접 들어온 사람에겐 건너뛸 다음 단계가 없고, 대신 '취소'로 되돌아가면 된다).
+  const params = useLocalSearchParams<{ from?: string }>();
+  const isOnboarding = params.from === 'onboarding';
+
   const [name, setName] = useState('');
+  const [nameTouched, setNameTouched] = useState(false);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [bio, setBio] = useState('');
   const [breed, setBreed] = useState('');
   const [weightKg, setWeightKg] = useState('');
   const [size, setSize] = useState<DogSize>('small');
@@ -60,9 +73,35 @@ export default function DogSetupScreen() {
     else setter([...arr, key]);
   };
 
+  const pickPhoto = async () => {
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        notify('사진 첨부에는 갤러리 권한이 필요해요.', '권한 필요');
+        return;
+      }
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (!res.canceled && res.assets?.[0]) setPhotoUri(res.assets[0].uri);
+    } catch {
+      notify('사진을 불러오지 못했어요. 잠시 후 다시 시도해주세요.', '오류');
+    }
+  };
+
   const handleDone = async () => {
     if (!name.trim() || isSaving) return;
     setIsSaving(true);
+
+    // UGC 사전 필터 — 이름·소개는 다른 보호자에게 보인다 (Apple 1.2)
+    if (isObjectionable(name) || isObjectionable(bio)) {
+      notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
+      setIsSaving(false);
+      return;
+    }
 
     const weightNum = weightKg.trim() ? parseFloat(weightKg) : undefined;
     const weightValid = weightNum === undefined || (!Number.isNaN(weightNum) && weightNum > 0 && weightNum < 100);
@@ -72,6 +111,22 @@ export default function DogSetupScreen() {
       return;
     }
 
+    // 사진은 스토리지에 먼저 올린다. 로컬 file:// 경로를 DB에 넣으면 다른 기기에서 깨진다.
+    // 업로드 실패는 등록 자체를 막지 않고 사진만 포기한다.
+    let avatarUrl: string | undefined;
+    if (photoUri && IS_REAL_AUTH) {
+      try {
+        const up = await uploadImage({ bucket: 'dog-avatars', uri: photoUri });
+        avatarUrl = up.url;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('[dog-setup] 사진 업로드 실패 — 사진 없이 등록을 이어갑니다:', e);
+        notify('사진은 등록하지 못했어요. 프로필 편집에서 다시 시도할 수 있어요.', '사진 업로드 실패');
+      }
+    } else if (photoUri) {
+      avatarUrl = photoUri;   // 데모 모드는 로컬 URI 그대로
+    }
+
     if (IS_REAL_AUTH && user) {
       // 실 환경: Supabase dogs 테이블에 저장 → DB 생성 UUID 사용
       const { data, error } = await supabase
@@ -79,6 +134,8 @@ export default function DogSetupScreen() {
         .insert({
           user_id: user.user_id,
           name: name.trim(),
+          avatar_url: avatarUrl ?? null,
+          bio: bio.trim() || null,
           breed: breed.trim() || null,
           weight_kg: weightNum ?? null,
           size,
@@ -100,6 +157,8 @@ export default function DogSetupScreen() {
         dog_id: data.dog_id,
         user_id: data.user_id,
         name: data.name,
+        avatar_url: data.avatar_url ?? undefined,
+        bio: data.bio ?? undefined,
         breed: data.breed ?? undefined,
         weight_kg: data.weight_kg ?? undefined,
         size: data.size,
@@ -116,6 +175,8 @@ export default function DogSetupScreen() {
         dog_id: `dog_${Date.now()}`,
         user_id: user?.user_id ?? 'local',
         name: name.trim(),
+        avatar_url: avatarUrl,
+        bio: bio.trim() || undefined,
         breed: breed.trim() || undefined,
         weight_kg: weightNum,
         size,
@@ -132,6 +193,8 @@ export default function DogSetupScreen() {
     track(EVENT.dog_profile_create_completed, {
       screen_name: 'dog_setup',
       has_breed: !!breed.trim(),
+      has_photo: !!avatarUrl,
+      has_bio: !!bio.trim(),
       has_weight: !!weightNum,
       temperament_count: selectedTemperament.length,
       walking_count: selectedWalking.length,
@@ -140,7 +203,13 @@ export default function DogSetupScreen() {
     router.replace('/(tabs)');
   };
 
-  // 강아지 등록 건너뛰기 — 마이 탭에서 언제든 추가 가능
+  // 취소 — 온 곳으로 되돌린다(직접 진입 전용). 등록 상태는 아무것도 바꾸지 않는다.
+  const handleCancel = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/(tabs)');
+  };
+
+  // 강아지 등록 건너뛰기 — 온보딩 연속 흐름 전용. 마이 탭에서 언제든 추가 가능
   const handleSkip = () => {
     completeOnboarding();
     router.replace('/(tabs)');
@@ -150,13 +219,16 @@ export default function DogSetupScreen() {
 
   return (
     <SafeAreaView style={s.safe}>
-      {/* 헤더 — 우측 상단 건너뛰기 */}
+      {/* 헤더 — 건너뛰기는 온보딩 연속 흐름에서만.
+          직접 들어온 사람에겐 건너뛸 다음 단계가 없다(하단 취소로 되돌아간다). */}
       <View style={s.header}>
         <View style={{ width: 40 }} />
         <View style={{ flex: 1 }} />
-        <TouchableOpacity onPress={handleSkip} style={s.skipBtn} hitSlop={8} disabled={isSaving}>
-          <Text style={s.skipText}>건너뛰기</Text>
-        </TouchableOpacity>
+        {isOnboarding && (
+          <TouchableOpacity onPress={handleSkip} style={s.skipBtn} hitSlop={8} disabled={isSaving}>
+            <Text style={s.skipText}>건너뛰기</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <ScrollView style={s.scroll} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
@@ -171,22 +243,73 @@ export default function DogSetupScreen() {
           나중에 마이 탭에서 언제든 추가할 수 있어요.
         </Text>
 
-        {/* 이름 */}
+        {/* 사진 (선택) */}
+        <View style={s.photoBlock}>
+          <TouchableOpacity
+            style={s.photoPicker}
+            onPress={pickPhoto}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={photoUri ? '사진 바꾸기' : '사진 추가'}
+          >
+            {photoUri ? (
+              <AppImage source={{ uri: photoUri }} style={s.photoPreview} resizeMode="cover" />
+            ) : (
+              <View style={s.photoPlaceholder}>
+                <Icon name="dog" size={30} color={Colors.brand.primary} />
+              </View>
+            )}
+            <View style={s.photoBadge}>
+              <Icon name={photoUri ? 'edit' : 'plus'} size={13} color={Colors.brand.onPrimary} />
+            </View>
+          </TouchableOpacity>
+          <Text style={s.photoHint}>사진 (선택)</Text>
+          {photoUri && (
+            <TouchableOpacity onPress={() => setPhotoUri(null)} hitSlop={8}>
+              <Text style={s.photoRemove}>사진 지우기</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* 이름 (필수) */}
         <View style={s.field}>
           <Text style={s.fieldLabel}>이름</Text>
           <TextInput
-            style={s.textInput}
+            style={[s.textInput, nameTouched && !name.trim() && s.textInputError]}
             placeholder="예: 보리, 초코, 몽이"
             placeholderTextColor={Colors.text.tertiary}
             value={name}
             onChangeText={setName}
+            onBlur={() => setNameTouched(true)}
             maxLength={20}
             accessibilityLabel="강아지 이름"
             returnKeyType="next"
           />
-          <Text style={s.fieldHint}>
-            이 이름이 다른 보호자에게 보이는 식별자가 돼요. 닉네임처럼 활용돼요.
-          </Text>
+          {/* 검증 메시지는 입력 필드에 붙인다 — 예전엔 하단 버튼 라벨이 '이름을 입력해주세요'로
+              바뀌어, 어디를 고쳐야 하는지 알려주지 못했다. */}
+          {nameTouched && !name.trim() ? (
+            <Text style={s.fieldError}>이름을 입력해주세요</Text>
+          ) : (
+            <Text style={s.fieldHint}>
+              이 이름이 다른 보호자에게 보이는 식별자가 돼요. 닉네임처럼 활용돼요.
+            </Text>
+          )}
+        </View>
+
+        {/* 한 줄 소개 (선택) */}
+        <View style={s.field}>
+          <Text style={s.fieldLabel}>한 줄 소개 (선택)</Text>
+          <TextInput
+            style={[s.textInput, s.textInputMulti]}
+            placeholder="예: 낯은 가리지만 냄새 맡는 건 좋아해요"
+            placeholderTextColor={Colors.text.tertiary}
+            value={bio}
+            onChangeText={setBio}
+            maxLength={80}
+            multiline
+            accessibilityLabel="강아지 한 줄 소개"
+          />
+          <Text style={s.fieldHint}>{bio.length}/80</Text>
         </View>
 
         {/* 품종 + 체중 — 한 줄 (선택) */}
@@ -287,18 +410,29 @@ export default function DogSetupScreen() {
         <View style={{ height: Spacing[40] }} />
       </ScrollView>
 
+      {/* 하단 CTA — 장소 상세와 같은 비율 규칙(보조 1 : 주 2).
+          온보딩에서는 되돌아갈 화면이 없어(replace 진입) 취소를 두지 않는다.
+          그 경우의 이탈구는 상단 '건너뛰기'다. */}
       <View style={s.footer}>
+        {!isOnboarding && (
+          <Button
+            label="취소"
+            onPress={handleCancel}
+            variant="secondary"
+            size="l"
+            disabled={isSaving}
+            style={s.footerCancel}
+          />
+        )}
         <Button
-          label={isSaving ? '등록 중...' : canProceed ? '등록하고 시작' : '이름을 입력해주세요'}
+          label={isSaving ? '등록 중...' : '강아지 등록하기'}
           onPress={handleDone}
           variant="primary"
           size="l"
-          fullWidth
+          fullWidth={isOnboarding}
+          style={isOnboarding ? undefined : s.footerPrimary}
           disabled={!canProceed}
         />
-        <TouchableOpacity onPress={handleSkip} style={s.skipLater} disabled={isSaving} activeOpacity={0.7}>
-          <Text style={s.skipLaterText}>나중에 등록할게요</Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -334,18 +468,6 @@ const s = StyleSheet.create({
 
   desc: { ...Typography.body.m, color: Colors.text.secondary, marginBottom: Spacing[24], lineHeight: 22 },
 
-  // 하단 보조 — 나중에 등록
-  skipLater: {
-    alignItems: 'center',
-    paddingVertical: Spacing[12],
-    marginTop: Spacing[6],
-  },
-  skipLaterText: {
-    ...Typography.label.m,
-    color: Colors.text.tertiary,
-    fontWeight: '500',
-    textDecorationLine: 'underline',
-  },
 
   field: { marginBottom: Spacing[20] },
   fieldRow: { flexDirection: 'row', gap: Spacing[10], marginBottom: Spacing[20] },
@@ -380,10 +502,53 @@ const s = StyleSheet.create({
   chipTextSelected: { color: Colors.brand.primary, fontWeight: '600' },
 
   footer: {
+    flexDirection: 'row',
+    gap: Spacing[8],
     padding: Spacing[16],
     paddingBottom: Spacing[32],
     borderTopWidth: 1,
     borderTopColor: Colors.border.subtle,
     backgroundColor: Colors.bg.primary,
   },
+  // 보조 1 : 주 2 — 장소 상세 하단 CTA와 같은 비율 규칙
+  footerCancel:  { flex: 1 },
+  footerPrimary: { flex: 2 },
+
+  // ── 사진 (선택) ────────────────────────────────────────────
+  photoBlock: {
+    alignItems: 'center',
+    gap: Spacing[6],
+    marginBottom: Spacing[20],
+  },
+  photoPicker: { width: 96, height: 96 },
+  photoPreview: {
+    width: 96, height: 96, borderRadius: 48,
+    backgroundColor: Colors.bg.tertiary,
+  },
+  photoPlaceholder: {
+    width: 96, height: 96, borderRadius: 48,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.brand.subtle,
+    borderWidth: 1.5,
+    borderColor: Colors.border.brand,
+    borderStyle: 'dashed',
+  },
+  photoBadge: {
+    position: 'absolute', right: -2, bottom: -2,
+    width: 30, height: 30, borderRadius: 15,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.brand.primary,
+    borderWidth: 2.5, borderColor: Colors.bg.primary,
+  },
+  photoHint:   { ...Typography.caption, color: Colors.text.tertiary },
+  photoRemove: { ...Typography.label.s, color: Colors.text.secondary, textDecorationLine: 'underline' },
+
+  // 입력 검증
+  textInputError: { borderColor: Colors.status.error.text },
+  fieldError: {
+    ...Typography.caption,
+    color: Colors.status.error.text,
+    marginTop: Spacing[6],
+  },
+  textInputMulti: { minHeight: 64, textAlignVertical: 'top', paddingTop: Spacing[12] },
 });
