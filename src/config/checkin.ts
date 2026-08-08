@@ -34,7 +34,7 @@ export const PAWMARK_PROXIMITY = {
 } as const;
 
 /** 동일 강아지 × 동일 spot에서 연속 발도장 최소 간격 (ms). 서버 검증과 미러. */
-export const PAWMARK_COOLDOWN_MS = 60 * 60 * 1000; // 1시간
+const PAWMARK_COOLDOWN_MS = 60 * 60 * 1000; // 1시간
 
 /** last_visit_at으로부터 쿨다운까지 남은 시간 (ms). 0 이하면 가능. */
 export function pawmarkCooldownRemainingMs(lastVisitAtIso?: string | null): number {

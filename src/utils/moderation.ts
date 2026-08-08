@@ -24,7 +24,7 @@ const BANNED_PATTERNS: RegExp[] = [
 ];
 
 /** 입력에서 처음 걸린 금지어 반환, 없으면 null */
-export function findBannedWord(text: string | null | undefined): string | null {
+function findBannedWord(text: string | null | undefined): string | null {
   if (!text) return null;
   const normalized = text.replace(/\s+/g, '');
   for (const re of BANNED_PATTERNS) {

@@ -31,7 +31,7 @@ export const mockDog: Dog = {
   is_active: true,
 };
 
-export const mockDog2: Dog = {
+const mockDog2: Dog = {
   dog_id: 'dog_002',
   user_id: 'usr_001',
   name: '콩이',
@@ -46,7 +46,7 @@ export const mockDog2: Dog = {
   is_active: true,
 };
 
-export const mockDog3: Dog = {
+const mockDog3: Dog = {
   dog_id: 'dog_004',
   user_id: 'usr_001',
   name: '아몬드',

@@ -90,7 +90,3 @@ export function pathFromPublicUrl(url: string, bucket: ImageBucket): string | nu
   return url.substring(idx + marker.length);
 }
 
-export async function deleteImage(bucket: ImageBucket, path: string): Promise<void> {
-  if (!IS_REAL_AUTH || !path) return;
-  await supabase.storage.from(bucket).remove([path]).catch(() => {});
-}

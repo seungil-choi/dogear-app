@@ -50,20 +50,6 @@ export function Skeleton({ width = '100%', height = 16, radius = Radius.s, style
 
 // ─── 복합 스켈레톤 ───────────────────────────────────
 
-/** SpotCard 로딩 스켈레톤 */
-export function SpotCardSkeleton() {
-  return (
-    <View style={styles.spotCard}>
-      <Skeleton width={56} height={56} radius={Radius.m} style={styles.spotCardImage} />
-      <View style={styles.spotCardContent}>
-        <Skeleton width="60%" height={14} style={styles.mb6} />
-        <Skeleton width="40%" height={12} style={styles.mb6} />
-        <Skeleton width="80%" height={12} />
-      </View>
-    </View>
-  );
-}
-
 /** HomeSpotRail 로딩 스켈레톤 */
 export function HomeRailSkeleton() {
   return (
@@ -75,24 +61,6 @@ export function HomeRailSkeleton() {
           <Skeleton width="50%" height={10} />
         </View>
       ))}
-    </View>
-  );
-}
-
-/** SpotDetail 헤더 스켈레톤 */
-export function SpotDetailHeaderSkeleton() {
-  return (
-    <View style={styles.detailHeader}>
-      <Skeleton height={200} radius={0} style={styles.mb12} />
-      <View style={styles.detailMeta}>
-        <Skeleton width="50%" height={20} style={styles.mb8} />
-        <Skeleton width="35%" height={14} style={styles.mb12} />
-        <View style={styles.badgeRow}>
-          <Skeleton width={72} height={28} radius={14} style={styles.badge} />
-          <Skeleton width={72} height={28} radius={14} style={styles.badge} />
-          <Skeleton width={72} height={28} radius={14} />
-        </View>
-      </View>
     </View>
   );
 }

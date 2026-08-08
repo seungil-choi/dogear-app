@@ -75,14 +75,3 @@ export function NaverLogo({ size = 22 }: LogoProps) {
   );
 }
 
-// 이메일 — 단색 라인 아이콘
-export function EmailLogo({ size = 22, color = '#1A1612' }: LogoProps & { color?: string }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path
-        d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm0 4v10h16V8l-8 5-8-5zm0-2l8 5 8-5H4z"
-        fill={color}
-      />
-    </Svg>
-  );
-}

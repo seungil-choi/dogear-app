@@ -12,7 +12,7 @@ import type { Spot } from '../types';
  * 지도 팬마다 최대 150개씩 병합되는데 상한이 없으면 계속 쌓여
  * 카드·마커 계산이 매번 전체를 훑게 되고 지도가 점점 느려진다.
  */
-export const MAX_CACHED_SPOTS = 600;
+const MAX_CACHED_SPOTS = 600;
 
 export interface MergeContext {
   /** 저장한 장소 id (evict 금지) */
