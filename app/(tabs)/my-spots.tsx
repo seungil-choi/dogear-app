@@ -6,7 +6,10 @@
  *
  * 구조:
  *   Tab 1. 발도장 남긴 곳 — 방문횟수 + 최근방문일 + 단골 상태 라벨
- *   Tab 2. 저장한 곳      — 가보고 싶은 곳 / 다시 가고 싶은 곳
+ *   Tab 2. 저장한 곳      — 아직 안 가본 곳 / 다녀온 곳
+ *     ↑ 이 구분은 사용자가 고른 게 아니라 시스템이 방문 이력으로 자동 분류한다
+ *       (useAppStore.toggleSaveSpot: hasVisited ? 'go_again' : 'want_to_go').
+ *       그래서 '가보고 싶은 곳' 같은 의사 표현이 아니라 사실만 적는다.
  */
 
 import React, { useState, useMemo } from 'react';
@@ -216,7 +219,7 @@ export default function MySpotsScreen() {
               {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').length > 0 && (
                 <View style={s.savedGroupHead}>
                   <Icon name="bookmark" size={13} color={Colors.text.secondary} />
-                  <Text style={s.savedGroupTitle}>가보고 싶은 곳</Text>
+                  <Text style={s.savedGroupTitle}>아직 안 가본 곳</Text>
                   <Text style={s.savedGroupCount}>
                     {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').length}곳
                   </Text>
@@ -240,7 +243,7 @@ export default function MySpotsScreen() {
               {mySavedSpots.filter(x => x.saved.saved_type === 'go_again').length > 0 && (
                 <View style={s.savedGroupHead}>
                   <Icon name="star-filled" size={13} color={Colors.brand.primary} />
-                  <Text style={s.savedGroupTitle}>다시 가고 싶은 곳</Text>
+                  <Text style={s.savedGroupTitle}>다녀온 곳</Text>
                   <Text style={s.savedGroupCount}>
                     {mySavedSpots.filter(x => x.saved.saved_type === 'go_again').length}곳
                   </Text>
@@ -254,7 +257,7 @@ export default function MySpotsScreen() {
                   subcategory={spot.subcategory}
                   distanceText={card?.distance_text ?? '—'}
                   atmosphereSummary={card?.atmosphere_badges.join(' · ')}
-                  relationSummary="다시 가고 싶은 곳"
+                  relationSummary="다녀온 곳"
                   isSaved={true}
                   coverImageUrl={spot.cover_image_url}
                   onPress={() => router.push(`/spot/${spot.spot_id}`)}
