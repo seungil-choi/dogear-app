@@ -48,6 +48,7 @@ export const EVENT = {
   // 장소 상세
   place_detail_viewed:               'place_detail_viewed',
   place_saved:                       'place_saved',
+  place_shared:                      'place_shared',
   place_unsaved:                     'place_unsaved',
   navigation_clicked:                'navigation_clicked',
   frequent_dogs_opened:              'frequent_dogs_opened',

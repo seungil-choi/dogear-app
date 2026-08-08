@@ -142,13 +142,43 @@ export default function SpotDetailScreen() {
     }
   }, [vm, id]);
 
+  /**
+   * 장소 공유.
+   *
+   * 예전에는 장소 **이름만** 보냈다("망원한강공원"). 받는 사람은 그게 어디인지 알 수 없다.
+   * 지금은 이름·카테고리·주소에 지도 링크까지 실어, 앱이 없어도 바로 열어볼 수 있게 한다.
+   *
+   * ⚠️ OG 미리보기(썸네일 카드)는 지금 구조에서 불가능하다.
+   *    장소마다 크롤러가 읽을 수 있는 공개 웹 페이지가 있어야 하는데 그런 페이지가 없다.
+   *    앱 스킴(dogear://)은 미리보기가 뜨지 않고 앱이 깔린 기기에서만 열린다.
+   *    제대로 하려면 장소별 SSR 랜딩 + Universal/App Links가 선행돼야 한다.
+   */
   const handleShare = useCallback(() => {
-    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && (navigator as any).share && vm) {
-      (navigator as any).share({ title: vm.name, url: typeof window !== 'undefined' && window.location ? window.location.href : '' }).catch(() => {});
-    } else if (vm) {
-      Share.share({ title: vm.name, message: vm.name }).catch(() => {});
+    if (!vm) return;
+    const mapUrl = vm.address_text
+      ? `https://map.naver.com/v5/search/${encodeURIComponent(vm.address_text)}`
+      : `https://map.naver.com/v5/search/${encodeURIComponent(vm.name)}`;
+    const lines = [
+      `🐾 ${vm.name}`,
+      [vm.category_label, vm.region_summary].filter(Boolean).join(' · '),
+      vm.address_text ?? '',
+      '',
+      mapUrl,
+    ].filter(l => l !== undefined);
+    const message = lines.join('\n').replace(/\n{3,}/g, '\n\n');
+
+    track(EVENT.place_shared, {
+      screen_name: 'spot_detail',
+      place_id: id,
+      place_category: vm.category_label,
+    });
+
+    if (Platform.OS === 'web' && typeof navigator !== 'undefined' && (navigator as any).share) {
+      (navigator as any).share({ title: vm.name, text: message, url: mapUrl }).catch(() => {});
+      return;
     }
-  }, [vm]);
+    Share.share({ title: vm.name, message }).catch(() => {});
+  }, [vm, id]);
 
   // 타인 강아지(익숙한 강아지) 신고/차단 — Apple UGC 1.2: 콘텐츠가 보이는 자리에서 신고·차단
   const handleReportDog = useCallback(async (dog: FamiliarDogCardViewModel) => {
@@ -237,9 +267,6 @@ export default function SpotDetailScreen() {
           <Icon name="back" size={22} color={Colors.text.primary} />
         </TouchableOpacity>
         <View style={s.topNavRight}>
-          <TouchableOpacity style={s.topNavBtn} onPress={handleShare} hitSlop={8} accessibilityLabel="공유">
-            <Icon name="share" size={20} color={Colors.text.secondary} />
-          </TouchableOpacity>
           <TouchableOpacity style={s.topNavBtn} onPress={handleMore} hitSlop={8} accessibilityLabel="더보기">
             <Icon name="more" size={20} color={Colors.text.secondary} />
           </TouchableOpacity>
@@ -278,50 +305,55 @@ export default function SpotDetailScreen() {
             pointerEvents="none"
           />
 
-          {/* 텍스트 오버레이 — 카테고리 / 장소명 / 지역·거리·저장
-              box-none: 오버레이 자체는 터치를 통과시키되 자식(저장 버튼)은 받는다 */}
+          {/* 텍스트 오버레이 — [좌: 카테고리·장소명·지역·거리] [우: 저장]
+              좌측 텍스트를 한 덩어리(flex:1)로 묶고 저장은 그 형제로 둔다.
+              예전엔 저장을 지역·거리 줄 안에 넣어, 저장 상태가 바뀌며 폭이 변할 때마다
+              같은 줄의 텍스트가 밀려 장소명 블록이 흔들렸다.
+              box-none: 오버레이는 터치를 통과시키되 자식(저장 버튼)은 받는다 */}
           <View style={s.keyVisualOverlay} pointerEvents="box-none">
-            <View style={s.keyVisualBadgeRow} pointerEvents="none">
-              <View style={s.keyVisualBadge}>
-                <Icon name="leaf-filled" size={11} color={Colors.brand.primary} />
-                <Text style={s.keyVisualBadgeText}>{vm.category_label}</Text>
-              </View>
-              {/* 검토 대기 — 배너 대신 칩으로. 썸네일 안에서 상태를 바로 읽게 한다 */}
-              {vm.is_pending_review && (
-                <View style={s.keyVisualPendingChip}>
-                  <Icon name="info" size={11} color="#fff" />
-                  <Text style={s.keyVisualPendingText}>검토 중</Text>
+            <View style={s.keyVisualInfo} pointerEvents="none">
+              <View style={s.keyVisualBadgeRow}>
+                <View style={s.keyVisualBadge}>
+                  <Icon name="leaf-filled" size={11} color={Colors.brand.primary} />
+                  <Text style={s.keyVisualBadgeText}>{vm.category_label}</Text>
                 </View>
-              )}
-            </View>
-            <Text style={s.keyVisualName} numberOfLines={2}>{vm.name}</Text>
-            <View style={s.keyVisualMetaRow}>
-              <Icon name="location" size={12} color="rgba(255,255,255,0.85)" />
-              <Text style={s.keyVisualMeta} numberOfLines={1}>
-                {[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
-              </Text>
-              {/* 저장 — 같은 줄 오른쪽 끝. 좌(위치·거리) ↔ 우(저장) 균형.
-                  하단 저장하기 버튼과 **같은 handleSave·같은 locallySaved**를 쓰므로
-                  두 곳의 상태가 어긋날 수 없다. 눌릴 것처럼 생겼으면 눌려야 한다. */}
-              <TouchableOpacity
-                style={[s.keyVisualSaved, locallySaved && s.keyVisualSavedActive]}
-                onPress={handleSave}
-                activeOpacity={0.8}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                accessibilityRole="button"
-                accessibilityLabel={locallySaved ? '저장 해제' : '저장하기'}
-                accessibilityState={{ selected: locallySaved }}
-              >
-                <Icon
-                  name={locallySaved ? 'bookmark-filled' : 'bookmark'}
-                  size={12}
-                  color="#fff"
-                />
-                {displaySavedCount > 0 && (
-                  <Text style={s.keyVisualSavedText}>{displaySavedCount}</Text>
+                {/* 검토 대기 — 배너 대신 칩으로. 썸네일 안에서 상태를 바로 읽게 한다 */}
+                {vm.is_pending_review && (
+                  <View style={s.keyVisualPendingChip}>
+                    <Icon name="info" size={11} color="#fff" />
+                    <Text style={s.keyVisualPendingText}>검토 중</Text>
+                  </View>
                 )}
-              </TouchableOpacity>
+              </View>
+              <Text style={s.keyVisualName} numberOfLines={2}>{vm.name}</Text>
+              <View style={s.keyVisualMetaRow}>
+                <Icon name="location" size={12} color="rgba(255,255,255,0.85)" />
+                <Text style={s.keyVisualMeta} numberOfLines={1}>
+                  {[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
+                </Text>
+              </View>
             </View>
+
+            {/* 저장 — 알약 없이 아이콘만, 숫자는 아이콘 아래.
+                하단 저장하기 버튼과 같은 handleSave·같은 locallySaved를 쓴다. */}
+            <TouchableOpacity
+              style={s.keyVisualSaveBtn}
+              onPress={handleSave}
+              activeOpacity={0.8}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel={locallySaved ? '저장 해제' : '저장하기'}
+              accessibilityState={{ selected: locallySaved }}
+            >
+              <Icon
+                name={locallySaved ? 'bookmark-filled' : 'bookmark'}
+                size={26}
+                color="#FFFFFF"
+              />
+              {displaySavedCount > 0 && (
+                <Text style={s.keyVisualSaveCount}>{displaySavedCount}</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -347,7 +379,7 @@ export default function SpotDetailScreen() {
           <View style={s.statDivider} />
           <View style={s.statItem}>
             <View style={s.statIconWrap}>
-              <Icon name="star-filled" size={16} color={Colors.brand.primary} />
+              <Icon name="walk" size={16} color={Colors.brand.primary} />
             </View>
             <Text style={s.statValue}>{vm.user_relation?.visit_count ?? 0}회</Text>
             <Text style={s.statLabel}>내 방문</Text>
@@ -369,23 +401,12 @@ export default function SpotDetailScreen() {
           <View style={s.infoTable}>
             {hasChips && (
               <View style={s.infoRow}>
-                <Text style={s.infoKey}>편의·주의</Text>
+                <Text style={s.infoKey}>편의시설</Text>
                 <View style={s.facilityWrap}>
                   {chips.map(c => (
-                    <View
-                      key={c.key}
-                      style={[s.facilityChip, c.tone === 'caution' && s.facilityChipCaution]}
-                    >
-                      <Icon
-                        name={c.icon}
-                        size={11}
-                        color={c.tone === 'caution' ? Colors.status.warning.text : Colors.text.tertiary}
-                      />
-                      <Text
-                        style={[s.facilityChipText, c.tone === 'caution' && s.facilityChipTextCaution]}
-                      >
-                        {c.label}
-                      </Text>
+                    <View key={c.key} style={s.facilityChip}>
+                      <Icon name={c.icon} size={11} color={Colors.text.tertiary} />
+                      <Text style={s.facilityChipText}>{c.label}</Text>
                     </View>
                   ))}
                 </View>
@@ -425,22 +446,39 @@ export default function SpotDetailScreen() {
             );
           })()}
 
-          {/* 위치 미니맵 — 정보 테이블과 동일 너비 */}
-          <View style={s.locationMap} pointerEvents="none">
-            <KakaoMap
-              initialLatitude={vm.latitude}
-              initialLongitude={vm.longitude}
-              initialLevel={4}
-              markers={[{
-                id: vm.spot_id,
-                latitude: vm.latitude,
-                longitude: vm.longitude,
-                label: vm.name,
-                variant: 'default',
-              }] as KakaoMarker[]}
-              style={{ flex: 1, borderRadius: Radius.card }}
-            />
-          </View>
+          {/* 위치 미니맵 — 탭하면 길찾기.
+              지도처럼 생긴 것이 아무 반응도 없으면 고장으로 읽힌다.
+              길찾기는 이미 구현돼 있었지만 ⋯ 메뉴 3뎁스에 묻혀 거의 닿지 않았다.
+              지도 자체는 pointerEvents="none"으로 두고(WebView가 제스처를 먹지 않게)
+              바깥 Touchable이 탭을 받는다. */}
+          <TouchableOpacity
+            style={s.locationMap}
+            onPress={handleDirections}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={`${vm.name} 길찾기`}
+          >
+            <View style={StyleSheet.absoluteFill} pointerEvents="none">
+              <KakaoMap
+                initialLatitude={vm.latitude}
+                initialLongitude={vm.longitude}
+                initialLevel={4}
+                markers={[{
+                  id: vm.spot_id,
+                  latitude: vm.latitude,
+                  longitude: vm.longitude,
+                  label: vm.name,
+                  variant: 'default',
+                }] as KakaoMarker[]}
+                style={{ flex: 1, borderRadius: Radius.card }}
+              />
+            </View>
+            {/* 눌리는 곳임을 먼저 보여준다 — 외부 앱으로 나가는 동작이라 예고 없이 튕기면 놀란다 */}
+            <View style={s.mapDirectionsPill} pointerEvents="none">
+              <Icon name="navigate" size={13} color={Colors.brand.primary} />
+              <Text style={s.mapDirectionsText}>길찾기</Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* ── P3: 자주 찾는 강아지 ── */}
@@ -714,7 +752,33 @@ const s = StyleSheet.create({
     paddingHorizontal: Spacing[20],
     paddingBottom: Spacing[20],
     paddingTop: Spacing[40],
+    // [좌: 텍스트 묶음] [우: 저장] — 저장 폭이 변해도 좌측이 밀리지 않도록 형제로 분리
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: Spacing[12],
+  },
+  // 좌측 텍스트 한 덩어리 (카테고리 배지 · 장소명 · 지역·거리)
+  keyVisualInfo: {
+    flex: 1,
+    minWidth: 0,
     gap: Spacing[6],
+  },
+  // 저장 — 알약 배경 없이 아이콘만. 숫자는 아이콘 아래.
+  keyVisualSaveBtn: {
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 2,
+    paddingBottom: 2,
+    // 폭을 고정해 저장 상태·숫자 자릿수가 바뀌어도 좌측 텍스트가 흔들리지 않는다
+    width: 44,
+  },
+  keyVisualSaveCount: {
+    ...Typography.label.s,
+    color: '#FFFFFF',
+    fontWeight: '700',
+    textShadowColor: 'rgba(0,0,0,0.35)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   keyVisualBadge: {
     flexDirection: 'row',
@@ -777,29 +841,28 @@ const s = StyleSheet.create({
     fontWeight: '700',
   },
   // 저장 버튼 — 같은 줄 오른쪽 끝. 하단 저장하기와 동일 동작·동일 상태.
-  keyVisualSaved: {
-    marginLeft: 'auto',
+  // 위치 미니맵 — 장소 정보 섹션 밑, 정보 테이블과 동일 너비
+  // 길찾기 알약 — 미니맵 우하단
+  mapDirectionsPill: {
+    position: 'absolute',
+    right: Spacing[10],
+    bottom: Spacing[10],
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    paddingHorizontal: Spacing[10],
-    paddingVertical: 4,
+    gap: 4,
+    paddingHorizontal: Spacing[12],
+    paddingVertical: Spacing[6],
     borderRadius: Radius.round,
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(255,255,255,0.96)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.34)',
+    borderColor: Colors.border.brand,
   },
-  keyVisualSavedActive: {
-    backgroundColor: Colors.brand.primary,
-    borderColor: Colors.brand.primary,
-  },
-  keyVisualSavedText: {
+  mapDirectionsText: {
     ...Typography.label.s,
-    color: '#FFFFFF',
+    color: Colors.brand.accent,
     fontWeight: '700',
   },
 
-  // 위치 미니맵 — 장소 정보 섹션 밑, 정보 테이블과 동일 너비
   locationMap: {
     width: '100%',
     height: 180,
@@ -867,14 +930,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.secondary,
     borderColor: Colors.border.default,
   },
-  facilityChipCaution: {
-    backgroundColor: Colors.status.warning.bg,
-    // warning 토큰엔 border가 없다 — 텍스트 색을 옅게 깔아 경계만 만든다(과한 강조 방지)
-    borderColor: 'rgba(184,124,26,0.28)',
-  },
   facilityChipText: { ...Typography.label.s, color: Colors.text.secondary },
-  facilityChipTextCaution: { color: Colors.status.warning.text },
-
   // ── 공통 섹션 래퍼 ───────────────────────────────────────────────
   section: {
     backgroundColor: Colors.surface.default,
