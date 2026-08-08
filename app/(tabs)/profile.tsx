@@ -10,12 +10,12 @@
  *   4) 로그아웃
  */
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Dimensions, NativeScrollEvent, NativeSyntheticEvent, Linking,
+  View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { confirm, notify } from '../../src/utils/dialog';
+import { confirm, notify , actionSheet } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
@@ -27,12 +27,7 @@ import { visibilityLabel, ageGroupLabel, temperamentLabels, walkingStyleLabels }
 import type { Dog } from '../../src/types';
 import { severSocialSessions } from '@/lib/socialSession';
 
-const { width: SCREEN_W } = Dimensions.get('window');
-// 카드 좌우 여백 — 옆 카드가 살짝 보이도록
-const CARD_H_PADDING = Spacing[16];
-const CARD_GAP       = Spacing[12];
-const CARD_W         = SCREEN_W - CARD_H_PADDING * 2;
-const MAX_DOGS       = 5;
+const MAX_DOGS = 5;
 
 // ─── 설정 행 ─────────────────────────────────────────────────────
 function SettingsRow({
@@ -63,99 +58,93 @@ function SettingsRow({
 }
 
 // ─── 강아지 프로필 카드 (스와이프 슬롯) ─────────────────────────
-function DogProfileCard({
+/**
+ * 강아지 히어로 카드.
+ *
+ * 활성 강아지 하나를 크게 보여준다. 예전엔 카드 캐러셀이었는데,
+ * 한 마리만 키우는 대다수에게는 넘길 것이 없는 빈 제스처였고
+ * "지금 어느 아이 기준인지"가 흐릿했다. 전환은 필요할 때만 시트로 연다.
+ */
+function DogHeroCard({
   dog,
-  isActive,
-  onOpenDetail,
   onEdit,
+  onOpenDetail,
+  onSwitch,
+  switchLabel,
 }: {
   dog: Dog;
-  isActive: boolean;
-  onOpenDetail: () => void;
   onEdit: () => void;
+  onOpenDetail: () => void;
+  onSwitch?: () => void;
+  switchLabel: string;
 }) {
-  // 메타 포맷은 홈 프로필 카드와 동일하게 통일: 품종 · 나이 · 체중
   const metaParts = [
     dog.breed,
     ageGroupLabel[dog.age_group],
     dog.weight_kg ? `${dog.weight_kg}kg` : null,
   ].filter(Boolean);
-  // 성향 태그도 홈과 동일 문법 (기질 + 산책스타일, 최대 3개)
   const dogTags = [
     ...dog.temperament_tags.map(t => temperamentLabels[t]),
     ...dog.walking_style_tags.map(t => walkingStyleLabels[t]),
   ].filter(Boolean).slice(0, 3);
 
   return (
-    <TouchableOpacity
-      style={[s.dogCard, isActive ? s.dogCardActive : s.dogCardInactive]}
-      onPress={onOpenDetail}
-      activeOpacity={0.85}
-    >
-      {/* 아바타 */}
-      <View style={[s.dogAvatarWrap, isActive && s.dogAvatarWrapActive]}>
-        {dog.avatar_url ? (
-          <AppImage source={{ uri: dog.avatar_url }} style={s.dogAvatarImg} resizeMode="cover" />
-        ) : (
-          <View style={s.dogAvatarPlaceholder}>
-            <Text style={s.dogAvatarInitial}>{dog.name[0]}</Text>
+    <View style={s.hero}>
+      <View style={s.heroTop}>
+        {/* 아바타 — 탭하면 상세 */}
+        <TouchableOpacity onPress={onOpenDetail} activeOpacity={0.85} accessibilityLabel={`${dog.name} 상세`}>
+          <View style={s.heroAvatarWrap}>
+            {dog.avatar_url ? (
+              <AppImage source={{ uri: dog.avatar_url }} style={s.heroAvatarImg} resizeMode="cover" />
+            ) : (
+              <View style={s.heroAvatarPlaceholder}>
+                <Icon name="dog" size={34} color={Colors.brand.primary} />
+              </View>
+            )}
           </View>
-        )}
-      </View>
+        </TouchableOpacity>
 
-      {/* 텍스트 영역 */}
-      <View style={s.dogInfo}>
-        {/* 이름 + 발도장 활성 배지 (우측 상단) */}
-        <View style={s.dogNameRow}>
-          <Text style={[s.dogName, isActive && s.dogNameActive]}>{dog.name}</Text>
-          {isActive && (
-            <View style={s.activeBadge}>
-              <Icon name="paw-filled" size={10} color={Colors.brand.primary} />
-              <Text style={s.activeBadgeText}>발도장 활성 중</Text>
+        <View style={s.heroInfo}>
+          <Text style={s.heroEyebrow}>내 산책 파트너</Text>
+          <View style={s.heroNameRow}>
+            <Text style={s.heroName} numberOfLines={1}>{dog.name}</Text>
+            <View style={s.heroBadge}>
+              <Icon name="paw-filled" size={10} color="#FFFFFF" />
+              <Text style={s.heroBadgeText}>발도장 ON</Text>
             </View>
+          </View>
+          {metaParts.length > 0 && (
+            <Text style={s.heroMeta} numberOfLines={1}>{metaParts.join(' · ')}</Text>
           )}
         </View>
-
-        {/* 품종 · 나이 · 체중 (홈과 동일 포맷) */}
-        <Text style={s.dogMeta}>{metaParts.join(' · ')}</Text>
-
-        {/* 성향 태그 칩 (홈과 동일 문법) */}
-        {dogTags.length > 0 && (
-          <View style={s.dogTagRow}>
-            {dogTags.map(tag => (
-              <View key={tag} style={s.dogTag}>
-                <Text style={s.dogTagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* 프로필 편집 버튼 (하단) */}
-        <View style={s.dogCardFooter}>
-          <TouchableOpacity
-            style={s.editPill}
-            onPress={onEdit}
-            activeOpacity={0.75}
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Text style={s.editPillText}>프로필 편집</Text>
-          </TouchableOpacity>
-        </View>
       </View>
-    </TouchableOpacity>
-  );
-}
 
-// ─── 페이지 도트 ─────────────────────────────────────────────────
-function PageDots({ total, current }: { total: number; current: number }) {
-  return (
-    <View style={s.dotsRow}>
-      {Array.from({ length: total }).map((_, i) => (
-        <View
-          key={i}
-          style={[s.dot, i === current && s.dotActive]}
-        />
-      ))}
+      {/* 한 줄 소개 — 성격 태그로는 전해지지 않는 한마디 */}
+      {!!dog.bio && (
+        <Text style={s.heroBio} numberOfLines={2}>{dog.bio}</Text>
+      )}
+
+      {dogTags.length > 0 && (
+        <View style={s.heroTagRow}>
+          {dogTags.map(tag => (
+            <View key={tag} style={s.heroTag}>
+              <Text style={s.heroTagText}>{tag}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* 보조 2 : 주 1 — 편집이 더 자주 쓰인다 */}
+      <View style={s.heroActions}>
+        <TouchableOpacity style={s.heroBtnPrimary} onPress={onEdit} activeOpacity={0.85}>
+          <Text style={s.heroBtnPrimaryText}>프로필 편집</Text>
+        </TouchableOpacity>
+        {onSwitch && (
+          <TouchableOpacity style={s.heroBtnGhost} onPress={onSwitch} activeOpacity={0.85}>
+            <Text style={s.heroBtnGhostText}>{switchLabel}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
@@ -189,21 +178,26 @@ export default function ProfileScreen() {
       .catch(() => notify('support@9factorial.com으로 직접 문의해 주세요.', '메일 앱을 열 수 없어요'));
   }, []);
 
-  // 현재 보이는 슬롯 인덱스 (강아지 카드 + 추가 카드)
-  const [pageIndex, setPageIndex] = useState(0);
-  const scrollRef = useRef<ScrollView>(null);
+  const canAddMore = dogs.length < MAX_DOGS;
 
-  const canAddMore  = dogs.length < MAX_DOGS;
-  const totalSlots  = dogs.length; // 추가 카드 없이 강아지 수만
-
-  const handleScroll = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const x   = e.nativeEvent.contentOffset.x;
-      const idx = Math.round(x / (CARD_W + CARD_GAP));
-      setPageIndex(idx);
-    },
-    [],
-  );
+  /**
+   * 강아지 바꾸기 — 바텀시트.
+   *   예전엔 카드 캐러셀을 옆으로 넘겨 고르게 했는데, 한 마리만 키우는 대다수에게는
+   *   넘길 것이 없는 빈 제스처였고 활성 강아지가 무엇인지도 흐릿했다.
+   *   활성 강아지 하나를 크게 보여주고, 전환은 필요할 때만 시트로 연다(IA §4).
+   */
+  const handleSwitchDog = useCallback(async () => {
+    const others = dogs.filter(d => d.dog_id !== activeDog?.dog_id);
+    const items = [
+      ...others.map(d => ({ label: d.name })),
+      ...(canAddMore ? [{ label: '+ 강아지 추가' }] : []),
+    ];
+    if (items.length === 0) return;
+    const idx = await actionSheet('강아지 바꾸기', items);
+    if (idx < 0) return;
+    if (idx < others.length) setActiveDog(others[idx]);
+    else router.push('/(auth)/dog-setup');
+  }, [dogs, activeDog, canAddMore, setActiveDog, router]);
 
   const handleOpenDetail = useCallback((dog: Dog) => {
     setActiveDog(dog);            // 상세는 활성 강아지 기준 데이터를 보여줌
@@ -214,10 +208,6 @@ export default function ProfileScreen() {
     setActiveDog(dog);
     router.push('/dog-edit');
   }, [setActiveDog, router]);
-
-  const handleAddDog = useCallback(() => {
-    router.push('/(auth)/dog-setup');
-  }, [router]);
 
   // 강아지 없음 → 등록 유도(비차단) + 설정/로그아웃/탈퇴는 계속 접근 가능해야 함
   if (!activeDog || dogs.length === 0) {
@@ -297,54 +287,16 @@ export default function ProfileScreen() {
         {/* ══════════════════════════════════════
             1) 내 강아지 — 스와이프 캐러셀
         ══════════════════════════════════════ */}
-        <View style={s.carouselSection}>
-          {/* 섹션 헤더 */}
-          <View style={s.carouselHeader}>
-            <View style={s.sectionTitleRow}>
-              <Icon name="paw" size={15} color={Colors.text.secondary} />
-              <Text style={s.sectionTitle}>내 강아지</Text>
-            </View>
-            {canAddMore && (
-              <TouchableOpacity
-                style={s.addDogBtn}
-                onPress={handleAddDog}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Icon name="plus" size={14} color={Colors.brand.primary} />
-                <Text style={s.addDogBtnText}>강아지 추가</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* 스와이프 영역 */}
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled={false}           // 카드 단위 스냅 (snapToInterval)
-            snapToInterval={CARD_W + CARD_GAP}
-            snapToAlignment="start"
-            decelerationRate="fast"
-            showsHorizontalScrollIndicator={false}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            contentContainerStyle={s.carouselTrack}
-          >
-            {dogs.map(dog => (
-              <DogProfileCard
-                key={dog.dog_id}
-                dog={dog}
-                isActive={dog.dog_id === activeDog.dog_id}
-                onOpenDetail={() => handleOpenDetail(dog)}
-                onEdit={() => handleEdit(dog)}
-              />
-            ))}
-          </ScrollView>
-
-          {/* 페이지 도트 */}
-          {totalSlots > 1 && (
-            <PageDots total={totalSlots} current={pageIndex} />
-          )}
-        </View>
+        {/* ══════════════════════════════════════
+            1) 내 강아지 — 히어로 카드
+        ══════════════════════════════════════ */}
+        <DogHeroCard
+          dog={activeDog}
+          onEdit={() => handleEdit(activeDog)}
+          onOpenDetail={() => handleOpenDetail(activeDog)}
+          onSwitch={dogs.length > 1 || canAddMore ? handleSwitchDog : undefined}
+          switchLabel={dogs.length > 1 ? '강아지 바꾸기' : '강아지 추가'}
+        />
 
         {/* ══════════════════════════════════════
             2) 발도장 설정 (활성 강아지 기준)
@@ -435,6 +387,76 @@ export default function ProfileScreen() {
 
 // ─── 스타일 ──────────────────────────────────────────────────────
 const s = StyleSheet.create({
+  // ── 강아지 히어로 카드 ────────────────────────────────────
+  hero: {
+    marginHorizontal: Spacing[16],
+    marginTop: Spacing[12],
+    marginBottom: Spacing[20],
+    padding: Spacing[16],
+    borderRadius: Radius.card,
+    backgroundColor: Colors.brand.primary,
+    gap: Spacing[12],
+  },
+  heroTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing[14] },
+  heroAvatarWrap: {
+    width: 72, height: 72, borderRadius: 36,
+    borderWidth: 3, borderColor: 'rgba(255,255,255,0.85)',
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+  },
+  heroAvatarImg: { width: '100%', height: '100%' },
+  heroAvatarPlaceholder: {
+    width: '100%', height: '100%',
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.brand.subtle,
+  },
+  heroInfo: { flex: 1, minWidth: 0, gap: 2 },
+  heroEyebrow: {
+    ...Typography.label.s,
+    color: 'rgba(255,255,255,0.85)',
+    fontWeight: '600',
+  },
+  heroNameRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
+  heroName: {
+    ...Typography.title.l,
+    color: '#FFFFFF',
+    fontWeight: '800',
+    flexShrink: 1,
+  },
+  heroBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    paddingHorizontal: Spacing[8], paddingVertical: 2,
+    borderRadius: Radius.round,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+  },
+  heroBadgeText: { ...Typography.label.s, color: '#FFFFFF', fontWeight: '700' },
+  heroMeta: { ...Typography.label.m, color: 'rgba(255,255,255,0.9)' },
+  heroBio: {
+    ...Typography.body.s,
+    color: 'rgba(255,255,255,0.95)',
+    lineHeight: 19,
+  },
+  heroTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6] },
+  heroTag: {
+    paddingHorizontal: Spacing[10], paddingVertical: 4,
+    borderRadius: Radius.round,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+  },
+  heroTagText: { ...Typography.label.s, color: '#FFFFFF', fontWeight: '600' },
+  heroActions: { flexDirection: 'row', gap: Spacing[8] },
+  heroBtnPrimary: {
+    flex: 2, height: 44, borderRadius: Radius.round,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  heroBtnPrimaryText: { ...Typography.label.l, color: Colors.brand.accent, fontWeight: '700' },
+  heroBtnGhost: {
+    flex: 1, height: 44, borderRadius: Radius.round,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.16)',
+  },
+  heroBtnGhostText: { ...Typography.label.l, color: '#FFFFFF', fontWeight: '700' },
+
   safe:    { flex: 1, backgroundColor: Colors.bg.primary },
   scroll:  { flex: 1 },
   content: { paddingTop: Spacing[20], paddingBottom: Spacing[24] },
@@ -455,185 +477,17 @@ const s = StyleSheet.create({
   emptyHint: { ...Typography.body.s, color: Colors.text.tertiary, textAlign: 'center', marginBottom: Spacing[4] },
 
   // 캐러셀 섹션
-  carouselSection: {
-    marginBottom: Spacing[28],
-    gap: Spacing[12],
-  },
-  carouselHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: CARD_H_PADDING,
-  },
-  addDogBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[4],
-    paddingHorizontal: Spacing[10],
-    paddingVertical: Spacing[6],
-    borderRadius: Radius.round,
-    backgroundColor: Colors.brand.subtle,
-    borderWidth: 1,
-    borderColor: Colors.border.brand,
-  },
-  addDogBtnText: {
-    ...Typography.label.s,
-    color: Colors.brand.primary,
-    fontWeight: '600',
-  },
-
   // 스와이프 트랙
-  carouselTrack: {
-    paddingHorizontal: CARD_H_PADDING,
-    gap: CARD_GAP,
-  },
-
   // 강아지 카드
-  dogCard: {
-    width: CARD_W,
-    borderRadius: Radius.card,
-    borderWidth: 1.5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing[20],
-    gap: Spacing[16],
-  },
-  dogCardActive: {
-    backgroundColor: Colors.brand.subtle,
-    borderColor: Colors.border.brand,
-  },
-  dogCardInactive: {
-    backgroundColor: Colors.surface.default,
-    borderColor: Colors.border.default,
-  },
-
   // 아바타
-  dogAvatarWrap: {
-    width: 68, height: 68,
-    borderRadius: 34,
-    overflow: 'hidden',
-    borderWidth: 2.5,
-    borderColor: Colors.border.default,
-    backgroundColor: Colors.bg.secondary,
-  },
-  dogAvatarWrapActive: {
-    borderColor: Colors.border.brand,
-  },
-  dogAvatarImg: { width: '100%', height: '100%' },
-  dogAvatarPlaceholder: {
-    flex: 1,
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dogAvatarInitial: {
-    ...Typography.display.s,
-    color: Colors.brand.accent,
-    fontWeight: '700',
-  },
-
   // 텍스트 영역
-  dogInfo: {
-    flex: 1,
-    gap: Spacing[4],
-  },
-
   // 이름 행
-  dogNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing[8],
-  },
-  dogName: {
-    ...Typography.title.m,
-    color: Colors.text.primary,
-    fontWeight: '800',
-  },
-  dogNameActive: {
-    color: Colors.brand.accent,
-  },
-
   // 품종 · 나이 · 체중 (홈과 동일 포맷)
-  dogMeta: {
-    ...Typography.body.s,
-    color: Colors.text.secondary,
-  },
-
   // 성향 태그 칩 — 홈 profileTag와 동일 토큰
-  dogTagRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing[6],
-    marginTop: Spacing[6],
-  },
-  dogTag: {
-    backgroundColor: Colors.brand.primaryLight,
-    paddingHorizontal: Spacing[10],
-    paddingVertical: 3,
-    borderRadius: Radius.round,
-  },
-  dogTagText: {
-    ...Typography.label.s,
-    color: Colors.brand.accent,
-    fontWeight: '600',
-  },
-
   // 카드 하단 (배지 or 편집 버튼)
-  dogCardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Spacing[4],
-  },
-
   // 활성 배지
-  activeBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.brand.primaryLight,
-    paddingHorizontal: Spacing[8],
-    paddingVertical: 3,
-    borderRadius: Radius.round,
-  },
-  activeBadgeText: {
-    ...Typography.caption,
-    color: Colors.brand.primary,
-    fontWeight: '700',
-  },
-
   // 프로필 편집 버튼 (비활성 카드)
-  editPill: {
-    paddingHorizontal: Spacing[12],
-    paddingVertical: Spacing[6],
-    borderRadius: Radius.round,
-    borderWidth: 1,
-    borderColor: Colors.border.strong,
-  },
-  editPillText: {
-    ...Typography.label.s,
-    color: Colors.text.secondary,
-    fontWeight: '600',
-  },
-
   // 페이지 도트
-  dotsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing[6],
-  },
-  dot: {
-    width: 6, height: 6,
-    borderRadius: 3,
-    backgroundColor: Colors.border.strong,
-  },
-  dotActive: {
-    width: 18,
-    backgroundColor: Colors.brand.primary,
-    borderRadius: 3,
-  },
-
   // 공통 섹션
   section: {
     marginHorizontal: Spacing[16],
