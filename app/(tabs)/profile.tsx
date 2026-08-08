@@ -12,7 +12,8 @@
 
 import React, { useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Linking,
+  View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Linking, Dimensions,
+  type NativeSyntheticEvent, type NativeScrollEvent,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { confirm, notify , actionSheet } from '../../src/utils/dialog';
@@ -57,27 +58,15 @@ function SettingsRow({
   );
 }
 
-// ─── 강아지 프로필 카드 (스와이프 슬롯) ─────────────────────────
+// ─── 강아지 카드 (스와이프 슬롯) ────────────────────────────────
 /**
- * 강아지 히어로 카드.
+ * 강아지 한 마리를 보여주는 카드. 여러 마리면 좌우로 넘긴다.
  *
- * 활성 강아지 하나를 크게 보여준다. 예전엔 카드 캐러셀이었는데,
- * 한 마리만 키우는 대다수에게는 넘길 것이 없는 빈 제스처였고
- * "지금 어느 아이 기준인지"가 흐릿했다. 전환은 필요할 때만 시트로 연다.
+ * 카드에는 이름·기본 정보·소개만 둔다.
+ * 편집·추가는 화면 우측 상단 ⋯ 로 뺐다 — 프로필은 한 번 맞춰두면 거의 안 건드리는데
+ * 카드 절반을 버튼이 차지하고 있었다.
  */
-function DogHeroCard({
-  dog,
-  onEdit,
-  onOpenDetail,
-  onSwitch,
-  switchLabel,
-}: {
-  dog: Dog;
-  onEdit: () => void;
-  onOpenDetail: () => void;
-  onSwitch?: () => void;
-  switchLabel: string;
-}) {
+function DogCard({ dog, width, onOpenDetail }: { dog: Dog; width: number; onOpenDetail: () => void }) {
   const metaParts = [
     dog.breed,
     ageGroupLabel[dog.age_group],
@@ -89,10 +78,15 @@ function DogHeroCard({
   ].filter(Boolean).slice(0, 3);
 
   return (
-    <View style={s.hero}>
-      <View style={s.heroTop}>
-        {/* 아바타 — 탭하면 상세 */}
-        <TouchableOpacity onPress={onOpenDetail} activeOpacity={0.85} accessibilityLabel={`${dog.name} 상세`}>
+    <View style={{ width }}>
+      <TouchableOpacity
+        style={s.hero}
+        onPress={onOpenDetail}
+        activeOpacity={0.9}
+        accessibilityRole="button"
+        accessibilityLabel={`${dog.name} 상세`}
+      >
+        <View style={s.heroTop}>
           <View style={s.heroAvatarWrap}>
             {dog.avatar_url ? (
               <AppImage source={{ uri: dog.avatar_url }} style={s.heroAvatarImg} resizeMode="cover" />
@@ -102,49 +96,26 @@ function DogHeroCard({
               </View>
             )}
           </View>
-        </TouchableOpacity>
-
-        <View style={s.heroInfo}>
-          <Text style={s.heroEyebrow}>내 산책 파트너</Text>
-          <View style={s.heroNameRow}>
+          <View style={s.heroInfo}>
             <Text style={s.heroName} numberOfLines={1}>{dog.name}</Text>
-            <View style={s.heroBadge}>
-              <Icon name="paw-filled" size={10} color="#FFFFFF" />
-              <Text style={s.heroBadgeText}>발도장 ON</Text>
-            </View>
+            {metaParts.length > 0 && (
+              <Text style={s.heroMeta} numberOfLines={1}>{metaParts.join(' · ')}</Text>
+            )}
           </View>
-          {metaParts.length > 0 && (
-            <Text style={s.heroMeta} numberOfLines={1}>{metaParts.join(' · ')}</Text>
-          )}
         </View>
-      </View>
 
-      {/* 한 줄 소개 — 성격 태그로는 전해지지 않는 한마디 */}
-      {!!dog.bio && (
-        <Text style={s.heroBio} numberOfLines={2}>{dog.bio}</Text>
-      )}
+        {!!dog.bio && <Text style={s.heroBio} numberOfLines={2}>{dog.bio}</Text>}
 
-      {dogTags.length > 0 && (
-        <View style={s.heroTagRow}>
-          {dogTags.map(tag => (
-            <View key={tag} style={s.heroTag}>
-              <Text style={s.heroTagText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* 보조 2 : 주 1 — 편집이 더 자주 쓰인다 */}
-      <View style={s.heroActions}>
-        <TouchableOpacity style={s.heroBtnPrimary} onPress={onEdit} activeOpacity={0.85}>
-          <Text style={s.heroBtnPrimaryText}>프로필 편집</Text>
-        </TouchableOpacity>
-        {onSwitch && (
-          <TouchableOpacity style={s.heroBtnGhost} onPress={onSwitch} activeOpacity={0.85}>
-            <Text style={s.heroBtnGhostText}>{switchLabel}</Text>
-          </TouchableOpacity>
+        {dogTags.length > 0 && (
+          <View style={s.heroTagRow}>
+            {dogTags.map(tag => (
+              <View key={tag} style={s.heroTag}>
+                <Text style={s.heroTagText}>{tag}</Text>
+              </View>
+            ))}
+          </View>
         )}
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -186,28 +157,37 @@ export default function ProfileScreen() {
    *   넘길 것이 없는 빈 제스처였고 활성 강아지가 무엇인지도 흐릿했다.
    *   활성 강아지 하나를 크게 보여주고, 전환은 필요할 때만 시트로 연다(IA §4).
    */
-  const handleSwitchDog = useCallback(async () => {
-    const others = dogs.filter(d => d.dog_id !== activeDog?.dog_id);
+  const handleMore = useCallback(async () => {
+    // 프로필 편집·강아지 추가는 자주 쓰는 동작이 아니다. 카드에서 빼 ⋯ 로 모은다.
     const items = [
-      ...others.map(d => ({ label: d.name })),
-      ...(canAddMore ? [{ label: '+ 강아지 추가' }] : []),
+      { label: '프로필 편집' },
+      ...(canAddMore ? [{ label: '강아지 추가' }] : []),
     ];
-    if (items.length === 0) return;
-    const idx = await actionSheet('강아지 바꾸기', items);
-    if (idx < 0) return;
-    if (idx < others.length) setActiveDog(others[idx]);
-    else router.push('/(auth)/dog-setup');
-  }, [dogs, activeDog, canAddMore, setActiveDog, router]);
+    const idx = await actionSheet(activeDog?.name ?? '내 강아지', items);
+    if (idx === 0 && activeDog) {
+      setActiveDog(activeDog);
+      router.push('/dog-edit');
+    } else if (idx === 1) {
+      router.push('/(auth)/dog-setup');
+    }
+  }, [activeDog, canAddMore, setActiveDog, router]);
+
+  // 스와이프로 활성 강아지를 바꾼다 — 별도 '바꾸기' 버튼 없이 카드가 곧 전환 수단이다
+  const pageWidth = Dimensions.get('window').width;
+  const handleDogPageChange = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const idx = Math.round(e.nativeEvent.contentOffset.x / pageWidth);
+      const next = dogs[idx];
+      if (next && next.dog_id !== activeDog?.dog_id) setActiveDog(next);
+    },
+    [dogs, activeDog, setActiveDog, pageWidth],
+  );
 
   const handleOpenDetail = useCallback((dog: Dog) => {
     setActiveDog(dog);            // 상세는 활성 강아지 기준 데이터를 보여줌
     router.push('/dog-detail' as any);
   }, [setActiveDog, router]);
 
-  const handleEdit = useCallback((dog: Dog) => {
-    setActiveDog(dog);
-    router.push('/dog-edit');
-  }, [setActiveDog, router]);
 
   // 강아지 없음 → 등록 유도(비차단) + 설정/로그아웃/탈퇴는 계속 접근 가능해야 함
   if (!activeDog || dogs.length === 0) {
@@ -285,18 +265,49 @@ export default function ProfileScreen() {
       >
 
         {/* ══════════════════════════════════════
-            1) 내 강아지 — 스와이프 캐러셀
+            1) 내 강아지 — 좌우 스와이프
         ══════════════════════════════════════ */}
-        {/* ══════════════════════════════════════
-            1) 내 강아지 — 히어로 카드
-        ══════════════════════════════════════ */}
-        <DogHeroCard
-          dog={activeDog}
-          onEdit={() => handleEdit(activeDog)}
-          onOpenDetail={() => handleOpenDetail(activeDog)}
-          onSwitch={dogs.length > 1 || canAddMore ? handleSwitchDog : undefined}
-          switchLabel={dogs.length > 1 ? '강아지 바꾸기' : '강아지 추가'}
-        />
+        <View style={s.topBar}>
+          <Text style={s.topTitle}>내 강아지</Text>
+          <TouchableOpacity
+            style={s.topMoreBtn}
+            onPress={handleMore}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="강아지 프로필 메뉴"
+          >
+            <Icon name="more" size={20} color={Colors.text.secondary} />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={handleDogPageChange}
+          scrollEventThrottle={16}
+        >
+          {dogs.map(d => (
+            <DogCard
+              key={d.dog_id}
+              dog={d}
+              width={pageWidth}
+              onOpenDetail={() => handleOpenDetail(d)}
+            />
+          ))}
+        </ScrollView>
+
+        {/* 여러 마리일 때만 도트 — 한 마리면 넘길 것이 없다 */}
+        {dogs.length > 1 && (
+          <View style={s.dots}>
+            {dogs.map(d => (
+              <View
+                key={d.dog_id}
+                style={[s.dot, d.dog_id === activeDog.dog_id && s.dotActive]}
+              />
+            ))}
+          </View>
+        )}
 
         {/* ══════════════════════════════════════
             2) 발도장 설정 (활성 강아지 기준)
@@ -388,6 +399,19 @@ export default function ProfileScreen() {
 // ─── 스타일 ──────────────────────────────────────────────────────
 const s = StyleSheet.create({
   // ── 강아지 히어로 카드 ────────────────────────────────────
+  topBar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: Spacing[16], paddingTop: Spacing[8],
+  },
+  topTitle: { ...Typography.title.m, color: Colors.text.primary, fontWeight: '700' },
+  topMoreBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: Spacing[6], marginTop: -Spacing[12], marginBottom: Spacing[16] },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.border.default },
+  dotActive: { backgroundColor: Colors.brand.primary, width: 18 },
+
   hero: {
     marginHorizontal: Spacing[16],
     marginTop: Spacing[12],
@@ -411,25 +435,12 @@ const s = StyleSheet.create({
     backgroundColor: Colors.brand.subtle,
   },
   heroInfo: { flex: 1, minWidth: 0, gap: 2 },
-  heroEyebrow: {
-    ...Typography.label.s,
-    color: 'rgba(255,255,255,0.85)',
-    fontWeight: '600',
-  },
-  heroNameRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
   heroName: {
     ...Typography.title.l,
     color: '#FFFFFF',
     fontWeight: '800',
     flexShrink: 1,
   },
-  heroBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 3,
-    paddingHorizontal: Spacing[8], paddingVertical: 2,
-    borderRadius: Radius.round,
-    backgroundColor: 'rgba(0,0,0,0.18)',
-  },
-  heroBadgeText: { ...Typography.label.s, color: '#FFFFFF', fontWeight: '700' },
   heroMeta: { ...Typography.label.m, color: 'rgba(255,255,255,0.9)' },
   heroBio: {
     ...Typography.body.s,
@@ -443,19 +454,6 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.22)',
   },
   heroTagText: { ...Typography.label.s, color: '#FFFFFF', fontWeight: '600' },
-  heroActions: { flexDirection: 'row', gap: Spacing[8] },
-  heroBtnPrimary: {
-    flex: 2, height: 44, borderRadius: Radius.round,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  heroBtnPrimaryText: { ...Typography.label.l, color: Colors.brand.accent, fontWeight: '700' },
-  heroBtnGhost: {
-    flex: 1, height: 44, borderRadius: Radius.round,
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.16)',
-  },
-  heroBtnGhostText: { ...Typography.label.l, color: '#FFFFFF', fontWeight: '700' },
 
   safe:    { flex: 1, backgroundColor: Colors.bg.primary },
   scroll:  { flex: 1 },

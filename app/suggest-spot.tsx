@@ -78,6 +78,8 @@ export default function SuggestSpotScreen() {
   const [duplicates, setDuplicates] = useState<NearbyDuplicate[]>([]);
   const [hasHardBlock, setHasHardBlock] = useState(false);
   const [createdSpotId, setCreatedSpotId] = useState<string | null>(null);
+  /** 중복 후보 중 사용자가 고른 것. 후보가 하나면 자동 선택한다(고를 게 없으므로). */
+  const [selectedDupId, setSelectedDupId] = useState<string | null>(null);
 
   // Form state
   const [name,        setName]        = useState('');
@@ -151,6 +153,7 @@ export default function SuggestSpotScreen() {
     const blocked = nearby.some(d => d.is_hard_block);
     setDuplicates(nearby);
     setHasHardBlock(blocked);
+    setSelectedDupId(nearby.length === 1 ? nearby[0].spot_id : (blocked ? nearby.find(d => d.is_hard_block)?.spot_id ?? null : null));
     setStep('duplicate_check');
   }, [isFormValid, name, category, pinLocation, getNearbyDuplicates]);
 
@@ -188,7 +191,10 @@ export default function SuggestSpotScreen() {
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('[suggest-spot] 사진 업로드 실패 — 사진 없이 제안을 이어갑니다:', e);
-        notify('사진은 첨부하지 못했어요. 장소는 그대로 제안됩니다.', '사진 업로드 실패');
+        notify(
+          `${(e as Error)?.message ?? '사진을 올리지 못했어요.'}\n장소는 그대로 제안됩니다.`,
+          '사진 업로드 실패',
+        );
       }
     }
 
@@ -323,65 +329,86 @@ export default function SuggestSpotScreen() {
         </View>
       )}
 
-      {/* ── DUPLICATE CHECK ── */}
+      {/* ── DUPLICATE CHECK ──
+          예전엔 후보마다 '이 장소 사용하기'가 붙고, 화면 맨 아래에 '그래도 새 장소 제안하기'가
+          따로 있었다. 위계가 같은 두 갈래를 서로 다른 자리에 흩어놓아 무엇을 해야 하는지가
+          읽히지 않았다. 목록은 '고르는 곳', 하단 바는 '정하는 곳'으로 역할을 나눈다. */}
       {step === 'duplicate_check' && (
-        <ScrollView style={s.scroll} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-          <View style={s.dupHeader}>
-            <View style={s.dupIconWrap}>
-              <Icon name="map" size={28} color={Colors.brand.primary} />
+        <>
+          <ScrollView style={s.scroll} contentContainerStyle={s.dupContent} showsVerticalScrollIndicator={false}>
+            <View style={s.dupHeader}>
+              <View style={s.dupIconWrap}>
+                <Icon name="map" size={28} color={Colors.brand.primary} />
+              </View>
+              <Text style={s.dupTitle}>비슷한 장소가 있어요</Text>
+              <Text style={s.dupDesc}>
+                {hasHardBlock
+                  ? '같은 장소가 이미 등록되어 있어요. 아래에서 골라주세요.'
+                  : '이미 있는 곳이면 골라주세요. 다른 곳이면 새로 등록할 수 있어요.'}
+              </Text>
             </View>
-            <Text style={s.dupTitle}>비슷한 장소가 있어요</Text>
-            <Text style={s.dupDesc}>혹시 아래 장소 중 하나인가요?</Text>
-          </View>
 
-          <View style={s.dupList}>
-            {duplicates.map(dup => (
-              <View
-                key={dup.spot_id}
-                style={[s.dupCard, dup.is_hard_block && s.dupCardBlock]}
-              >
-                <View style={s.dupCardMain}>
-                  <View style={s.dupCardInfo}>
-                    <Text style={s.dupName}>{dup.name}</Text>
-                    <Text style={s.dupMeta}>
-                      {dup.category_label} · {dup.distance_m}m 거리
-                    </Text>
+            <View style={s.dupList}>
+              {duplicates.map(dup => {
+                const selected = dup.spot_id === selectedDupId;
+                return (
+                  <TouchableOpacity
+                    key={dup.spot_id}
+                    style={[s.dupCard, selected && s.dupCardSelected]}
+                    onPress={() => setSelectedDupId(dup.spot_id)}
+                    activeOpacity={0.85}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                  >
+                    <View style={[s.dupRadio, selected && s.dupRadioOn]}>
+                      {selected && <Icon name="check" size={13} color="#FFFFFF" />}
+                    </View>
+                    <View style={s.dupCardInfo}>
+                      <Text style={s.dupName} numberOfLines={1}>{dup.name}</Text>
+                      <Text style={s.dupMeta}>
+                        {dup.category_label} · {dup.distance_m}m 거리
+                      </Text>
+                    </View>
                     {dup.is_hard_block && (
                       <View style={s.blockBadge}>
                         <Text style={s.blockBadgeText}>동일 장소</Text>
                       </View>
                     )}
-                  </View>
-                  {/* hard_block이면 강조 색으로, 그 외엔 기본 — 어느 쪽이든 기존 장소로 이동 가능 */}
-                  <TouchableOpacity
-                    style={[s.useSpotBtn, dup.is_hard_block && s.useSpotBtnStrong]}
-                    onPress={() => handleUseExistingSpot(dup.spot_id)}
-                  >
-                    <Text style={s.useSpotBtnText}>이 장소 사용하기</Text>
                   </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </View>
-
-          {hasHardBlock ? (
-            <View style={s.hardBlockNotice}>
-              <Icon name="warning" size={16} color={Colors.status.error.text} />
-              <Text style={s.hardBlockText}>
-                동일한 이름과 카테고리의 장소가 10m 이내에 이미 등록되어 있어요.
-                새로운 제안이 불가합니다.
-              </Text>
+                );
+              })}
             </View>
-          ) : (
-            <TouchableOpacity
-              style={s.forceSubmitBtn}
+
+            {hasHardBlock && (
+              <View style={s.hardBlockNotice}>
+                <Icon name="warning" size={16} color={Colors.status.error.text} />
+                <Text style={s.hardBlockText}>
+                  이름·카테고리가 같은 장소가 10m 안에 있어 새로 등록할 수는 없어요.
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+
+          {/* 두 갈래를 한 줄에 나란히. 무엇을 고르든 여기서 끝난다. */}
+          <View style={s.dupFooter}>
+            <Button
+              label="새 장소로 등록"
               onPress={handleSubmit}
-              activeOpacity={0.8}
-            >
-              <Text style={s.forceSubmitText}>그래도 새 장소 제안하기</Text>
-            </TouchableOpacity>
-          )}
-        </ScrollView>
+              variant="secondary"
+              size="l"
+              disabled={hasHardBlock}
+              style={s.dupFooterBtn}
+            />
+            <Button
+              label="이 장소 사용"
+              onPress={() => selectedDupId && handleUseExistingSpot(selectedDupId)}
+              variant="primary"
+              size="l"
+              disabled={!selectedDupId}
+              style={s.dupFooterBtnPrimary}
+            />
+          </View>
+        </>
       )}
 
       {/* ── FORM ── */}
@@ -582,36 +609,12 @@ export default function SuggestSpotScreen() {
               예전에는 발도장 플로우(from==='paw')로 들어온 경우에만 선택지가 있었고,
               직접 장소를 제안한 사용자는 "확인" 하나로 되돌아갈 뿐이라
               방금 만든 장소에 발도장을 찍을 길이 없었다. */}
+          {/* 한 줄. 위아래로 쌓을 만큼 위계가 다른 선택지가 아니다. */}
           <View style={[s.footer, s.doneFooter]}>
             <Button
-              label="발도장 찍기"
+              label="닫기"
               onPress={() => {
-                // 새로 생성된 임시 spot을 pawFlow.selectedSpot 으로 세팅
-                if (createdSpotId) {
-                  const card = getHomeCards().find(c => c.spot_id === createdSpotId);
-                  if (card) setPawSpot(card);
-                }
-                // 이 화면에 오는 길은 발도장 화면뿐이다 — 그 화면은 이미 스택 아래에 있다.
-                // replace로 새 발도장 화면을 얹으면 스택이 [발도장, 발도장]이 되어,
-                // 발도장을 마치고 뒤로 갔을 때 낡은 발도장 화면이 다시 뜬다.
-                // 있던 화면으로 돌아가 이어서 찍는다.
-                // isPresetSpot은 그 화면의 마운트 시점에 이미 고정됐으므로 단계를 직접 올린다.
-                setPawStep(2);
-                if (router.canGoBack()) router.back();
-                else router.replace('/paw-checkin');
-              }}
-              variant="primary"
-              size="l"
-              fullWidth
-            />
-            <Button
-              label={from === 'paw' ? '나중에 찍을게요' : '등록만 하고 끝내기'}
-              onPress={() => {
-                // 발도장은 안 찍기로 했으니 진행 중이던 플로우를 비운다.
-                // 그러지 않으면 상세에서 뒤로 갔을 때 반쯤 채워진 발도장 화면이 남는다.
                 resetPawFlow();
-                // 방금 만든 장소를 확인할 수 있게 상세로 — 없으면 이전 화면으로.
-                // 아래에 깔린 발도장 화면까지 걷어내고 탭 위에 상세만 올린다.
                 if (createdSpotId) {
                   router.dismissTo('/(tabs)');
                   router.push(`/spot/${createdSpotId}`);
@@ -621,7 +624,25 @@ export default function SuggestSpotScreen() {
               }}
               variant="secondary"
               size="l"
-              fullWidth
+              style={s.doneBtn}
+            />
+            <Button
+              label="발도장 찍기"
+              onPress={() => {
+                if (createdSpotId) {
+                  const card = getHomeCards().find(c => c.spot_id === createdSpotId);
+                  if (card) setPawSpot(card);
+                }
+                // 이 화면에 오는 길은 발도장 화면뿐이다 — 그 화면은 이미 스택 아래에 있다.
+                // replace로 새 발도장 화면을 얹으면 스택이 [발도장, 발도장]이 되어,
+                // 발도장을 마치고 뒤로 갔을 때 낡은 발도장 화면이 다시 뜬다.
+                setPawStep(2);
+                if (router.canGoBack()) router.back();
+                else router.replace('/paw-checkin');
+              }}
+              variant="primary"
+              size="l"
+              style={s.doneBtnPrimary}
             />
           </View>
         </>
@@ -673,6 +694,23 @@ const s = StyleSheet.create({
   dupDesc:  { ...Typography.body.m, color: Colors.text.secondary, textAlign: 'center' },
 
   dupList: { gap: Spacing[10] },
+  dupContent: { paddingBottom: Spacing[16] },
+  dupRadio: {
+    width: 22, height: 22, borderRadius: 11,
+    borderWidth: 2, borderColor: Colors.border.default,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  dupRadioOn: { backgroundColor: Colors.brand.primary, borderColor: Colors.brand.primary },
+  dupCardSelected: { borderColor: Colors.brand.primary, backgroundColor: Colors.brand.subtle },
+  dupFooter: {
+    flexDirection: 'row', gap: Spacing[8],
+    paddingHorizontal: Spacing[16], paddingTop: Spacing[12], paddingBottom: Spacing[16],
+    borderTopWidth: 1, borderTopColor: Colors.border.subtle,
+    backgroundColor: Colors.bg.primary,
+  },
+  dupFooterBtn: { flex: 1 },
+  dupFooterBtnPrimary: { flex: 1.2 },
+
   dupCard: {
     backgroundColor: Colors.surface.default,
     borderRadius: Radius.card,
@@ -896,7 +934,9 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bg.primary,
   },
   // 완료 화면은 버튼이 둘(발도장 찍기 / 등록만 하고 끝내기)이라 간격이 필요하다
-  doneFooter: { gap: Spacing[8] },
+  doneFooter: { flexDirection: 'row', gap: Spacing[8] },
+  doneBtn: { flex: 1 },
+  doneBtnPrimary: { flex: 1.2 },
 });
 
 const ds = StyleSheet.create({

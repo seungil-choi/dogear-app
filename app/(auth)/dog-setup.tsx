@@ -121,7 +121,10 @@ export default function DogSetupScreen() {
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('[dog-setup] 사진 업로드 실패 — 사진 없이 등록을 이어갑니다:', e);
-        notify('사진은 등록하지 못했어요. 프로필 편집에서 다시 시도할 수 있어요.', '사진 업로드 실패');
+        notify(
+          `${(e as Error)?.message ?? '사진을 올리지 못했어요.'}\n프로필 편집에서 다시 시도할 수 있어요.`,
+          '사진 업로드 실패',
+        );
       }
     } else if (photoUri) {
       avatarUrl = photoUri;   // 데모 모드는 로컬 URI 그대로
@@ -274,13 +277,21 @@ export default function DogSetupScreen() {
             <View style={s.photoBadge}>
               <Icon name={photoUri ? 'edit' : 'plus'} size={13} color={Colors.brand.onPrimary} />
             </View>
+            {/* 삭제는 편집(연필)과 같은 층위 — 썸네일 위 반대쪽 모서리에 둔다.
+                아래에 '사진 지우기' 링크로 두면 사진이 있을 때만 레이아웃이 밀린다. */}
+            {photoUri && (
+              <TouchableOpacity
+                style={s.photoRemoveBtn}
+                onPress={() => setPhotoUri(null)}
+                hitSlop={10}
+                accessibilityRole="button"
+                accessibilityLabel="사진 삭제"
+              >
+                <Icon name="close" size={13} color={Colors.text.inverse} />
+              </TouchableOpacity>
+            )}
           </TouchableOpacity>
           <Text style={s.photoHint}>사진 (선택)</Text>
-          {photoUri && (
-            <TouchableOpacity onPress={() => setPhotoUri(null)} hitSlop={8}>
-              <Text style={s.photoRemove}>사진 지우기</Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         {/* 이름 (필수) */}
@@ -552,8 +563,14 @@ const s = StyleSheet.create({
     backgroundColor: Colors.brand.primary,
     borderWidth: 2.5, borderColor: Colors.bg.primary,
   },
+  photoRemoveBtn: {
+    position: 'absolute', right: -2, top: -2,
+    width: 26, height: 26, borderRadius: 13,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: Colors.text.primary,
+    borderWidth: 2.5, borderColor: Colors.bg.primary,
+  },
   photoHint:   { ...Typography.caption, color: Colors.text.tertiary },
-  photoRemove: { ...Typography.label.s, color: Colors.text.secondary, textDecorationLine: 'underline' },
 
   // 입력 검증
   textInputError: { borderColor: Colors.status.error.text },

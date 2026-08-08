@@ -29,18 +29,7 @@ import { Icon } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { HomeRailSkeleton } from '../../src/components/common/Skeleton';
-import type { Dog, HomeSpotCardViewModel, AtmosphereState } from '../../src/types';
-
-// ─── 추천 카드 강아지 맞춤 설명 생성 ────────────────────────────────
-function buildPersonalizedDesc(dogName: string, tags: string[], atmosphere: AtmosphereState): string {
-  const isQuiet  = tags.some(t => ['quiet', 'shy', 'calm', 'gentle'].includes(t));
-  const isActive = tags.some(t => ['active', 'playful', 'friendly'].includes(t));
-  if (isQuiet && atmosphere !== 'active')  return `${dogName}처럼 조용한 아이에게 잘 맞아요`;
-  if (isActive && atmosphere !== 'quiet') return `${dogName}처럼 활발한 아이에게 딱이에요`;
-  if (atmosphere === 'quiet')  return '조용히 산책하기 좋은 장소예요';
-  if (atmosphere === 'active') return '활기찬 분위기의 장소예요';
-  return '자주 찾는 친숙한 장소예요';
-}
+import type { Dog, HomeSpotCardViewModel } from '../../src/types';
 
 // ─── 강아지 아바타 ────────────────────────────────────────────────
 function DogAvatar({ dog, size = 52 }: { dog: Dog; size?: number }) {
@@ -97,11 +86,10 @@ function DogPickerModal({
 
 // ─── 오늘의 추천 스팟 카드 ───────────────────────────────────────
 function FeaturedCard({
-  card, isSaved, personalizedDesc, onPress, onSave,
+  card, isSaved, onPress, onSave,
 }: {
   card: HomeSpotCardViewModel;
   isSaved: boolean;
-  personalizedDesc?: string;
   onPress: () => void;
   onSave: () => void;
 }) {
@@ -128,25 +116,31 @@ function FeaturedCard({
           pointerEvents="none"
         />
 
-        {/* Text floating on scrim */}
+        {/* 이름 + 위치만. 분위기 칩·개인화 문구는 카드에서 뺐다 —
+            추천 카드가 판단을 대신 해주는 자리는 아니고, 자세한 건 상세에서 본다.
+            저장은 상세와 같은 규칙으로 같은 줄 우측에 붙인다(좌측 텍스트가 밀리지 않게 폭 고정). */}
         <View style={s.featuredOverlay}>
-          <Text style={s.featuredName} numberOfLines={1}>{card.name}</Text>
-          {personalizedDesc && (
-            <Text style={s.featuredDesc} numberOfLines={1}>{personalizedDesc}</Text>
-          )}
-          {card.atmosphere_badges.length > 0 && (
-            <View style={s.featuredTagRow}>
-              {card.atmosphere_badges.slice(0, 2).map(b => (
-                <View key={b} style={s.featuredTag}>
-                  <Text style={s.featuredTagText}>{b}</Text>
-                </View>
-              ))}
+          <View style={s.featuredInfo}>
+            <Text style={s.featuredName} numberOfLines={1}>{card.name}</Text>
+            <View style={s.featuredMetaRow}>
+              <Icon name="location" size={11} color="rgba(255,255,255,0.7)" />
+              <Text style={s.featuredMetaText}>{card.distance_text}</Text>
             </View>
-          )}
-          <View style={s.featuredMetaRow}>
-            <Icon name="location" size={11} color="rgba(255,255,255,0.7)" />
-            <Text style={s.featuredMetaText}>{card.distance_text}</Text>
           </View>
+          <TouchableOpacity
+            style={s.featuredSave}
+            onPress={onSave}
+            activeOpacity={0.8}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={isSaved ? '저장 해제' : '저장하기'}
+          >
+            <Icon
+              name={isSaved ? 'bookmark-filled' : 'bookmark'}
+              size={24}
+              color={isSaved ? Colors.brand.primary : '#FFFFFF'}
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Top-left badge */}
@@ -155,14 +149,6 @@ function FeaturedCard({
           <Text style={s.featuredBadgeText}>오늘의 추천</Text>
         </View>
 
-        {/* 저장하기 */}
-        <TouchableOpacity style={s.featuredHeart} onPress={onSave} activeOpacity={0.8}>
-          <Icon
-            name={isSaved ? 'bookmark-filled' : 'bookmark'}
-            size={17}
-            color={isSaved ? Colors.brand.primary : Colors.text.secondary}
-          />
-        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -288,17 +274,6 @@ export default function HomeScreen() {
     );
     return relativeTime(latest.last_visit_at);
   }, [dog, visitSummaries]);
-
-  // ── 추천 카드별 강아지 맞춤 설명 ──────────────────────────────────
-  const buildDescFor = useCallback((card: HomeSpotCardViewModel) => {
-    if (!dog) return undefined;
-    const badges = card.atmosphere_badges;
-    const atmosphere =
-      badges.some(b => b.includes('한산') || b.includes('조용'))  ? 'quiet'  :
-      badges.some(b => b.includes('활발') || b.includes('많은')) ? 'active' :
-      'mixed';
-    return buildPersonalizedDesc(dog.name, dog.temperament_tags, atmosphere as AtmosphereState);
-  }, [dog]);
 
   const handlePressCard = useCallback((spotId: string, source: 'recommended' | 'recent' | 'frequent' = 'recommended') => {
     const eventName =
@@ -489,7 +464,6 @@ export default function HomeScreen() {
                   <FeaturedCard
                     card={card}
                     isSaved={isFeaturedSaved(card.spot_id)}
-                    personalizedDesc={buildDescFor(card)}
                     onPress={() => handlePressCard(card.spot_id)}
                     onSave={() => handleFeaturedSave(card.spot_id)}
                   />
@@ -865,31 +839,9 @@ const s = StyleSheet.create({
     bottom: Spacing[16],
     left: Spacing[16],
     right: Spacing[16],
-    gap: Spacing[4],
-  },
-  featuredDesc: {
-    ...Typography.body.s,
-    color: 'rgba(255,255,255,0.88)',
-    lineHeight: 18,
-    marginBottom: Spacing[4],
-  },
-  featuredTagRow: {
     flexDirection: 'row',
-    gap: Spacing[6],
-    marginBottom: Spacing[4],
-  },
-  featuredTag: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.22)',
-    paddingHorizontal: Spacing[10],
-    paddingVertical: 3,
-    borderRadius: Radius.round,
-  },
-  featuredTagText: {
-    ...Typography.label.s,
-    color: 'rgba(255,255,255,0.92)',
-    fontWeight: '500',
+    alignItems: 'flex-end',
+    gap: Spacing[12],
   },
   featuredName: {
     ...Typography.title.l,
@@ -898,6 +850,9 @@ const s = StyleSheet.create({
     letterSpacing: -0.4,
     lineHeight: 26,
   },
+  featuredInfo: { flex: 1, gap: Spacing[4], minWidth: 0 },
+  // 폭 고정 — 저장 상태가 바뀌어도 좌측 이름·거리가 밀리지 않는다
+  featuredSave: { width: 32, alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 2 },
   featuredMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -925,17 +880,6 @@ const s = StyleSheet.create({
     ...Typography.label.s,
     color: Colors.text.primary,
     fontWeight: '700',
-  },
-  featuredHeart: {
-    position: 'absolute',
-    top: Spacing[12],
-    right: Spacing[12],
-    width: 40, height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.surface.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Shadow.m,
   },
 
   // ── 수평 레일 ──

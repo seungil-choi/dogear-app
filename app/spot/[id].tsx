@@ -147,16 +147,29 @@ export default function SpotDetailScreen() {
     router.push('/paw-checkin');
   }, [id, getHomeCards, setPawSpot, router]);
 
-  const handleDirections = useCallback(() => {
-    if (vm?.address_text) {
-      track(EVENT.navigation_clicked, {
-        screen_name: 'spot_detail',
-        place_id: id,
-        place_category: vm.category_label,
-      });
-      Linking.openURL(
-        `https://map.naver.com/v5/search/${encodeURIComponent(vm.address_text)}`
-      );
+  /**
+   * 외부 지도 앱으로 길찾기.
+   *
+   * 예전엔 주소 문자열로 map.naver.com/v5/search/… 를 열었다. 그 경로는 네이버가
+   * 접은 URL이고, 주소가 비어 있으면 아무 일도 하지 않고 조용히 끝났다.
+   * 좌표는 spots에 not null이라 항상 있다 — 카카오맵 link API로 좌표를 넘긴다.
+   * (앱이 깔려 있으면 앱으로, 없으면 웹으로 열린다)
+   * 열지 못하면 알린다. 눌렀는데 아무 반응 없는 게 제일 나쁘다.
+   */
+  const handleDirections = useCallback(async () => {
+    if (!vm) return;
+    track(EVENT.navigation_clicked, {
+      screen_name: 'spot_detail',
+      place_id: id,
+      place_category: vm.category_label,
+    });
+    const url =
+      `https://map.kakao.com/link/to/${encodeURIComponent(vm.name)},${vm.latitude},${vm.longitude}`;
+    try {
+      await Linking.openURL(url);
+    } catch (e) {
+      console.error('[spot] 길찾기 실행 실패:', e);
+      notify('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요.', '길찾기 실패');
     }
   }, [vm, id]);
 
@@ -323,6 +336,15 @@ export default function SpotDetailScreen() {
             pointerEvents="none"
           />
 
+          {/* 검토 대기 — 썸네일 우측 상단. 장소를 설명하는 정보가 아니라 상태 표시라
+              이름·카테고리와 같은 줄에 둘 이유가 없다. */}
+          {vm.is_pending_review && (
+            <View style={s.keyVisualPendingChip} pointerEvents="none">
+              <Icon name="info" size={11} color="#fff" />
+              <Text style={s.keyVisualPendingText}>검토 중</Text>
+            </View>
+          )}
+
           {/* 텍스트 오버레이 — [좌: 카테고리·장소명·지역·거리] [우: 저장]
               좌측 텍스트를 한 덩어리(flex:1)로 묶고 저장은 그 형제로 둔다.
               예전엔 저장을 지역·거리 줄 안에 넣어, 저장 상태가 바뀌며 폭이 변할 때마다
@@ -335,13 +357,6 @@ export default function SpotDetailScreen() {
                   <Icon name="leaf-filled" size={11} color={Colors.brand.primary} />
                   <Text style={s.keyVisualBadgeText}>{vm.category_label}</Text>
                 </View>
-                {/* 검토 대기 — 배너 대신 칩으로. 썸네일 안에서 상태를 바로 읽게 한다 */}
-                {vm.is_pending_review && (
-                  <View style={s.keyVisualPendingChip}>
-                    <Icon name="info" size={11} color="#fff" />
-                    <Text style={s.keyVisualPendingText}>검토 중</Text>
-                  </View>
-                )}
               </View>
               <Text style={s.keyVisualName} numberOfLines={2}>{vm.name}</Text>
               <View style={s.keyVisualMetaRow}>
@@ -368,9 +383,9 @@ export default function SpotDetailScreen() {
                 size={26}
                 color="#FFFFFF"
               />
-              {displaySavedCount > 0 && (
-                <Text style={s.keyVisualSaveCount}>{displaySavedCount}</Text>
-              )}
+              {/* 0도 보여준다 — 숨기면 아이콘 아래 높이가 들쭉날쭉하고,
+                  "아직 아무도 저장 안 함"도 정보다 */}
+              <Text style={s.keyVisualSaveCount}>{displaySavedCount}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -464,38 +479,36 @@ export default function SpotDetailScreen() {
             );
           })()}
 
-          {/* 위치 미니맵 — 탭하면 길찾기.
-              지도처럼 생긴 것이 아무 반응도 없으면 고장으로 읽힌다.
-              길찾기는 이미 구현돼 있었지만 ⋯ 메뉴 3뎁스에 묻혀 거의 닿지 않았다.
-              지도 자체는 pointerEvents="none"으로 두고(WebView가 제스처를 먹지 않게)
-              바깥 Touchable이 탭을 받는다. */}
+          {/* 위치 미니맵 — 보기 전용.
+              예전엔 지도 위에 투명 Touchable을 얹어 탭을 받으려 했는데,
+              안드로이드에서 네이티브 WebView가 터치를 먹어 눌러도 아무 일이 없었다
+              (부모 View의 pointerEvents='none'은 WebView 자식에 확실히 전파되지 않는다).
+              지도는 그림으로 두고, 실제 동작은 WebView와 겹치지 않는 아래 버튼이 받는다. */}
+          <View style={s.locationMap} pointerEvents="none">
+            <KakaoMap
+              initialLatitude={vm.latitude}
+              initialLongitude={vm.longitude}
+              initialLevel={4}
+              markers={[{
+                id: vm.spot_id,
+                latitude: vm.latitude,
+                longitude: vm.longitude,
+                label: vm.name,
+                variant: 'default',
+              }] as KakaoMarker[]}
+              style={{ flex: 1, borderRadius: Radius.card }}
+            />
+          </View>
+
           <TouchableOpacity
-            style={s.locationMap}
+            style={s.mapActionBtn}
             onPress={handleDirections}
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel={`${vm.name} 길찾기`}
           >
-            <View style={StyleSheet.absoluteFill} pointerEvents="none">
-              <KakaoMap
-                initialLatitude={vm.latitude}
-                initialLongitude={vm.longitude}
-                initialLevel={4}
-                markers={[{
-                  id: vm.spot_id,
-                  latitude: vm.latitude,
-                  longitude: vm.longitude,
-                  label: vm.name,
-                  variant: 'default',
-                }] as KakaoMarker[]}
-                style={{ flex: 1, borderRadius: Radius.card }}
-              />
-            </View>
-            {/* 눌리는 곳임을 먼저 보여준다 — 외부 앱으로 나가는 동작이라 예고 없이 튕기면 놀란다 */}
-            <View style={s.mapDirectionsPill} pointerEvents="none">
-              <Icon name="navigate" size={13} color={Colors.brand.primary} />
-              <Text style={s.mapDirectionsText}>길찾기</Text>
-            </View>
+            <Icon name="navigate" size={15} color={Colors.brand.primary} />
+            <Text style={s.mapActionText}>지도 앱으로 길찾기</Text>
           </TouchableOpacity>
         </View>
 
@@ -845,41 +858,34 @@ const s = StyleSheet.create({
   },
   // 검토 대기 칩 — 배너 대신 썸네일 안에서 상태를 즉시 읽게 한다
   keyVisualPendingChip: {
+    position: 'absolute',
+    top: Spacing[12],
+    right: Spacing[12],
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
+    gap: Spacing[4],
     paddingHorizontal: Spacing[8],
     paddingVertical: 3,
     borderRadius: Radius.round,
-    backgroundColor: 'rgba(18,12,6,0.55)',
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
   keyVisualPendingText: {
     ...Typography.label.s,
     color: '#FFFFFF',
     fontWeight: '700',
   },
-  // 저장 버튼 — 같은 줄 오른쪽 끝. 하단 저장하기와 동일 동작·동일 상태.
-  // 위치 미니맵 — 장소 정보 섹션 밑, 정보 테이블과 동일 너비
-  // 길찾기 알약 — 미니맵 우하단
-  mapDirectionsPill: {
-    position: 'absolute',
-    right: Spacing[10],
-    bottom: Spacing[10],
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: Spacing[12],
-    paddingVertical: Spacing[6],
+  // 길찾기 버튼 — 미니맵 아래. WebView와 겹치지 않아야 탭이 들어온다.
+  mapActionBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: Spacing[6],
+    height: 44,
+    marginTop: Spacing[8],
     borderRadius: Radius.round,
-    backgroundColor: 'rgba(255,255,255,0.96)',
     borderWidth: 1,
     borderColor: Colors.border.brand,
+    backgroundColor: Colors.brand.subtle,
   },
-  mapDirectionsText: {
-    ...Typography.label.s,
-    color: Colors.brand.accent,
-    fontWeight: '700',
-  },
+  mapActionText: { ...Typography.label.l, color: Colors.brand.accent, fontWeight: '700' },
 
   locationMap: {
     width: '100%',
