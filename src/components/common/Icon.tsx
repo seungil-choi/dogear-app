@@ -13,66 +13,69 @@
  */
 
 import React from 'react';
-import {
-  // 네비게이션
-  Home,
-  Map,
-  PawPrint,
-  Bookmark,
-  User,
-  // 액션
-  X,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Check,
-  CheckCircle2,
-  Plus,
-  Search,
-  SlidersHorizontal,
-  Share2,
-  MoreHorizontal,
-  Copy,
-  RotateCw,
-  // UI
-  Bell,
-  Mail,
-  MapPin,
-  Navigation,
-  Camera,
-  Image as ImageIcon,
-  Trash2,
-  Pencil,
-  Eye,
-  EyeOff,
-  // 프라이버시 / 설정
-  Lock,
-  LockOpen,
-  Settings,
-  ShieldCheck,
-  HelpCircle,
-  FileText,
-  LogOut,
-  TriangleAlert,
-  Info,
-  // 반려견 / 스팟
-  Dog,
-  Star,
-  Heart,
-  Footprints,
-  Flag,
-  List,
-  // 카테고리
-  TreePine,
-  Mountain,
-  Waves,
-  Coffee,
-  Leaf,
-  Tag,
-  // 메시지
-  MessageCircle,
-} from 'lucide-react-native';
+// lucide는 배럴(import { X } from 'lucide-react-native')로 가져오면 Metro가
+// 트리셰이킹을 하지 않아 아이콘 약 1,500개가 통째로 번들에 실린다.
+// 실측(android hbc): 배럴 7.35MB vs 아이콘 제거 5.56MB — 51개 쓰자고 1.79MB.
+// 그래서 개별 모듈을 직접 가리킨다. 경로가 바뀌면 빌드가 즉시 실패하므로 조용히 깨지지 않는다.
+// 타입 선언은 types/lucide-icons.d.ts 참고.
+// 네비게이션
+import Home from 'lucide-react-native/dist/esm/icons/house.mjs';
+import Map from 'lucide-react-native/dist/esm/icons/map.mjs';
+import PawPrint from 'lucide-react-native/dist/esm/icons/paw-print.mjs';
+import Bookmark from 'lucide-react-native/dist/esm/icons/bookmark.mjs';
+import User from 'lucide-react-native/dist/esm/icons/user.mjs';
+// 액션
+import X from 'lucide-react-native/dist/esm/icons/x.mjs';
+import ChevronLeft from 'lucide-react-native/dist/esm/icons/chevron-left.mjs';
+import ChevronRight from 'lucide-react-native/dist/esm/icons/chevron-right.mjs';
+import ChevronDown from 'lucide-react-native/dist/esm/icons/chevron-down.mjs';
+import ChevronUp from 'lucide-react-native/dist/esm/icons/chevron-up.mjs';
+import Check from 'lucide-react-native/dist/esm/icons/check.mjs';
+import CheckCircle2 from 'lucide-react-native/dist/esm/icons/circle-check.mjs';
+import Plus from 'lucide-react-native/dist/esm/icons/plus.mjs';
+import Search from 'lucide-react-native/dist/esm/icons/search.mjs';
+import SlidersHorizontal from 'lucide-react-native/dist/esm/icons/sliders-horizontal.mjs';
+import Share2 from 'lucide-react-native/dist/esm/icons/share-2.mjs';
+import MoreHorizontal from 'lucide-react-native/dist/esm/icons/ellipsis.mjs';
+import Copy from 'lucide-react-native/dist/esm/icons/copy.mjs';
+import RotateCw from 'lucide-react-native/dist/esm/icons/rotate-cw.mjs';
+// UI
+import Bell from 'lucide-react-native/dist/esm/icons/bell.mjs';
+import Mail from 'lucide-react-native/dist/esm/icons/mail.mjs';
+import MapPin from 'lucide-react-native/dist/esm/icons/map-pin.mjs';
+import Navigation from 'lucide-react-native/dist/esm/icons/navigation.mjs';
+import Camera from 'lucide-react-native/dist/esm/icons/camera.mjs';
+import ImageIcon from 'lucide-react-native/dist/esm/icons/image.mjs';
+import Trash2 from 'lucide-react-native/dist/esm/icons/trash-2.mjs';
+import Pencil from 'lucide-react-native/dist/esm/icons/pencil.mjs';
+import Eye from 'lucide-react-native/dist/esm/icons/eye.mjs';
+import EyeOff from 'lucide-react-native/dist/esm/icons/eye-off.mjs';
+// 프라이버시 / 설정
+import Lock from 'lucide-react-native/dist/esm/icons/lock.mjs';
+import LockOpen from 'lucide-react-native/dist/esm/icons/lock-open.mjs';
+import Settings from 'lucide-react-native/dist/esm/icons/settings.mjs';
+import ShieldCheck from 'lucide-react-native/dist/esm/icons/shield-check.mjs';
+import HelpCircle from 'lucide-react-native/dist/esm/icons/circle-question-mark.mjs';
+import FileText from 'lucide-react-native/dist/esm/icons/file-text.mjs';
+import LogOut from 'lucide-react-native/dist/esm/icons/log-out.mjs';
+import TriangleAlert from 'lucide-react-native/dist/esm/icons/triangle-alert.mjs';
+import Info from 'lucide-react-native/dist/esm/icons/info.mjs';
+// 반려견 / 스팟
+import Dog from 'lucide-react-native/dist/esm/icons/dog.mjs';
+import Star from 'lucide-react-native/dist/esm/icons/star.mjs';
+import Heart from 'lucide-react-native/dist/esm/icons/heart.mjs';
+import Footprints from 'lucide-react-native/dist/esm/icons/footprints.mjs';
+import Flag from 'lucide-react-native/dist/esm/icons/flag.mjs';
+import List from 'lucide-react-native/dist/esm/icons/list.mjs';
+// 카테고리
+import TreePine from 'lucide-react-native/dist/esm/icons/tree-pine.mjs';
+import Mountain from 'lucide-react-native/dist/esm/icons/mountain.mjs';
+import Waves from 'lucide-react-native/dist/esm/icons/waves-horizontal.mjs';
+import Coffee from 'lucide-react-native/dist/esm/icons/coffee.mjs';
+import Leaf from 'lucide-react-native/dist/esm/icons/leaf.mjs';
+import Tag from 'lucide-react-native/dist/esm/icons/tag.mjs';
+// 메시지
+import MessageCircle from 'lucide-react-native/dist/esm/icons/message-circle.mjs';
 
 type LucideIcon = React.ComponentType<{
   size?: number;

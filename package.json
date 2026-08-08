@@ -54,6 +54,7 @@
     "@babel/core": "^7.27.1",
     "@types/jest": "^30.0.0",
     "@types/react": "~19.1.0",
+    "@types/react-test-renderer": "^19.1.0",
     "jest": "^29.7.0",
     "jest-expo": "~54.0.0",
     "typescript": "~5.9.2"
@@ -62,7 +63,23 @@
   "jest": {
     "preset": "jest-expo",
     "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg))"
-    ]
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|lucide-react-native))"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "mjs",
+      "json",
+      "node"
+    ],
+    "moduleNameMapper": {
+      "^lucide-react-native/dist/esm/icons/(.*)\\.mjs$": "<rootDir>/node_modules/lucide-react-native/dist/esm/icons/$1.mjs"
+    },
+    "transform": {
+      "^.+\\.[jt]sx?$": "babel-jest",
+      "^.+\\.mjs$": "babel-jest"
+    }
   }
 }
