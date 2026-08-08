@@ -47,6 +47,36 @@ export interface KakaoMapRef {
   setCenter: (lat: number, lng: number, level?: number) => void;
 }
 
+/**
+ * WebView 메인 프레임 이동 허용 목록.
+ *
+ * 지도는 처음 주입한 HTML 안에서만 동작하므로 페이지를 벗어날 일이 없다.
+ * 그런데 originWhitelist는 '*'다 — 카카오 SDK가 오류/차단 페이지로 리다이렉트하거나
+ * 렌더된 콘텐츠가 링크를 물고 나가면 임의 사이트가 앱 안에서 열린다.
+ * 하위 리소스(스크립트·타일 이미지·XHR)는 이 콜백을 타지 않으므로 지도 동작에는 영향이 없다.
+ */
+const ALLOWED_NAV_HOSTS = [
+  'dogear-demo.vercel.app',
+  'dapi.kakao.com',
+  'map.kakao.com',
+  'mts.daumcdn.net',
+  't1.daumcdn.net',
+];
+
+function shouldAllowNavigation(request: { url: string }): boolean {
+  const url = request.url ?? '';
+  // 최초 HTML 주입(about:blank / data:) 은 통과시켜야 지도가 뜬다
+  if (url === '' || url === 'about:blank' || url.startsWith('data:') || url.startsWith('file:')) {
+    return true;
+  }
+  try {
+    const host = new URL(url).hostname;
+    return ALLOWED_NAV_HOSTS.some(h => host === h || host.endsWith('.' + h));
+  } catch {
+    return false;
+  }
+}
+
 const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props, ref) {
   const webRef = useRef<WebView>(null);
   const isReadyRef = useRef(false);
@@ -146,6 +176,10 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
         // JS SDK 도메인에 등록된 도메인(웹 데모와 동일)을 origin으로 사용.
         source={{ html, baseUrl: 'https://dogear-demo.vercel.app' }}
         originWhitelist={['*']}
+        // 메인 프레임 이동은 지도 렌더링에 필요 없다. 카카오 SDK가 오류 페이지로
+        // 튀거나 콘텐츠가 링크를 물고 나가는 경우를 차단한다.
+        // (스크립트·이미지 같은 하위 리소스는 이 콜백을 타지 않으므로 지도는 그대로 동작)
+        onShouldStartLoadWithRequest={shouldAllowNavigation}
         javaScriptEnabled
         domStorageEnabled
         onMessage={handleMessage}
