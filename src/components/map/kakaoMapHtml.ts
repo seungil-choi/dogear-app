@@ -151,23 +151,22 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       //   클러스터 모드(level>=6)에서는 모두 숫자 클러스터로 통합되어 단일 dot 미노출
       var VARIANT_STYLE = {
         regular: { fill: '#FF7A30', stroke: '#fff',    icon: 'fill'  },
-        visited: { fill: '#D89678', stroke: '#fff',    icon: 'fill'  },
+        visited: { fill: '#FF6A2D', stroke: '#fff',    icon: 'fill'  },   // Deep Orange (Colors.pin.visited)
         default: { fill: '#FFFFFF', stroke: '#FF7A30', icon: 'brand' },
       };
       var STAR_PATH  = '<polygon points="12 4 14.6 9.5 21 10 16.2 14.4 17.6 21 12 17.6 6.4 21 7.8 14.4 3 10 9.4 9.5 12 4"/>';
-      var CHECK_PATH = '<polyline points="6 12 10 16 18 8" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+      // 발도장 남긴 곳 — 체크(✓)는 '완료' 의미라 이 서비스의 언어가 아니다. 발자국으로 바꾼다.
+      var PAW_PATH   = '<path d="M8.2 9.6c-1.05 0-1.9-1.02-1.9-2.28S7.15 5.04 8.2 5.04s1.9 1.02 1.9 2.28S9.25 9.6 8.2 9.6zm7.6 0c-1.05 0-1.9-1.02-1.9-2.28s.85-2.28 1.9-2.28 1.9 1.02 1.9 2.28S16.85 9.6 15.8 9.6zM4.6 14.1c-.95 0-1.7-.92-1.7-2.05s.76-2.05 1.7-2.05 1.7.92 1.7 2.05-.76 2.05-1.7 2.05zm14.8 0c-.95 0-1.7-.92-1.7-2.05s.76-2.05 1.7-2.05 1.7.92 1.7 2.05-.76 2.05-1.7 2.05zM12 11.4c2.3 0 5.1 2.5 5.1 4.9 0 1.6-1.2 2.5-2.7 2.5-.9 0-1.7-.35-2.4-.35s-1.5.35-2.4.35c-1.5 0-2.7-.9-2.7-2.5 0-2.4 2.8-4.9 5.1-4.9z"/>';
       var DOT_PATH   = '<circle cx="12" cy="12" r="3.5"/>';
 
       function pinHtml(id, label, variant, selected) {
         var v = VARIANT_STYLE[variant || 'default'];
         var iconPath = variant === 'regular' ? STAR_PATH
-                     : variant === 'visited' ? CHECK_PATH
+                     : variant === 'visited' ? PAW_PATH
                      : DOT_PATH;
         var size = selected ? 32 : 26;       // 정사각형 — 원형 dot
         var iconColor = v.icon === 'brand' ? '#FF7A30' : '#fff';
-        var iconAttrs = variant === 'visited'
-          ? 'fill="none" stroke="' + iconColor + '"'
-          : 'fill="' + iconColor + '"';
+        var iconAttrs = 'fill="' + iconColor + '"';
         var sw = selected ? 2.2 : 1.8;
         var cls = 'pin-svg' + (selected ? ' pin-svg-selected' : '');
         // 원형 dot — viewBox 24x24 정사각형

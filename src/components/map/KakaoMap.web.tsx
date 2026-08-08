@@ -86,7 +86,7 @@ function getDotMarkerImage(kakao: any, fillColor: string, strokeColor: string, s
 //     default 흰 빈 원은 디테일 모드(가까이)에서만 노출됨
 const VARIANT_STYLE = {
   regular: { fill: '#FF7A30', icon: 'fill',  stroke: '#fff'    },
-  visited: { fill: '#D89678', icon: 'fill',  stroke: '#fff'    },
+  visited: { fill: '#FF6A2D', icon: 'fill',  stroke: '#fff'    },   // Deep Orange (Colors.pin.visited)
   default: { fill: '#FFFFFF', icon: 'brand', stroke: '#FF7A30' },
 } as const;
 
