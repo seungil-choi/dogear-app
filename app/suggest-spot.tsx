@@ -68,6 +68,8 @@ export default function SuggestSpotScreen() {
   const user                = useAppStore(s => s.activeDog);
   const getHomeCards       = useAppStore(s => s.getHomeCards);
   const setPawSpot         = useAppStore(s => s.setPawSpot);
+  const setPawStep         = useAppStore(s => s.setPawStep);
+  const resetPawFlow       = useAppStore(s => s.resetPawFlow);
 
   const location = currentLocation ?? DEFAULT_LOCATION;
 
@@ -584,13 +586,19 @@ export default function SuggestSpotScreen() {
             <Button
               label="발도장 찍기"
               onPress={() => {
-                // 새로 생성된 임시 spot을 pawFlow.selectedSpot 으로 세팅 →
-                // paw-checkin이 step 1(장소 선택) 건너뛰고 step 2부터 시작
+                // 새로 생성된 임시 spot을 pawFlow.selectedSpot 으로 세팅
                 if (createdSpotId) {
                   const card = getHomeCards().find(c => c.spot_id === createdSpotId);
                   if (card) setPawSpot(card);
                 }
-                router.replace('/paw-checkin');
+                // 이 화면에 오는 길은 발도장 화면뿐이다 — 그 화면은 이미 스택 아래에 있다.
+                // replace로 새 발도장 화면을 얹으면 스택이 [발도장, 발도장]이 되어,
+                // 발도장을 마치고 뒤로 갔을 때 낡은 발도장 화면이 다시 뜬다.
+                // 있던 화면으로 돌아가 이어서 찍는다.
+                // isPresetSpot은 그 화면의 마운트 시점에 이미 고정됐으므로 단계를 직접 올린다.
+                setPawStep(2);
+                if (router.canGoBack()) router.back();
+                else router.replace('/paw-checkin');
               }}
               variant="primary"
               size="l"
@@ -599,9 +607,17 @@ export default function SuggestSpotScreen() {
             <Button
               label={from === 'paw' ? '나중에 찍을게요' : '등록만 하고 끝내기'}
               onPress={() => {
-                // 방금 만든 장소를 확인할 수 있게 상세로 — 없으면 이전 화면으로
-                if (createdSpotId) router.replace(`/spot/${createdSpotId}`);
-                else router.back();
+                // 발도장은 안 찍기로 했으니 진행 중이던 플로우를 비운다.
+                // 그러지 않으면 상세에서 뒤로 갔을 때 반쯤 채워진 발도장 화면이 남는다.
+                resetPawFlow();
+                // 방금 만든 장소를 확인할 수 있게 상세로 — 없으면 이전 화면으로.
+                // 아래에 깔린 발도장 화면까지 걷어내고 탭 위에 상세만 올린다.
+                if (createdSpotId) {
+                  router.dismissTo('/(tabs)');
+                  router.push(`/spot/${createdSpotId}`);
+                } else {
+                  router.back();
+                }
               }}
               variant="secondary"
               size="l"

@@ -563,7 +563,16 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         blocked_dog_name: meta?.name ?? null,
         blocked_dog_avatar_url: meta?.avatar_url ?? null,
       }).select('block_id, created_at').single().then(({ data, error }) => {
-        if (error || !data) return;  // 실패해도 로컬 차단은 유지(다음 로그인 시 서버와 재동기화)
+        if (error || !data) {
+          // 로컬만 유지하면 안 된다. 차단 목록은 다음 진입 때 서버 값으로 통째로 덮이므로
+          // (useUserData가 blocks를 읽어 setBlockedUsers) 조용히 사라진다.
+          // 게다가 서버에 없으면 spot-detail·familiar-dogs의 차단 필터도 적용되지 않아
+          // "차단했다고 봤는데 계속 보이는" 상태가 된다 — 안전 기능에서 가장 나쁜 실패다.
+          console.error('[blockUser] 서버 저장 실패:', error?.message);
+          set(s => ({ blockedUsers: s.blockedUsers.filter(b => b.block_id !== tempId) }));
+          notify('차단에 실패했어요. 네트워크를 확인하고 다시 시도해주세요.', '차단 실패');
+          return;
+        }
         set(s => ({
           blockedUsers: s.blockedUsers.map(b =>
             b.block_id === tempId ? { ...b, block_id: data.block_id, blocked_at: data.created_at } : b),
@@ -574,9 +583,20 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   unblockUser: (block_id) => {
     const { blockedUsers } = get();
+    const removed = blockedUsers.find(b => b.block_id === block_id);
     set({ blockedUsers: blockedUsers.filter(b => b.block_id !== block_id) });  // 낙관적
     if (IS_REAL_AUTH && !block_id.startsWith('blk_')) {
-      supabase.from('blocks').delete().eq('block_id', block_id).then(() => {});
+      supabase.from('blocks').delete().eq('block_id', block_id).then(({ error }) => {
+        if (!error) return;
+        // 서버에 남아 있으면 다음 진입 때 차단이 되살아난다. 화면을 사실에 맞춘다.
+        console.error('[unblockUser] 서버 삭제 실패:', error.message);
+        if (removed) {
+          set(s => (s.blockedUsers.some(b => b.block_id === block_id)
+            ? s
+            : { blockedUsers: [...s.blockedUsers, removed] }));
+        }
+        notify('차단 해제에 실패했어요. 잠시 후 다시 시도해주세요.');
+      });
     }
   },
 

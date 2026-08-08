@@ -11,7 +11,7 @@
  *  - 하단 CTA (저장 / 발도장 남기기)
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import { notify, actionSheet, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
@@ -65,6 +65,24 @@ export default function SpotDetailScreen() {
     }
     return localVm;
   }, [serverDetail.data, localVm, currentLocation, spots, id]);
+
+  // 발도장을 마치고 이 화면으로 돌아왔을 때 서버 집계를 다시 읽는다.
+  //   상단 세 숫자(다녀간 강아지 / 발도장 / 내 방문)는 전부 spot-detail 스냅샷이라
+  //   재조회가 없으면 방금 남긴 발도장이 반영되지 않는다 — "찍혔나?" 싶은 화면이 된다.
+  //   (발도장 완료가 홈으로 튕기던 시절엔 이 화면으로 돌아올 일이 없어 드러나지 않았다)
+  //   isLoading은 화면에서 쓰지 않고 데이터가 있으면 그대로 그리므로 깜빡임은 없다.
+  //   첫 포커스는 마운트 시 이미 조회가 돌았으므로 건너뛴다.
+  const hasFocusedOnceRef = useRef(false);
+  const refreshDetail = serverDetail.refresh;
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasFocusedOnceRef.current) {
+        hasFocusedOnceRef.current = true;
+        return;
+      }
+      refreshDetail();
+    }, [refreshDetail]),
+  );
 
   // 저장 상태는 서버 스냅샷(vm.is_saved)이 아니라 로컬 savedSpots로 판단 — 탭 즉시 반영.
   const locallySaved = useMemo(
