@@ -355,9 +355,15 @@ export default function PawCheckinModal() {
     submitPawCheckin(serverResult); // 로컬 store 업데이트 (서버 집계 반영, 즉각적인 UI)
     // 익숙한 강아지 알림 트리거 (best-effort, familiar_layer 발도장일 때만)
     if (IS_REAL_AUTH && pawFlow.visibility === 'familiar_layer' && dog && targetSpot) {
+      // best-effort지만 실패는 크게 남긴다. functions.invoke는 함수가 500을 내도
+      // reject하지 않고 { error }로 resolve하므로 catch만으로는 아무것도 못 잡는다.
+      // (events 계측이 auth_id 불일치로 2주간 조용히 전량 거부됐던 것과 같은 함정)
       supabase.functions
         .invoke('notify-familiar', { body: { dogId: dog.dog_id, spotId: targetSpot.spot_id } })
-        .catch(() => {});
+        .then(({ error }) => {
+          if (error) console.error('[notify-familiar] 알림 트리거 실패:', error.message);
+        })
+        .catch((e) => console.error('[notify-familiar] 알림 트리거 예외:', e));
     }
     track(EVENT.pawmark_completed, {
       screen_name: 'paw_checkin',

@@ -44,7 +44,14 @@ const WALKING_STYLE_KEYS = Object.keys(walkingStyleLabels);
 
 export default function DogEditScreen() {
   const router = useRouter();
-  const { dog, dogs, setActiveDog, setDogs, deleteDog } = useAppStore();
+  // 선택자로 쪼개 구독한다. 통짜 useAppStore()는 스토어의 어떤 값이 바뀌어도 이 화면을
+  // 다시 그린다 — 특히 currentLocation은 GPS가 갱신될 때마다 바뀌므로, 편집 중 내내
+  // 폼 전체가 재렌더된다. (앱의 다른 화면은 모두 선택자를 쓰고 있었고 여기만 예외였다)
+  const dog = useAppStore(s => s.dog);
+  const dogs = useAppStore(s => s.dogs);
+  const setActiveDog = useAppStore(s => s.setActiveDog);
+  const setDogs = useAppStore(s => s.setDogs);
+  const deleteDog = useAppStore(s => s.deleteDog);
 
   // ─── State — 반드시 조건부 return 이전에 선언해야 함 (Rules of Hooks) ───
   const [avatarUri, setAvatarUri] = useState<string | undefined>(dog?.avatar_url);

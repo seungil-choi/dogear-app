@@ -139,7 +139,15 @@ export default function NotificationsScreen() {
   const handleMarkAllRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     if (IS_REAL_AUTH) {
-      supabase.from('notifications').update({ read_at: new Date().toISOString() }).is('read_at', null).then(() => {});
+      // 화면은 이미 읽음으로 바꿔놨다. 서버 쓰기가 조용히 실패하면 다음 진입 때
+      // 배지가 되살아나는데 원인을 알 길이 없으므로 실패는 남긴다.
+      supabase
+        .from('notifications')
+        .update({ read_at: new Date().toISOString() })
+        .is('read_at', null)
+        .then(({ error }) => {
+          if (error) console.error('[notifications] 모두 읽음 처리 실패:', error.message);
+        });
     }
   };
 
@@ -149,7 +157,13 @@ export default function NotificationsScreen() {
       prev.map(n => (n.id === item.id ? { ...n, read: true } : n))
     );
     if (IS_REAL_AUTH && !item.read) {
-      supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('notification_id', item.id).then(() => {});
+      supabase
+        .from('notifications')
+        .update({ read_at: new Date().toISOString() })
+        .eq('notification_id', item.id)
+        .then(({ error }) => {
+          if (error) console.error('[notifications] 읽음 처리 실패:', error.message);
+        });
     }
     if (item.spot_id) {
       router.push(`/spot/${item.spot_id}`);
