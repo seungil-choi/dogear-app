@@ -295,6 +295,14 @@ export default function PawCheckinModal() {
     if (IS_REAL_AUTH) {
       // 0) 첨부 사진이 로컬 URI면 Storage 업로드 → public URL 확보 (영속화)
       //    실패 시 제출 중단 — 사진이 조용히 소실되는 것 방지, 사용자가 재시도/사진 제거 선택
+      //
+      // ⚠️ 지금은 이 블록에 도달하지 않는다 — Phase 2 대기.
+      //    pawFlow.photoUri를 채우는 UI(ImagePicker)가 이 화면에 아직 없어서,
+      //    setPawPhoto는 업로드 성공 후 URL을 되쓸 때만 호출된다.
+      //    그래서 checkin-photos 버킷이 계속 0건이다. 버그가 아니라 미구현이다.
+      //    PRD 11.4는 "선택 입력(사진/짧은 메모)"으로 적고 있고, 짧은 메모도 같은 상태다
+      //    (setPawNote 호출부·TextInput 모두 없음).
+      //    서버·DB·검수큐는 완비돼 있으므로 Phase 2에서는 UI만 붙이면 된다.
       let uploadedPhotoUrl: string | undefined;
       if (pawFlow.photoUri && !pawFlow.photoUri.startsWith('http')) {
         try {
