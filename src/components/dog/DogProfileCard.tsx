@@ -83,18 +83,26 @@ export function DogProfileCard({
         </View>
 
         <View style={s.info}>
-          {/* 이름 줄만 따로 눌릴 수 있다(강아지 전환). 전환이 없으면 카드 탭으로 흘려보낸다. */}
-          <TouchableOpacity
-            style={s.nameRow}
-            onPress={onPressName}
-            disabled={!onPressName}
-            activeOpacity={0.7}
-            accessibilityRole={onPressName ? 'button' : undefined}
-            accessibilityLabel={onPressName ? '다른 강아지 선택' : undefined}
-          >
-            <Text style={s.name} numberOfLines={1}>{dog.name}</Text>
-            {!!onPressName && <Icon name="down" size={16} color="#FFFFFF" />}
-          </TouchableOpacity>
+          {/* 이름 줄은 강아지가 여러 마리일 때만 따로 눌린다(전환 ▾).
+              한 마리면 Touchable을 아예 그리지 않는다 — disabled로 두면 그 자리에서만
+              카드 탭이 먹지 않을 위험이 있어(중첩 Touchable의 responder 처리),
+              "이름을 눌렀는데 상세가 안 열린다"가 된다. */}
+          {onPressName ? (
+            <TouchableOpacity
+              style={s.nameRow}
+              onPress={onPressName}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="다른 강아지 선택"
+            >
+              <Text style={s.name} numberOfLines={1}>{dog.name}</Text>
+              <Icon name="down" size={16} color="#FFFFFF" />
+            </TouchableOpacity>
+          ) : (
+            <View style={s.nameRow}>
+              <Text style={s.name} numberOfLines={1}>{dog.name}</Text>
+            </View>
+          )}
           {!!meta && <Text style={s.meta} numberOfLines={1}>{meta}</Text>}
         </View>
       </View>

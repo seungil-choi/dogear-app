@@ -43,6 +43,26 @@ describe('joinAddressParts', () => {
     expect(joinAddressParts({ region: '경기도', city: '  ', district: null, street: '중앙로' }))
       .toBe('경기도 중앙로');
   });
+
+  it('앞 조각에 포함되는 값은 버린다', () => {
+    // iOS에서 region "서울특별시" 뒤에 city "서울"이 오는 경우
+    expect(joinAddressParts({ region: '서울특별시', city: '서울', district: '마포구' }))
+      .toBe('서울특별시 마포구');
+  });
+
+  it('앞 글자만 같은 다른 지명은 버리지 않는다', () => {
+    // "성남시"가 있다고 "성남대로"를 지우면 안 된다 — 중복 제거가 과하게 먹는지 잠근다
+    expect(joinAddressParts({
+      region: '경기도', city: '성남시', district: '분당구', street: '성남대로',
+    })).toBe('경기도 성남시 분당구 성남대로');
+  });
+
+  it('한국식 순서(광역 → 기초 → 동 → 도로 → 번호)를 지킨다', () => {
+    // 입력 객체의 키 순서와 무관하게 결과 순서가 고정돼야 한다
+    expect(joinAddressParts({
+      streetNumber: '20', street: '월드컵북로', district: '망원동', region: '서울특별시',
+    })).toBe('서울특별시 망원동 월드컵북로 20');
+  });
 });
 
 describe('extractNeighborhood', () => {

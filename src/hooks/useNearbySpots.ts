@@ -168,17 +168,31 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
     }
   }, [isAuthenticated, currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading, setSpotsTruncated]);
 
+  // 어느 강아지 기준으로 받아온 응답인지 — 강아지를 바꾸면 위치가 그대로여도 다시 받아야 한다
+  const prevDogIdRef = useRef<string | null>(null);
+
   // 로그인 완료 시점 + 위치가 의미있게 변할 때 자동 fetch (위치 없어도 폴백 로드)
   useEffect(() => {
     if (!isAuthenticated) {
       // 로그인 전 fetch 금지(401) — 로그인되면 이 effect가 재실행되어 즉시 로드.
       // 기준점도 초기화해 재로그인 시 50m 가드에 막히지 않게 함(로그아웃이 spots를 비우므로).
       prevLocationRef.current = null;
+      prevDogIdRef.current = null;
       return;
     }
+
+    // 강아지를 바꿨으면 거리 가드를 건너뛴다.
+    //   응답의 saved_type·방문 이력은 dogId마다 다른 값이다. 특히 saved_type에서 나온
+    //   `savedByMe`는 저장 수 ±1 보정의 기준점이라, 옛 강아지 기준으로 남아 있으면
+    //   전환 직후 홈 카드의 저장 수가 1 어긋난다.
+    //   ⚠️ 거리 가드보다 먼저 판정해야 한다 — 제자리에서 강아지만 바꾸는 게 흔한 경우다.
+    const dogId = activeDog?.dog_id ?? null;
+    const dogChanged = prevDogIdRef.current !== dogId;
+    prevDogIdRef.current = dogId;
+
     const prev = prevLocationRef.current;
     // 위치가 있고 직전 위치 대비 50m 미만 이동이면 재조회 생략
-    if (currentLocation && prev) {
+    if (!dogChanged && currentLocation && prev) {
       const deltaLat = Math.abs(currentLocation.latitude - prev.lat);
       const deltaLng = Math.abs(currentLocation.longitude - prev.lng);
       if (deltaLat < 0.0005 && deltaLng < 0.0005) return; // ~50m 미만
@@ -189,7 +203,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
     }
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation, isAuthenticated]);
+  }, [currentLocation, isAuthenticated, activeDog?.dog_id]);
 
   // pull-to-refresh 버스에 등록 — 화면의 RefreshControl이 refreshAll()로 트리거
   useEffect(() => registerRefreshHandler(refresh), [refresh]);

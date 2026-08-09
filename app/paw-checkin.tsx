@@ -36,6 +36,9 @@ import type { FeelingTag, VisibilityLevel } from '../src/types';
 import { feelingTagLabel, visibilityLabel } from '../src/utils/labels';
 import { checkPawmarkProximity, formatDistanceShort } from '../src/utils/geo';
 import { getPawmarkRadius, pawmarkCooldownRemainingMs } from '../src/config/checkin';
+import {
+  pawStepFlow, visiblePawFlow, nextPawStep, prevPawStep, pawIndicatorIndex, PAW_STEP_LABEL,
+} from '../src/utils/pawSteps';
 import * as Location from 'expo-location';
 
 import { IS_REAL_AUTH } from '../src/config/env';
@@ -61,6 +64,12 @@ const FEELING_TAGS: FeelingTag[] = [
  */
 const SHOW_VISIBILITY_STEP = false;
 const DEFAULT_VISIBILITY: VisibilityLevel = 'familiar_layer';
+
+/**
+ * 단계 흐름 — 다음/이전/인디케이터가 모두 이 배열 하나에서 파생된다.
+ * 계산과 테스트는 `src/utils/pawSteps.ts`에 있다(화면을 띄우지 않고 검증하려고 떼어냈다).
+ */
+const STEP_FLOW = pawStepFlow(SHOW_VISIBILITY_STEP);
 
 const VISIBILITY_OPTIONS: {
   level: VisibilityLevel;
@@ -211,19 +220,20 @@ export default function PawCheckinModal() {
     router.back();
   }, [resetPawFlow, router]);
 
-  // 공개 범위 단계를 숨기면 2 → 4로 건너뛴다(스텝 번호는 유지 — 화면 조건이 step에 묶여 있다)
-  const handleNext = useCallback(
-    () => setPawStep(!SHOW_VISIBILITY_STEP && step === 2 ? 4 : step + 1),
-    [step, setPawStep],
-  );
+  // 다음/이전은 STEP_FLOW의 앞뒤로만 움직인다 — 건너뛰는 단계를 각자 알 필요가 없다
+  const handleNext = useCallback(() => {
+    const next = nextPawStep(STEP_FLOW, step);
+    if (next !== undefined) setPawStep(next);
+  }, [step, setPawStep]);
   const handleBack = useCallback(() => {
     // 미리 선택된 장소로 진입 → step 2 에서 뒤로가기는 모달 닫음
     // (장소 자체를 바꾸려면 상세 페이지로 돌아가서 다시 진입)
     if (step === 1 || (isPresetSpot && step === 2)) {
       handleClose();
-    } else {
-      setPawStep(!SHOW_VISIBILITY_STEP && step === 4 ? 2 : step - 1);
+      return;
     }
+    const prev = prevPawStep(STEP_FLOW, step);
+    if (prev !== undefined) setPawStep(prev);
   }, [step, setPawStep, handleClose, isPresetSpot]);
 
   const handleSubmit = useCallback(async () => {
@@ -502,12 +512,11 @@ export default function PawCheckinModal() {
 
   // 단계 레이블 — 진입 경로에 따라 다름
   // preset (spot 상세 진입): 장소 선택 단계 생략 → 3단계 인디케이터
-  const STEP_LABELS = SHOW_VISIBILITY_STEP
-    ? (isPresetSpot ? ['느낌', '공개 범위', '완료'] : ['장소', '느낌', '공개 범위', '완료'])
-    : (isPresetSpot ? ['느낌', '완료']             : ['장소', '느낌', '완료']);
-  const totalSteps  = STEP_LABELS.length;
-  // 내부 step(1~4) → 인디케이터 표시용 인덱스(1~totalSteps) 변환
-  const indicatorStep = isPresetSpot ? Math.max(1, step - 1) : step;
+  // 라벨 수·현재 위치가 모두 같은 배열에서 나오므로 서로 어긋날 수 없다
+  const visibleFlow   = visiblePawFlow(STEP_FLOW, isPresetSpot);
+  const STEP_LABELS   = visibleFlow.map(n => PAW_STEP_LABEL[n]);
+  const totalSteps    = STEP_LABELS.length;
+  const indicatorStep = pawIndicatorIndex(visibleFlow, step);
 
   return (
     <SafeAreaView style={s.safe}>
@@ -538,7 +547,10 @@ export default function PawCheckinModal() {
                   )}
                 </View>
                 {n < totalSteps && (
-                  <View style={[s.stepLine, n < step && s.stepLineDone]} />
+                  // indicatorStep 기준이어야 한다. 내부 step(1·2·4)과 인디케이터 인덱스는
+                  // 값이 다르다 — raw step을 쓰면 장소 상세 진입 시 '느낌' 단계인데도
+                  // 완료로 가는 선이 이미 채워져 보였다.
+                  <View style={[s.stepLine, n < indicatorStep && s.stepLineDone]} />
                 )}
               </React.Fragment>
             );
