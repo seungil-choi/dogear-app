@@ -53,6 +53,7 @@ declare
   v_closed   int;
   v_oob      int;
   v_dup_name int;
+  v_masked   int;
   v_ready    int;
   v_written  int := 0;
 begin
@@ -73,9 +74,12 @@ begin
     s.category,
     nullif(btrim(s.external_id), '')            as external_id,
     nullif(btrim(s.biz_name), '')               as name,
-    nullif(btrim(coalesce(s.road_addr, s.lot_addr)), '') as address_text,
-    nullif(btrim(s.road_addr), '')              as address_road,
-    nullif(btrim(s.lot_addr), '')               as address_lot,
+    -- 마스킹된 주소는 별표 앞에서 자른다 (clean_masked_address 참고)
+    public.clean_masked_address(s.road_addr)    as address_road,
+    public.clean_masked_address(s.lot_addr)     as address_lot,
+    coalesce(public.clean_masked_address(s.road_addr),
+             public.clean_masked_address(s.lot_addr)) as address_text,
+    (s.road_addr like '%*%' or s.lot_addr like '%*%') as was_masked,
     nullif(btrim(s.phone), '')                  as phone,
     -- 영업 중만 남긴다. 폐업한 병원이 뜨는 순간 신뢰가 깨진다.
     (coalesce(s.status_name, '') like '영업%')  as is_open,
@@ -94,6 +98,7 @@ begin
   -- 유효성 판정 — 왜 버렸는지 단계별로 센다. 조용히 줄어드는 게 제일 나쁘다.
   select count(*) into v_no_coord from _batch where geom is null or name is null;
   select count(*) into v_closed   from _batch where geom is not null and name is not null and not is_open;
+  select count(*) into v_masked   from _batch where was_masked;
 
   create temp table _valid on commit drop as
   select b.*, st_y(b.geom) as lat, st_x(b.geom) as lng
@@ -165,6 +170,7 @@ begin
     'skipped_closed',  v_closed,
     'skipped_out_of_korea', v_oob,
     'skipped_dup_nearby',   v_dup_name,
+    'address_masked',  v_masked,
     'ready',           v_ready,
     'written',         v_written
   );
