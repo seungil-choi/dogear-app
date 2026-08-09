@@ -11,11 +11,6 @@
  */
 import type { SpotCategory } from '../types';
 
-/** 야외 산책지 — 상시 개방, 영업시간·전화번호 개념이 없다 */
-export const WALK_CATEGORIES: readonly SpotCategory[] = [
-  'park', 'trail', 'riverside', 'rest_spot', 'beach',
-];
-
 /** 시설 — 영업하는 곳. 폐업·영업시간 같은 신선도 문제가 따라붙는다 */
 export const FACILITY_CATEGORIES: readonly SpotCategory[] = [
   'pet_cafe', 'vet', 'pet_grooming', 'pet_boarding',
@@ -26,10 +21,6 @@ export const FACILITY_CATEGORIES: readonly SpotCategory[] = [
  * 목적지가 아니라 볼일인 곳들 — 거리순으로 들이밀면 방해만 된다.
  */
 const NOT_RECOMMENDABLE: readonly SpotCategory[] = ['vet', 'pet_grooming', 'pet_boarding'];
-
-export function isFacilityCategory(category: SpotCategory): boolean {
-  return FACILITY_CATEGORIES.includes(category);
-}
 
 /**
  * 지도 핀 글리프 키. 산책지는 undefined를 돌려 관계 글리프(점·발도장·별)를 쓰게 둔다.

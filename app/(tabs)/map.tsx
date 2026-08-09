@@ -80,6 +80,10 @@ export default function ExploreScreen() {
   const currentLocation     = useAppStore(s => s.currentLocation);
   const setCurrentLocation  = useAppStore(s => s.setCurrentLocation);
   const spotsTruncated     = useAppStore(s => s.spotsTruncated);
+  // getHomeCards가 읽는 상태 — dep 배열과 짝을 맞추기 위해 함께 구독한다
+  const spotAggregates     = useAppStore(s => s.spotAggregates);
+  const checkins           = useAppStore(s => s.checkins);
+  const blockedUsers       = useAppStore(s => s.blockedUsers);
 
   // 성능: 루프에서 spots.find(O(n))를 반복하지 않도록 spot_id → Spot Map을 1회 구성 (팬마다 O(스팟²) 제거)
   const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
@@ -156,9 +160,10 @@ export default function ExploreScreen() {
   const cardListRef = useRef<ScrollView>(null);
   const cardOffsetsRef = useRef<Record<string, number>>({});
   // 실데이터 dep으로 memo화 — 지도 팬 중 매 프레임 카드 전량 재빌드 + WebView 마커 재주입 방지.
+  // dep는 getHomeCards가 읽는 상태와 정확히 같게 — 홈 화면과 같은 규칙
   const homeCards = useMemo(
     () => getHomeCards(),
-    [getHomeCards, spots, visitSummaries, dog, currentLocation],
+    [getHomeCards, spots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers],
   );
 
   // ── 슬라이드 패널 (네이버 지도 스타일) ────────────────────────
@@ -256,7 +261,7 @@ export default function ExploreScreen() {
     }
 
     return result;
-  }, [homeCards, spots, activeFilter, searchQuery, isSaved]);
+  }, [homeCards, activeFilter, searchQuery, isSaved]);
 
   // ── 페이지 진입 시 선택 상태 초기화 + 진입 추적 ──
   useEffect(() => {

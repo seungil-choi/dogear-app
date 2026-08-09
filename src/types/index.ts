@@ -7,7 +7,7 @@ export type DogAgeGroup = 'puppy' | 'adult' | 'senior';
  * 장소 유형. DB의 spot_category enum과 값이 정확히 일치해야 한다.
  *  - 산책지: park · trail · riverside · rest_spot · beach
  *  - 시설  : pet_cafe · vet · pet_grooming · pet_boarding
- * 구분이 필요한 곳은 constants/spotCategories의 isFacilityCategory를 쓴다.
+ * 시설 목록은 constants/spotCategories의 FACILITY_CATEGORIES를 쓴다.
  */
 export type SpotCategory =
   | 'park' | 'trail' | 'riverside' | 'rest_spot' | 'beach'

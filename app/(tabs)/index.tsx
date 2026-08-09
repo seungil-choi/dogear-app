@@ -133,11 +133,24 @@ export default function HomeScreen() {
   const spots          = useAppStore(s => s.spots);
   const currentLocation = useAppStore(s => s.currentLocation);
   const isSpotsLoading  = useAppStore(s => s.isSpotsLoading);
+  // getHomeCards가 읽는 상태 — dep 배열과 짝을 맞추기 위해 함께 구독한다
+  const spotAggregates  = useAppStore(s => s.spotAggregates);
+  const checkins        = useAppStore(s => s.checkins);
+  const blockedUsers    = useAppStore(s => s.blockedUsers);
   const { refreshing, onRefresh } = usePullToRefresh();
 
   // ⚠️ getHomeCards는 안정적인 zustand 액션 참조라 [getHomeCards]로 memo하면 마운트 시 1회만
   //    계산되고 spots가 비동기 로드돼도 갱신되지 않음 → 실제 데이터 의존값을 dep에 넣어 재계산.
-  const cards    = useMemo(() => getHomeCards(), [getHomeCards, spots, visitSummaries, savedSpots, currentLocation, dog, isSpotsLoading]);
+  // ⚠️ dep는 getHomeCards가 실제로 읽는 상태와 정확히 같아야 한다.
+  //    (spots · spotAggregates · checkins · visitSummaries · dog · currentLocation · blockedUsers)
+  //    없던 것: blockedUsers — 차단해도 홈 카드에 그 강아지 발도장이 계속 집계됐다.
+  //             spotAggregates·checkins — 집계만 갱신되면 카드가 안 바뀐다.
+  //    있던 것: savedSpots·isSpotsLoading — getHomeCards가 읽지 않는다.
+  //             저장 토글·로딩 토글마다 150장을 통째로 다시 만들고 있었다.
+  const cards    = useMemo(
+    () => getHomeCards(),
+    [getHomeCards, spots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers],
+  );
   // 성능: featuredCards 등에서 spots.find(O(n))를 루프로 돌지 않도록 spot_id → Spot Map 1회 구성
   const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
   const [pickerOpen, setPickerOpen] = useState(false);
