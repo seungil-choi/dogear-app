@@ -418,23 +418,41 @@ export default function ExploreScreen() {
   // 오래 걷기 등 최소 거리 필터 (검색 시에는 미적용)
   const activeMinDistM = isSearching ? 0 : (FILTER_MIN_DIST[activeFilter] ?? 0);
 
+  /**
+   * 화면에 적을 거리는 **항상 내 위치 기준**이다.
+   *
+   * 정렬·반경 필터와 기준점이 다른 게 의도다:
+   *   - 정렬·필터는 **지도 중심** 기준이어야 한다. 다른 동네로 팬하면 그 동네 장소가 나와야지,
+   *     내 위치에서 멀다고 전부 걸러지면 지도를 움직이는 의미가 없다.
+   *   - 반면 "거리"는 내가 실제로 가야 하는 거리다. 지도 중심 기준으로 적으면
+   *     팬하는 순간 장소 상세와 값이 어긋난다(실제로 어긋나 있었다).
+   * 위치를 모르면 지도 중심으로 폴백한다 — 그때는 상세도 '거리 정보 없음'이라 충돌이 없다.
+   */
+  const distanceFromMe = useCallback((lat: number, lng: number) => {
+    const originLat = currentLocation?.latitude ?? mapCenter.lat;
+    const originLng = currentLocation?.longitude ?? mapCenter.lng;
+    return haversineMeters(originLat, originLng, lat, lng);
+  }, [currentLocation, mapCenter.lat, mapCenter.lng]);
+
   const sortedCards = useMemo(() => {
     return filteredCards
       .map(card => {
         const spot = spotsById.get(card.spot_id);
         if (!spot) return null;
+        // 정렬·반경 판정용 — 지도 중심 기준
         const dist = haversineMeters(mapCenter.lat, mapCenter.lng, spot.latitude, spot.longitude);
         if (dist > activeRadiusM) return null;   // 반경 초과 제외
         if (dist < activeMinDistM) return null;  // 최소 거리 미만 제외 (오래 걷기)
-        return { card, dist };
+        return { card, dist, spot };
       })
-      .filter((x): x is { card: typeof filteredCards[0]; dist: number } => x !== null)
+      .filter((x): x is { card: typeof filteredCards[0]; dist: number; spot: Spot } => x !== null)
       .sort((a, b) => a.dist - b.dist)
-      .map(({ card, dist }) => ({
+      .map(({ card, spot }) => ({
         ...card,
-        distance_text: distanceText(dist),
+        // 표시용 — 내 위치 기준(장소 상세와 같은 값이 나와야 한다)
+        distance_text: distanceText(distanceFromMe(spot.latitude, spot.longitude)),
       }));
-  }, [filteredCards, spots, mapCenter, activeRadiusM, activeMinDistM]);
+  }, [filteredCards, spotsById, mapCenter.lat, mapCenter.lng, activeRadiusM, activeMinDistM, distanceFromMe]);
 
   // 선택된 핀의 카드 = hero 영역에 항상 노출, 나머지는 주변 다른 장소로 분리
   // 선택된 hero 카드 — 3단계 fallback으로 어떤 핀이든 카드 표시 보장
@@ -450,7 +468,6 @@ export default function ExploreScreen() {
     // 마지막 fallback — spots에서 직접 minimal 카드 빌드
     const sp = spotsById.get(selectedId);
     if (!sp) return null;
-    const dist = haversineMeters(mapCenter.lat, mapCenter.lng, sp.latitude, sp.longitude);
     return {
       spot_id: sp.spot_id,
       name: sp.name,
@@ -458,7 +475,7 @@ export default function ExploreScreen() {
       category_label: catLabel[sp.category],
       // subcategory 누락 시 카드가 기본 공원 일러스트로 떨어져 상세 화면과 썸네일이 달라진다
       subcategory: sp.subcategory,
-      distance_text: distanceText(dist),
+      distance_text: distanceText(distanceFromMe(sp.latitude, sp.longitude)),
       atmosphere_badges: [],
       has_visited: false,
       is_regular: false,
@@ -467,7 +484,7 @@ export default function ExploreScreen() {
       saved_count: 0,
       server_is_saved: false,
     } as typeof homeCards[0];
-  }, [sortedCards, homeCards, spots, selectedId, mapCenter]);
+  }, [sortedCards, homeCards, spotsById, selectedId, distanceFromMe]);
   const restCards = useMemo(
     () => (selectedId ? sortedCards.filter(c => c.spot_id !== selectedId) : sortedCards),
     [sortedCards, selectedId],
@@ -966,7 +983,10 @@ export default function ExploreScreen() {
                        : activeFilter === 'visited'
                        ? '산책하면서 발도장을 남겨보세요'
                        : nearestOutOfRange != null
-                       ? `가장 가까운 장소가 ${distanceText(nearestOutOfRange)}에 있어요`
+                       // ⚠️ 여기만 지도 중심 기준이다(목록 카드는 내 위치 기준).
+                       //    바로 아래 '조금 넓게 보기'가 지도 반경을 넓히는 동작이라,
+                       //    내 위치 기준으로 적으면 "1.2km라더니 넓혀도 안 나오네"가 된다.
+                       ? `보고 있는 곳에서 가장 가까운 장소가 ${distanceText(nearestOutOfRange)}에 있어요`
                        : regionEmpty
                        ? '지금은 서울·경기 지역을 중심으로 장소를 채우고 있어요'
                        : '지도를 다른 지역으로 옮겨보세요')}

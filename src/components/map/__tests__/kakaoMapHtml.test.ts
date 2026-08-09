@@ -45,4 +45,18 @@ describe('buildKakaoMapHtml', () => {
     const clusterBranch = src.slice(src.indexOf('data-cluster-key'), src.indexOf("type: 'clusterClick'"));
     expect(clusterBranch).not.toContain('setLevel');
   });
+
+  it('핀 라벨의 가로·세로가 둘 다 묶여 있다', () => {
+    // 긴 상호("호펫 강아지 고양이 성신여대본점")가 화면 1/3을 먹어 지도를 덮었다.
+    // 상한을 풀면 같은 일이 재발하므로 세 축을 함께 잠근다.
+    const html = buildKakaoMapHtml({ appKey: 'k' });
+    const label = html.slice(html.indexOf('.pin-label {'), html.indexOf('.cluster {'));
+
+    const maxWidth = Number(label.match(/max-width:\s*(\d+)px/)?.[1]);
+    expect(maxWidth).toBeLessThanOrEqual(100);       // 가로
+    expect(label).toContain('-webkit-line-clamp: 2'); // 세로(줄 수)
+    expect(label).toContain('overflow: hidden');      // 넘치면 말줄임
+    // width:max-content가 있어야 짧은 이름이 상한까지 늘어나지 않는다
+    expect(label).toContain('width: max-content');
+  });
 });

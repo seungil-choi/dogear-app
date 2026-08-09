@@ -59,7 +59,11 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
          max-width만으로는 상한만 정해질 뿐 갇힌 폭이 넓어지지 않으므로
          width:max-content로 내용 기준 폭을 잡고 max-width로 상한을 둔다. */
       width: max-content;
-      max-width: 132px;
+      /* 상한을 좁게 잡는다. 132px일 때 "호펫 강아지 고양이 성신여대본점" 같은 이름이
+         화면 가로의 1/3을 차지해 핀 몇 개만 모여도 지도가 라벨로 덮였다.
+         라벨은 어느 핀인지 알아보는 단서지 이름을 다 읽는 자리가 아니다 —
+         넘치는 부분은 아래 line-clamp가 말줄임으로 처리한다. */
+      max-width: 96px;
       padding: 3px 8px;
       background: rgba(255,255,255,0.96);
       border-radius: 10px;

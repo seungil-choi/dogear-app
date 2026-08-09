@@ -3,7 +3,7 @@ import type {
   AtmosphereState, FeelingTag, RegularStatus, HomeSpotCardViewModel,
   Spot, Dog, DogSize, SpotDetailApiViewModel, SpotDetailViewModel,
 } from '../types';
-import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel, regularStatusLabel, visitDateText } from './labels';
+import { feelingTagLabel, atmosphereLabel, categoryLabel, relativeTime, sizeLabel, temperamentLabels, ageGroupLabel, regularStatusLabel, visitDateText, distanceTextOr } from './labels';
 import type { FamiliarDogCardViewModel, TraceListItemViewModel, SpotAggregate } from '../types';
 import { FAMILIAR_LAYER_POLICY } from '../config/familiar-layer';
 import { haversineDistance } from './geo';
@@ -126,9 +126,7 @@ export function buildHomeSpotCard(
     category: spot.category,
     category_label: categoryLabel[spot.category],
     subcategory: spot.subcategory,
-    distance_text: distanceMeters != null
-      ? `${distanceMeters < 1000 ? Math.round(distanceMeters) + 'm' : (distanceMeters / 1000).toFixed(1) + 'km'}`
-      : '근처',
+    distance_text: distanceTextOr(distanceMeters, '근처'),
     atmosphere_badges: badges.slice(0, 3),
     recent_trace_label: aggregate.recent_trace_count > 0 ? `최근 ${aggregate.recent_trace_count}건` : undefined,
     has_visited: !!summary,
@@ -258,11 +256,7 @@ export function buildSpotDetailFromApi(
   const distanceMeters = ctx.currentLocation
     ? haversineDistance(ctx.currentLocation.latitude, ctx.currentLocation.longitude, spot.latitude, spot.longitude)
     : null;
-  const distance_text =
-    distanceMeters == null ? '거리 정보 없음'
-    : distanceMeters < 100 ? '바로 근처'
-    : distanceMeters < 1000 ? `${Math.round(distanceMeters / 10) * 10}m`
-    : `${(distanceMeters / 1000).toFixed(1)}km`;
+  const distance_text = distanceTextOr(distanceMeters, '거리 정보 없음');
 
   const addrParts = (spot.address_text || '').split(' ');
   const sidoRaw = addrParts[0] ?? '';

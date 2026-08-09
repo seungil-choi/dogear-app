@@ -91,7 +91,14 @@ export function checkPawmarkProximity({ currentLocation, spot }: CheckArgs): Pro
   return { ok: true, distance, allowed, accuracy };
 }
 
-/** "12m" / "1.2km" 등 사람이 읽기 좋은 거리 텍스트 */
+/**
+ * 발도장 근접 안내 전용 거리 텍스트 ("약 15m 떨어져 있어요").
+ *
+ * ⚠️ `labels.ts`의 `distanceText`와 **일부러 다르다. 합치지 말 것.**
+ *   distanceText는 100m 미만을 "바로 근처예요"로 뭉갠다 — 목록에서는 그게 맞지만,
+ *   여기는 반경 약 20m 이내인지를 알려주는 자리라 그렇게 뭉개면 안내가 무의미해진다.
+ *   ("바로 근처예요"인데 발도장이 안 찍히는 상황이 된다)
+ */
 export function formatDistanceShort(meters: number): string {
   if (meters < 10) return `${Math.round(meters)}m`;
   if (meters < 1000) return `${Math.round(meters / 10) * 10}m`;

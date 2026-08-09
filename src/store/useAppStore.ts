@@ -18,7 +18,7 @@ import {
   computeSpotAggregate, buildHomeSpotCard, computeRegularStatus,
   buildFamiliarDogCards, buildTraceList, computeDogMapPinVariant,
 } from '../utils/rules';
-import { categoryLabel, atmosphereLabel, regularStatusLabel, visitDateText, relativeTime } from '../utils/labels';
+import { categoryLabel, atmosphereLabel, regularStatusLabel, visitDateText, relativeTime, distanceTextOr } from '../utils/labels';
 import type { SpotDetailViewModel, DogMapSpotViewModel } from '../types';
 import { mergeSpotList } from './spotMerge';
 import {
@@ -839,14 +839,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     const distanceMeters = currentLocation
       ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
       : null;
-    const distanceText =
-      distanceMeters == null
-        ? '거리 정보 없음'
-        : distanceMeters < 100
-        ? '바로 근처'
-        : distanceMeters < 1000
-        ? `${Math.round(distanceMeters / 10) * 10}m`
-        : `${(distanceMeters / 1000).toFixed(1)}km`;
+    // 서버 응답으로 만드는 상세(buildSpotDetailFromApi)와 같은 함수를 써야 한다 —
+    // 로컬 폴백일 때만 거리 표기가 달라지면 원인을 찾기 어렵다.
+    const distanceText = distanceTextOr(distanceMeters, '거리 정보 없음');
 
     // 시/도·구 수준 위치 요약 (주소에서 추출)
     const addr = spot.address_text || '';

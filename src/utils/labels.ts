@@ -104,11 +104,35 @@ export function visitDateText(isoString: string): string {
   return `${y}.${m}.${day}`;
 }
 
-// ─── 거리 텍스트 (mock) ─────────────────────────────
+// ─── 거리 텍스트 ─────────────────────────────
+/**
+ * 미터 → 화면에 쓸 거리 문자열. **앱 전체가 이 함수 하나만 쓴다.**
+ *
+ * 왜 한 곳으로 모았나:
+ *   홈 카드·장소 상세(서버)·장소 상세(로컬)·탐색 패널이 각자 다르게 포맷하고 있었다.
+ *   같은 740m가 화면에 따라 `740m` / `700m`로, 80m가 `80m` / `바로 근처` / `바로 근처예요`로
+ *   달리 나왔다. 사용자에겐 그냥 "거리가 안 맞는" 것으로 보인다.
+ *
+ * 눈금을 거리에 따라 굵게 잡는 이유:
+ *   휴대폰 GPS 오차가 수십 m다. 멀수록 10m 단위로 적으면 없는 정밀도를 있는 척하게 된다.
+ *     100m 미만  → 숫자 대신 말로 (오차가 값을 압도하는 구간)
+ *     500m 미만  → 10m 단위
+ *     1km 미만   → 100m 단위
+ *     1km 이상   → 0.1km 단위
+ */
 export function distanceText(meters: number): string {
   if (meters < 100) return '바로 근처예요';
   if (meters < 500) return `${Math.round(meters / 10) * 10}m`;
   const km = meters / 1000;
   if (km < 1) return `${Math.round(meters / 100) * 100}m`;
   return `${km.toFixed(1)}km`;
+}
+
+/**
+ * 거리를 모를 수도 있는 자리용(위치 권한 거부 등).
+ * @param fallback 거리를 모를 때 보여줄 문구. 화면 성격에 따라 다르다
+ *   (목록 카드는 '근처', 상세는 '거리 정보 없음').
+ */
+export function distanceTextOr(meters: number | null | undefined, fallback: string): string {
+  return meters == null ? fallback : distanceText(meters);
 }
