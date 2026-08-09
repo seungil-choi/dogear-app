@@ -53,6 +53,8 @@ export interface SpotServerAggregate {
   checkinCount: number;
   atmosphereState: AtmosphereState;
   topFeelingTags: FeelingTag[];
+  /** 이 장소를 저장한 사람 수 — 내 저장 여부(savedSpots)와는 다른 값 */
+  savedCount: number;
 }
 
 // 서버 집계(전체 강아지) → computeSpotAggregate가 반환하는 SpotAggregate 형태로 변환
@@ -775,7 +777,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         const distanceMeters = currentLocation
           ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
           : undefined;
-        return buildHomeSpotCard(spot, agg, summary, distanceMeters);
+        return buildHomeSpotCard(spot, agg, summary, distanceMeters, spotAggregates[spot.spot_id]?.savedCount ?? 0);
       });
   },
 

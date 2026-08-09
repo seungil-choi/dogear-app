@@ -88,6 +88,8 @@ export function buildHomeSpotCard(
   aggregate: SpotAggregate,
   summary?: SpotVisitSummary,
   distanceMeters?: number,
+  /** 서버 집계에만 있는 값 — 로컬 폴백(데모·오프라인)에는 없으므로 0 */
+  savedCount = 0,
 ): HomeSpotCardViewModel {
   const regular_status = summary ? computeRegularStatus(summary) : 'none';
   const badges: string[] = [];
@@ -111,6 +113,7 @@ export function buildHomeSpotCard(
     has_visited: !!summary,
     is_regular: regular_status === 'regular',
     cover_image_url: spot.cover_image_url,
+    saved_count: savedCount,
     visit_count: summary?.visit_count,
     last_visit_text: summary ? relativeTime(summary.last_visit_at) : undefined,
     last_visit_at: summary?.last_visit_at,

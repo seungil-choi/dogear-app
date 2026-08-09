@@ -425,6 +425,8 @@ export default function ExploreScreen() {
       has_visited: false,
       is_regular: false,
       cover_image_url: sp.cover_image_url,
+      // 이 폴백 경로에는 서버 집계가 없다 — 없는 숫자를 지어내지 않고 0으로 둔다
+      saved_count: 0,
     } as typeof homeCards[0];
   }, [sortedCards, homeCards, spots, selectedId, mapCenter]);
   const restCards = useMemo(

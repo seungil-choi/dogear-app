@@ -3,7 +3,7 @@
  *
  * 현재 위치 기준 반경 내 스팟 목록을 PostGIS로 조회한다.
  * Request body: { latitude, longitude, radiusMeters?, dogId? }
- * Response: SpotCard 뷰모델 배열 (거리 포함)
+ * Response: { spots: SpotCard[], truncated: boolean }
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -81,7 +81,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!spots || spots.length === 0) {
-      return Response.json({ spots: [] }, { headers: corsHeaders });
+      return Response.json({ spots: [], truncated: false }, { headers: corsHeaders });
     }
 
     const spotIds: string[] = spots.map((s: any) => s.spot_id);
@@ -115,9 +115,11 @@ Deno.serve(async (req: Request) => {
     // 스팟별 집계 — DB가 계산한 값을 그대로 받는다(누적 발도장 수 + 최근 48시간 감정 태그)
     const atmosphereMap: Record<string, string[]> = {};
     const checkinCountMap: Record<string, number> = {};
+    const savedCountMap: Record<string, number> = {};
     for (const row of (statsRes.data ?? []) as any[]) {
       checkinCountMap[row.spot_id] = row.checkin_count ?? 0;
       atmosphereMap[row.spot_id] = row.recent_tags ?? [];
+      savedCountMap[row.spot_id] = row.saved_count ?? 0;
     }
 
     // 뷰모델 조립
@@ -147,6 +149,9 @@ Deno.serve(async (req: Request) => {
         last_visit_at: summary?.last_visit_at ?? null,
         regular_status: summary?.regular_status ?? 'none',
         saved_type: savedMap[spot.spot_id] ?? null,
+        // 이 장소를 저장한 사람 수(내 저장 여부와 별개) — 홈 카드 저장 버튼이
+        // 장소 상세 키비주얼과 같은 표시를 쓰려면 목록에서도 필요하다.
+        saved_count: savedCountMap[spot.spot_id] ?? 0,
       };
     });
 

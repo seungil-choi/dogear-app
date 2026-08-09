@@ -6,10 +6,11 @@
  *
  * 구조:
  *   Tab 1. 발도장 남긴 곳 — 방문횟수 + 최근방문일 + 단골 상태 라벨
- *   Tab 2. 저장한 곳      — 아직 안 가본 곳 / 다녀온 곳
- *     ↑ 이 구분은 사용자가 고른 게 아니라 시스템이 방문 이력으로 자동 분류한다
+ *   Tab 2. 저장한 곳      — 저장 목록 + 그중 다녀온 곳만 아래에 모아둠
+ *     ↑ 이 구분은 사용자가 고른 게 아니라 저장하는 순간의 방문 이력으로 정해진다
  *       (useAppStore.toggleSaveSpot: hasVisited ? 'go_again' : 'want_to_go').
- *       그래서 '가보고 싶은 곳' 같은 의사 표현이 아니라 사실만 적는다.
+ *       저장 뒤에 방문해도 값이 갱신되지 않으므로 '아직 안 가본 곳'처럼
+ *       시간이 지나면 거짓이 되는 이름은 붙이지 않는다.
  */
 
 import React, { useState, useMemo } from 'react';
@@ -215,16 +216,10 @@ export default function MySpotsScreen() {
             />
           ) : (
             <>
-              {/* "가보고 싶다" 그룹 */}
-              {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').length > 0 && (
-                <View style={s.savedGroupHead}>
-                  <Icon name="bookmark" size={13} color={Colors.text.secondary} />
-                  <Text style={s.savedGroupTitle}>아직 안 가본 곳</Text>
-                  <Text style={s.savedGroupCount}>
-                    {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').length}곳
-                  </Text>
-                </View>
-              )}
+              {/* "가보고 싶다" 그룹 — 머리말 없음.
+                  saved_type은 저장 시점에 자동으로 정해지고(hasVisited ? go_again : want_to_go)
+                  이후 방문해도 바뀌지 않아, "아직 안 가본 곳"이라는 단정이 곧 거짓이 된다.
+                  세지도 않고 이름도 붙이지 않는다. */}
               {mySavedSpots.filter(x => x.saved.saved_type === 'want_to_go').map(({ saved, spot, card }) => (
                 <ListSpotCard
                   key={saved.saved_spot_id}

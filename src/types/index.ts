@@ -144,6 +144,9 @@ export interface HomeSpotCardViewModel {
   has_visited: boolean;
   is_regular: boolean;
   cover_image_url?: string;
+  /** 이 장소를 저장한 사람 수 — 장소 상세 키비주얼과 같은 저장 표시를 쓰기 위해 필요.
+   *  서버 집계가 없는 로컬 폴백(데모·오프라인)에서는 0. */
+  saved_count: number;
   /** 방문 기록이 있을 때만 존재 */
   visit_count?: number;
   /** 마지막 방문 상대 시각 텍스트 (예: "어제", "3일 전") */

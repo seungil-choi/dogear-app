@@ -18,13 +18,13 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, RefreshControl, Dimensions, NativeScrollEvent, NativeSyntheticEvent, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 // 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
 import { haversineDistance } from '../../src/utils/geo';
-import { RecentSpotCard, RegularSpotCard, CategoryThumb } from '../../src/components/spot/SpotCard';
+import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotCard';
+import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import { Icon } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
@@ -95,61 +95,26 @@ function FeaturedCard({
 }) {
   return (
     <TouchableOpacity style={s.featuredCard} onPress={onPress} activeOpacity={0.92}>
-      <View style={s.featuredImageWrap}>
-        {/* 풀폭 키비주얼 — 이미지 있으면 AppImage, 없으면 카테고리 컬러 폴백 */}
-        <View style={[s.featuredImageWrap, s.featuredImageFallback]}>
-          <CategoryThumb
-            categoryLabel={card.category_label}
-            subcategory={card.subcategory}
-            coverImageUrl={card.cover_image_url}
-            size={228}
-            width="100%"
-            rounded={0}
-          />
-        </View>
-
-        {/* Bottom scrim — warm gradient, fades naturally */}
-        <LinearGradient
-          colors={['transparent', 'rgba(18,12,6,0.18)', 'rgba(18,12,6,0.72)']}
-          locations={[0, 0.45, 1]}
-          style={s.featuredScrim}
-          pointerEvents="none"
-        />
-
-        {/* 이름 + 위치만. 분위기 칩·개인화 문구는 카드에서 뺐다 —
-            추천 카드가 판단을 대신 해주는 자리는 아니고, 자세한 건 상세에서 본다.
-            저장은 상세와 같은 규칙으로 같은 줄 우측에 붙인다(좌측 텍스트가 밀리지 않게 폭 고정). */}
-        <View style={s.featuredOverlay}>
-          <View style={s.featuredInfo}>
-            <Text style={s.featuredName} numberOfLines={1}>{card.name}</Text>
-            <View style={s.featuredMetaRow}>
-              <Icon name="location" size={11} color="rgba(255,255,255,0.7)" />
-              <Text style={s.featuredMetaText}>{card.distance_text}</Text>
-            </View>
+      {/* 키비주얼은 장소 상세와 같은 컴포넌트를 쓴다 — 두 화면이 어긋나지 않도록.
+          분위기 칩·개인화 문구는 카드에서 뺐다. 추천 카드가 판단을 대신 해주는 자리는
+          아니고, 자세한 건 상세에서 본다. */}
+      <SpotKeyVisual
+        height={228}
+        name={card.name}
+        categoryLabel={card.category_label}
+        subcategory={card.subcategory}
+        coverImageUrl={card.cover_image_url}
+        metaText={card.distance_text}
+        savedCount={card.saved_count}
+        saved={isSaved}
+        onSave={onSave}
+        topLeft={
+          <View style={s.featuredBadge}>
+            <Icon name="leaf-filled" size={10} color={Colors.brand.primary} />
+            <Text style={s.featuredBadgeText}>오늘의 추천</Text>
           </View>
-          <TouchableOpacity
-            style={s.featuredSave}
-            onPress={onSave}
-            activeOpacity={0.8}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={isSaved ? '저장 해제' : '저장하기'}
-          >
-            <Icon
-              name={isSaved ? 'bookmark-filled' : 'bookmark'}
-              size={24}
-              color={isSaved ? Colors.brand.primary : '#FFFFFF'}
-            />
-          </TouchableOpacity>
-        </View>
-
-        {/* Top-left badge */}
-        <View style={s.featuredBadge}>
-          <Icon name="leaf-filled" size={10} color={Colors.brand.primary} />
-          <Text style={s.featuredBadgeText}>오늘의 추천</Text>
-        </View>
-
-      </View>
+        }
+      />
     </TouchableOpacity>
   );
 }
@@ -818,55 +783,9 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border.subtle,
   },
-  featuredImageWrap: {
-    height: 228,
-    position: 'relative',
-    overflow: 'hidden',
-    backgroundColor: Colors.bg.tertiary,
-  },
-  featuredImageFallback: {
-    backgroundColor: Colors.brand.subtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featuredScrim: {
-    position: 'absolute',
-    bottom: 0, left: 0, right: 0,
-    height: 160,
-  },
-  featuredOverlay: {
-    position: 'absolute',
-    bottom: Spacing[16],
-    left: Spacing[16],
-    right: Spacing[16],
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: Spacing[12],
-  },
-  featuredName: {
-    ...Typography.title.l,
-    color: '#FFFFFF',
-    fontWeight: '800',
-    letterSpacing: -0.4,
-    lineHeight: 26,
-  },
-  featuredInfo: { flex: 1, gap: Spacing[4], minWidth: 0 },
-  // 폭 고정 — 저장 상태가 바뀌어도 좌측 이름·거리가 밀리지 않는다
-  featuredSave: { width: 32, alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 2 },
-  featuredMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[6],
-    marginTop: 2,
-  },
-  featuredMetaText: {
-    ...Typography.body.s,
-    color: 'rgba(255,255,255,0.72)',
-  },
+  // 이미지·스크림·오버레이·저장은 SpotKeyVisual이 그린다(장소 상세와 공용).
+  // 여기 남는 건 카드 테두리와 '오늘의 추천' 배지뿐이다.
   featuredBadge: {
-    position: 'absolute',
-    top: Spacing[14],
-    left: Spacing[14],
     backgroundColor: Colors.surface.default,
     paddingHorizontal: Spacing[10],
     paddingVertical: 5,

@@ -14,8 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
-import { LinearGradient } from 'expo-linear-gradient';
-import { CategoryThumb } from '../../src/components/spot/SpotCard';
+import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Linking, Platform, Share, Modal, Pressable,
@@ -312,83 +311,30 @@ export default function SpotDetailScreen() {
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── 키비주얼 헤더 — 이미지 + 텍스트 오버레이 (이미지 없으면 카테고리 컬러 폴백) ── */}
-        <View style={s.keyVisual}>
-          {vm.cover_image_url ? (
-            <AppImage source={{ uri: vm.cover_image_url }} style={s.keyVisualImage} resizeMode="cover" />
-          ) : (
-            <View style={s.keyVisualImage}>
-              <CategoryThumb
-                categoryLabel={vm.category_label}
-                subcategory={vm.subcategory}
-                size={260}
-                width="100%"
-                rounded={0}
-              />
-            </View>
-          )}
-
-          {/* 그라데이션 scrim — 텍스트 가독성 보장 */}
-          <LinearGradient
-            colors={['transparent', 'rgba(18,12,6,0.20)', 'rgba(18,12,6,0.78)']}
-            locations={[0, 0.45, 1]}
-            style={s.keyVisualScrim}
-            pointerEvents="none"
-          />
-
-          {/* 검토 대기 — 썸네일 우측 상단. 장소를 설명하는 정보가 아니라 상태 표시라
-              이름·카테고리와 같은 줄에 둘 이유가 없다. */}
-          {vm.is_pending_review && (
-            <View style={s.keyVisualPendingChip} pointerEvents="none">
-              <Icon name="info" size={11} color="#fff" />
-              <Text style={s.keyVisualPendingText}>검토 중</Text>
-            </View>
-          )}
-
-          {/* 텍스트 오버레이 — [좌: 카테고리·장소명·지역·거리] [우: 저장]
-              좌측 텍스트를 한 덩어리(flex:1)로 묶고 저장은 그 형제로 둔다.
-              예전엔 저장을 지역·거리 줄 안에 넣어, 저장 상태가 바뀌며 폭이 변할 때마다
-              같은 줄의 텍스트가 밀려 장소명 블록이 흔들렸다.
-              box-none: 오버레이는 터치를 통과시키되 자식(저장 버튼)은 받는다 */}
-          <View style={s.keyVisualOverlay} pointerEvents="box-none">
-            <View style={s.keyVisualInfo} pointerEvents="none">
-              <View style={s.keyVisualBadgeRow}>
-                <View style={s.keyVisualBadge}>
-                  <Icon name="leaf-filled" size={11} color={Colors.brand.primary} />
-                  <Text style={s.keyVisualBadgeText}>{vm.category_label}</Text>
-                </View>
+        {/* ── 키비주얼 헤더 ──
+            홈 '오늘의 추천' 카드와 같은 컴포넌트다. 스크림 농도·여백·저장 표시가
+            화면마다 갈라지지 않도록 한 곳에서만 그린다. */}
+        <SpotKeyVisual
+          height={260}
+          name={vm.name}
+          categoryLabel={vm.category_label}
+          subcategory={vm.subcategory}
+          coverImageUrl={vm.cover_image_url}
+          metaText={[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
+          savedCount={displaySavedCount}
+          saved={locallySaved}
+          onSave={handleSave}
+          topRight={
+            /* 검토 대기 — 장소를 설명하는 정보가 아니라 상태 표시라
+               이름·카테고리와 같은 줄에 둘 이유가 없다. */
+            vm.is_pending_review ? (
+              <View style={s.keyVisualPendingChip}>
+                <Icon name="info" size={11} color="#fff" />
+                <Text style={s.keyVisualPendingText}>검토 중</Text>
               </View>
-              <Text style={s.keyVisualName} numberOfLines={2}>{vm.name}</Text>
-              <View style={s.keyVisualMetaRow}>
-                <Icon name="location" size={12} color="rgba(255,255,255,0.85)" />
-                <Text style={s.keyVisualMeta} numberOfLines={1}>
-                  {[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
-                </Text>
-              </View>
-            </View>
-
-            {/* 저장 — 알약 없이 아이콘만, 숫자는 아이콘 아래.
-                하단 저장하기 버튼과 같은 handleSave·같은 locallySaved를 쓴다. */}
-            <TouchableOpacity
-              style={s.keyVisualSaveBtn}
-              onPress={handleSave}
-              activeOpacity={0.8}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              accessibilityRole="button"
-              accessibilityLabel={locallySaved ? '저장 해제' : '저장하기'}
-              accessibilityState={{ selected: locallySaved }}
-            >
-              <Icon
-                name={locallySaved ? 'bookmark-filled' : 'bookmark'}
-                size={26}
-                color="#FFFFFF"
-              />
-              {/* 0도 보여준다 — 숨기면 아이콘 아래 높이가 들쭉날쭉하고,
-                  "아직 아무도 저장 안 함"도 정보다 */}
-              <Text style={s.keyVisualSaveCount}>{displaySavedCount}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            ) : undefined
+          }
+        />
 
         {/* ── 관계 요약 카드 (아이콘으로 판독성 강화) ── */}
         <View style={s.statsCard}>
@@ -762,105 +708,11 @@ const s = StyleSheet.create({
   // ── 스크롤 ───────────────────────────────────────────────────────
   scroll: { flex: 1 },
 
-  // ── 키비주얼 헤더: 이미지 + 텍스트 오버레이 ────────────────────────
-  keyVisual: {
-    width: '100%',
-    height: 260,
-    position: 'relative',
-    backgroundColor: Colors.bg.tertiary,
-    overflow: 'hidden',
-  },
-  keyVisualImage: {
-    width: '100%', height: '100%',
-    position: 'absolute', left: 0, top: 0,
-  },
-  keyVisualScrim: {
-    position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
-  },
-  keyVisualOverlay: {
-    position: 'absolute',
-    left: 0, right: 0, bottom: 0,
-    paddingHorizontal: Spacing[20],
-    paddingBottom: Spacing[20],
-    paddingTop: Spacing[40],
-    // [좌: 텍스트 묶음] [우: 저장] — 저장 폭이 변해도 좌측이 밀리지 않도록 형제로 분리
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: Spacing[12],
-  },
-  // 좌측 텍스트 한 덩어리 (카테고리 배지 · 장소명 · 지역·거리)
-  keyVisualInfo: {
-    flex: 1,
-    minWidth: 0,
-    gap: Spacing[6],
-  },
-  // 저장 — 알약 배경 없이 아이콘만. 숫자는 아이콘 아래.
-  keyVisualSaveBtn: {
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 2,
-    paddingBottom: 2,
-    // 폭을 고정해 저장 상태·숫자 자릿수가 바뀌어도 좌측 텍스트가 흔들리지 않는다
-    width: 44,
-  },
-  keyVisualSaveCount: {
-    ...Typography.label.s,
-    color: '#FFFFFF',
-    fontWeight: '700',
-    textShadowColor: 'rgba(0,0,0,0.35)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  keyVisualBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[4],
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    paddingHorizontal: Spacing[8],
-    paddingVertical: 3,
-    borderRadius: Radius.round,
-  },
-  keyVisualBadgeText: {
-    ...Typography.caption,
-    color: Colors.brand.primary,
-    fontWeight: '700',
-  },
-  keyVisualName: {
-    ...Typography.display.s,
-    color: '#FFFFFF',
-    fontWeight: '800',
-    lineHeight: 32,
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  keyVisualMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[4],
-    marginTop: 2,
-    // 좌(위치·거리) ↔ 우(저장 수) 로 벌리려면 줄이 오버레이 폭을 꽉 채워야 한다
-    alignSelf: 'stretch',
-  },
-  keyVisualMeta: {
-    ...Typography.label.s,
-    color: 'rgba(255,255,255,0.92)',
-    fontWeight: '500',
-    // 장소명이 길어도 저장 배지를 밀어내지 않도록 이쪽이 먼저 줄어든다
-    flexShrink: 1,
-  },
-  // 카테고리 배지 + 검토 중 칩을 한 줄로
-  keyVisualBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[6],
-  },
-  // 검토 대기 칩 — 배너 대신 썸네일 안에서 상태를 즉시 읽게 한다
+  // ── 키비주얼 헤더 ────────────────────────
+  // 이미지·스크림·오버레이·저장은 SpotKeyVisual(홈 추천 카드와 공용)이 그린다.
+  // 여기 남는 건 이 화면에만 있는 '검토 중' 칩뿐이다.
+  //   위치는 SpotKeyVisual의 topRight 슬롯이 잡으므로 여기선 모양만 정한다.
   keyVisualPendingChip: {
-    position: 'absolute',
-    top: Spacing[12],
-    right: Spacing[12],
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing[4],

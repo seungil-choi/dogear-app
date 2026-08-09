@@ -8,7 +8,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useAppStore } from '@/store/useAppStore';
+import { useAppStore, type SpotServerAggregate } from '@/store/useAppStore';
 import { registerRefreshHandler } from '@/utils/refreshBus';
 import { authoredDescription } from '@/utils/spotDescription';
 import type { SpotCardViewModel, Spot } from '@/types';
@@ -133,12 +133,13 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
       setStoreSpots(storeSpots);
 
       // 서버가 계산한 커뮤니티 집계 — 화면이 로컬(내 강아지) checkins로 재계산하지 않도록 보관
-      const aggregates: Record<string, { checkinCount: number; atmosphereState: any; topFeelingTags: any }> = {};
+      const aggregates: Record<string, SpotServerAggregate> = {};
       for (const sp of rawList) {
         aggregates[sp.spot_id] = {
           checkinCount: sp.checkin_count ?? 0,
           atmosphereState: sp.atmosphere_state ?? 'unknown',
           topFeelingTags: sp.top_feeling_tags ?? [],
+          savedCount: sp.saved_count ?? 0,
         };
       }
       setSpotAggregates(aggregates);
