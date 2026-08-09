@@ -11,14 +11,13 @@ import { corsHeaders, handleCors } from '../_shared/cors.ts';
 
 const DEFAULT_RADIUS_M = 2000;
 const MAX_RADIUS_M = 10000;
-const MAX_RESULTS = 150;   // 넓은 반경(지도 팬/줌아웃)에서 핀 밀도 확보
+const MAX_RESULTS = 150;
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
   try {
-    // 인증 확인
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
@@ -30,28 +29,14 @@ Deno.serve(async (req: Request) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // 커뮤니티 집계(타 사용자 체크인)는 RLS 우회 service-role로 읽는다.
-    //   - 사용자 JWT 클라이언트로 읽으면 RLS(checkins_own) 때문에 본인 체크인만 반환되어
-    //     분위기/체크인 수 집계가 죽는다.
-    //   - 노출은 공개(spot_only)로 한정해 familiar_layer/private 프라이버시를 보호.
+    // 커뮤니티 집계는 RLS 우회 service-role로 읽는다(공개 spot_only만 노출).
     const svc = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // 인증은 플랫폼의 verify_jwt(활성)가 이미 강제한다.
-    //   과거에는 여기서 auth.getUser()를 호출했는데, 반환값을 null 체크에만 쓰면서
-    //   지도 팬마다 GoTrue 왕복이 한 번씩 더 붙어 체감 지연의 원인이 됐다.
-    //   개인화 데이터(방문요약·저장)는 사용자 JWT 클라이언트로 조회하므로 RLS가 그대로 적용되고,
-    //   스팟 자체는 공개 데이터라 추가 신원확인이 필요하지 않다.
-
     const body = await req.json();
-    const {
-      latitude,
-      longitude,
-      radiusMeters = DEFAULT_RADIUS_M,
-      dogId,
-    } = body;
+    const { latitude, longitude, radiusMeters = DEFAULT_RADIUS_M, dogId } = body;
 
     if (typeof latitude !== 'number' || typeof longitude !== 'number') {
       return Response.json(
@@ -62,34 +47,54 @@ Deno.serve(async (req: Request) => {
 
     const radius = Math.min(radiusMeters, MAX_RADIUS_M);
 
-    // PostGIS 쿼리: 반경 내 활성 스팟 + 거리 계산
-    // SEC-03: get_spots_nearby는 service_role 전용(authenticated 회수). 스팟 조회는 공개 데이터라
-    //   svc로 호출해도 안전하며, 이로써 로그인 유저의 RPC 직접 스크래핑 경로를 차단한다.
-    const { data: spots, error: spotsError } = await svc.rpc(
-      'get_spots_nearby',
-      {
-        p_lat: latitude,
-        p_lng: longitude,
-        p_radius_m: radius,
-        p_limit: MAX_RESULTS,
-      }
-    );
+    // SEC-03: get_spots_nearby는 service_role 전용. 산책지/시설 쿼터는 RPC 안에 있다.
+    const { data: spots, error: spotsError } = await svc.rpc('get_spots_nearby', {
+      p_lat: latitude, p_lng: longitude, p_radius_m: radius, p_limit: MAX_RESULTS,
+    });
 
     if (spotsError) {
       console.error('spots_nearby rpc error:', spotsError);
       return Response.json({ error: 'Failed to fetch spots' }, { status: 500, headers: corsHeaders });
     }
 
-    if (!spots || spots.length === 0) {
+    // 여기서 조기 반환하면 안 된다. 주변에 활성 장소가 없어도
+    // 내가 제안한 검토 대기 장소는 보여줘야 한다(아래 병합 뒤에 판단).
+    const nearbySpots: any[] = spots ?? [];
+
+    // 내가 제안한 '검토 대기(hidden)' 장소를 합친다.
+    //   get_spots_nearby는 status='active'만 본다. 그래서 제안 직후 로컬에 잠깐 보이던 장소가
+    //   50m만 움직여 목록이 서버 데이터로 교체되면 지도·목록에서 사라졌다.
+    //   상세는 RLS(spots_read_own_provisional)가 열어주는데 목록에만 없어
+    //   "내가 올린 게 어디 갔지"가 됐다. 사용자 JWT로 조회하므로 남의 hidden은 안 온다.
+    const { data: mine } = await supabase
+      .from('spots')
+      .select('spot_id, name, category, subcategory, latitude, longitude, address_text, neighborhood, cover_image_url, description, tags')
+      .eq('status', 'hidden')
+      .eq('created_source', 'user_suggested');
+
+    const R = 6371000, toRad = (d: number) => d * Math.PI / 180;
+    const distanceM = (aLat: number, aLng: number, bLat: number, bLng: number) => {
+      const dLat = toRad(bLat - aLat), dLng = toRad(bLng - aLng);
+      const h = Math.sin(dLat / 2) ** 2
+        + Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(h));
+    };
+    const seen = new Set(nearbySpots.map((s: any) => s.spot_id));
+    for (const m of mine ?? []) {
+      if (seen.has(m.spot_id)) continue;
+      const d = distanceM(latitude, longitude, m.latitude, m.longitude);
+      if (d > radius) continue;
+      nearbySpots.push({ ...m, distance_m: d });
+    }
+    nearbySpots.sort((a: any, b: any) => a.distance_m - b.distance_m);
+
+    if (nearbySpots.length === 0) {
       return Response.json({ spots: [], truncated: false }, { headers: corsHeaders });
     }
 
-    const spotIds: string[] = spots.map((s: any) => s.spot_id);
+    const spotIds: string[] = nearbySpots.map((s: any) => s.spot_id);
 
     // 성능: spotIds에만 의존하는 독립 쿼리를 병렬로 (직렬 왕복 → 1웨이브).
-    //   예전에는 paw_checkins를 두 번 쳤다 — 48시간 분위기용 1회, **개수만 세려고 전량** 1회.
-    //   두 번째는 시간 제한이 없어 체크인이 쌓일수록 지도 팬마다 전량을 실어 날랐다.
-    //   집계를 DB(spot_list_stats)로 내려 스팟당 한 줄만 받는다.
     const [summariesRes, savedRes, statsRes] = await Promise.all([
       dogId
         ? supabase.from('spot_visit_summaries')
@@ -104,15 +109,12 @@ Deno.serve(async (req: Request) => {
       svc.rpc('spot_list_stats', { p_spot_ids: spotIds, p_recent_hours: 48 }),
     ]);
 
-    // 방문 요약
     const visitSummariesMap: Record<string, any> = {};
     (summariesRes.data ?? []).forEach((s: any) => { visitSummariesMap[s.spot_id] = s; });
 
-    // 저장 여부
     const savedMap: Record<string, string> = {};
     (savedRes.data ?? []).forEach((s: any) => { savedMap[s.spot_id] = s.saved_type; });
 
-    // 스팟별 집계 — DB가 계산한 값을 그대로 받는다(누적 발도장 수 + 최근 48시간 감정 태그)
     const atmosphereMap: Record<string, string[]> = {};
     const checkinCountMap: Record<string, number> = {};
     const savedCountMap: Record<string, number> = {};
@@ -122,15 +124,9 @@ Deno.serve(async (req: Request) => {
       savedCountMap[row.spot_id] = row.saved_count ?? 0;
     }
 
-    // 뷰모델 조립
-    //
-    // 기본값인 필드는 응답에서 뺀다. 앱은 모든 필드를 `?? 기본값`으로 읽으므로
-    // 없으면 같은 값이 된다(useNearbySpots).
-    //   실측: 노원 응답 47.5KB 중 19KB(40%)가 값이 전부 비어 있는 필드의 키 이름이었다.
-    //   시설 15,090건은 subcategory·description·cover_image_url이 전량 null이라
-    //   장소가 늘수록 이 낭비만 커진다.
-    // ⚠️ spot_id·name·category·latitude·longitude·distance_m은 절대 빼지 않는다.
-    //    distance_m은 0(그 자리에 서 있음)이 정상값이라 생략 대상이 아니다.
+    // 기본값인 필드는 응답에서 뺀다. 앱은 모든 필드를 `?? 기본값`으로 읽으므로 동작이 같다.
+    //   실측: 응답의 40%가 값이 전부 비어 있는 필드의 키 이름이었다.
+    // spot_id·name·category·위경도·distance_m은 절대 빼지 않는다.
     const omitEmpty = (o: Record<string, unknown>) => {
       const out: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(o)) {
@@ -141,7 +137,7 @@ Deno.serve(async (req: Request) => {
       return out;
     };
 
-    const result = spots.map((spot: any) => {
+    const result = nearbySpots.map((spot: any) => {
       const summary = visitSummariesMap[spot.spot_id];
       const topTags = getTopTags(atmosphereMap[spot.spot_id] ?? []);
       const atmosphere = deriveAtmosphereState(topTags);
@@ -162,26 +158,20 @@ Deno.serve(async (req: Request) => {
           address_text: spot.address_text,
           neighborhood: spot.neighborhood,
           cover_image_url: spot.cover_image_url,
-          // 설명 정제 규칙은 앱의 authoredDescription 한 곳에만 둔다(서버에 두면 규칙이 둘로 갈라진다)
           description: spot.description,
           facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
           top_feeling_tags: topTags,
           last_visit_at: summary?.last_visit_at,
           saved_type: savedMap[spot.spot_id],
-          // 아래 넷은 기본값이면 뺀다 — 대부분의 장소가 기본값이다
           atmosphere_state: atmosphere === 'unknown' ? null : atmosphere,
           regular_status: regular === 'none' ? null : regular,
           checkin_count: checkinCount || null,
           user_visit_count: visitCount || null,
-          // 이 장소를 저장한 사람 수(내 저장 여부와 별개) — 홈 카드 저장 버튼이
-          // 장소 상세 키비주얼과 같은 표시를 쓰려면 목록에서도 필요하다.
           saved_count: savedCount || null,
         }),
       };
     });
 
-    // 상한에 걸려 잘렸는지 알린다. 서버가 총계를 세면(=반경 전체 count) KNN 이득이 사라지므로
-    // 반환 개수만으로 판단한다. 앱은 이 값으로 '더 좁혀 보세요' 안내를 띄울 수 있다.
     return Response.json(
       { spots: result, truncated: result.length >= MAX_RESULTS },
       { headers: corsHeaders },

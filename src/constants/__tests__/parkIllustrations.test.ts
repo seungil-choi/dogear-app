@@ -7,6 +7,7 @@
  * "어떤 조합이 와도 반드시 일러스트가 나온다"를 고정한다.
  */
 import { parkIllustration } from '../parkIllustrations';
+import { categoryLabel } from '../../utils/labels';
 
 // 실제 DB(status=active 5,317건)에 존재하는 category × subcategory 조합 전체
 const REAL_COMBINATIONS: Array<[string, string | null, number]> = [
@@ -42,6 +43,26 @@ describe('parkIllustration — 실 DB 조합 전수', () => {
       .filter(([cat, sub]) => Boolean(parkIllustration(sub, cat)))
       .reduce((sum, [, , c]) => sum + c, 0);
     expect(covered).toBe(total);
+  });
+});
+
+describe('parkIllustration — 유형 전수 커버', () => {
+  // 유형 목록을 손으로 적으면 enum이 늘 때마다 어긋난다.
+  // categoryLabel은 Record<SpotCategory, string>이라 런타임에 전체 키를 준다.
+  it('categoryLabel의 모든 유형이 일러스트를 가진다', () => {
+    const missing = Object.keys(categoryLabel).filter(c => !parkIllustration(null, c));
+    expect(missing).toEqual([]);
+  });
+
+  it('한글 라벨로도 전부 찾아진다 — 카드는 라벨을 넘긴다', () => {
+    const missing = Object.values(categoryLabel).filter(l => !parkIllustration(null, l));
+    expect(missing).toEqual([]);
+  });
+
+  it('산책지와 시설은 서로 다른 일러스트를 쓴다', () => {
+    // 병원이 공원 일러스트로 떨어지면 유형을 오인한다
+    expect(parkIllustration(null, 'vet')).not.toBe(parkIllustration(null, 'park'));
+    expect(parkIllustration(null, 'other')).not.toBe(parkIllustration(null, 'park'));
   });
 });
 

@@ -21,6 +21,7 @@ import { supabase } from '../src/lib/supabase';
 import { IS_REAL_AUTH } from '../src/config/env';
 import { mergeSpotList } from '../src/store/spotMerge';
 import { parkIllustration } from '../src/constants/parkIllustrations';
+import { categoryLabel } from '../src/utils/labels';
 import type { Spot } from '../src/types';
 
 type Status = 'pass' | 'fail' | 'warn';
@@ -168,12 +169,16 @@ export default function SelfCheckScreen() {
       status: merged[0]?.subcategory === '어린이공원' ? 'pass' : 'fail',
       detail: merged[0]?.subcategory === '어린이공원' ? '정상' : '유실 — 썸네일이 어긋납니다',
     });
-    const illoOk = ['park', 'trail', 'riverside', 'rest_spot', null]
-      .every(c => Boolean(parkIllustration(null, c as any)));
+    // 유형 목록을 손으로 적으면 enum이 늘 때마다 어긋난다(실제로 4개만 검사하면서
+    // '모든 카테고리 커버'라고 말하고 있었다). 런타임 목록에서 파생시킨다.
+    const allCats = [...Object.keys(categoryLabel), null];
+    const illoMissing = allCats.filter(c => !parkIllustration(null, c as any));
     push({
       name: '일러스트 폴백',
-      status: illoOk ? 'pass' : 'fail',
-      detail: illoOk ? '모든 카테고리 커버' : '일부 카테고리에서 비어 있음',
+      status: illoMissing.length === 0 ? 'pass' : 'fail',
+      detail: illoMissing.length === 0
+        ? `${allCats.length - 1}개 유형 전부 커버`
+        : `빠짐: ${illoMissing.join(', ')}`,
     });
 
     setRunning(false);

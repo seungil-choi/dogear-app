@@ -39,7 +39,11 @@ as $function$
     select s.*, st_distance(s.location::geography, o.g) as d
     from public.spots s, origin o
     where s.status = 'active'
-      and s.category in ('park','trail','riverside','rest_spot','beach')
+      -- 시설만 열거하고 나머지는 전부 산책지로 본다.
+      -- 예전엔 산책지도 열거해서, 'other'를 추가했을 때 어느 목록에도 없어
+      -- 그 장소가 통째로 빠졌다(실측: 기타 1건 넣고 조회하니 0건 반환).
+      -- 앞으로 유형이 늘어도 최소한 사라지지는 않는다.
+      and s.category not in ('pet_cafe','vet','pet_grooming','pet_boarding')
       and st_dwithin(s.location::geography, o.g, p_radius_m)
     order by s.location <-> o.g
     limit p_limit
