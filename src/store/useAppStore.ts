@@ -129,6 +129,9 @@ interface AppState {
   /** 주변 스팟 페치 진행 중 (useNearbySpots가 set) — 홈/지도 스켈레톤 노출용. persist 안 함. */
   isSpotsLoading: boolean;
   setSpotsLoading: (loading: boolean) => void;
+  /** 서버 상한(150)에 걸려 목록이 잘렸는지. true면 반경 안의 전부가 아니다. */
+  spotsTruncated: boolean;
+  setSpotsTruncated: (truncated: boolean) => void;
 
   // Actions
   completeOnboarding: () => void;
@@ -633,6 +636,8 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   isSpotsLoading: false,
   setSpotsLoading: (isSpotsLoading) => set({ isSpotsLoading }),
+  spotsTruncated: false,
+  setSpotsTruncated: (spotsTruncated) => set({ spotsTruncated }),
 
   deleteDog: async (dog_id) => {
     if (IS_REAL_AUTH) {

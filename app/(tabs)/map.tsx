@@ -22,7 +22,7 @@ import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
 import { distanceText, categoryLabel as catLabel } from '../../src/utils/labels';
-import { pinKindFor } from '../../src/constants/spotCategories';
+import { pinKindFor, FACILITY_CATEGORIES } from '../../src/constants/spotCategories';
 import type { SpotCategory, Spot } from '../../src/types';
 import { notify, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
@@ -38,19 +38,23 @@ const INITIAL_CENTER = { latitude: 37.5563, longitude: 126.9237, level: 4 };
 
 // ─── 필터 ────────────────────────────────────────────────────
 // 'rest' 필터 — 모호하여 Phase 1에서는 비노출 (코드는 유지하되 FILTERS 목록에서 제외)
-type FilterKey = 'all' | 'saved' | 'visited' | 'short_walk' | 'long_walk';
+type FilterKey = 'all' | 'saved' | 'visited' | 'short_walk' | 'long_walk' | 'facility';
 
 const FILTERS: { key: FilterKey; label: string; icon: string }[] = [
   { key: 'all',        label: '가까운 곳',   icon: 'map'      },
+  // 장소의 74%가 시설(동물병원 5,244 · 애견미용 9,846)인데 걸러낼 방법이 없었다.
+  // "가까운 동물병원"은 급할 때 찾는 것이라 검색보다 필터가 빠르다.
+  { key: 'facility',   label: '병원·미용',   icon: 'heart'    },
   { key: 'saved',      label: '저장한 곳',   icon: 'bookmark' },
   { key: 'visited',    label: '발도장 남긴', icon: 'paw'      },
   { key: 'short_walk', label: '짧게 걷기',   icon: 'trail'    },
   { key: 'long_walk',  label: '오래 걷기',   icon: 'park'     },
 ];
 
-const FILTER_CATEGORIES: Partial<Record<FilterKey, SpotCategory[]>> = {
+const FILTER_CATEGORIES: Partial<Record<FilterKey, readonly SpotCategory[]>> = {
   short_walk: ['trail', 'riverside', 'park'],
   long_walk:  ['park', 'trail'],
+  facility:   FACILITY_CATEGORIES,
 };
 
 // 필터별 거리 반경 (m) — 짧게 걷기는 500m, 오래 걷기는 1.5~3km 대역, 그 외 기본 1km
@@ -75,6 +79,7 @@ export default function ExploreScreen() {
   const selectSpot      = useAppStore(s => s.selectSpot);
   const currentLocation     = useAppStore(s => s.currentLocation);
   const setCurrentLocation  = useAppStore(s => s.setCurrentLocation);
+  const spotsTruncated     = useAppStore(s => s.spotsTruncated);
 
   // 성능: 루프에서 spots.find(O(n))를 반복하지 않도록 spot_id → Spot Map을 1회 구성 (팬마다 O(스팟²) 제거)
   const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
@@ -236,12 +241,11 @@ export default function ExploreScreen() {
         result = result.filter(c => c.has_visited);
         break;
       case 'short_walk':
-      case 'long_walk': {
+      case 'long_walk':
+      case 'facility': {
+        // 카드에 category가 실려 있으므로 spotsById를 되짚을 필요가 없다.
         const cats = FILTER_CATEGORIES[activeFilter] ?? [];
-        result = result.filter(c => {
-          const sp = spotsById.get(c.spot_id);
-          return sp && cats.includes(sp.category as SpotCategory);
-        });
+        result = result.filter(c => cats.includes(c.category));
         break;
       }
     }
@@ -863,6 +867,11 @@ export default function ExploreScreen() {
                       : `${activeRadiusM >= 1000 ? `${activeRadiusM/1000}km` : `${activeRadiusM}m`} 내 ${sortedCards.length}곳`}
                   </Text>
                 </View>
+                {/* 서버 상한에 걸려 잘렸으면 알린다. 이걸 숨기면 사용자는 이게 전부라고 믿는다.
+                    (동물병원·미용실이 들어온 뒤 도심에서는 상시로 걸린다) */}
+                {spotsTruncated && !isClusterMode && !isSearching && (
+                  <Text style={s.panelTruncated} numberOfLines={1}>· 일부만</Text>
+                )}
                 <TouchableOpacity
                   style={s.panelExpandBtn}
                   onPress={() => {
@@ -1202,6 +1211,10 @@ const s = StyleSheet.create({
   panelCountBadge: {
     backgroundColor: Colors.brand.subtle,
     paddingHorizontal: Spacing[10], paddingVertical: 2, borderRadius: Radius.round,
+  },
+  panelTruncated: {
+    ...Typography.caption,
+    color: Colors.text.tertiary,
   },
   panelCount: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
   panelExpandBtn: {

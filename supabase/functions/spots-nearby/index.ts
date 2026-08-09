@@ -123,35 +123,60 @@ Deno.serve(async (req: Request) => {
     }
 
     // 뷰모델 조립
+    //
+    // 기본값인 필드는 응답에서 뺀다. 앱은 모든 필드를 `?? 기본값`으로 읽으므로
+    // 없으면 같은 값이 된다(useNearbySpots).
+    //   실측: 노원 응답 47.5KB 중 19KB(40%)가 값이 전부 비어 있는 필드의 키 이름이었다.
+    //   시설 15,090건은 subcategory·description·cover_image_url이 전량 null이라
+    //   장소가 늘수록 이 낭비만 커진다.
+    // ⚠️ spot_id·name·category·latitude·longitude·distance_m은 절대 빼지 않는다.
+    //    distance_m은 0(그 자리에 서 있음)이 정상값이라 생략 대상이 아니다.
+    const omitEmpty = (o: Record<string, unknown>) => {
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(o)) {
+        if (v === null || v === undefined) continue;
+        if (Array.isArray(v) && v.length === 0) continue;
+        out[k] = v;
+      }
+      return out;
+    };
+
     const result = spots.map((spot: any) => {
       const summary = visitSummariesMap[spot.spot_id];
       const topTags = getTopTags(atmosphereMap[spot.spot_id] ?? []);
+      const atmosphere = deriveAtmosphereState(topTags);
+      const checkinCount = checkinCountMap[spot.spot_id] ?? 0;
+      const savedCount = savedCountMap[spot.spot_id] ?? 0;
+      const visitCount = summary?.visit_count ?? 0;
+      const regular = summary?.regular_status ?? 'none';
 
       return {
         spot_id: spot.spot_id,
         name: spot.name,
         category: spot.category,
-        subcategory: spot.subcategory ?? null,
         latitude: spot.latitude,
         longitude: spot.longitude,
-        address_text: spot.address_text,
-        neighborhood: spot.neighborhood,
-        cover_image_url: spot.cover_image_url,
-        // DB에 이미 있는데 응답에서 빠져 있던 값들 — 목록 카드에서 쓴다
-        // 설명 정제 규칙은 앱의 authoredDescription 한 곳에만 둔다(서버에 두면 규칙이 둘로 갈라진다)
-        description: spot.description ?? null,
-        facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
         distance_m: Math.round(spot.distance_m),
-        checkin_count: checkinCountMap[spot.spot_id] ?? 0,
-        top_feeling_tags: topTags,
-        atmosphere_state: deriveAtmosphereState(topTags),
-        user_visit_count: summary?.visit_count ?? 0,
-        last_visit_at: summary?.last_visit_at ?? null,
-        regular_status: summary?.regular_status ?? 'none',
-        saved_type: savedMap[spot.spot_id] ?? null,
-        // 이 장소를 저장한 사람 수(내 저장 여부와 별개) — 홈 카드 저장 버튼이
-        // 장소 상세 키비주얼과 같은 표시를 쓰려면 목록에서도 필요하다.
-        saved_count: savedCountMap[spot.spot_id] ?? 0,
+        ...omitEmpty({
+          subcategory: spot.subcategory,
+          address_text: spot.address_text,
+          neighborhood: spot.neighborhood,
+          cover_image_url: spot.cover_image_url,
+          // 설명 정제 규칙은 앱의 authoredDescription 한 곳에만 둔다(서버에 두면 규칙이 둘로 갈라진다)
+          description: spot.description,
+          facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
+          top_feeling_tags: topTags,
+          last_visit_at: summary?.last_visit_at,
+          saved_type: savedMap[spot.spot_id],
+          // 아래 넷은 기본값이면 뺀다 — 대부분의 장소가 기본값이다
+          atmosphere_state: atmosphere === 'unknown' ? null : atmosphere,
+          regular_status: regular === 'none' ? null : regular,
+          checkin_count: checkinCount || null,
+          user_visit_count: visitCount || null,
+          // 이 장소를 저장한 사람 수(내 저장 여부와 별개) — 홈 카드 저장 버튼이
+          // 장소 상세 키비주얼과 같은 표시를 쓰려면 목록에서도 필요하다.
+          saved_count: savedCount || null,
+        }),
       };
     });
 

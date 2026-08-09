@@ -37,6 +37,9 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
   const setStoreSpots = useAppStore(s => s.setSpots);
   const setSpotAggregates = useAppStore(s => s.setSpotAggregates);
   const setSpotsLoading = useAppStore(s => s.setSpotsLoading);
+  // 이 훅은 루트(_layout)에서만 호출돼 반환값을 읽는 화면이 없다.
+  // 잘림 여부는 지도 화면이 봐야 하므로 로컬 state가 아니라 스토어에 쓴다.
+  const setSpotsTruncated = useAppStore(s => s.setSpotsTruncated);
 
   // 이전 위치 저장 — 동일 위치 중복 fetch 방지
   const prevLocationRef = useRef<{ lat: number; lng: number } | null>(null);
@@ -54,6 +57,8 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
 
     try {
       let rawList: any[] = [];
+      // 서버 상한(150)에 걸렸는지 — 폴백 경로는 반경이 50km라 애초에 '전부'가 아니므로 항상 false
+      let isTruncated = false;
 
       // 1) 현재 위치가 있으면 위치 기반 조회
       if (currentLocation) {
@@ -67,6 +72,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         });
         if (fnError) throw fnError;
         rawList = data?.spots ?? [];
+        isTruncated = data?.truncated === true;
       }
 
       // 2) 주변 결과가 없거나(비수도권·권한 거부 등) 위치가 없으면 → 추천 스팟 폴백
@@ -98,7 +104,8 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         neighborhood: s.neighborhood ?? null,
         coverImageUrl: s.cover_image_url ?? null,
         distanceM: s.distance_m,
-        checkinCount: s.checkin_count,
+        // 서버는 기본값인 필드를 응답에서 뺀다(페이로드 절감) — 여기서 되살린다
+        checkinCount: s.checkin_count ?? 0,
         topFeelingTags: s.top_feeling_tags ?? [],
         atmosphereState: s.atmosphere_state ?? 'unknown',
         userVisitCount: s.user_visit_count ?? 0,
@@ -143,6 +150,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         };
       }
       setSpotAggregates(aggregates);
+      setSpotsTruncated(isTruncated);
 
     } catch (err: any) {
       if (myReq === reqIdRef.current) {
@@ -156,7 +164,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         setSpotsLoading(false);
       }
     }
-  }, [isAuthenticated, currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading]);
+  }, [isAuthenticated, currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading, setSpotsTruncated]);
 
   // 로그인 완료 시점 + 위치가 의미있게 변할 때 자동 fetch (위치 없어도 폴백 로드)
   useEffect(() => {
