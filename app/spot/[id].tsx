@@ -29,6 +29,7 @@ import { useSpotDetail } from '../../src/hooks/useSpotDetail';
 import { buildSpotDetailFromApi } from '../../src/utils/rules';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
+import { categoryLabel as catLabel } from '../../src/utils/labels';
 import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
 import type { FamiliarDogCardViewModel } from '../../src/types';
@@ -401,6 +402,24 @@ export default function SpotDetailScreen() {
                   ))}
                 </View>
               </View>
+            )}
+            {/* 제공 서비스 — 한 업체가 병원+미용+호텔을 겸하는 경우가 흔하다(4,200곳).
+                카테고리는 대표 하나뿐이라, 겸업 사실은 여기서만 드러난다.
+                하나뿐이면 카테고리 배지와 같은 말이라 굳이 보이지 않는다. */}
+            {(vm.services?.length ?? 0) > 1 && (
+              <>
+                {hasChips && <View style={s.infoSep} />}
+                <View style={s.infoRow}>
+                  <Text style={s.infoKey}>서비스</Text>
+                  <View style={s.facilityWrap}>
+                    {vm.services!.map(sv => (
+                      <View key={sv} style={s.serviceChip}>
+                        <Text style={s.serviceChipText}>{catLabel[sv]}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              </>
             )}
             {/* 전화 — 병원·미용에서 제일 먼저 찾는 값이라 설명보다 위에 둔다.
                 영업시간 데이터가 없는 지금 "지금 하나요"는 전화로만 확인된다. */}
@@ -1175,6 +1194,15 @@ const s = StyleSheet.create({
     color: Colors.text.primary,
     lineHeight: 22,
   },
+  serviceChip: {
+    paddingHorizontal: Spacing[10],
+    paddingVertical: 4,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.subtle,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+  },
+  serviceChipText: { ...Typography.label.s, color: Colors.brand.accent, fontWeight: '600' },
   phoneBtn: {
     flex: 1,
     flexDirection: 'row',

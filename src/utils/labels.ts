@@ -43,6 +43,7 @@ export const categoryLabel: Record<SpotCategory, string> = {
   vet: '동물병원',
   pet_grooming: '애견 미용',
   pet_boarding: '애견 호텔·유치원',
+  other: '기타',
 };
 
 // ─── 공개 범위 라벨 (SSOT) ─────────────────────────────

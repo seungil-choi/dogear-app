@@ -13,8 +13,6 @@
 import type { ImageSourcePropType } from 'react-native';
 
 const PARK_DEFAULT: ImageSourcePropType = require('../../assets/illustrations/park-default.png');
-/** 시설(병원·미용·호텔 등) 매핑 실패 시 폴백. 공원 일러스트로 떨어뜨리면 유형을 오인한다. */
-const FACILITY_DEFAULT: ImageSourcePropType = require('../../assets/illustrations/facility-default.png');
 
 // 원본 공원구분 텍스트 → 일러스트
 const BY_SUBCATEGORY: Record<string, ImageSourcePropType> = {
@@ -65,8 +63,12 @@ const BY_CATEGORY: Record<string, ImageSourcePropType> = {
   '애견 미용':       require('../../assets/illustrations/pet-grooming.png'),
   pet_boarding:     require('../../assets/illustrations/pet-boarding.png'),
   '애견 호텔·유치원': require('../../assets/illustrations/pet-boarding.png'),
-  pet_cafe:         FACILITY_DEFAULT,
-  '애견 카페':       FACILITY_DEFAULT,
+  pet_cafe:         require('../../assets/illustrations/pet-cafe.png'),
+  '애견 카페':       require('../../assets/illustrations/pet-cafe.png'),
+  // 기타 — 사용자가 "맞는 유형이 없다"고 고른 것. 공원 일러스트로 떨어뜨리면
+  // 산책지로 오인되므로 중립 기호(⋯)를 쓴다.
+  other:            require('../../assets/illustrations/spot-other.png'),
+  '기타':            require('../../assets/illustrations/spot-other.png'),
 };
 
 /**

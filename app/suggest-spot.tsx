@@ -47,6 +47,8 @@ const CATEGORY_OPTIONS: { key: SpotCategory; label: string }[] = [
   { key: 'vet',          label: '동물병원'   },
   { key: 'pet_grooming', label: '애견 미용'  },
   { key: 'pet_boarding', label: '애견 호텔·유치원' },
+  // 맨 끝 — 맞는 게 없을 때만. 앞의 것들을 먼저 훑게 한다.
+  { key: 'other',        label: '기타'       },
 ];
 
 // ─── 추가 태그 옵션 ──────────────────────────────────────────

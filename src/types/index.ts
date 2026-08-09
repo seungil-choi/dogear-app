@@ -11,7 +11,9 @@ export type DogAgeGroup = 'puppy' | 'adult' | 'senior';
  */
 export type SpotCategory =
   | 'park' | 'trail' | 'riverside' | 'rest_spot' | 'beach'
-  | 'pet_cafe' | 'vet' | 'pet_grooming' | 'pet_boarding';
+  | 'pet_cafe' | 'vet' | 'pet_grooming' | 'pet_boarding'
+  // 사용자 제안 전용 — 맞는 유형이 없을 때. 공공데이터에는 없다.
+  | 'other';
 export type SpotStatus = 'active' | 'hidden' | 'archived';
 export type VisibilityLevel = 'private' | 'spot_only' | 'familiar_layer';
 export type RegularStatus = 'none' | 'candidate' | 'regular';
@@ -232,6 +234,8 @@ export interface SpotDetailApiViewModel {
     neighborhood: string | null;
     /** 대표 전화 — 시설(병원·미용)에만 대체로 존재. 산책지는 null */
     phone: string | null;
+    /** 이 장소가 제공하는 서비스 전부. category는 그중 대표 1개 */
+    services: SpotCategory[];
     cover_image_url: string | null;
     /** subcategory를 그대로 반복한 무의미한 설명은 서버가 걸러 null로 내린다 */
     description: string | null;
@@ -318,6 +322,8 @@ export interface SpotDetailViewModel {
   address_text?: string;
   /** 대표 전화 — 시설(병원·미용)에 주로 존재 */
   phone?: string;
+  /** 제공 서비스 전부(대표 category 포함). 2개 이상일 때만 화면에 칩으로 보인다 */
+  services?: SpotCategory[];
   opening_hours?: string;
   features?: string[];
   description?: string;

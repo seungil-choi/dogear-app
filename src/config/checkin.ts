@@ -26,6 +26,8 @@ const CATEGORY_RADIUS_M: Partial<Record<SpotCategory, number>> = {
   vet:          20,
   pet_grooming: 20,
   pet_boarding: 20,
+  // 기타는 무엇인지 모른다. 넓게 잡으면 엉뚱한 곳에서 찍히므로 좁은 기본값을 쓴다.
+  other:        20,
 };
 
 export const PAWMARK_PROXIMITY = {

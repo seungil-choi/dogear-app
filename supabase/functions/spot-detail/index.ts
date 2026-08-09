@@ -207,6 +207,9 @@ Deno.serve(async (req: Request) => {
         // 시설(병원·미용)에서 사용자가 가장 먼저 찾는 값.
         // 영업시간 데이터가 없는 지금 "지금 하나요"는 전화로만 확인된다.
         phone: spot.phone ?? null,
+        // 한 업체가 병원+미용+호텔을 겸하는 경우가 흔하다(복수 서비스 4,200곳).
+        // category는 대표 1개뿐이라, 나머지는 여기서만 드러난다.
+        services: Array.isArray(spot.services) ? spot.services : [],
         cover_image_url: spot.cover_image_url,
         // 아래 두 필드는 DB에 채워져 있는데 응답에서 빠져 있어 화면에 닿지 못하고 있었다.
         //   설명 실질 정보 2,487곳(46.8%) · 편의시설 2,171곳(40.8%)

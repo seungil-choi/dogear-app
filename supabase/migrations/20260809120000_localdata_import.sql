@@ -57,6 +57,7 @@ declare
   v_phone    int;
   v_ready    int;
   v_written  int := 0;
+  v_merged   int := 0;
 begin
   if p_source is null or btrim(p_source) = '' then
     raise exception 'p_source는 필수입니다 (spots.external_source에 기록됩니다)'
@@ -115,19 +116,20 @@ begin
 
   -- 같은 이름이 30m 안에 이미 있으면 건너뛴다(다른 출처로 들어온 같은 가게).
   -- external_id가 같은 건은 업서트 대상이므로 중복으로 치지 않는다.
+  -- 같은 상호가 30m 안에 이미 있으면 같은 업체로 본다. 어느 장소인지도 남긴다
+  -- (버리지 않고 그 장소의 services에 이번 유형을 더하기 위해).
   create temp table _dup on commit drop as
-  select v.row_no
+  select distinct on (v.row_no) v.row_no, v.category, sp.spot_id
   from _valid v
-  where exists (
-    select 1 from public.spots sp
-     where sp.name = v.name
-       and st_dwithin(
-             sp.location::geography,
-             st_setsrid(st_makepoint(v.lng, v.lat), 4326)::geography,
-             30)
-       and (sp.external_source is distinct from p_source
-            or sp.external_id is distinct from v.external_id)
-  );
+  join public.spots sp
+    on sp.name = v.name
+   and st_dwithin(sp.location::geography,
+                  st_setsrid(st_makepoint(v.lng, v.lat), 4326)::geography, 30)
+   and (sp.external_source is distinct from p_source
+        or sp.external_id is distinct from v.external_id)
+  order by v.row_no,
+           st_distance(sp.location::geography,
+                       st_setsrid(st_makepoint(v.lng, v.lat), 4326)::geography);
   select count(*) into v_dup_name from _dup;
   delete from _valid where row_no in (select row_no from _dup);
 
@@ -139,14 +141,14 @@ begin
       insert into public.spots (
         name, category, location, latitude, longitude,
         address_text, address_road, address_lot, phone,
-        external_source, external_id, status, created_source
+        external_source, external_id, status, created_source, services
       )
       select
         v.name, v.category,
         st_setsrid(st_makepoint(v.lng, v.lat), 4326),
         v.lat, v.lng,
         v.address_text, v.address_road, v.address_lot, v.phone,
-        p_source, v.external_id, 'active', 'seed'
+        p_source, v.external_id, 'active', 'seed', array[v.category::text]
       from _valid v
       where v.external_id is not null
       on conflict (external_source, external_id) where external_source is not null and external_id is not null
@@ -159,10 +161,26 @@ begin
         address_road = excluded.address_road,
         address_lot  = excluded.address_lot,
         phone        = excluded.phone,
+        services     = (select array_agg(distinct x)
+                        from unnest(public.spots.services || excluded.services) x),
         updated_at   = now()
       returning 1
     )
     select count(*) into v_written from up;
+
+    -- 같은 업체로 판정된 건 — 버리지 않고 서비스만 더한다.
+    -- 이게 없으면 동물위탁관리업 3,481건(적격의 61%)이 조용히 사라진다.
+    with mg as (
+      update public.spots sp
+         set services = (select array_agg(distinct x)
+                         from unnest(sp.services || array[d.category::text]) x),
+             updated_at = now()
+        from (select distinct spot_id, category from _dup) d
+       where sp.spot_id = d.spot_id
+         and not (sp.services @> array[d.category::text])
+      returning 1
+    )
+    select count(*) into v_merged from mg;
   end if;
 
   return jsonb_build_object(
@@ -173,11 +191,12 @@ begin
     'skipped_no_coord_or_name', v_no_coord,
     'skipped_closed',  v_closed,
     'skipped_out_of_korea', v_oob,
-    'skipped_dup_nearby',   v_dup_name,
+    'same_business_merged', v_dup_name,
     'address_masked',  v_masked,
     'with_phone',      v_phone,
     'ready',           v_ready,
-    'written',         v_written
+    'written',         v_written,
+    'services_merged', v_merged
   );
 end;
 $function$;

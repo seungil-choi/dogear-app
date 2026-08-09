@@ -211,6 +211,8 @@ interface AppState {
     additional_tags: string[];
     latitude: number;
     longitude: number;
+    /** 업로드된 public URL. 없으면 카드가 카테고리 일러스트로 떨어진다 */
+    cover_image_url?: string;
   }, serverSpotId?: string | null) => string;
   getNearbyDuplicates: (lat: number, lng: number, name: string, category: SpotCategory) => NearbyDuplicate[];
 
@@ -694,7 +696,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   },
 
   // ─── 장소 제안 ────────────────────────────────────────────────
-  suggestSpot: ({ name, description, category, additional_tags, latitude, longitude }, serverSpotId) => {
+  suggestSpot: ({ name, description, category, additional_tags, latitude, longitude, cover_image_url }, serverSpotId) => {
     const { dog, suggestedSpots, spots } = get();
     if (!dog) return '';
     const now = new Date().toISOString();
@@ -723,6 +725,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       longitude,
       description,
       features: additional_tags,
+      // 사진을 빼먹으면 방금 올린 사진을 두고도 카드가 일러스트로 뜬다.
+      // 서버에는 저장되는데 로컬 임시 반영본에만 없어서 "왜 반영이 안 되지"가 된다.
+      cover_image_url,
       status: 'active',
       created_source: 'user_suggested',
       created_at: now,
