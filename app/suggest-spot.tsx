@@ -20,6 +20,8 @@ import { notify } from '../src/utils/dialog';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
+import { formatKoreanAddress, extractNeighborhood } from '../src/utils/address';
 import { AppImage } from '../src/components/common/AppImage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
@@ -62,6 +64,30 @@ type Step = 'checking' | 'duplicate_check' | 'form' | 'done';
 // 서울 중심 기본 좌표 (currentLocation이 없을 때 fallback)
 const DEFAULT_LOCATION = { latitude: 37.5665, longitude: 126.9780 };
 
+/** 핀을 끄는 동안 매 프레임 역지오코딩하지 않도록 기다리는 시간 */
+const ADDRESS_LOOKUP_DEBOUNCE_MS = 700;
+
+/**
+ * 핀 좌표 → 주소. 실패하면 null.
+ *
+ * 주소는 "있으면 좋은 값"이지 제안을 막을 값이 아니다. 네트워크·권한·플랫폼 어느
+ * 쪽이 실패하든 조용히 포기하고 좌표만으로 제안을 진행시킨다(기존 동작과 동일).
+ */
+async function lookupAddress(
+  latitude: number,
+  longitude: number,
+): Promise<{ addressText: string; neighborhood: string | null } | null> {
+  try {
+    const [first] = await Location.reverseGeocodeAsync({ latitude, longitude });
+    if (!first) return null;   // 웹은 항상 빈 배열
+    const addressText = formatKoreanAddress(first);
+    if (!addressText) return null;
+    return { addressText, neighborhood: extractNeighborhood(addressText) };
+  } catch {
+    return null;
+  }
+}
+
 export default function SuggestSpotScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ from?: string }>();
@@ -93,6 +119,25 @@ export default function SuggestSpotScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [pinLocation, setPinLocation] = useState({ latitude: location.latitude, longitude: location.longitude });
   const [photoUri,    setPhotoUri]    = useState<string | null>(null);
+  /** 핀 위치의 주소. 아직 못 읽었으면 null → 화면에는 좌표를 대신 보여준다. */
+  const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
+
+  // ── 핀 위치 → 주소 ────────────────────────────────────────
+  //   예전에는 좌표만 저장해서 사용자가 제안한 장소는 `address_text`가 항상 비었다.
+  //   그 결과 장소 상세에서 주소 줄과 '지도앱 열기'·'주소 복사'가 통째로 사라졌다.
+  const addressSeqRef = useRef(0);
+  useEffect(() => {
+    // 핀이 움직인 순간 이전 주소는 틀린 값이 된다. 옛 주소를 남겨두느니 좌표를 보여준다.
+    setResolvedAddress(null);
+    const seq = ++addressSeqRef.current;
+    const timer = setTimeout(async () => {
+      const found = await lookupAddress(pinLocation.latitude, pinLocation.longitude);
+      // 늦게 도착한 옛 응답이 새 위치의 주소를 덮어쓰지 않도록
+      if (seq !== addressSeqRef.current) return;
+      setResolvedAddress(found?.addressText ?? null);
+    }, ADDRESS_LOOKUP_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [pinLocation.latitude, pinLocation.longitude]);
 
   // ── 초기 중복 검사 ────────────────────────────────────────
   useEffect(() => {
@@ -203,6 +248,12 @@ export default function SuggestSpotScreen() {
       }
     }
 
+    // 화면에서 이미 읽어둔 주소를 쓰고, 아직 없으면 여기서 한 번 더 시도한다.
+    //   (핀을 옮기자마자 제출하면 디바운스가 끝나기 전이라 비어 있을 수 있다)
+    const geo = resolvedAddress
+      ? { addressText: resolvedAddress, neighborhood: extractNeighborhood(resolvedAddress) }
+      : await lookupAddress(pinLocation.latitude, pinLocation.longitude);
+
     const payload = {
       name: name.trim(),
       description: description.trim(),
@@ -210,6 +261,7 @@ export default function SuggestSpotScreen() {
       additional_tags: selectedTags,
       latitude: pinLocation.latitude,
       longitude: pinLocation.longitude,
+      address_text: geo?.addressText,
       cover_image_url: coverImageUrl,   // 업로드된 public URL만 (로컬 경로 금지)
     };
 
@@ -232,6 +284,8 @@ export default function SuggestSpotScreen() {
           category: payload.category,
           latitude: payload.latitude,
           longitude: payload.longitude,
+          address_text: payload.address_text ?? null,
+          neighborhood: geo?.neighborhood ?? null,
           description: payload.description || null,
           tags: payload.additional_tags,
           cover_image_url: payload.cover_image_url ?? null,
@@ -288,7 +342,7 @@ export default function SuggestSpotScreen() {
     } finally {
       submittingRef.current = false;
     }
-  }, [name, description, category, selectedTags, pinLocation, suggestSpot, user, hasHardBlock, photoUri]);
+  }, [name, description, category, selectedTags, pinLocation, suggestSpot, user, hasHardBlock, photoUri, resolvedAddress]);
 
   // ── 기존 장소 사용 ────────────────────────────────────────
   const handleUseExistingSpot = useCallback((spotId: string) => {
@@ -456,11 +510,12 @@ export default function SuggestSpotScreen() {
                 </View>
               </View>
 
-              {/* 현재 좌표 표시 */}
+              {/* 핀 위치 — 주소를 읽었으면 주소를, 아직이면 좌표를 보여준다 */}
               <View style={s.coordRow}>
                 <Icon name="location" size={12} color={Colors.text.tertiary} />
-                <Text style={s.coordText}>
-                  {pinLocation.latitude.toFixed(5)}, {pinLocation.longitude.toFixed(5)}
+                <Text style={s.coordText} numberOfLines={2}>
+                  {resolvedAddress ??
+                    `${pinLocation.latitude.toFixed(5)}, ${pinLocation.longitude.toFixed(5)}`}
                 </Text>
               </View>
             </View>
@@ -892,7 +947,8 @@ const s = StyleSheet.create({
     gap: Spacing[4],
     paddingTop: Spacing[6],
   },
-  coordText: { ...Typography.caption, color: Colors.text.tertiary },
+  // flex:1 — 주소가 한 줄을 넘으면 행 밖으로 밀려나가지 않고 접혀야 한다(좌표는 항상 한 줄)
+  coordText: { ...Typography.caption, color: Colors.text.tertiary, flex: 1 },
 
   // ── Done ──
   doneCenter: { alignItems: 'center', gap: Spacing[12], paddingTop: Spacing[8] },

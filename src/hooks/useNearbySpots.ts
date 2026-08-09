@@ -147,6 +147,8 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
           atmosphereState: sp.atmosphere_state ?? 'unknown',
           topFeelingTags: sp.top_feeling_tags ?? [],
           savedCount: sp.saved_count ?? 0,
+          // saved_type이 있으면 = 서버가 "이 사람은 저장함"으로 보고 savedCount에 셈했다
+          savedByMe: sp.saved_type != null,
         };
       }
       setSpotAggregates(aggregates);

@@ -17,14 +17,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { confirm, notify , actionSheet } from '../../src/utils/dialog';
-import { AppImage } from '../../src/components/common/AppImage';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
-import { visibilityLabel, ageGroupLabel, temperamentLabels, walkingStyleLabels } from '../../src/utils/labels';
+import { visibilityLabel } from '../../src/utils/labels';
+import { DogProfileCard } from '../../src/components/dog/DogProfileCard';
 import type { Dog } from '../../src/types';
 import { severSocialSessions } from '@/lib/socialSession';
 
@@ -67,55 +67,10 @@ function SettingsRow({
  * 카드 절반을 버튼이 차지하고 있었다.
  */
 function DogCard({ dog, width, onOpenDetail }: { dog: Dog; width: number; onOpenDetail: () => void }) {
-  const metaParts = [
-    dog.breed,
-    ageGroupLabel[dog.age_group],
-    dog.weight_kg ? `${dog.weight_kg}kg` : null,
-  ].filter(Boolean);
-  const dogTags = [
-    ...dog.temperament_tags.map(t => temperamentLabels[t]),
-    ...dog.walking_style_tags.map(t => walkingStyleLabels[t]),
-  ].filter(Boolean).slice(0, 3);
-
   return (
     <View style={{ width }}>
-      <TouchableOpacity
-        style={s.hero}
-        onPress={onOpenDetail}
-        activeOpacity={0.9}
-        accessibilityRole="button"
-        accessibilityLabel={`${dog.name} 상세`}
-      >
-        <View style={s.heroTop}>
-          <View style={s.heroAvatarWrap}>
-            {dog.avatar_url ? (
-              <AppImage source={{ uri: dog.avatar_url }} style={s.heroAvatarImg} resizeMode="cover" />
-            ) : (
-              <View style={s.heroAvatarPlaceholder}>
-                <Icon name="dog" size={34} color={Colors.brand.primary} />
-              </View>
-            )}
-          </View>
-          <View style={s.heroInfo}>
-            <Text style={s.heroName} numberOfLines={1}>{dog.name}</Text>
-            {metaParts.length > 0 && (
-              <Text style={s.heroMeta} numberOfLines={1}>{metaParts.join(' · ')}</Text>
-            )}
-          </View>
-        </View>
-
-        {!!dog.bio && <Text style={s.heroBio} numberOfLines={2}>{dog.bio}</Text>}
-
-        {dogTags.length > 0 && (
-          <View style={s.heroTagRow}>
-            {dogTags.map(tag => (
-              <View key={tag} style={s.heroTag}>
-                <Text style={s.heroTagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-      </TouchableOpacity>
+      {/* 홈의 강아지 카드와 같은 컴포넌트다 — 두 화면이 딴 물건처럼 보이지 않도록 */}
+      <DogProfileCard dog={dog} onPress={onOpenDetail} showBio style={s.hero} />
     </View>
   );
 }
@@ -412,47 +367,12 @@ const s = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.border.default },
   dotActive: { backgroundColor: Colors.brand.primary, width: 18 },
 
+  // 카드 자체의 생김새는 DogProfileCard가 갖는다. 여기서는 배치만 정한다.
   hero: {
     marginHorizontal: Spacing[16],
     marginTop: Spacing[12],
     marginBottom: Spacing[20],
-    padding: Spacing[16],
-    borderRadius: Radius.card,
-    backgroundColor: Colors.brand.primary,
-    gap: Spacing[12],
   },
-  heroTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing[14] },
-  heroAvatarWrap: {
-    width: 72, height: 72, borderRadius: 36,
-    overflow: 'hidden',
-    backgroundColor: Colors.brand.subtle,
-  },
-  heroAvatarImg: { width: '100%', height: '100%' },
-  heroAvatarPlaceholder: {
-    width: '100%', height: '100%',
-    alignItems: 'center', justifyContent: 'center',
-    backgroundColor: Colors.brand.subtle,
-  },
-  heroInfo: { flex: 1, minWidth: 0, gap: 2 },
-  heroName: {
-    ...Typography.title.l,
-    color: '#FFFFFF',
-    fontWeight: '800',
-    flexShrink: 1,
-  },
-  heroMeta: { ...Typography.label.m, color: 'rgba(255,255,255,0.9)' },
-  heroBio: {
-    ...Typography.body.s,
-    color: 'rgba(255,255,255,0.95)',
-    lineHeight: 19,
-  },
-  heroTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6] },
-  heroTag: {
-    paddingHorizontal: Spacing[10], paddingVertical: 4,
-    borderRadius: Radius.round,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-  },
-  heroTagText: { ...Typography.label.s, color: '#FFFFFF', fontWeight: '600' },
 
   safe:    { flex: 1, backgroundColor: Colors.bg.primary },
   scroll:  { flex: 1 },

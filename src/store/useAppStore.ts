@@ -55,6 +55,11 @@ export interface SpotServerAggregate {
   topFeelingTags: FeelingTag[];
   /** 이 장소를 저장한 사람 수 — 내 저장 여부(savedSpots)와는 다른 값 */
   savedCount: number;
+  /**
+   * 서버가 응답을 만들 때 본 "내가 저장했는가". savedCount에 이미 반영돼 있다.
+   * 로컬 savedSpots와 갈린 만큼만 ±1 보정하는 데 쓴다(displaySavedCount).
+   */
+  savedByMe: boolean;
 }
 
 // 서버 집계(전체 강아지) → computeSpotAggregate가 반환하는 SpotAggregate 형태로 변환
@@ -211,6 +216,8 @@ interface AppState {
     additional_tags: string[];
     latitude: number;
     longitude: number;
+    /** 역지오코딩으로 읽은 주소. 못 읽었으면 생략 */
+    address_text?: string;
     /** 업로드된 public URL. 없으면 카드가 카테고리 일러스트로 떨어진다 */
     cover_image_url?: string;
   }, serverSpotId?: string | null) => string;
@@ -696,7 +703,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   },
 
   // ─── 장소 제안 ────────────────────────────────────────────────
-  suggestSpot: ({ name, description, category, additional_tags, latitude, longitude, cover_image_url }, serverSpotId) => {
+  suggestSpot: ({ name, description, category, additional_tags, latitude, longitude, address_text, cover_image_url }, serverSpotId) => {
     const { dog, suggestedSpots, spots } = get();
     if (!dog) return '';
     const now = new Date().toISOString();
@@ -723,6 +730,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       category,
       latitude,
       longitude,
+      // 서버에는 넣고 로컬 임시본에만 빠지면, 방금 제안한 장소의 상세에서만
+      // 주소 줄이 사라져 "왜 내 장소만 주소가 없지"가 된다(cover_image_url과 같은 함정).
+      address_text,
       description,
       features: additional_tags,
       // 사진을 빼먹으면 방금 올린 사진을 두고도 카드가 일러스트로 뜬다.
@@ -787,7 +797,11 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         const distanceMeters = currentLocation
           ? haversineDistance(currentLocation.latitude, currentLocation.longitude, spot.latitude, spot.longitude)
           : undefined;
-        return buildHomeSpotCard(spot, agg, summary, distanceMeters, spotAggregates[spot.spot_id]?.savedCount ?? 0);
+        return buildHomeSpotCard(
+          spot, agg, summary, distanceMeters,
+          spotAggregates[spot.spot_id]?.savedCount ?? 0,
+          spotAggregates[spot.spot_id]?.savedByMe ?? false,
+        );
       });
   },
 

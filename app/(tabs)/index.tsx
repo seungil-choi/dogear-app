@@ -23,11 +23,13 @@ import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants
 import { useAppStore } from '../../src/store/useAppStore';
 // 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
 import { haversineDistance } from '../../src/utils/geo';
+import { displaySavedCount } from '../../src/utils/rules';
+import { DogProfileCard, dogCardFooterStyles } from '../../src/components/dog/DogProfileCard';
 import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotCard';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import { isRecommendableCategory } from '../../src/constants/spotCategories';
 import { Icon } from '../../src/components/common/Icon';
-import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
+import { sizeLabel, ageGroupLabel, relativeTime } from '../../src/utils/labels';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { HomeRailSkeleton } from '../../src/components/common/Skeleton';
 import type { Dog, HomeSpotCardViewModel } from '../../src/types';
@@ -94,6 +96,11 @@ function FeaturedCard({
   onPress: () => void;
   onSave: () => void;
 }) {
+  // 서버 집계는 탭했다고 즉시 갱신되지 않는다. 보정하지 않으면 저장을 눌러도 숫자가
+  // 그대로라 "반응이 없다"로 읽힌다(아이콘만 흰색 채움/외곽선으로 바뀌어 변화가 약하다).
+  // 장소 상세와 같은 함수를 쓴다 — 두 화면이 다른 숫자를 보여주면 안 된다.
+  const shownSavedCount = displaySavedCount(card.saved_count, card.server_is_saved, isSaved);
+
   return (
     <TouchableOpacity style={s.featuredCard} onPress={onPress} activeOpacity={0.92}>
       {/* 키비주얼은 장소 상세와 같은 컴포넌트를 쓴다 — 두 화면이 어긋나지 않도록.
@@ -106,7 +113,7 @@ function FeaturedCard({
         subcategory={card.subcategory}
         coverImageUrl={card.cover_image_url}
         metaText={card.distance_text}
-        savedCount={card.saved_count}
+        savedCount={shownSavedCount}
         saved={isSaved}
         onSave={onSave}
         topLeft={
@@ -229,23 +236,8 @@ export default function HomeScreen() {
       .slice(0, 6),
   [cards]);
 
-  // ── 강아지 태그 (기질 + 산책스타일, 최대 3개) ─────────────────────
-  const dogTags = useMemo(() => {
-    if (!dog) return [];
-    const t = dog.temperament_tags.map(t => temperamentLabels[t]).filter(Boolean);
-    const w = dog.walking_style_tags.map(t => walkingStyleLabels[t]).filter(Boolean);
-    return [...t, ...w].slice(0, 3);
-  }, [dog]);
-
-  // ── 프로필 서브 텍스트: 품종 · 나이 · 체중 ────────────────────────
-  const dogSubText = useMemo(() => {
-    if (!dog) return '';
-    const parts: string[] = [];
-    if (dog.breed) parts.push(dog.breed);
-    parts.push(ageGroupLabel[dog.age_group]);
-    if (dog.weight_kg) parts.push(`${dog.weight_kg}kg`);
-    return parts.join(' · ');
-  }, [dog]);
+  // 강아지 태그(기질+산책스타일)와 '품종 · 나이 · 체중'을 잇는 규칙은
+  // DogProfileCard 안으로 옮겼다 — 내정보 탭에 똑같은 코드가 복사돼 있었다.
 
   // ── 최근 산책 — 방문 기록 중 가장 최신 last_visit_at ──────────────
   const lastWalkText = useMemo(() => {
@@ -350,51 +342,22 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* ── 강아지 프로필 카드 ── */}
+        {/* ── 강아지 프로필 카드 ──
+            내정보 탭과 같은 컴포넌트다. 예전엔 두 화면이 각자 그려서
+            배경·글자색·아바타 크기·태그 모양이 전부 달랐다. */}
         {dog && (
-          <TouchableOpacity
-            style={[s.profileCard, Shadow.s]}
+          <DogProfileCard
+            dog={dog}
+            style={s.profileCard}
             onPress={() => router.push('/dog-detail' as any)}
-            activeOpacity={0.85}
-          >
-            {/* 아바타 */}
-            <DogAvatar dog={dog} size={68} />
-
-            {/* 이름 + 정보 */}
-            <View style={s.profileInfo}>
-              {/* 이름 + 드롭다운 */}
-              <TouchableOpacity
-                style={s.profileNameRow}
-                onPress={multiDog ? () => setPickerOpen(true) : undefined}
-                activeOpacity={multiDog ? 0.7 : 1}
-              >
-                <Text style={s.profileName}>{dog.name}</Text>
-                {multiDog && <Icon name="down" size={15} color={Colors.text.secondary} />}
-              </TouchableOpacity>
-
-              {/* 품종 · 나이 · 체중 */}
-              <Text style={s.profileSub}>{dogSubText}</Text>
-
-              {/* 기질·산책 태그 */}
-              {dogTags.length > 0 && (
-                <View style={s.profileTagRow}>
-                  {dogTags.map(tag => (
-                    <View key={tag} style={s.profileTag}>
-                      <Text style={s.profileTagText}>{tag}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {/* 최근 산책 */}
-              {lastWalkText && (
-                <View style={s.profileWalkRow}>
-                  <Icon name="walk" size={12} color={Colors.text.tertiary} />
-                  <Text style={s.profileWalkText}>최근 산책 · {lastWalkText}</Text>
-                </View>
-              )}
-            </View>
-          </TouchableOpacity>
+            onPressName={multiDog ? () => setPickerOpen(true) : undefined}
+            footer={lastWalkText ? (
+              <View style={dogCardFooterStyles.row}>
+                <Icon name="walk" size={12} color="rgba(255,255,255,0.9)" />
+                <Text style={dogCardFooterStyles.text}>최근 산책 · {lastWalkText}</Text>
+              </View>
+            ) : undefined}
+          />
         )}
 
         {/* (강아지 미등록 안내는 상단 noDogBanner로 통합 — dog-setup으로 라우팅) */}
@@ -683,61 +646,10 @@ const s = StyleSheet.create({
   },
 
   // ── 강아지 프로필 카드 ──
+  // 카드의 생김새는 DogProfileCard가 갖는다(내정보 탭과 공용). 여기서는 배치만 정한다.
   profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[14],
-    backgroundColor: Colors.brand.subtle,
     marginHorizontal: Spacing[16],
     marginBottom: Spacing[4],
-    borderRadius: Radius.card,
-    padding: Spacing[20],
-    borderWidth: 1.5,
-    borderColor: Colors.border.brand,
-  },
-  profileInfo: { flex: 1, gap: Spacing[4] },
-  profileNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[4],
-  },
-  profileName: {
-    ...Typography.title.m,
-    color: Colors.text.primary,
-    fontWeight: '800',
-    letterSpacing: -0.3,
-  },
-  profileSub: {
-    ...Typography.caption,
-    color: Colors.text.tertiary,
-    marginTop: 1,
-  },
-  profileTagRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing[6],
-    marginTop: Spacing[6],
-  },
-  profileTag: {
-    backgroundColor: Colors.brand.primaryLight,
-    paddingHorizontal: Spacing[10],
-    paddingVertical: 3,
-    borderRadius: Radius.round,
-  },
-  profileTagText: {
-    ...Typography.label.s,
-    color: Colors.brand.accent,
-    fontWeight: '600',
-  },
-  profileWalkRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[4],
-    marginTop: Spacing[6],
-  },
-  profileWalkText: {
-    ...Typography.caption,
-    color: Colors.text.tertiary,
   },
 
   // ── 섹션 공통 ──

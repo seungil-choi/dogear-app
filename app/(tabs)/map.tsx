@@ -10,14 +10,14 @@
 
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Dimensions, Animated, PanResponder, Linking, Platform, RefreshControl,
+  View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Dimensions, Animated, PanResponder, Linking, Platform, RefreshControl, ActivityIndicator,
 } from 'react-native';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
-import { useAppStore } from '../../src/store/useAppStore';
+import { useAppStore, type SpotServerAggregate } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
@@ -302,35 +302,36 @@ export default function ExploreScreen() {
   const lastFetchRef = useRef<{ lat: number; lng: number; radius: number } | null>(null);
   const regionFetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dogIdForFetch = useAppStore(s => s.activeDog?.dog_id ?? null);
-  useEffect(() => {
+  /** 새로고침 버튼이 도는 중 — 자동 페치는 조용히 돌지만 이건 사용자가 누른 것이라 보여줘야 한다 */
+  const [isRefreshingRegion, setIsRefreshingRegion] = useState(false);
+
+  /**
+   * 지금 보고 있는 지역의 장소를 서버에서 받아 store에 병합한다.
+   *
+   * @param force 이동 거리 임계치를 무시한다. 새로고침 버튼용 —
+   *   제자리에서 누르면 `moved === 0`이라 임계치 검사에 걸려 아무 일도 안 일어난다.
+   */
+  const loadRegionSpots = useCallback(async (force = false) => {
     if (!IS_REAL_AUTH) return;  // 데모 모드는 로컬 시드 사용
-    if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current);
-    // 중심이 아직 확정되지 않았으면(위치 수신 대기) 조금 더 기다렸다 쏜다.
-    //   곧 위치가 오면 이 타이머는 취소되고 실제 위치로 한 번만 조회된다.
-    //   끝내 위치를 못 받아도(권한 거부 등) 기본 중심으로 조회해 지도가 비지 않게 한다.
-    //   ⚠️ 여기서 아예 막으면 위치 없는 사용자는 핀을 영영 못 본다(실제로 그렇게 회귀했었다).
-    const delay = centerSettledRef.current ? 250 : 1200;
-    regionFetchTimer.current = setTimeout(async () => {
-      // 서버 상한 10km — 줌아웃해도 중심 기준 10km씩 로드하며 팬으로 누적 탐색
-      // (zoomBasedRadiusM은 아래에서 선언되므로 여기선 zoomLevel로 직접 계산)
-      // 반경을 한 단계 넓게 잡아 주변 팬 시 재페치 없이 핀이 이미 로드돼 있게 함
-      const zoomRadius = zoomLevel <= 4 ? 5000 : zoomLevel === 5 ? 6000 : 10000;
-      const radius = Math.min(zoomRadius, 10000);
-      const last = lastFetchRef.current;
-      if (last) {
-        const moved = haversineMeters(mapCenter.lat, mapCenter.lng, last.lat, last.lng);
-        if (moved < Math.min(radius, last.radius) * 0.4 && radius <= last.radius) return;
-      }
-      lastFetchRef.current = { lat: mapCenter.lat, lng: mapCenter.lng, radius };
-      try {
-        const { data } = await supabase.functions.invoke('spots-nearby', {
-          body: { latitude: mapCenter.lat, longitude: mapCenter.lng, radiusMeters: radius, dogId: dogIdForFetch },
-        });
-        const raw: any[] = data?.spots ?? [];
-        // 반경 10km 안에 아무것도 없다 = 서비스 데이터 커버리지 밖
-        setRegionEmpty(raw.length === 0);
-        if (raw.length === 0) return;
-        const merged: Spot[] = raw.map((sp: any) => ({
+    // 서버 상한 10km — 줌아웃해도 중심 기준 10km씩 로드하며 팬으로 누적 탐색
+    // 반경을 한 단계 넓게 잡아 주변 팬 시 재페치 없이 핀이 이미 로드돼 있게 함
+    const zoomRadius = zoomLevel <= 4 ? 5000 : zoomLevel === 5 ? 6000 : 10000;
+    const radius = Math.min(zoomRadius, 10000);
+    const last = lastFetchRef.current;
+    if (!force && last) {
+      const moved = haversineMeters(mapCenter.lat, mapCenter.lng, last.lat, last.lng);
+      if (moved < Math.min(radius, last.radius) * 0.4 && radius <= last.radius) return;
+    }
+    lastFetchRef.current = { lat: mapCenter.lat, lng: mapCenter.lng, radius };
+    try {
+      const { data } = await supabase.functions.invoke('spots-nearby', {
+        body: { latitude: mapCenter.lat, longitude: mapCenter.lng, radiusMeters: radius, dogId: dogIdForFetch },
+      });
+      const raw: any[] = data?.spots ?? [];
+      // 반경 10km 안에 아무것도 없다 = 서비스 데이터 커버리지 밖
+      setRegionEmpty(raw.length === 0);
+      if (raw.length === 0) return;
+      const merged: Spot[] = raw.map((sp: any) => ({
           spot_id: sp.spot_id,
           name: sp.name,
           category: sp.category,
@@ -350,23 +351,49 @@ export default function ExploreScreen() {
           created_source: 'seed' as const,
           created_at: new Date().toISOString(),
         }));
-        const aggs: Record<string, any> = {};
-        for (const sp of raw) {
-          aggs[sp.spot_id] = {
-            checkinCount: sp.checkin_count ?? 0,
-            atmosphereState: sp.atmosphere_state ?? 'unknown',
-            topFeelingTags: sp.top_feeling_tags ?? [],
-          };
-        }
-        useAppStore.getState().mergeSpots(merged, aggs);
-      } catch (e) {
-        // 기존 핀은 유지하되, 실패를 조용히 삼키면 "지도가 안 뜬다"의 원인을 못 찾는다
-        // eslint-disable-next-line no-console
-        console.error('[map] 지역 스팟 로드 실패:', e);
+      // ⚠️ 타입을 any로 두면 필드를 빠뜨려도 컴파일이 통과한다. 실제로 savedCount가 빠져 있었고,
+      //    mergeSpots는 spot_id 단위로 통째 교체(...newAggregates)라 지도를 한 번 움직이면
+      //    홈 카드의 저장 수가 0으로 리셋됐다. SpotServerAggregate로 못박아 재발을 막는다.
+      const aggs: Record<string, SpotServerAggregate> = {};
+      for (const sp of raw) {
+        aggs[sp.spot_id] = {
+          checkinCount: sp.checkin_count ?? 0,
+          atmosphereState: sp.atmosphere_state ?? 'unknown',
+          topFeelingTags: sp.top_feeling_tags ?? [],
+          savedCount: sp.saved_count ?? 0,
+          savedByMe: sp.saved_type != null,
+        };
       }
-    }, delay);  // 팬 후 반응성(+ 이동 40% 임계치로 과다 조회 방지)
-    return () => { if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current); };
+      useAppStore.getState().mergeSpots(merged, aggs);
+    } catch (e) {
+      // 기존 핀은 유지하되, 실패를 조용히 삼키면 "지도가 안 뜬다"의 원인을 못 찾는다
+      // eslint-disable-next-line no-console
+      console.error('[map] 지역 스팟 로드 실패:', e);
+    }
   }, [mapCenter.lat, mapCenter.lng, zoomLevel, dogIdForFetch]);
+
+  useEffect(() => {
+    if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current);
+    // 중심이 아직 확정되지 않았으면(위치 수신 대기) 조금 더 기다렸다 쏜다.
+    //   곧 위치가 오면 이 타이머는 취소되고 실제 위치로 한 번만 조회된다.
+    //   끝내 위치를 못 받아도(권한 거부 등) 기본 중심으로 조회해 지도가 비지 않게 한다.
+    //   ⚠️ 여기서 아예 막으면 위치 없는 사용자는 핀을 영영 못 본다(실제로 그렇게 회귀했었다).
+    const delay = centerSettledRef.current ? 250 : 1200;
+    // 팬 후 반응성(+ 이동 40% 임계치로 과다 조회 방지)
+    regionFetchTimer.current = setTimeout(() => { void loadRegionSpots(); }, delay);
+    return () => { if (regionFetchTimer.current) clearTimeout(regionFetchTimer.current); };
+  }, [loadRegionSpots]);
+
+  /** 새로고침 버튼 — 제자리에서도 이 지역을 다시 읽는다(임계치 무시). */
+  const handleRefreshRegion = useCallback(async () => {
+    if (isRefreshingRegion) return;
+    setIsRefreshingRegion(true);
+    try {
+      await loadRegionSpots(true);
+    } finally {
+      setIsRefreshingRegion(false);
+    }
+  }, [isRefreshingRegion, loadRegionSpots]);
 
   // ── 지도 중심 기준으로 카드 정렬 + 거리 재계산 + 반경 제한 ──
   // 검색 중일 때는 반경 제한 우회 (이름으로 찾는 장소는 거리 무관 노출)
@@ -438,6 +465,7 @@ export default function ExploreScreen() {
       cover_image_url: sp.cover_image_url,
       // 이 폴백 경로에는 서버 집계가 없다 — 없는 숫자를 지어내지 않고 0으로 둔다
       saved_count: 0,
+      server_is_saved: false,
     } as typeof homeCards[0];
   }, [sortedCards, homeCards, spots, selectedId, mapCenter]);
   const restCards = useMemo(
@@ -831,15 +859,29 @@ export default function ExploreScreen() {
             }}
           />
 
-          {/* 내 위치 버튼 — 지도가 보이는 상태(min/peek)에서만 노출.
-              패널이 half/full로 올라오면 목록 위에 떠서 겹치므로 숨긴다. */}
+          {/* 내 위치 · 새로고침 — 지도가 보이는 상태(min/peek)에서만 노출.
+              패널이 half/full로 올라오면 목록 위에 떠서 겹치므로 숨긴다.
+              새로고침이 위, 현위치가 아래 — 현위치가 더 자주 쓰여 엄지에 가깝게 둔다. */}
           {(snapState === 'min' || snapState === 'peek') && (
             <View style={s.myLocFloating} pointerEvents="box-none">
+              <TouchableOpacity
+                style={[s.myLocBtn, Shadow.m]}
+                onPress={handleRefreshRegion}
+                activeOpacity={0.8}
+                accessibilityLabel="이 지역 다시 불러오기"
+                accessibilityRole="button"
+                disabled={isRefreshingRegion}
+              >
+                {isRefreshingRegion
+                  ? <ActivityIndicator size="small" color={Colors.text.primary} />
+                  : <Icon name="refresh" size={20} color={Colors.text.primary} />}
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
                 onPress={handleMyLocation}
                 activeOpacity={0.8}
                 accessibilityLabel="현재 위치"
+                accessibilityRole="button"
                 disabled={isLocating}
               >
                 <Icon
@@ -1231,6 +1273,7 @@ const s = StyleSheet.create({
   myLocFloating: {
     position: 'absolute', top: 24, right: Spacing[16],
     zIndex: 11,
+    gap: Spacing[8],   // 새로고침 · 현위치 두 버튼이 붙어 오탭되지 않도록
   },
   myLocBtn: {
     width: 44, height: 44, borderRadius: 22,

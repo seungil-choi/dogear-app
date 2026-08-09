@@ -17,7 +17,7 @@ import { AppImage } from '../../src/components/common/AppImage';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Linking, Platform, Share, Modal, Pressable,
+  StyleSheet, Linking, Platform, Share, Modal, Pressable, Animated,
 } from 'react-native';
 import { notify, actionSheet, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
@@ -26,7 +26,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { useSpotDetail } from '../../src/hooks/useSpotDetail';
-import { buildSpotDetailFromApi } from '../../src/utils/rules';
+import { buildSpotDetailFromApi, displaySavedCount } from '../../src/utils/rules';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
 import { categoryLabel as catLabel } from '../../src/utils/labels';
@@ -34,6 +34,8 @@ import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
 import type { FamiliarDogCardViewModel } from '../../src/types';
 
+/** 키비주얼 높이. 상단 바가 장소명을 넘겨받는 스크롤 지점도 이 값에서 계산한다. */
+const KEY_VISUAL_HEIGHT = 260;
 
 export default function SpotDetailScreen() {
   const params = useLocalSearchParams<{ id: string | string[] }>();
@@ -90,14 +92,23 @@ export default function SpotDetailScreen() {
     [savedSpots, dog, id],
   );
 
-  // 화면에 보여줄 저장 수 — 서버 집계는 탭해도 즉시 갱신되지 않는다.
-  //   서버 스냅샷(vm.is_saved)과 로컬 상태가 갈린 만큼만 ±1 보정해,
-  //   저장하자마자 숫자가 그대로 멈춰 있는 어색함을 없앤다.
-  const displaySavedCount = useMemo(() => {
-    if (!vm) return 0;
-    const delta = locallySaved === !!vm.is_saved ? 0 : (locallySaved ? 1 : -1);
-    return Math.max(0, (vm.saved_count ?? 0) + delta);
-  }, [vm, locallySaved]);
+  // ── 상단 바 장소명 — 키비주얼이 화면 밖으로 밀려난 뒤에만 나타난다 ──
+  //   상시 노출은 바로 아래 키비주얼의 큰 장소명과 같은 정보가 두 번 나오는 것이라 안 한다.
+  //   반대로 스크롤을 내리면 장소명이 완전히 사라져 "지금 뭘 보고 있더라"가 되므로,
+  //   그 시점에만 상단 바가 이름을 넘겨받는다.
+  const scrollY = useRef(new Animated.Value(0)).current;
+  // 키비주얼 높이 260 중 장소명은 아래쪽(대략 200~240)에 있다. 이름이 가려지기 시작할 때 받는다.
+  const navTitleOpacity = scrollY.interpolate({
+    inputRange: [KEY_VISUAL_HEIGHT - 100, KEY_VISUAL_HEIGHT - 40],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  // 화면에 보여줄 저장 수 — 홈 추천 카드와 같은 함수를 쓴다(둘이 다른 숫자를 보이면 안 된다).
+  const shownSavedCount = useMemo(
+    () => (vm ? displaySavedCount(vm.saved_count ?? 0, !!vm.is_saved, locallySaved) : 0),
+    [vm, locallySaved],
+  );
 
   // 장소 상세 진입 추적
   useEffect(() => {
@@ -308,6 +319,13 @@ export default function SpotDetailScreen() {
         >
           <Icon name="back" size={22} color={Colors.text.primary} />
         </TouchableOpacity>
+        {/* 스크롤로 키비주얼이 밀려 올라갔을 때만 보인다 */}
+        <Animated.Text
+          style={[s.topNavTitle, { opacity: navTitleOpacity }]}
+          numberOfLines={1}
+        >
+          {vm.name}
+        </Animated.Text>
         <View style={s.topNavRight}>
           <TouchableOpacity style={s.topNavBtn} onPress={handleMore} hitSlop={8} accessibilityLabel="더보기">
             <Icon name="more" size={20} color={Colors.text.secondary} />
@@ -318,22 +336,27 @@ export default function SpotDetailScreen() {
       {/* ════════════════════════════════════
           스크롤 본문
       ════════════════════════════════════ */}
-      <ScrollView
+      <Animated.ScrollView
         style={s.scroll}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true },   // opacity만 바꾸므로 네이티브 드라이버로 올린다
+        )}
+        scrollEventThrottle={16}
       >
         {/* ── 키비주얼 헤더 ──
             홈 '오늘의 추천' 카드와 같은 컴포넌트다. 스크림 농도·여백·저장 표시가
             화면마다 갈라지지 않도록 한 곳에서만 그린다. */}
         <SpotKeyVisual
-          height={260}
+          height={KEY_VISUAL_HEIGHT}
           name={vm.name}
           categoryLabel={vm.category_label}
           subcategory={vm.subcategory}
           coverImageUrl={vm.cover_image_url}
           metaText={[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
-          savedCount={displaySavedCount}
+          savedCount={shownSavedCount}
           saved={locallySaved}
           onSave={handleSave}
           topRight={
@@ -613,7 +636,7 @@ export default function SpotDetailScreen() {
           )}
         </View>
 
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* ── 자주 찾는 강아지 — 바텀시트 상세 레이어 ── */}
       <Modal
@@ -752,6 +775,15 @@ const s = StyleSheet.create({
     width: 44, height: 44,
     alignItems: 'center', justifyContent: 'center',
     borderRadius: 22,
+  },
+  // 좌(뒤로 44) · 우(더보기 44) 사이를 채워 가운데 정렬 — 폭이 같아 이름이 실제 중앙에 온다
+  topNavTitle: {
+    flex: 1,
+    textAlign: 'center',
+    ...Typography.label.l,
+    fontWeight: '700',
+    color: Colors.text.primary,
+    marginHorizontal: Spacing[4],
   },
   topNavRight: { flexDirection: 'row' },
 

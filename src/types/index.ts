@@ -159,6 +159,8 @@ export interface HomeSpotCardViewModel {
   /** 이 장소를 저장한 사람 수 — 장소 상세 키비주얼과 같은 저장 표시를 쓰기 위해 필요.
    *  서버 집계가 없는 로컬 폴백(데모·오프라인)에서는 0. */
   saved_count: number;
+  /** saved_count를 만들 때 서버가 본 내 저장 여부. 낙관적 ±1 보정의 기준점(displaySavedCount). */
+  server_is_saved: boolean;
   /** 방문 기록이 있을 때만 존재 */
   visit_count?: number;
   /** 마지막 방문 상대 시각 텍스트 (예: "어제", "3일 전") */

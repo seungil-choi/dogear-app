@@ -82,6 +82,24 @@ export function computeSpotAggregate(
   };
 }
 
+/**
+ * 화면에 보여줄 저장 수.
+ *
+ * 서버 집계는 내가 탭했다고 즉시 갱신되지 않는다. 그래서 홈 추천 카드에서 저장을 눌러도
+ * 숫자가 그대로 멈춰 있었고(아이콘만 흰색 채움/외곽선으로 바뀜) "반응이 없다"로 읽혔다.
+ * 서버 스냅샷(serverSaved)과 로컬 상태(locallySaved)가 갈린 만큼만 ±1 보정한다.
+ *
+ * 홈과 상세가 각자 계산하면 또 갈라지므로(SpotKeyVisual을 뺀 이유와 같다) 여기 한 곳에 둔다.
+ */
+export function displaySavedCount(
+  serverCount: number,
+  serverSaved: boolean,
+  locallySaved: boolean,
+): number {
+  const delta = locallySaved === serverSaved ? 0 : (locallySaved ? 1 : -1);
+  return Math.max(0, serverCount + delta);
+}
+
 // ─── 홈 카드 ViewModel 생성 ─────────────────────────────
 export function buildHomeSpotCard(
   spot: Spot,
@@ -90,6 +108,8 @@ export function buildHomeSpotCard(
   distanceMeters?: number,
   /** 서버 집계에만 있는 값 — 로컬 폴백(데모·오프라인)에는 없으므로 0 */
   savedCount = 0,
+  /** savedCount를 만들 때 서버가 본 내 저장 여부 — displaySavedCount의 기준점 */
+  serverSaved = false,
 ): HomeSpotCardViewModel {
   const regular_status = summary ? computeRegularStatus(summary) : 'none';
   const badges: string[] = [];
@@ -115,6 +135,7 @@ export function buildHomeSpotCard(
     is_regular: regular_status === 'regular',
     cover_image_url: spot.cover_image_url,
     saved_count: savedCount,
+    server_is_saved: serverSaved,
     visit_count: summary?.visit_count,
     last_visit_text: summary ? relativeTime(summary.last_visit_at) : undefined,
     last_visit_at: summary?.last_visit_at,
