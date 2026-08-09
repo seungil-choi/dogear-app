@@ -237,7 +237,7 @@ export default function MySpotsScreen() {
               {/* "다시 가고 싶다" 그룹 */}
               {mySavedSpots.filter(x => x.saved.saved_type === 'go_again').length > 0 && (
                 <View style={s.savedGroupHead}>
-                  <Icon name="star-filled" size={13} color={Colors.brand.primary} />
+                  <Icon name="star" size={13} color={Colors.brand.primary} />
                   <Text style={s.savedGroupTitle}>다녀온 곳</Text>
                   <Text style={s.savedGroupCount}>
                     {mySavedSpots.filter(x => x.saved.saved_type === 'go_again').length}곳

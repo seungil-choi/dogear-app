@@ -316,6 +316,7 @@ export function buildSpotDetailFromApi(
     recent_traces,
     // 서버 상세 응답엔 없는 정적 정보는 store spot에서 병합 (있으면)
     address_text: spot.address_text ?? ctx.storeSpot?.address_text,
+    phone:        spot.phone ?? undefined,
     opening_hours: ctx.storeSpot?.opening_hours,
     features: ctx.storeSpot?.features,
     // 설명은 "사람이 쓴 것"만 노출한다. 원천 데이터의 설명은 카테고리·시설의

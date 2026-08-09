@@ -11,7 +11,7 @@
  */
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import { Icon } from '../Icon';
+import { Icon, ICON_MAP, type IconName } from '../Icon';
 
 describe('Icon', () => {
   it('시맨틱 이름으로 실제 컴포넌트를 렌더한다', () => {
@@ -20,13 +20,16 @@ describe('Icon', () => {
     expect(r!.toJSON()).not.toBeNull();
   });
 
-  it('deep import한 아이콘이 undefined로 풀리지 않는다', () => {
-    // 카테고리별로 하나씩 — import 블록이 통째로 깨지면 여기서 걸린다
-    const names = ['home', 'map', 'paw', 'bookmark', 'user', 'close', 'check', 'bell'] as const;
+  it('등록된 아이콘이 하나도 빠짐없이 렌더된다', () => {
+    // 표본 몇 개만 보면 특정 import 줄이 깨져도 지나간다. 전수로 돈다.
+    const names = Object.keys(ICON_MAP) as IconName[];
+    expect(names.length).toBeGreaterThan(50);
+    const broken: string[] = [];
     for (const name of names) {
       let r: renderer.ReactTestRenderer;
       act(() => { r = renderer.create(<Icon name={name} size={20} color="#000" />); });
-      expect(r!.toJSON()).not.toBeNull();
+      if (r!.toJSON() === null) broken.push(name);
     }
+    expect(broken).toEqual([]);
   });
 });

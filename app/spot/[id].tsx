@@ -130,6 +130,17 @@ export default function SpotDetailScreen() {
       place_category: vm?.category_label,
     });
   }, [id, toggleSaveSpot, vm, dog, router, locallySaved]);
+  /** 전화 걸기. tel: 스킴을 못 여는 기기(태블릿 등)에서는 조용히 실패하지 않게 알린다. */
+  const handleCall = useCallback(async (phone: string) => {
+    const url = `tel:${phone.replace(/[^0-9+]/g, '')}`;
+    try {
+      await Linking.openURL(url);
+    } catch (e) {
+      console.error('[spot] 전화 걸기 실패:', e);
+      notify('전화를 걸 수 없는 기기예요. 번호를 길게 눌러 복사해주세요.', '전화 실패');
+    }
+  }, []);
+
   const handleCopyAddress = useCallback(async (text: string) => {
     try {
       await Clipboard.setStringAsync(text);
@@ -391,9 +402,29 @@ export default function SpotDetailScreen() {
                 </View>
               </View>
             )}
-            {vm.description && (
+            {/* 전화 — 병원·미용에서 제일 먼저 찾는 값이라 설명보다 위에 둔다.
+                영업시간 데이터가 없는 지금 "지금 하나요"는 전화로만 확인된다. */}
+            {vm.phone && (
               <>
                 {hasChips && <View style={s.infoSep} />}
+                <View style={s.infoRow}>
+                  <Text style={s.infoKey}>전화</Text>
+                  <TouchableOpacity
+                    style={s.phoneBtn}
+                    onPress={() => handleCall(vm.phone!)}
+                    activeOpacity={0.75}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${vm.phone}로 전화 걸기`}
+                  >
+                    <Icon name="phone" size={14} color={Colors.brand.primary} />
+                    <Text style={s.phoneText}>{vm.phone}</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+            {vm.description && (
+              <>
+                {(hasChips || vm.phone) && <View style={s.infoSep} />}
                 <View style={s.infoRow}>
                   <Text style={s.infoKey}>설명</Text>
                   <Text style={s.infoVal}>{vm.description}</Text>
@@ -1143,6 +1174,17 @@ const s = StyleSheet.create({
     ...Typography.label.m,
     color: Colors.text.primary,
     lineHeight: 22,
+  },
+  phoneBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[6],
+  },
+  phoneText: {
+    ...Typography.label.m,
+    color: Colors.brand.primary,
+    fontWeight: '700',
   },
   copyAddrBtn: {
     flexDirection: 'row',

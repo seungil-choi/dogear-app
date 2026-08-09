@@ -54,6 +54,7 @@ declare
   v_oob      int;
   v_dup_name int;
   v_masked   int;
+  v_phone    int;
   v_ready    int;
   v_written  int := 0;
 begin
@@ -80,7 +81,8 @@ begin
     coalesce(public.clean_masked_address(s.road_addr),
              public.clean_masked_address(s.lot_addr)) as address_text,
     (s.road_addr like '%*%' or s.lot_addr like '%*%') as was_masked,
-    nullif(btrim(s.phone), '')                  as phone,
+    -- 전화도 마스킹될 수 있다('02-***-****'). 별표가 있으면 걸 수 없으니 버린다.
+    case when s.phone like '%*%' then null else nullif(btrim(s.phone), '') end as phone,
     -- 영업 중만 남긴다. 폐업한 병원이 뜨는 순간 신뢰가 깨진다.
     (coalesce(s.status_name, '') like '영업%')  as is_open,
     case
@@ -130,19 +132,20 @@ begin
   delete from _valid where row_no in (select row_no from _dup);
 
   select count(*) into v_ready from _valid;
+  select count(*) into v_phone from _valid where phone is not null;
 
   if not p_dry_run then
     with up as (
       insert into public.spots (
         name, category, location, latitude, longitude,
-        address_text, address_road, address_lot,
+        address_text, address_road, address_lot, phone,
         external_source, external_id, status, created_source
       )
       select
         v.name, v.category,
         st_setsrid(st_makepoint(v.lng, v.lat), 4326),
         v.lat, v.lng,
-        v.address_text, v.address_road, v.address_lot,
+        v.address_text, v.address_road, v.address_lot, v.phone,
         p_source, v.external_id, 'active', 'seed'
       from _valid v
       where v.external_id is not null
@@ -155,6 +158,7 @@ begin
         address_text = excluded.address_text,
         address_road = excluded.address_road,
         address_lot  = excluded.address_lot,
+        phone        = excluded.phone,
         updated_at   = now()
       returning 1
     )
@@ -171,6 +175,7 @@ begin
     'skipped_out_of_korea', v_oob,
     'skipped_dup_nearby',   v_dup_name,
     'address_masked',  v_masked,
+    'with_phone',      v_phone,
     'ready',           v_ready,
     'written',         v_written
   );

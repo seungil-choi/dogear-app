@@ -66,6 +66,7 @@ import Star from 'lucide-react-native/dist/esm/icons/star.mjs';
 import Heart from 'lucide-react-native/dist/esm/icons/heart.mjs';
 import Footprints from 'lucide-react-native/dist/esm/icons/footprints.mjs';
 import Flag from 'lucide-react-native/dist/esm/icons/flag.mjs';
+import Phone from 'lucide-react-native/dist/esm/icons/phone.mjs';
 import List from 'lucide-react-native/dist/esm/icons/list.mjs';
 // 카테고리
 import TreePine from 'lucide-react-native/dist/esm/icons/tree-pine.mjs';
@@ -90,7 +91,11 @@ interface IconDef {
   filled?: boolean;
 }
 
-const ICON_MAP: Record<string, IconDef> = {
+// ⚠️ 타입 주석(: Record<string, IconDef>) 대신 satisfies를 쓴다.
+//    주석을 달면 keyof가 string으로 넓어져 IconName이 사실상 string이 되고,
+//    없는 아이콘 이름도 tsc를 통과해 화면에는 물음표만 뜬다(실제로 phone이 그랬다).
+//    satisfies는 값의 리터럴 키를 보존하면서 형태만 검사한다.
+export const ICON_MAP = {
   // ─ 네비게이션 탭 ─
   home:               { Component: Home },
   'home-filled':      { Component: Home, filled: true },
@@ -154,6 +159,7 @@ const ICON_MAP: Record<string, IconDef> = {
   heart:              { Component: Heart },
   'heart-filled':     { Component: Heart, filled: true },
   walk:               { Component: Footprints },
+  phone:              { Component: Phone },
   flag:               { Component: Flag },
   'flag-filled':      { Component: Flag, filled: true },
   list:               { Component: List },
@@ -167,7 +173,7 @@ const ICON_MAP: Record<string, IconDef> = {
   'leaf-filled':      { Component: Leaf, filled: true },
   tag:                { Component: Tag },
   'tag-filled':       { Component: Tag, filled: true },
-};
+} satisfies Record<string, IconDef>;
 
 export type IconName = keyof typeof ICON_MAP;
 
@@ -187,7 +193,7 @@ export function Icon({ name, size = 24, color = '#222222', strokeWidth }: IconPr
     return <HelpCircle size={size} color={color} strokeWidth={strokeWidth ?? 1.75} />;
   }
 
-  const { Component, filled } = def;
+  const { Component, filled } = def as IconDef;
   // 작은 크기에선 stroke 살짝 두껍게(가독성), 큰 크기에선 1.5(깔끔)
   const sw = strokeWidth ?? (size <= 16 ? 2 : size <= 24 ? 1.75 : 1.5);
 

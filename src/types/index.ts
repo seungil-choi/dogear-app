@@ -230,6 +230,8 @@ export interface SpotDetailApiViewModel {
     longitude: number;
     address_text: string | null;
     neighborhood: string | null;
+    /** 대표 전화 — 시설(병원·미용)에만 대체로 존재. 산책지는 null */
+    phone: string | null;
     cover_image_url: string | null;
     /** subcategory를 그대로 반복한 무의미한 설명은 서버가 걸러 null로 내린다 */
     description: string | null;
@@ -314,6 +316,8 @@ export interface SpotDetailViewModel {
   recent_traces: TraceListItemViewModel[];
   // 장소 정보
   address_text?: string;
+  /** 대표 전화 — 시설(병원·미용)에 주로 존재 */
+  phone?: string;
   opening_hours?: string;
   features?: string[];
   description?: string;
