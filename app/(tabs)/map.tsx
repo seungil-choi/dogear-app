@@ -22,7 +22,7 @@ import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
 import { distanceText, categoryLabel as catLabel } from '../../src/utils/labels';
-import { pinKindFor, FACILITY_CATEGORIES } from '../../src/constants/spotCategories';
+import { FACILITY_CATEGORIES } from '../../src/constants/spotCategories';
 import type { SpotCategory, Spot } from '../../src/types';
 import { notify, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
@@ -554,9 +554,8 @@ export default function ExploreScreen() {
           latitude: spot.latitude,
           longitude: spot.longitude,
           label: card.name,
+          // 핀은 '내가 다녀왔는가'만 말한다. 유형 구분은 카드·상세가 맡는다.
           variant: card.is_regular ? 'regular' : (card.has_visited ? 'visited' : 'default'),
-          // 색은 관계, 글리프는 유형. 시설은 지도에서 종류가 먼저 보여야 한다.
-          kind: pinKindFor(spot.category),
         } as KakaoMarker;
       })
       .filter(Boolean) as KakaoMarker[];

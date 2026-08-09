@@ -598,8 +598,6 @@ const sa = StyleSheet.create({
     backgroundColor: Colors.brand.subtle,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: Colors.border.brand,
   },
   avatarInitial: { color: Colors.brand.accent, fontWeight: '700' },
   modalOverlay: {

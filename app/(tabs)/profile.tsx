@@ -424,9 +424,8 @@ const s = StyleSheet.create({
   heroTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing[14] },
   heroAvatarWrap: {
     width: 72, height: 72, borderRadius: 36,
-    borderWidth: 3, borderColor: 'rgba(255,255,255,0.85)',
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.brand.subtle,
   },
   heroAvatarImg: { width: '100%', height: '100%' },
   heroAvatarPlaceholder: {

@@ -966,9 +966,7 @@ const s = StyleSheet.create({
     width: 72, height: 72,
     borderRadius: 36,
     overflow: 'hidden',
-    backgroundColor: Colors.bg.secondary,
-    borderWidth: 2,
-    borderColor: Colors.border.brand,
+    backgroundColor: Colors.brand.subtle,
   },
   sheetAvatarImg: { width: '100%', height: '100%' },
   sheetAvatarPlaceholder: {

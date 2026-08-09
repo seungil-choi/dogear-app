@@ -20,14 +20,32 @@
  */
 export const CLUSTER_GRID_JS = `
       // 격자 기준 폭(위도 0.00004° ≈ 4.4m).
-      // 카카오는 레벨당 축척이 2배씩 벌어지므로(레벨5 ≈ 4.8m/px, 레벨7 ≈ 19m/px)
-      // 격자를 2^level에 비례시키면 화면상 묶임 간격이 약 30px로 고정된다.
       var GRID_BASE = 0.00004;
       // 이 레벨보다 확대된 구간(레벨이 더 작음)에서는 좌표가 사실상 동일한 것만 묶는다.
       var CLUSTER_MIN_LEVEL = 5;
 
+      // 줌아웃 단계 — 레벨이 커질수록 격자를 한 칸씩 더 키운다.
+      //
+      // 왜: 예전엔 격자를 정확히 2^level로만 키웠다. 카카오도 레벨당 축척이 2배씩
+      //     벌어지므로 화면상 묶임 간격이 어느 레벨에서나 약 35px로 '고정'됐다.
+      //     즉 줌아웃해도 화면에 보이는 클러스터 밀도가 그대로여서
+      //     "줌아웃해도 큰 차이가 없다"가 된다. 의도한 동작이지만 기대와 어긋난다.
+      //     멀리 볼수록 덩어리는 더 크고 적어야 한다.
+      // 어떻게: 레벨 구간마다 지수를 1씩 더한다(=화면 간격 2배씩).
+      //     실측 환산 — L5~7 약 35px / L8~10 약 71px / L11+ 약 142px.
+      //
+      // ⚠️ 반드시 GRID_BASE·2^정수 꼴을 유지해야 한다. 그래야 좁은 격자의 버킷이
+      //    넓은 격자 버킷에 정확히 포함되어 "확대는 쪼개기만 한다"가 성립한다.
+      //    그리고 exp(level)은 level에 대해 단조 증가여야 한다.
+      function zoomStepFor(level) {
+        if (level >= 11) return 2;
+        if (level >= 8)  return 1;
+        return 0;
+      }
+
       function activeGridFor(level) {
-        return level >= CLUSTER_MIN_LEVEL ? GRID_BASE * Math.pow(2, level) : GRID_BASE;
+        if (level < CLUSTER_MIN_LEVEL) return GRID_BASE;
+        return GRID_BASE * Math.pow(2, level + zoomStepFor(level));
       }
 
       // floor 필수 — round를 쓰면 격자가 중첩되지 않아 확대 시 새 클러스터가 생긴다(위 주석 참고)

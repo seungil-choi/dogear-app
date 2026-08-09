@@ -7,8 +7,8 @@
  * 통신 프로토콜 (postMessage):
  *   App → Map:
  *     { type: 'setCenter', latitude, longitude, level? }
- *     { type: 'setMarkers', markers: [{ id, latitude, longitude, label, variant, kind? }] }
- *       variant = 나와의 관계(색), kind = 장소 유형(글리프). kind 생략 시 산책지로 본다.
+ *     { type: 'setMarkers', markers: [{ id, latitude, longitude, label, variant }] }
+ *       variant = 나와의 관계. 유형은 핀으로 구분하지 않는다.
  *     { type: 'setUserLocation', latitude, longitude }
  *     { type: 'selectMarker', id }
  *   Map → App:
@@ -160,25 +160,14 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       var PAW_PATH   = '<path d="M8.2 9.6c-1.05 0-1.9-1.02-1.9-2.28S7.15 5.04 8.2 5.04s1.9 1.02 1.9 2.28S9.25 9.6 8.2 9.6zm7.6 0c-1.05 0-1.9-1.02-1.9-2.28s.85-2.28 1.9-2.28 1.9 1.02 1.9 2.28S16.85 9.6 15.8 9.6zM4.6 14.1c-.95 0-1.7-.92-1.7-2.05s.76-2.05 1.7-2.05 1.7.92 1.7 2.05-.76 2.05-1.7 2.05zm14.8 0c-.95 0-1.7-.92-1.7-2.05s.76-2.05 1.7-2.05 1.7.92 1.7 2.05-.76 2.05-1.7 2.05zM12 11.4c2.3 0 5.1 2.5 5.1 4.9 0 1.6-1.2 2.5-2.7 2.5-.9 0-1.7-.35-2.4-.35s-1.5.35-2.4.35c-1.5 0-2.7-.9-2.7-2.5 0-2.4 2.8-4.9 5.1-4.9z"/>';
       var DOT_PATH   = '<circle cx="12" cy="12" r="3.5"/>';
 
-      // 시설 글리프 — 관계(색)와 무관하게 유형을 고정 표시한다.
-      //   지도에서는 "저게 병원인가 미용실인가"가 먼저 보여야 한다.
-      //   26px 핀 안이라 디테일은 버리고 실루엣만 남긴다.
-      var VET_PATH   = '<path d="M10.2 4h3.6v4.2H18v3.6h-4.2V16h-3.6v-4.2H6V8.2h4.2z"/>';
-      // 가위 — 날 두 개(평행사변형) + 손잡이 두 개(작은 원). 26px에선 고리 구멍이 뭉개져 통원으로 둔다.
-      var GROOM_PATH = '<path d="M8.1 3.8l5.3 8.1-1.4 2.1-5.3-8.1z"/>'
-                     + '<path d="M15.9 3.8l1.4 2.1-5.3 8.1-1.4-2.1z"/>'
-                     + '<circle cx="8.3" cy="17.6" r="2.5"/><circle cx="15.7" cy="17.6" r="2.5"/>';
-      // 집 — 안에 발바닥을 넣으면 26px에서 뭉쳐 읽히지 않는다. 실루엣만 남긴다.
-      var BOARD_PATH = '<path d="M12 3.8L3.6 11.1h2.3v9.1h12.2v-9.1h2.3z"/>';
-      var KIND_PATH  = { vet: VET_PATH, grooming: GROOM_PATH, boarding: BOARD_PATH };
 
-      function pinHtml(id, label, variant, selected, kind) {
+      // 핀은 '내가 다녀왔는가'만 말한다. 유형(병원·미용·호텔)은 핀으로 구분하지 않는다 —
+      // 탐색 중에 중요한 건 관계지 업종이 아니다. 유형은 카드·상세의 아이콘이 담당한다.
+      function pinHtml(id, label, variant, selected) {
         var v = VARIANT_STYLE[variant || 'default'];
-        // 시설이면 유형 글리프가 관계 글리프를 이긴다.
-        var iconPath = KIND_PATH[kind]
-                     || (variant === 'regular' ? STAR_PATH
-                       : variant === 'visited' ? PAW_PATH
-                       : DOT_PATH);
+        var iconPath = variant === 'regular' ? STAR_PATH
+                     : variant === 'visited' ? PAW_PATH
+                     : DOT_PATH;
         var size = selected ? 32 : 26;       // 정사각형 — 원형 dot
         var iconColor = v.icon === 'brand' ? '#FF7A30' : '#fff';
         var iconAttrs = 'fill="' + iconColor + '"';
@@ -202,7 +191,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
             lat != null ? lat : item.latitude,
             lng != null ? lng : item.longitude
           ),
-          content: pinHtml(item.id, item.label, item.variant, item.id === selectedId, item.kind),
+          content: pinHtml(item.id, item.label, item.variant, item.id === selectedId),
           xAnchor: 0.5,
           yAnchor: 0.5,           // 원형 dot — 중심이 LatLng
           clickable: true,
@@ -216,7 +205,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
         var entry = markerById[id];
         if (!entry) return;
         entry.overlay.setContent(
-          pinHtml(entry.item.id, entry.item.label, entry.item.variant, id === selectedId, entry.item.kind)
+          pinHtml(entry.item.id, entry.item.label, entry.item.variant, id === selectedId)
         );
       }
 
@@ -308,7 +297,7 @@ ${CLUSTER_GRID_JS}
             entry.lat = lat; entry.lng = lng;
           }
           if (entry.item.label !== item.label || entry.item.variant !== item.variant) {
-            entry.overlay.setContent(pinHtml(item.id, item.label, item.variant, item.id === selectedId, item.kind));
+            entry.overlay.setContent(pinHtml(item.id, item.label, item.variant, item.id === selectedId));
           }
           entry.item = item;
         });

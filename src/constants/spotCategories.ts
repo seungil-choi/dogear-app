@@ -22,20 +22,6 @@ export const FACILITY_CATEGORIES: readonly SpotCategory[] = [
  */
 const NOT_RECOMMENDABLE: readonly SpotCategory[] = ['vet', 'pet_grooming', 'pet_boarding'];
 
-/**
- * 지도 핀 글리프 키. 산책지는 undefined를 돌려 관계 글리프(점·발도장·별)를 쓰게 둔다.
- * 애견 카페는 아직 전용 글리프가 없어 산책지와 같이 취급한다 — 없는 아이콘을
- * 억지로 붙이느니 관계 표시를 남기는 편이 낫다.
- */
-export function pinKindFor(category: SpotCategory): 'vet' | 'grooming' | 'boarding' | undefined {
-  switch (category) {
-    case 'vet':          return 'vet';
-    case 'pet_grooming': return 'grooming';
-    case 'pet_boarding': return 'boarding';
-    default:             return undefined;
-  }
-}
-
 export function isRecommendableCategory(category: SpotCategory): boolean {
   return !NOT_RECOMMENDABLE.includes(category);
 }

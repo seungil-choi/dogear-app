@@ -280,7 +280,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     step: 1,
     selectedTags: [],
     note: '',
-    visibility: 'spot_only',
+    visibility: 'familiar_layer',
   },
 
   // ─── Actions ───────────────────────────────────
@@ -320,7 +320,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     privacySetting: defaultPrivacySetting,
     suggestedSpots: [],
     lastUsedVisibility: undefined,
-    pawFlow: { step: 1, selectedTags: [], note: '', visibility: 'spot_only' },
+    pawFlow: { step: 1, selectedTags: [], note: '', visibility: 'familiar_layer' },
   }),
 
   selectSpot: (spotId) => set({ selectedSpotId: spotId }),

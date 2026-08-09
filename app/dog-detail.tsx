@@ -193,7 +193,6 @@ const s = StyleSheet.create({
   avatarPlaceholder: {
     backgroundColor: Colors.brand.subtle,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: Colors.border.brand,
   },
   avatarInitial: { fontSize: 28, fontWeight: '700', color: Colors.brand.accent },
   name: { ...Typography.title.m, color: Colors.text.primary },

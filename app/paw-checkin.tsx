@@ -47,6 +47,21 @@ const FEELING_TAGS: FeelingTag[] = [
 ];
 
 // ─── 공개 범위 상세 설명 ─────────────────────────────────────
+/**
+ * 공개 범위 선택 단계 노출 여부 — Phase 1에서는 숨긴다.
+ *
+ * 왜: 발도장을 남기는 순간에 "나만 보기 / 장소 분위기에만 / 산책 친구 찾기"를
+ *     고르게 하는 건, 아직 서비스가 뭘 해주는지 모르는 사용자에게 너무 이른 질문이다.
+ *     선택지가 셋이면 고민이 생기고, 고민은 발도장 완료율을 깎는다.
+ *     Phase 2에서 '자주 보는 강아지 친구' 기능이 붙어 공개 범위가
+ *     실제로 무엇을 바꾸는지 체감된 뒤에 다시 노출한다.
+ * 기본값: 산책 친구 찾기(familiar_layer) — 가장 넓은 범위.
+ *     설정 화면(privacy-settings)에서는 지금도 바꿀 수 있으므로 선택권이 없어지는 건 아니다.
+ * ⚠️ 이 값을 true로 되돌리면 단계·인디케이터·기본값이 함께 살아난다.
+ */
+const SHOW_VISIBILITY_STEP = false;
+const DEFAULT_VISIBILITY: VisibilityLevel = 'familiar_layer';
+
 const VISIBILITY_OPTIONS: {
   level: VisibilityLevel;
   icon: string;
@@ -176,6 +191,12 @@ export default function PawCheckinModal() {
     if (isPresetSpot && pawFlow.step === 1) {
       setPawStep(2);
     }
+    // 공개 범위 단계를 숨긴 동안에는 기본값을 강제한다.
+    //   스토어 초기값만 바꾸면, 이전 버전에서 'spot_only'를 쓰던 기기의
+    //   lastUsedVisibility가 그대로 남아 계속 그 값으로 제출된다.
+    if (!SHOW_VISIBILITY_STEP && pawFlow.visibility !== DEFAULT_VISIBILITY) {
+      setPawVisibility(DEFAULT_VISIBILITY);
+    }
     // 진입 자체가 발도장 시작 액션
     track(EVENT.pawmark_start_clicked, {
       screen_name: 'paw_checkin',
@@ -190,14 +211,18 @@ export default function PawCheckinModal() {
     router.back();
   }, [resetPawFlow, router]);
 
-  const handleNext = useCallback(() => setPawStep(step + 1), [step, setPawStep]);
+  // 공개 범위 단계를 숨기면 2 → 4로 건너뛴다(스텝 번호는 유지 — 화면 조건이 step에 묶여 있다)
+  const handleNext = useCallback(
+    () => setPawStep(!SHOW_VISIBILITY_STEP && step === 2 ? 4 : step + 1),
+    [step, setPawStep],
+  );
   const handleBack = useCallback(() => {
     // 미리 선택된 장소로 진입 → step 2 에서 뒤로가기는 모달 닫음
     // (장소 자체를 바꾸려면 상세 페이지로 돌아가서 다시 진입)
     if (step === 1 || (isPresetSpot && step === 2)) {
       handleClose();
     } else {
-      setPawStep(step - 1);
+      setPawStep(!SHOW_VISIBILITY_STEP && step === 4 ? 2 : step - 1);
     }
   }, [step, setPawStep, handleClose, isPresetSpot]);
 
@@ -477,9 +502,9 @@ export default function PawCheckinModal() {
 
   // 단계 레이블 — 진입 경로에 따라 다름
   // preset (spot 상세 진입): 장소 선택 단계 생략 → 3단계 인디케이터
-  const STEP_LABELS = isPresetSpot
-    ? ['느낌', '공개 범위', '완료']
-    : ['장소', '느낌', '공개 범위', '완료'];
+  const STEP_LABELS = SHOW_VISIBILITY_STEP
+    ? (isPresetSpot ? ['느낌', '공개 범위', '완료'] : ['장소', '느낌', '공개 범위', '완료'])
+    : (isPresetSpot ? ['느낌', '완료']             : ['장소', '느낌', '완료']);
   const totalSteps  = STEP_LABELS.length;
   // 내부 step(1~4) → 인디케이터 표시용 인덱스(1~totalSteps) 변환
   const indicatorStep = isPresetSpot ? Math.max(1, step - 1) : step;
@@ -676,8 +701,8 @@ export default function PawCheckinModal() {
           </View>
         )}
 
-        {/* ── STEP 3: 공개 범위 ── */}
-        {step === 3 && (
+        {/* ── STEP 3: 공개 범위 — Phase 1에서는 숨김(SHOW_VISIBILITY_STEP) ── */}
+        {SHOW_VISIBILITY_STEP && step === 3 && (
           <View style={s.stepContainer}>
             <View style={s.stepTitleBlock}>
               <Text style={s.stepTitle}>이 발도장, 누구에게 보여줄까요?</Text>
