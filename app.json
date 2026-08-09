@@ -93,7 +93,9 @@
         "expo-build-properties",
         {
           "android": {
-            "extraMavenRepos": ["https://devrepo.kakao.com/nexus/content/groups/public/"]
+            "extraMavenRepos": [
+              "https://devrepo.kakao.com/nexus/content/groups/public/"
+            ]
           }
         }
       ]
@@ -111,6 +113,12 @@
         "projectId": "d51c4ee9-4c9d-4933-bec4-0588a9c8ee43"
       }
     },
-    "owner": "seungil-choi"
+    "owner": "seungil-choi",
+    "updates": {
+      "url": "https://u.expo.dev/d51c4ee9-4c9d-4933-bec4-0588a9c8ee43"
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    }
   }
 }

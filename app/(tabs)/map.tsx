@@ -876,23 +876,10 @@ export default function ExploreScreen() {
             }}
           />
 
-          {/* 내 위치 · 새로고침 — 지도가 보이는 상태(min/peek)에서만 노출.
-              패널이 half/full로 올라오면 목록 위에 떠서 겹치므로 숨긴다.
-              새로고침이 위, 현위치가 아래 — 현위치가 더 자주 쓰여 엄지에 가깝게 둔다. */}
+          {/* 현위치 · 새로고침 — 지도가 보이는 상태(min/peek)에서만 노출.
+              패널이 half/full로 올라오면 목록 위에 떠서 겹치므로 숨긴다. */}
           {(snapState === 'min' || snapState === 'peek') && (
             <View style={s.myLocFloating} pointerEvents="box-none">
-              <TouchableOpacity
-                style={[s.myLocBtn, Shadow.m]}
-                onPress={handleRefreshRegion}
-                activeOpacity={0.8}
-                accessibilityLabel="이 지역 다시 불러오기"
-                accessibilityRole="button"
-                disabled={isRefreshingRegion}
-              >
-                {isRefreshingRegion
-                  ? <ActivityIndicator size="small" color={Colors.text.primary} />
-                  : <Icon name="refresh" size={20} color={Colors.text.primary} />}
-              </TouchableOpacity>
               <TouchableOpacity
                 style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
                 onPress={handleMyLocation}
@@ -906,6 +893,18 @@ export default function ExploreScreen() {
                   size={20}
                   color={isTracking ? Colors.brand.onPrimary : Colors.text.primary}
                 />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.myLocBtn, Shadow.m]}
+                onPress={handleRefreshRegion}
+                activeOpacity={0.8}
+                accessibilityLabel="이 지역 다시 불러오기"
+                accessibilityRole="button"
+                disabled={isRefreshingRegion}
+              >
+                {isRefreshingRegion
+                  ? <ActivityIndicator size="small" color={Colors.text.primary} />
+                  : <Icon name="refresh" size={20} color={Colors.text.primary} />}
               </TouchableOpacity>
             </View>
           )}
