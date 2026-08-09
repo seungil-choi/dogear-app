@@ -3,7 +3,15 @@
 // ─────────────────────────────────────────
 export type DogSize = 'small' | 'medium' | 'large';
 export type DogAgeGroup = 'puppy' | 'adult' | 'senior';
-export type SpotCategory = 'park' | 'trail' | 'riverside' | 'rest_spot' | 'pet_cafe' | 'beach';
+/**
+ * 장소 유형. DB의 spot_category enum과 값이 정확히 일치해야 한다.
+ *  - 산책지: park · trail · riverside · rest_spot · beach
+ *  - 시설  : pet_cafe · vet · pet_grooming · pet_boarding
+ * 구분이 필요한 곳은 constants/spotCategories의 isFacilityCategory를 쓴다.
+ */
+export type SpotCategory =
+  | 'park' | 'trail' | 'riverside' | 'rest_spot' | 'beach'
+  | 'pet_cafe' | 'vet' | 'pet_grooming' | 'pet_boarding';
 export type SpotStatus = 'active' | 'hidden' | 'archived';
 export type VisibilityLevel = 'private' | 'spot_only' | 'familiar_layer';
 export type RegularStatus = 'none' | 'candidate' | 'regular';
@@ -135,6 +143,8 @@ export interface PrivacySetting {
 export interface HomeSpotCardViewModel {
   spot_id: string;
   name: string;
+  /** 원본 유형 — 추천 대상 판정(isRecommendableCategory)·지도 핀에 쓴다 */
+  category: SpotCategory;
   category_label: string;
   /** 공원구분 원본 텍스트 — 커버 일러스트 매핑 키 */
   subcategory?: string | null;

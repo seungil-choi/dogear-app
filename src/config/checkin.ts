@@ -21,7 +21,11 @@ const CATEGORY_RADIUS_M: Partial<Record<SpotCategory, number>> = {
   riverside: 200,  // 강변/하천: 한강공원 등 매우 김
   beach:     150,  // 해변: 면적 큼
   rest_spot:  20,  // 쉼터: 작음
-  pet_cafe:   20,  // 카페: 점포 단위
+  // 시설은 전부 점포 단위 — 건물 하나다. 넓게 잡으면 옆 가게에서도 찍힌다.
+  pet_cafe:     20,
+  vet:          20,
+  pet_grooming: 20,
+  pet_boarding: 20,
 };
 
 export const PAWMARK_PROXIMITY = {

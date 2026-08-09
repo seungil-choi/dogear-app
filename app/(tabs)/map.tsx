@@ -22,6 +22,7 @@ import { ListSpotCard } from '../../src/components/spot/SpotCard';
 import { Icon } from '../../src/components/common/Icon';
 import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/components/map/KakaoMap';
 import { distanceText, categoryLabel as catLabel } from '../../src/utils/labels';
+import { pinKindFor } from '../../src/constants/spotCategories';
 import type { SpotCategory, Spot } from '../../src/types';
 import { notify, confirm } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
@@ -417,6 +418,7 @@ export default function ExploreScreen() {
     return {
       spot_id: sp.spot_id,
       name: sp.name,
+      category: sp.category,
       category_label: catLabel[sp.category],
       // subcategory 누락 시 카드가 기본 공원 일러스트로 떨어져 상세 화면과 썸네일이 달라진다
       subcategory: sp.subcategory,
@@ -544,6 +546,8 @@ export default function ExploreScreen() {
           longitude: spot.longitude,
           label: card.name,
           variant: card.is_regular ? 'regular' : (card.has_visited ? 'visited' : 'default'),
+          // 색은 관계, 글리프는 유형. 시설은 지도에서 종류가 먼저 보여야 한다.
+          kind: pinKindFor(spot.category),
         } as KakaoMarker;
       })
       .filter(Boolean) as KakaoMarker[];

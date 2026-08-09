@@ -45,6 +45,32 @@ describe('parkIllustration — 실 DB 조합 전수', () => {
   });
 });
 
+describe('parkIllustration — 시설 유형', () => {
+  // 카드는 category_label(한글)을, 다른 호출부는 category(영문)를 넘긴다.
+  // 어느 쪽이 와도 같은 시설 일러스트가 나와야 한다.
+  const FACILITIES: Array<[string, string]> = [
+    ['vet', '동물병원'],
+    ['pet_grooming', '애견 미용'],
+    ['pet_boarding', '애견 호텔·유치원'],
+  ];
+
+  it.each(FACILITIES)('%s / %s 는 영문·한글 키가 같은 일러스트를 반환한다', (en, ko) => {
+    expect(parkIllustration(null, en)).toBe(parkIllustration(null, ko));
+  });
+
+  it('시설 일러스트는 공원 기본 일러스트와 다르다 — 유형을 오인하면 안 된다', () => {
+    const park = parkIllustration(null, 'park');
+    for (const [en] of FACILITIES) {
+      expect(parkIllustration(null, en)).not.toBe(park);
+    }
+  });
+
+  it('시설끼리도 서로 다르다', () => {
+    const seen = FACILITIES.map(([en]) => parkIllustration(null, en));
+    expect(new Set(seen).size).toBe(FACILITIES.length);
+  });
+});
+
 describe('parkIllustration — 폴백 보장', () => {
   it('공원구분이 매칭되면 그 일러스트를 쓴다', () => {
     expect(parkIllustration('어린이공원', 'park'))

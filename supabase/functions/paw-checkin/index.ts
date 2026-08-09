@@ -28,7 +28,11 @@ const CATEGORY_RADIUS_M: Record<string, number> = {
   riverside: 200,
   beach:     150,
   rest_spot:  20,
-  pet_cafe:   20,
+  // 시설은 전부 점포 단위 — 건물 하나다.
+  pet_cafe:     20,
+  vet:          20,
+  pet_grooming: 20,
+  pet_boarding: 20,
 };
 const DEFAULT_RADIUS_M = 20;
 const MIN_ACCURACY_M = 100;

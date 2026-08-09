@@ -38,8 +38,11 @@ export const categoryLabel: Record<SpotCategory, string> = {
   trail: '산책로',
   riverside: '하천/강변',
   rest_spot: '쉼터',
-  pet_cafe: '애견 카페',
   beach: '해변',
+  pet_cafe: '애견 카페',
+  vet: '동물병원',
+  pet_grooming: '애견 미용',
+  pet_boarding: '애견 호텔·유치원',
 };
 
 // ─── 공개 범위 라벨 (SSOT) ─────────────────────────────

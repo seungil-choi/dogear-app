@@ -17,7 +17,18 @@ import { buildKakaoMapHtml } from './kakaoMapHtml';
 
 import { KAKAO_JS_KEY } from '@/config/env';
 
+/** 이 장소와 나의 관계 — 핀 색을 정한다 */
 export type KakaoPinVariant = 'default' | 'visited' | 'regular';
+
+/**
+ * 장소가 무엇인가 — 핀 안 글리프를 정한다.
+ *
+ * 산책지(walk)는 관계를 말한다(안 가봄·발도장·단골). 어디든 걸어가면 되는 곳이라
+ * 종류보다 내 이력이 중요하다.
+ * 시설은 반대다. 지도에서 "저게 병원인가 미용실인가"가 먼저 보여야 하므로
+ * 관계와 무관하게 유형 글리프를 고정한다. 관계는 색으로만 남는다.
+ */
+export type KakaoPinKind = 'walk' | 'vet' | 'grooming' | 'boarding';
 
 export interface KakaoMarker {
   id: string;
@@ -25,6 +36,8 @@ export interface KakaoMarker {
   longitude: number;
   label: string;
   variant: KakaoPinVariant;
+  /** 생략하면 'walk' */
+  kind?: KakaoPinKind;
 }
 
 export interface KakaoMapProps {

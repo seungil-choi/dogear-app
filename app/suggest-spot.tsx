@@ -42,8 +42,11 @@ const CATEGORY_OPTIONS: { key: SpotCategory; label: string }[] = [
   { key: 'trail',     label: '산책로'     },
   { key: 'riverside', label: '강변·하천'  },
   { key: 'rest_spot', label: '쉼터·광장'  },
-  { key: 'pet_cafe',  label: '애견 카페'  },
   { key: 'beach',     label: '해변'       },
+  { key: 'pet_cafe',  label: '애견 카페'  },
+  { key: 'vet',          label: '동물병원'   },
+  { key: 'pet_grooming', label: '애견 미용'  },
+  { key: 'pet_boarding', label: '애견 호텔·유치원' },
 ];
 
 // ─── 추가 태그 옵션 ──────────────────────────────────────────

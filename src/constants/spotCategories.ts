@@ -1,0 +1,50 @@
+/**
+ * 장소 유형의 두 갈래 — 산책지 / 시설
+ *
+ * 발도장(체크인)은 양쪽 모두에서 찍는다. 갈리는 건 '추천해도 되는가'다.
+ *   산책지: 가까우면 좋은 곳 → 오늘의 추천에 올린다.
+ *   시설  : 필요할 때 찾는 곳 → 가깝다는 이유로 들이밀 이유가 없다.
+ *           "오늘의 추천: OO동물병원"은 추천이 아니라 소음이다.
+ *
+ * 애견 카페는 시설이지만 추천 대상이다 — 볼일이 아니라 목적지라서.
+ * 그래서 '시설이냐'와 '추천 대상이냐'를 하나로 묶지 않고 따로 둔다.
+ */
+import type { SpotCategory } from '../types';
+
+/** 야외 산책지 — 상시 개방, 영업시간·전화번호 개념이 없다 */
+export const WALK_CATEGORIES: readonly SpotCategory[] = [
+  'park', 'trail', 'riverside', 'rest_spot', 'beach',
+];
+
+/** 시설 — 영업하는 곳. 폐업·영업시간 같은 신선도 문제가 따라붙는다 */
+export const FACILITY_CATEGORIES: readonly SpotCategory[] = [
+  'pet_cafe', 'vet', 'pet_grooming', 'pet_boarding',
+];
+
+/**
+ * '오늘의 추천'에서 뺄 유형.
+ * 목적지가 아니라 볼일인 곳들 — 거리순으로 들이밀면 방해만 된다.
+ */
+const NOT_RECOMMENDABLE: readonly SpotCategory[] = ['vet', 'pet_grooming', 'pet_boarding'];
+
+export function isFacilityCategory(category: SpotCategory): boolean {
+  return FACILITY_CATEGORIES.includes(category);
+}
+
+/**
+ * 지도 핀 글리프 키. 산책지는 undefined를 돌려 관계 글리프(점·발도장·별)를 쓰게 둔다.
+ * 애견 카페는 아직 전용 글리프가 없어 산책지와 같이 취급한다 — 없는 아이콘을
+ * 억지로 붙이느니 관계 표시를 남기는 편이 낫다.
+ */
+export function pinKindFor(category: SpotCategory): 'vet' | 'grooming' | 'boarding' | undefined {
+  switch (category) {
+    case 'vet':          return 'vet';
+    case 'pet_grooming': return 'grooming';
+    case 'pet_boarding': return 'boarding';
+    default:             return undefined;
+  }
+}
+
+export function isRecommendableCategory(category: SpotCategory): boolean {
+  return !NOT_RECOMMENDABLE.includes(category);
+}

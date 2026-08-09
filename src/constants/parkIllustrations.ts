@@ -13,6 +13,8 @@
 import type { ImageSourcePropType } from 'react-native';
 
 const PARK_DEFAULT: ImageSourcePropType = require('../../assets/illustrations/park-default.png');
+/** 시설(병원·미용·호텔 등) 매핑 실패 시 폴백. 공원 일러스트로 떨어뜨리면 유형을 오인한다. */
+const FACILITY_DEFAULT: ImageSourcePropType = require('../../assets/illustrations/facility-default.png');
 
 // 원본 공원구분 텍스트 → 일러스트
 const BY_SUBCATEGORY: Record<string, ImageSourcePropType> = {
@@ -49,8 +51,22 @@ const BY_CATEGORY: Record<string, ImageSourcePropType> = {
   '산책로':    require('../../assets/illustrations/park-street.png'),
   riverside:  require('../../assets/illustrations/park-waterside.png'),
   '강변':      require('../../assets/illustrations/park-waterside.png'),
+  '하천/강변': require('../../assets/illustrations/park-waterside.png'),
   rest_spot:  require('../../assets/illustrations/park-small.png'),
   '쉼터':      require('../../assets/illustrations/park-small.png'),
+  beach:      require('../../assets/illustrations/park-waterside.png'),
+  '해변':      require('../../assets/illustrations/park-waterside.png'),
+
+  // 시설 — 호출부가 영문 키를 줄 때도 한글 라벨을 줄 때도 있어 양쪽을 둔다.
+  //   (CategoryThumb은 category_label을, 다른 곳은 category를 넘긴다)
+  vet:              require('../../assets/illustrations/vet.png'),
+  '동물병원':        require('../../assets/illustrations/vet.png'),
+  pet_grooming:     require('../../assets/illustrations/pet-grooming.png'),
+  '애견 미용':       require('../../assets/illustrations/pet-grooming.png'),
+  pet_boarding:     require('../../assets/illustrations/pet-boarding.png'),
+  '애견 호텔·유치원': require('../../assets/illustrations/pet-boarding.png'),
+  pet_cafe:         FACILITY_DEFAULT,
+  '애견 카페':       FACILITY_DEFAULT,
 };
 
 /**

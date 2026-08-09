@@ -103,6 +103,7 @@ export function buildHomeSpotCard(
   return {
     spot_id: spot.spot_id,
     name: spot.name,
+    category: spot.category,
     category_label: categoryLabel[spot.category],
     subcategory: spot.subcategory,
     distance_text: distanceMeters != null

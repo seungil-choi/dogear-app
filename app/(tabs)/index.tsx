@@ -25,6 +25,7 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { haversineDistance } from '../../src/utils/geo';
 import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotCard';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
+import { isRecommendableCategory } from '../../src/constants/spotCategories';
 import { Icon } from '../../src/components/common/Icon';
 import { sizeLabel, ageGroupLabel, walkingStyleLabels, temperamentLabels, relativeTime } from '../../src/utils/labels';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
@@ -154,7 +155,11 @@ export default function HomeScreen() {
   //   2) 발도장이 없고 currentLocation이 있으면 → 현 위치 기준 2km 이내 미방문 우선
   //   3) 둘 다 없으면 → cards 배열 앞쪽 3개 (기본 홈 베이스)
   const featuredCards = useMemo(() => {
-    if (cards.length === 0) return [];
+    // 동물병원·미용·호텔은 추천에서 뺀다. 가까워서 좋은 곳이 아니라
+    // 필요할 때 찾는 곳이라, 거리순으로 들이밀면 방해만 된다.
+    // (최근 간 곳·자주 가는 곳에는 그대로 나온다 — 그건 기록이지 추천이 아니다)
+    const pool = cards.filter(c => isRecommendableCategory(c.category));
+    if (pool.length === 0) return [];
 
     let center: { lat: number; lng: number } | null = null;
     if (dog) {
@@ -170,10 +175,10 @@ export default function HomeScreen() {
     if (!center && currentLocation) {
       center = { lat: currentLocation.latitude, lng: currentLocation.longitude };
     }
-    if (!center) return cards.slice(0, 3);
+    if (!center) return pool.slice(0, 3);
 
     // 2km 이내 후보 추출 + 거리 정렬
-    const within = cards
+    const within = pool
       .map(c => {
         const sp = spotsById.get(c.spot_id);
         if (!sp) return null;
@@ -181,14 +186,14 @@ export default function HomeScreen() {
         if (d > 2000 || d < 30) return null;
         return { card: c, dist: d };
       })
-      .filter((x): x is { card: typeof cards[0]; dist: number } => x !== null)
+      .filter((x): x is { card: typeof pool[0]; dist: number } => x !== null)
       .sort((a, b) => a.dist - b.dist);
 
     // 미방문 우선 + 방문한 곳 차순 → 최대 3개
     const unvisited = within.filter(({ card }) => !card.has_visited);
     const visited   = within.filter(({ card }) =>  card.has_visited);
     const merged = [...unvisited, ...visited].slice(0, 3).map(x => x.card);
-    return merged.length > 0 ? merged : cards.slice(0, 3);
+    return merged.length > 0 ? merged : pool.slice(0, 3);
   }, [cards, dog, visitSummaries, spots, currentLocation]);
 
   const isFeaturedSaved = useCallback((spotId: string) =>
