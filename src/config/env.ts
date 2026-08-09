@@ -25,15 +25,16 @@ export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 //    값이 나온다(실측 확인). 그러므로 여기 있는 값은 전부 "공개된 것"으로 취급할 것.
 //    서버에서만 써야 하는 비밀은 Supabase Functions Secrets(Deno.env)에 둔다.
 //
-//    NAVER_CLIENT_SECRET이 여기 있는 건 실수가 아니라 @react-native-seoul/naver-login이
-//    NaverLogin.initialize()에 consumerSecret을 요구하기 때문이다(네이버 모바일 SDK 설계).
-//    따라서 추출은 막을 수 없고, 방어는 네이버 개발자센터 쪽에서 한다:
-//      · 안드로이드 패키지명 + 서명 키 해시 등록으로 다른 앱에서의 사용 차단
-//      · 이 시크릿을 서버 측 네이버 API 호출에 재사용하지 말 것
-//    (naver-auth 엣지 함수는 이 값을 쓰지 않고 액세스 토큰만 받아 검증한다)
+//    ⚠️ NAVER_CLIENT_SECRET은 **일부러 여기서 뺐다**(2026-08-09).
+//    @react-native-seoul/naver-login이 initialize()에 consumerSecret을 요구해서
+//    한때 여기서 읽었는데, 그러면 네이버 버튼을 숨겨둬도 값이 번들에 박힌다.
+//    실측: expo export 후 Hermes 문자열 테이블에서 1건 발견(죽은코드 제거로도 안 빠짐).
+//    쓰지 않는 기능 때문에 시크릿을 배포본에 실을 이유가 없어 참조를 없앴다.
+//    네이버를 재개할 때 되살릴 것 — 절차는 app/(auth)/login.tsx의 주석에 있다.
+//    재개해도 추출 자체는 막을 수 없으므로, 방어는 네이버 개발자센터에
+//    안드로이드 패키지명 + 서명 키 해시를 등록하는 것뿐이다.
 export const KAKAO_JS_KEY            = process.env.EXPO_PUBLIC_KAKAO_JS_KEY ?? '';
 export const SUPABASE_URL            = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 export const SUPABASE_ANON_KEY       = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 export const GOOGLE_WEB_CLIENT_ID    = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? '';
 export const NAVER_CLIENT_ID         = process.env.EXPO_PUBLIC_NAVER_CLIENT_ID ?? '';
-export const NAVER_CLIENT_SECRET     = process.env.EXPO_PUBLIC_NAVER_CLIENT_SECRET ?? '';

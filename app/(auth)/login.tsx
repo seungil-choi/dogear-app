@@ -32,7 +32,8 @@ import { initializeKakaoSDK } from '@react-native-kakao/core';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import {
-  AppleLogo, GoogleLogo, KakaoLogo, NaverLogo,
+  // NaverLogo는 재개 시 다시 import (컴포넌트는 SnsLogos.tsx에 그대로 남겨둠)
+  AppleLogo, GoogleLogo, KakaoLogo,
 } from '../../src/components/common/SnsLogos';
 import { supabase } from '../../src/lib/supabase';
 
@@ -227,49 +228,27 @@ export default function LoginScreen() {
     }
   };
 
-  // 네이버 로그인 — SDK 미설치 시 안내, DEV_SEED 모드에서는 통과
-  const handleNaverLogin = async () => {
-    if (!IS_REAL_AUTH || Platform.OS === 'web') { proceedAfterAuth(); return; }
-    try {
-      // 네이버 SDK 동적 import — 설치되지 않았으면 catch로 fallback
-      // @ts-ignore — 패키지 미설치 시 ts 오류 회피 (런타임에서만 동적 로드)
-      const NaverLogin: any = await import('@react-native-seoul/naver-login').catch(() => null);
-      if (!NaverLogin) {
-        notify('네이버 로그인은 다음 업데이트에서 지원돼요.', '준비 중');
-        return;
-      }
-      // 4.x API: initialize()로 설정 후 login()은 무인자 호출
-      NaverLogin.default.initialize({
-        appName: 'Dogear',
-        consumerKey: process.env.EXPO_PUBLIC_NAVER_CLIENT_ID ?? '',
-        consumerSecret: process.env.EXPO_PUBLIC_NAVER_CLIENT_SECRET ?? '',
-        serviceUrlSchemeIOS: 'dogear',
-      });
-      const result = await NaverLogin.default.login();
-      if (!result?.isSuccess || !result?.successResponse?.accessToken) {
-        if (result?.failureResponse?.isCancel) return; // 사용자 취소
-        notify('네이버 인증 정보를 확인할 수 없어요.');
-        return;
-      }
-      // Edge Function으로 네이버 토큰 → Supabase 세션 변환
-      const { data, error: fnError } = await supabase.functions.invoke('naver-auth', {
-        body: { naverAccessToken: result.successResponse.accessToken },
-      });
-      if (fnError || !data?.email) {
-        notify('네이버 로그인 처리에 실패했어요. 잠시 후 다시 시도해주세요.');
-        return;
-      }
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: data.email, token: data.otp, type: 'magiclink',
-      });
-      if (verifyError) { notify(verifyError.message); return; }
-      proceedAfterAuth();
-    } catch (e: any) {
-      if (e?.code === 'CANCELLED' || e?.message?.includes('cancelled')) return;
-      console.error('Naver login error:', e);
-      notify('네이버 로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
-    }
-  };
+  /*
+   * 네이버 로그인 — 코드째로 제거함 (2026-08-09). 되살리는 법은 아래에.
+   *
+   * 왜 플래그(`{false && …}`)로 두지 않고 지웠나:
+   *   `@react-native-seoul/naver-login`은 `initialize()`에 consumerSecret을 요구한다.
+   *   그 값을 `process.env.EXPO_PUBLIC_NAVER_CLIENT_SECRET`로 읽는 순간 Metro가
+   *   **빌드 시점에 문자열로 인라인**하므로, 버튼이 숨겨져 있어도 시크릿은 번들에 박힌다.
+   *   실측(2026-08-09): `expo export` 결과 Hermes 번들 문자열 테이블에서 1건 발견.
+   *   미니파이어의 죽은코드 제거로도 안 없어졌다(consumerSecret·NaverLogin·naver-auth
+   *   문자열이 그대로 남아 있었다).
+   *   쓰지도 않는 기능 때문에 시크릿을 배포본에 싣지 않기 위해 참조 자체를 없앤다.
+   *
+   * 되살릴 때:
+   *   1) 이 블록을 git에서 복원         → `git show 0d7d16e:app/(auth)/login.tsx`
+   *   2) `src/config/env.ts`의 NAVER_CLIENT_SECRET export 복원
+   *   3) 아래 SnsBubble 블록 복원
+   *   4) `naver-auth` 엣지 함수 재배포 + **토큰 audience 검증 보강**(SEC-07)
+   *   5) 네이버 개발자센터에 안드로이드 패키지명 + 서명 키 해시 등록
+   *      — 시크릿 추출은 막을 수 없으므로 이게 유일한 방어다
+   *   6) 검수요청
+   */
 
   return (
     <SafeAreaView style={s.safe}>
@@ -323,16 +302,7 @@ export default function LoginScreen() {
                 ariaLabel="구글로 시작하기"
               />
             )}
-            {/* SEC-07: 네이버 로그인 MVP 히든 — naver-auth 브리지의 토큰 audience 미검증 취약점 + 앱 '개발 중' 상태.
-                재개 방법: 아래 false를 true로 + naver-auth 엣지 재배포(현재 410 스텁으로 중화됨) + 네이버 콘솔 검수요청. */}
-            {false && (
-              <SnsBubble
-                onPress={handleNaverLogin}
-                bgColor="#03C75A"
-                logo={<NaverLogo size={22} />}
-                ariaLabel="네이버로 시작하기"
-              />
-            )}
+            {/* 네이버 버튼은 제거됨 — 복원 절차는 위 handleNaverLogin 자리의 주석 참고 */}
             {Platform.OS !== 'android' && (
               <SnsBubble
                 onPress={handleAppleLogin}
