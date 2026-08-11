@@ -196,6 +196,28 @@ export default function SpotDetailScreen() {
   }, [vm, id]);
 
   /**
+   * 외부 지도 앱에서 위치 보기 (길찾기와 다르다).
+   *   길찾기는 `link/to` — 출발지를 묻고 경로를 그린다. 갈 결심이 선 사람이 누른다.
+   *   여기는 `link/map` — 그냥 지도에 이 지점을 찍어 보여준다. 어디쯤인지 보려는 사람이 누른다.
+   */
+  const handleOpenMap = useCallback(async () => {
+    if (!vm) return;
+    track(EVENT.map_viewed, {
+      screen_name: 'spot_detail',
+      place_id: id,
+      place_category: vm.category_label,
+    });
+    const url =
+      `https://map.kakao.com/link/map/${encodeURIComponent(vm.name)},${vm.latitude},${vm.longitude}`;
+    try {
+      await Linking.openURL(url);
+    } catch (e) {
+      console.error('[spot] 지도 열기 실패:', e);
+      notify('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요.', '지도 열기 실패');
+    }
+  }, [vm, id]);
+
+  /**
    * 장소 공유.
    *
    * 예전에는 장소 **이름만** 보냈다("망원한강공원"). 받는 사람은 그게 어디인지 알 수 없다.
@@ -498,37 +520,57 @@ export default function SpotDetailScreen() {
             );
           })()}
 
-          {/* 위치 미니맵 — 보기 전용.
-              예전엔 지도 위에 투명 Touchable을 얹어 탭을 받으려 했는데,
-              안드로이드에서 네이티브 WebView가 터치를 먹어 눌러도 아무 일이 없었다
-              (부모 View의 pointerEvents='none'은 WebView 자식에 확실히 전파되지 않는다).
-              지도는 그림으로 두고, 실제 동작은 WebView와 겹치지 않는 아래 버튼이 받는다. */}
-          <View style={s.locationMap} pointerEvents="none">
-            <KakaoMap
-              initialLatitude={vm.latitude}
-              initialLongitude={vm.longitude}
-              initialLevel={4}
-              markers={[{
-                id: vm.spot_id,
-                latitude: vm.latitude,
-                longitude: vm.longitude,
-                label: vm.name,
-                variant: 'default',
-              }] as KakaoMarker[]}
-              style={{ flex: 1, borderRadius: Radius.card }}
-            />
-          </View>
+          {/* 위치 — 지도와 액션을 한 카드로 묶는다.
+              지도 따로, 버튼 따로 두면 둘이 남남처럼 보인다. 버튼을 카드 안 아래쪽에
+              붙이고 가운데를 세로선으로 갈라, 이 액션들이 '이 지도에 대한 것'임을 형태로 말한다.
 
-          <TouchableOpacity
-            style={s.mapActionBtn}
-            onPress={handleDirections}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel={`${vm.name} 길찾기`}
-          >
-            <Icon name="navigate" size={15} color={Colors.brand.primary} />
-            <Text style={s.mapActionText}>지도 앱으로 길찾기</Text>
-          </TouchableOpacity>
+              ⚠️ 지도는 pointerEvents='none'인 그림이다. 예전에 지도 위에 투명 Touchable을
+              얹었더니 안드로이드 네이티브 WebView가 터치를 먹어 눌러도 아무 일이 없었다
+              (부모의 pointerEvents='none'은 WebView 자식에 확실히 전파되지 않는다).
+              실제 동작은 WebView와 겹치지 않는 아래 액션 행이 받는다. */}
+          <View style={s.mapCard}>
+            <View style={s.mapCanvas} pointerEvents="none">
+              <KakaoMap
+                initialLatitude={vm.latitude}
+                initialLongitude={vm.longitude}
+                initialLevel={4}
+                markers={[{
+                  id: vm.spot_id,
+                  latitude: vm.latitude,
+                  longitude: vm.longitude,
+                  label: vm.name,
+                  variant: 'default',
+                }] as KakaoMarker[]}
+                style={{ flex: 1 }}
+              />
+            </View>
+
+            <View style={s.mapActions}>
+              <TouchableOpacity
+                style={s.mapAction}
+                onPress={handleDirections}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`${vm.name} 길찾기`}
+              >
+                <Icon name="navigate" size={16} color={Colors.text.secondary} />
+                <Text style={s.mapActionText}>빠른 길찾기</Text>
+              </TouchableOpacity>
+
+              <View style={s.mapActionDivider} />
+
+              <TouchableOpacity
+                style={s.mapAction}
+                onPress={handleOpenMap}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={`${vm.name} 지도에서 보기`}
+              >
+                <Icon name="map" size={16} color={Colors.text.secondary} />
+                <Text style={s.mapActionText}>지도에서 보기</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* ── P3: 자주 찾는 강아지 ── */}
@@ -808,29 +850,47 @@ const s = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
   },
-  // 길찾기 버튼 — 미니맵 아래. WebView와 겹치지 않아야 탭이 들어온다.
-  mapActionBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: Spacing[6],
-    height: 44,
-    marginTop: Spacing[8],
-    borderRadius: Radius.round,
-    borderWidth: 1,
-    borderColor: Colors.border.brand,
-    backgroundColor: Colors.brand.subtle,
-  },
-  mapActionText: { ...Typography.label.l, color: Colors.brand.accent, fontWeight: '700' },
-
-  locationMap: {
+  // ── 위치 카드 — 지도 + 액션 한 벌 ──
+  mapCard: {
     width: '100%',
-    height: 180,
     marginTop: Spacing[12],
     borderRadius: Radius.card,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border.default,
+    backgroundColor: Colors.surface.default,
+  },
+  // 지도에도 상단 라운드를 직접 준다. 안드로이드 WebView는 부모의 overflow:hidden으로
+  // 확실히 잘리지 않는 경우가 있어, 카드와 지도 양쪽에 걸어 둔다.
+  mapCanvas: {
+    width: '100%',
+    height: 180,
+    borderTopLeftRadius: Radius.card,
+    borderTopRightRadius: Radius.card,
+    overflow: 'hidden',
     backgroundColor: Colors.bg.tertiary,
   },
+  mapActions: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: Colors.border.default,
+  },
+  mapAction: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing[6],
+    height: 48,
+  },
+  // 구분선은 위아래를 띄운다 — 끝까지 닿으면 카드가 두 조각으로 쪼개져 보인다
+  mapActionDivider: {
+    width: StyleSheet.hairlineWidth,
+    marginVertical: Spacing[12],
+    backgroundColor: Colors.border.default,
+  },
+  mapActionText: { ...Typography.label.l, color: Colors.text.secondary, fontWeight: '600' },
 
   // ── 관계 요약 카드 (아이콘 포함) ───────────────────────────────────
   statsCard: {
