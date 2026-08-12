@@ -10,7 +10,7 @@
 import React, {
   useImperativeHandle, useRef, forwardRef, useCallback, useEffect,
 } from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { Colors } from '@/constants/tokens';
 import { buildKakaoMapHtml } from './kakaoMapHtml';
@@ -158,11 +158,15 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
   }, [props, send]);
 
   if (!KAKAO_JS_KEY) {
+    // 키가 없으면 예전엔 빈 회색 상자만 떴다. 그러면 "지도가 안 나온다"가
+    // 키 누락인지 지도 버그인지 화면만 봐선 알 수 없다(실제로 한참 헤맸다 — OTA가
+    // .env.production의 빈 EXPO_PUBLIC_KAKAO_JS_KEY로 키를 덮어써 지도가 죽었다).
+    // 원인을 화면이 말하게 둔다. 배포 전 QA에서 바로 걸린다.
     return (
       <View style={[styles.fallback, props.style]}>
-        {/* @ts-ignore */}
         <View style={styles.fallbackInner}>
-          {/* 키 미설정 안내 */}
+          <Text style={styles.fallbackText}>지도 키가 설정되지 않았어요</Text>
+          <Text style={styles.fallbackSub}>EXPO_PUBLIC_KAKAO_JS_KEY 확인 필요</Text>
         </View>
       </View>
     );
@@ -203,5 +207,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg.tertiary },
   webview: { flex: 1, backgroundColor: 'transparent' },
   fallback: { flex: 1, backgroundColor: Colors.bg.tertiary, alignItems: 'center', justifyContent: 'center' },
-  fallbackInner: { padding: 20 },
+  fallbackInner: { padding: 20, alignItems: 'center', gap: 4 },
+  fallbackText: { color: Colors.text.secondary, fontSize: 13, fontWeight: '600', textAlign: 'center' },
+  fallbackSub: { color: Colors.text.tertiary, fontSize: 11, textAlign: 'center' },
 });
