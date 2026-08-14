@@ -47,30 +47,32 @@ Deno.serve(async (req: Request) => {
 
     const radius = Math.min(radiusMeters, MAX_RADIUS_M);
 
-    // SEC-03: get_spots_nearby는 service_role 전용. 산책지/시설 쿼터는 RPC 안에 있다.
-    const { data: spots, error: spotsError } = await svc.rpc('get_spots_nearby', {
-      p_lat: latitude, p_lng: longitude, p_radius_m: radius, p_limit: MAX_RESULTS,
-    });
+    // 두 조회는 서로 의존하지 않으므로 병렬로 던진다. 예전엔 순차 await라
+    // 매 호출 왕복이 2번 직렬로 쌓였다(콜드에선 이 차이가 더 크게 보인다).
+    //   ① get_spots_nearby: 주변 활성 장소 (service_role 전용, 쿼터는 RPC 안)
+    //   ② 내가 제안한 '검토 대기(hidden)' 장소 — active만 보는 ①에는 안 잡힌다.
+    //      제안 직후 50m 움직여 목록이 서버본으로 교체되면 사라지던 것 보완.
+    //      사용자 JWT로 조회하므로 남의 hidden은 RLS가 막는다.
+    const [spotsRes, mineRes] = await Promise.all([
+      svc.rpc('get_spots_nearby', {
+        p_lat: latitude, p_lng: longitude, p_radius_m: radius, p_limit: MAX_RESULTS,
+      }),
+      supabase
+        .from('spots')
+        .select('spot_id, name, category, subcategory, latitude, longitude, address_text, neighborhood, cover_image_url, description, tags')
+        .eq('status', 'hidden')
+        .eq('created_source', 'user_suggested'),
+    ]);
 
+    const { data: spots, error: spotsError } = spotsRes;
     if (spotsError) {
       console.error('spots_nearby rpc error:', spotsError);
       return Response.json({ error: 'Failed to fetch spots' }, { status: 500, headers: corsHeaders });
     }
 
-    // 여기서 조기 반환하면 안 된다. 주변에 활성 장소가 없어도
-    // 내가 제안한 검토 대기 장소는 보여줘야 한다(아래 병합 뒤에 판단).
+    // 조기 반환 금지: 주변에 활성 장소가 없어도 내 검토대기 장소는 병합 후 판단한다.
     const nearbySpots: any[] = spots ?? [];
-
-    // 내가 제안한 '검토 대기(hidden)' 장소를 합친다.
-    //   get_spots_nearby는 status='active'만 본다. 그래서 제안 직후 로컬에 잠깐 보이던 장소가
-    //   50m만 움직여 목록이 서버 데이터로 교체되면 지도·목록에서 사라졌다.
-    //   상세는 RLS(spots_read_own_provisional)가 열어주는데 목록에만 없어
-    //   "내가 올린 게 어디 갔지"가 됐다. 사용자 JWT로 조회하므로 남의 hidden은 안 온다.
-    const { data: mine } = await supabase
-      .from('spots')
-      .select('spot_id, name, category, subcategory, latitude, longitude, address_text, neighborhood, cover_image_url, description, tags')
-      .eq('status', 'hidden')
-      .eq('created_source', 'user_suggested');
+    const mine = mineRes.data;
 
     const R = 6371000, toRad = (d: number) => d * Math.PI / 180;
     const distanceM = (aLat: number, aLng: number, bLat: number, bLng: number) => {
