@@ -170,30 +170,51 @@ export default function SpotDetailScreen() {
   }, [id, getHomeCards, setPawSpot, router]);
 
   /**
-   * 외부 지도 앱으로 길찾기.
+   * 선택한 지도 서비스로 길찾기.
    *
-   * 예전엔 주소 문자열로 map.naver.com/v5/search/… 를 열었다. 그 경로는 네이버가
-   * 접은 URL이고, 주소가 비어 있으면 아무 일도 하지 않고 조용히 끝났다.
-   * 좌표는 spots에 not null이라 항상 있다 — 카카오맵 link API로 좌표를 넘긴다.
-   * (앱이 깔려 있으면 앱으로, 없으면 웹으로 열린다)
-   * 열지 못하면 알린다. 눌렀는데 아무 반응 없는 게 제일 나쁘다.
+   * 카카오: https 링크 하나로 앱·웹 모두 처리된다(앱 있으면 앱, 없으면 모바일 웹).
+   * 네이버: 공식 스킴이 nmap://(앱 전용)이다. 출발지를 생략하면 현위치를 쓴다.
+   *   appname은 필수 파라미터. 앱이 없으면 openURL이 실패하므로 그때만 웹으로 떨어뜨린다.
+   *   (웹 폴백은 좌표 길찾기 URL이 불안정해 장소 검색으로 연다 — 거기서 도착지로 길찾기)
+   * 어느 쪽이든 못 열면 알린다. 눌렀는데 아무 반응 없는 게 제일 나쁘다.
    */
-  const handleDirections = useCallback(async () => {
+  const openDirections = useCallback(async (provider: 'naver' | 'kakao') => {
     if (!vm) return;
     track(EVENT.navigation_clicked, {
       screen_name: 'spot_detail',
       place_id: id,
       place_category: vm.category_label,
+      provider,
     });
-    const url =
-      `https://map.kakao.com/link/to/${encodeURIComponent(vm.name)},${vm.latitude},${vm.longitude}`;
+    const name = encodeURIComponent(vm.name);
     try {
-      await Linking.openURL(url);
+      if (provider === 'kakao') {
+        await Linking.openURL(`https://map.kakao.com/link/to/${name},${vm.latitude},${vm.longitude}`);
+        return;
+      }
+      // 네이버 — 앱 스킴 우선, 실패 시에만 웹
+      const app = `nmap://route/walk?dlat=${vm.latitude}&dlng=${vm.longitude}&dname=${name}&appname=com.factorial9.dogear`;
+      try {
+        await Linking.openURL(app);
+      } catch {
+        await Linking.openURL(`https://map.naver.com/p/search/${name}`);
+      }
     } catch (e) {
       console.error('[spot] 길찾기 실행 실패:', e);
       notify('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요.', '길찾기 실패');
     }
   }, [vm, id]);
+
+  /** 지도 서비스 선택 시트 → 길찾기 */
+  const handleDirections = useCallback(async () => {
+    if (!vm) return;
+    const idx = await actionSheet('길찾기', [
+      { label: '네이버 지도' },
+      { label: '카카오맵' },
+    ]);
+    if (idx === 0) openDirections('naver');
+    else if (idx === 1) openDirections('kakao');
+  }, [vm, openDirections]);
 
   /**
    * 외부 지도 앱에서 위치 보기 (길찾기와 다르다).
@@ -290,17 +311,16 @@ export default function SpotDetailScreen() {
   //   (예전엔 OS Alert을 썼는데 안드로이드는 버튼 3개까지라 4번째인 '취소'가 잘려나가
   //    한번 열면 닫을 수 없었다)
   const handleMore = useCallback(async () => {
+    // 길찾기는 지도 카드의 '빠른 길찾기'로 일원화 — 여기선 뺀다(중복 진입점 제거)
     const idx = await actionSheet(vm?.name ?? '장소', [
       { label: '공유하기' },
-      { label: '길찾기 (네이버 지도)' },
       { label: '정보 수정 제안' },
       { label: '이 장소 신고하기', destructive: true },
     ]);
     if (idx === 0) handleShare();
-    else if (idx === 1) handleDirections();
-    else if (idx === 2) router.push({ pathname: '/info-correction', params: { spot_id: id } });
-    else if (idx === 3) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
-  }, [vm, id, router, handleDirections, handleShare]);
+    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id } });
+    else if (idx === 2) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
+  }, [vm, id, router, handleShare]);
 
   if (!vm) {
     return (
