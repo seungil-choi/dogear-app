@@ -17,6 +17,12 @@ Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
+  // 웜업 핑 — pg_cron이 5분마다 x-warmup 헤더로 부른다. 여기서 바로 끝내
+  // 인스턴스만 데운다(DB 조회 없음). 콜드스타트 회피용.
+  if (req.headers.get('x-warmup')) {
+    return Response.json({ ok: true, warm: true }, { headers: corsHeaders });
+  }
+
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
