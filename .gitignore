@@ -49,3 +49,6 @@ yarn-error.*
 .env.local
 .env*.local
 .vercel
+
+# Supabase CLI 스크래치 (링크된 프로젝트 정보·CLI 버전 캐시)
+supabase/.temp/
