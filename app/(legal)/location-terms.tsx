@@ -75,7 +75,7 @@ export default function LocationTermsScreen() {
   return (
     <LegalScreen
       title="위치기반서비스 이용약관"
-      effectiveDate="2026.07.04"
+      effectiveDate="2026.09.22"
       sections={SECTIONS}
     />
   );
