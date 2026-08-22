@@ -13,9 +13,14 @@ import { registerRefreshHandler } from '@/utils/refreshBus';
 import { authoredDescription } from '@/utils/spotDescription';
 import type { SpotCardViewModel, Spot } from '@/types';
 
-// 위치가 없거나 주변에 스팟이 없을 때(비수도권 등) 홈이 비지 않도록 쓰는 추천 폴백 중심.
-// 서비스 커버리지 중심(서울 시청) 기준 넉넉한 반경으로 대표 스팟을 채운다.
-const FALLBACK_CENTER = { latitude: 37.5665, longitude: 126.9780 };
+// 폴백 — 홈이 통째로 비지 않게 채우는 용도.
+//
+// ⚠️ 예전에는 위치가 있든 없든 **서울 시청 반경 50km**로 폴백했다.
+//    장소 데이터가 수도권뿐이던 시절의 값인데, 지금은 17개 시·도 전체에 깔려 있다
+//    (경기 8,366 / 서울 4,551 / 부산 1,195 … 실측 2026-08-23).
+//    그 상태로 두면 부산 사용자가 "주변 산책 장소"에서 서울 공원을 보게 된다.
+//    → 위치가 있으면 **내 위치를 중심으로 반경만 넓힌다.** 서울은 위치를 아예 모를 때만.
+const NO_LOCATION_CENTER = { latitude: 37.5665, longitude: 126.9780 };
 const FALLBACK_RADIUS_M = 50000;
 const FALLBACK_LIMIT = 30;
 
@@ -75,13 +80,14 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         isTruncated = data?.truncated === true;
       }
 
-      // 2) 주변 결과가 없거나(비수도권·권한 거부 등) 위치가 없으면 → 추천 스팟 폴백
-      //    홈이 절대 비지 않도록 커버리지 중심에서 대표 스팟을 채운다.
+      // 2) 주변에 아무것도 없으면 반경을 넓혀 한 번 더 — 홈이 통째로 비지 않도록.
+      //    중심은 **내 위치**다. 위치를 모를 때만 커버리지 중심(서울)을 쓴다.
       if (rawList.length === 0) {
+        const center = currentLocation ?? NO_LOCATION_CENTER;
         const { data: fb, error: fbErr } = await supabase.functions.invoke('spots-nearby', {
           body: {
-            latitude: FALLBACK_CENTER.latitude,
-            longitude: FALLBACK_CENTER.longitude,
+            latitude: center.latitude,
+            longitude: center.longitude,
             radiusMeters: FALLBACK_RADIUS_M,
             dogId: activeDog?.dog_id ?? null,
           },

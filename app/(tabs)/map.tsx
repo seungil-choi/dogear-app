@@ -24,7 +24,8 @@ import KakaoMap, { type KakaoMapRef, type KakaoMarker } from '../../src/componen
 import { distanceText, categoryLabel as catLabel } from '../../src/utils/labels';
 import { FACILITY_CATEGORIES } from '../../src/constants/spotCategories';
 import type { SpotCategory, Spot } from '../../src/types';
-import { notify, confirm } from '../../src/utils/dialog';
+import { confirm } from '../../src/utils/dialog';
+import { toast } from '../../src/utils/toast';
 import { track, EVENT } from '../../src/utils/analytics';
 import { supabase } from '../../src/lib/supabase';
 import { IS_REAL_AUTH } from '../../src/config/env';
@@ -672,7 +673,7 @@ export default function ExploreScreen() {
         setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
         mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
       } else {
-        notify('잠시 후 다시 시도해 주세요.', '위치를 가져올 수 없어요');
+        toast.error('현재 위치를 찾지 못했어요. 잠시 후 다시 시도해주세요');
       }
     } finally {
       setIsLocating(false);
@@ -744,9 +745,8 @@ export default function ExploreScreen() {
                     query_length: q.length,
                     result_count: sortedCards.length,
                   });
-                  if (sortedCards.length === 0) {
-                    notify(`'${q}'에 대한 검색 결과가 없습니다.`, '검색 결과 없음');
-                  }
+                  // 결과 없음은 아래 패널의 빈 상태가 이미 말해준다(§4.7) —
+                  // 같은 사실을 모달로 한 번 더 막지 않는다.
                 }
               }}
             />
@@ -987,7 +987,7 @@ export default function ExploreScreen() {
                        //    내 위치 기준으로 적으면 "1.2km라더니 넓혀도 안 나오네"가 된다.
                        ? `보고 있는 곳에서 가장 가까운 장소가 ${distanceText(nearestOutOfRange)}에 있어요`
                        : regionEmpty
-                       ? '지금은 서울·경기 지역을 중심으로 장소를 채우고 있어요'
+                       ? '아직 이 지역은 등록된 곳이 적어요. 알고 계신 곳을 제안해주시면 채워나갈게요'
                        : '지도를 다른 지역으로 옮겨보세요')}
                 </Text>
                 {/* 빈 지도 앞에서 막다른 길이 되지 않도록 다음 행동을 준다 */}
@@ -1145,7 +1145,11 @@ export default function ExploreScreen() {
           {sortedCards.length === 0 ? (
             <View style={s.listEmpty}>
               <Icon name="map" size={32} color={Colors.text.tertiary} />
+              {/* 빈 상태는 제목 + 다음 행동 두 줄이다(§4.7) */}
               <Text style={s.listEmptyText}>해당하는 장소가 없어요</Text>
+              <Text style={s.listEmptySub}>
+                {isSearching ? '다른 이름으로 찾아보세요' : '반경을 넓히거나 지도를 옮겨보세요'}
+              </Text>
             </View>
           ) : (
             sortedCards.slice(0, visibleCount).map(card => (
@@ -1438,7 +1442,8 @@ const s = StyleSheet.create({
   },
   listResultText: { ...Typography.label.m, color: Colors.text.secondary },
   listEmpty:      { alignItems: 'center', gap: Spacing[10], paddingVertical: Spacing[48] },
-  listEmptyText:  { ...Typography.body.m, color: Colors.text.tertiary },
+  listEmptyText:  { ...Typography.body.m, color: Colors.text.secondary },
+  listEmptySub:   { ...Typography.caption, color: Colors.text.tertiary, marginTop: Spacing[4] },
 
   // ── 위치 권한 거부 배너 ──
   permBanner: {
