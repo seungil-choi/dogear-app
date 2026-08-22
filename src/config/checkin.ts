@@ -39,6 +39,16 @@ export const PAWMARK_PROXIMITY = {
   ACCURACY_MARGIN_RATIO: 0.5,
 } as const;
 
+/**
+ * 발도장 1회에 붙일 수 있는 사진 수 (0장도 허용 — 사진은 선택 입력).
+ *
+ * 이 값은 세 곳이 같이 알아야 한다: 고르는 화면, 스토어(방어적 절단),
+ * 그리고 서버(Edge Function `paw-checkin`의 검증).
+ * 앞의 둘은 여기서 import하고, 서버는 Deno라 import가 안 되므로 값을 복제하되
+ * 미러임을 주석으로 못박아 뒀다. **바꿀 때 서버도 함께 바꿀 것.**
+ */
+export const MAX_CHECKIN_PHOTOS = 3;
+
 /** 동일 강아지 × 동일 spot에서 연속 발도장 최소 간격 (ms). 서버 검증과 미러. */
 const PAWMARK_COOLDOWN_MS = 60 * 60 * 1000; // 1시간
 

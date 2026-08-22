@@ -35,6 +35,13 @@ const CATEGORY_RADIUS_M: Record<string, number> = {
   pet_boarding: 20,
 };
 const DEFAULT_RADIUS_M = 20;
+
+/**
+ * 발도장 1회당 사진 상한.
+ * ⚠️ 정책 SSOT 미러 — 클라이언트 `src/config/checkin.ts`의 MAX_CHECKIN_PHOTOS와 동기화 필수.
+ *    Deno 환경이라 TS import 불가 → 값 직접 복제. 변경 시 양쪽 모두 수정.
+ */
+const MAX_CHECKIN_PHOTOS = 3;
 const MIN_ACCURACY_M = 100;
 const ACCURACY_MARGIN_RATIO = 0.5;
 
@@ -106,6 +113,7 @@ Deno.serve(async (req: Request) => {
       feelingTags = [],
       note,
       photoUrl,
+      photoUrls,
       visibilityLevel = 'spot_only',
       sourceType = 'global_cta',
       userLat,
@@ -136,7 +144,23 @@ Deno.serve(async (req: Request) => {
         { status: 400, headers: corsHeaders }
       );
     }
-    if (photoUrl && !String(photoUrl).startsWith((Deno.env.get('SUPABASE_URL') ?? '') + '/storage/v1/object/public/checkin-photos/')) {
+    // 사진: 배열(photoUrls) 우선, 없으면 단일(photoUrl) 호환. 최대 3장.
+    const photoPrefix = (Deno.env.get('SUPABASE_URL') ?? '') + '/storage/v1/object/public/checkin-photos/';
+    const rawPhotos: unknown[] = Array.isArray(photoUrls)
+      ? photoUrls
+      : (photoUrl ? [photoUrl] : []);
+    const photos = rawPhotos.filter((u): u is string => typeof u === 'string' && u.length > 0);
+    if (photos.length > MAX_CHECKIN_PHOTOS) {
+      return Response.json(
+        { error: 'too_many_photos', message: `사진은 최대 ${MAX_CHECKIN_PHOTOS}장까지 올릴 수 있어요.` },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+    // 업로드 경로는 `{auth.uid()}/파일명`이다(uploadImage). 그래서 prefix + 본인 uid까지 검사한다.
+    //   prefix만 보면 **남이 올린 사진의 URL을 자기 발도장에 붙일 수 있다**(사진 도용).
+    //   URL은 공개 버킷이라 한 번 노출되면 누구나 알 수 있으므로 실제로 가능한 공격이다.
+    const ownedPrefix = `${photoPrefix}${user.id}/`;
+    if (photos.some((u) => !u.startsWith(ownedPrefix))) {
       return Response.json(
         { error: 'invalid_photo_url' },
         { status: 400, headers: corsHeaders }
@@ -253,7 +277,7 @@ Deno.serve(async (req: Request) => {
         spot_id: spotId,
         feeling_tags: feelingTags,
         note: note ?? null,
-        photo_url: photoUrl ?? null,
+        photo_url: photos[0] ?? null,   // 하위호환: 첫 장을 레거시 컬럼에도 기록
         visibility_level: visibilityLevel,
         source_type: sourceType,
         is_valid_for_aggregate: true,
@@ -264,6 +288,33 @@ Deno.serve(async (req: Request) => {
     if (insertError || !checkin) {
       console.error('paw_checkins insert error:', insertError);
       return Response.json({ error: 'Failed to save checkin' }, { status: 500, headers: corsHeaders });
+    }
+
+    // 첨부 사진 저장(checkin_photos) + 사후 검수큐 적재 — service_role.
+    // 발도장 자체는 이미 성공했으므로 사진 삽입 실패로 되돌리지 않는다(best-effort, 실패는 크게 로깅).
+    // D2: 사전검수 없이 즉시 공개. 큐 적재는 게이트가 아니라 어드민이 훑을 수 있게 하는 용도.
+    if (photos.length > 0) {
+      const photoRows = photos.map((url, i) => ({
+        checkin_id: checkin.checkin_id,
+        dog_id: dogId,
+        spot_id: spotId,
+        storage_path: url.slice(photoPrefix.length),
+        image_url: url,
+        sort_order: i,
+      }));
+      const { error: photoErr } = await serviceClient.from('checkin_photos').insert(photoRows);
+      if (photoErr) {
+        console.error('checkin_photos insert error:', photoErr);
+      } else {
+        const modRows = photos.map((url) => ({
+          content_type: 'checkin_photo',
+          dog_id: dogId,
+          checkin_id: checkin.checkin_id,
+          image_url: url,
+        }));
+        const { error: modErr } = await serviceClient.from('media_moderation_queue').insert(modRows);
+        if (modErr) console.error('media_moderation_queue insert error:', modErr);
+      }
     }
 
     // familiar_dog_signals 갱신

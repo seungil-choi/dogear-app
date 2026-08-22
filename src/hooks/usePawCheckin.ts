@@ -22,8 +22,9 @@ interface PawCheckinResult {
 }
 
 interface UsePawCheckinReturn {
-  /** @param photoUrl 업로드 완료된 사진 public URL (스토어 pawFlow.photoUri는 로컬 URI일 수 있어 명시 전달) */
-  submit: (photoUrl?: string) => Promise<PawCheckinResult>;
+  /** @param photoUrls 업로드 완료된 사진 public URL 목록 (최대 3장).
+   *  스토어 pawFlow.photoUris는 로컬 URI일 수 있어 업로드 결과를 명시 전달한다. */
+  submit: (photoUrls?: string[]) => Promise<PawCheckinResult>;
   isSubmitting: boolean;
   error: string | null;
 }
@@ -40,7 +41,7 @@ export function usePawCheckin(): UsePawCheckinReturn {
   const note = pawFlow.note;
   const visibilityLevel = pawFlow.visibility;
 
-  const submit = useCallback(async (photoUrl?: string): Promise<PawCheckinResult> => {
+  const submit = useCallback(async (photoUrls?: string[]): Promise<PawCheckinResult> => {
     if (!activeDog?.dog_id) {
       throw new Error('강아지 정보가 없어요');
     }
@@ -58,7 +59,7 @@ export function usePawCheckin(): UsePawCheckinReturn {
           spotId: selectedSpotId,
           feelingTags: selectedFeelingTags,
           note: note || undefined,
-          photoUrl: photoUrl || undefined,
+          photoUrls: photoUrls?.length ? photoUrls : undefined,
           visibilityLevel: visibilityLevel as VisibilityLevel,
           sourceType: 'global_cta',
           // 서버 측 근접성 재검증을 위한 좌표/정확도

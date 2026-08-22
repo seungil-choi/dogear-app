@@ -239,6 +239,8 @@ export interface SpotDetailApiViewModel {
     /** 이 장소가 제공하는 서비스 전부. category는 그중 대표 1개 */
     services: SpotCategory[];
     cover_image_url: string | null;
+    /** 히어로에 그릴 이미지 — 서버가 정한 우선순위(공식사진 → 대표사진). null이면 기본 썸네일 */
+    hero_image_url: string | null;
     /** subcategory를 그대로 반복한 무의미한 설명은 서버가 걸러 null로 내린다 */
     description: string | null;
     /** 원천 데이터의 편의시설(화장실·음수대·주차장·놀이터 등) */
@@ -284,6 +286,30 @@ export interface SpotDetailApiViewModel {
     photo_url: string | null;
     checked_in_at: string;
   }[];
+  /** 이곳에 다녀간 강아지들 — 강아지별 최신 1장 (기획 14번) */
+  dog_gallery?: {
+    photo_id: string;
+    image_url: string;
+    dog_name: string | null;
+    created_at: string;
+    /** 내 강아지 사진인지 — true일 때만 삭제를 내준다 */
+    is_mine?: boolean;
+  }[];
+}
+
+/** 장소 상세 "다녀간 강아지들" 갤러리의 사진 한 장 */
+export interface SpotGalleryPhoto {
+  photo_id: string;
+  image_url: string;
+  /** 사진을 남긴 강아지 이름 (없으면 표시 생략) */
+  dog_name?: string | null;
+  created_at: string;
+  /**
+   * 내 강아지가 남긴 사진인지. 서버(spot-detail)가 판정해서 내려준다.
+   * true일 때만 '삭제'를 내주고, 아니면 '신고'만 내준다.
+   * (클라가 dog_id를 비교하게 하면 남의 강아지 id를 앱에 넘겨줘야 해서 서버가 판정한다)
+   */
+  is_mine?: boolean;
 }
 
 export interface SpotDetailViewModel {
@@ -298,6 +324,13 @@ export interface SpotDetailViewModel {
   neighborhood?: string;   // 동/구 수준 위치 (예: '마포구', '망원')
   region_summary?: string; // 시/도·구 수준 요약 (예: '서울 마포구')
   cover_image_url?: string;
+  /**
+   * 히어로에 실제로 그릴 이미지 — 서버가 정한 우선순위(공식사진 → 어드민 지정 대표사진).
+   * 없으면(=undefined) 카테고리 기본 썸네일을 그린다. 자동 승격은 하지 않는다.
+   */
+  hero_image_url?: string;
+  /** 이곳에 다녀간 강아지들 — 강아지별 최신 1장 */
+  dog_gallery?: SpotGalleryPhoto[];
   is_saved: boolean;
   atmosphere_summary: string;
   atmosphere_state: AtmosphereState;
@@ -452,7 +485,7 @@ export interface NearbyDuplicate {
 // ─────────────────────────────────────────
 // UGC 모더레이션 (App Store 1.2 / Play UGC 정책 대응)
 // ─────────────────────────────────────────
-export type ReportTargetType = 'spot' | 'checkin' | 'dog' | 'user';
+export type ReportTargetType = 'spot' | 'checkin' | 'dog' | 'user' | 'checkin_photo';
 export type ReportReason =
   | 'inappropriate_content'   // 부적절한 콘텐츠 (음란·폭력 등)
   | 'harassment'              // 괴롭힘·혐오표현
