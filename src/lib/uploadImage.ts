@@ -103,7 +103,13 @@ export async function uploadImage(opts: UploadOptions): Promise<UploadResult> {
     .from(bucket)
     .upload(path, bytes, {
       contentType: MIME_BY_EXT[ext] ?? 'image/jpeg',
-      cacheControl: '31536000',
+      // ⚠️ 이 값이 "숨김이 실제로 먹는 시간"을 정한다.
+      //   버킷이 public이라 URL 앞에 CDN이 있다. 원본을 지워도 **캐시가 만료될 때까지
+      //   기존 URL은 계속 200을 돌려준다** — 실측으로 cf-cache-status: HIT 확인(2026-08-23).
+      //   예전 값 31536000(1년)이면 신고로 내린 사진이 최대 1년간 링크로 유통된다.
+      //   파일명이 매번 고유해 캐시 적중은 어차피 "같은 사진 재조회"뿐이므로,
+      //   조회 성능보다 조치 실효성을 택해 5분으로 낮춘다(정책 18번 §11 공개 차단).
+      cacheControl: '300',
       upsert: false,
     });
 
