@@ -22,6 +22,8 @@ const ICON_BY_TYPE: Record<string, string> = {
   familiar_dog_visited: 'paw',
   weekly_summary: 'star',
   saved_spot_update: 'bookmark',
+  // 운영 조치 통지(§8.1) — 누르면 사유·이의 경로가 있는 화면으로 간다
+  moderation_notice: 'warning',
 };
 
 // created_at → 그룹(오늘/어제/이번 주)
@@ -48,6 +50,7 @@ interface NotificationItem {
   time: string;
   read: boolean;
   spot_id?: string;  // 연결된 장소가 있으면 탭 시 장소 상세로 이동
+  action_id?: string;  // 운영 조치 통지면 조치 id — 이의 화면으로 보낸다(§8.3)
 }
 
 // ─── Mock 데이터 ────────────────────────────────────────────────
@@ -131,6 +134,7 @@ export default function NotificationsScreen() {
         time: relativeTime(n.created_at),
         read: !!n.read_at,
         spot_id: n.data?.spot_id,
+        action_id: n.data?.action_id,
       })));
     })();
   }, []);
@@ -164,6 +168,11 @@ export default function NotificationsScreen() {
         .then(({ error }) => {
           if (error) console.error('[notifications] 읽음 처리 실패:', error.message);
         });
+    }
+    // 조치 통지는 사유·이의 경로가 있는 화면으로 보낸다 — 여기서 끊기면 이의권이 사라진다
+    if (item.action_id) {
+      router.push(`/moderation-notices?actionId=${item.action_id}` as any);
+      return;
     }
     if (item.spot_id) {
       router.push(`/spot/${item.spot_id}`);

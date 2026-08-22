@@ -10,6 +10,8 @@ export default function AuthLayout() {
       <Stack.Screen name="dog-setup" />
       <Stack.Screen name="signup" />
       <Stack.Screen name="forgot-password" />
+      {/* 계정 제재 안내 — 뒤로가기로 빠져나가지 못하게 애니메이션 없이 고정 */}
+      <Stack.Screen name="account-restricted" options={{ animation: 'none', gestureEnabled: false }} />
     </Stack>
   );
 }
