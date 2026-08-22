@@ -20,6 +20,8 @@ import {
   StyleSheet, Linking, Platform, Share, Modal, Pressable, Animated,
 } from 'react-native';
 import { notify, actionSheet, confirm } from '../../src/utils/dialog';
+import { toast } from '../../src/utils/toast';
+import { PHOTO } from '../../src/constants/messages';
 import { track, EVENT } from '../../src/utils/analytics';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -32,7 +34,8 @@ import { Icon } from '../../src/components/common/Icon';
 import { categoryLabel as catLabel } from '../../src/utils/labels';
 import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
-import type { FamiliarDogCardViewModel } from '../../src/types';
+import type { FamiliarDogCardViewModel, SpotGalleryPhoto } from '../../src/types';
+import { supabase } from '../../src/lib/supabase';
 
 /** 키비주얼 높이. 상단 바가 장소명을 넘겨받는 스크롤 지점도 이 값에서 계산한다. */
 const KEY_VISUAL_HEIGHT = 260;
@@ -149,16 +152,16 @@ export default function SpotDetailScreen() {
       await Linking.openURL(url);
     } catch (e) {
       console.error('[spot] 전화 걸기 실패:', e);
-      notify('전화를 걸 수 없는 기기예요. 번호를 길게 눌러 복사해주세요.', '전화 실패');
+      toast.error('이 기기로는 전화를 걸 수 없어요. 번호를 길게 눌러 복사해주세요');
     }
   }, []);
 
   const handleCopyAddress = useCallback(async (text: string) => {
     try {
       await Clipboard.setStringAsync(text);
-      notify('주소를 클립보드에 복사했어요.', '복사됨');
+      toast.success('주소를 복사했어요');
     } catch {
-      notify('주소를 복사하지 못했어요.', '복사 실패');
+      toast.error('주소를 복사하지 못했어요');
     }
   }, []);
 
@@ -201,7 +204,7 @@ export default function SpotDetailScreen() {
       }
     } catch (e) {
       console.error('[spot] 길찾기 실행 실패:', e);
-      notify('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요.', '길찾기 실패');
+      toast.error('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요');
     }
   }, [vm, id]);
 
@@ -234,7 +237,7 @@ export default function SpotDetailScreen() {
       await Linking.openURL(url);
     } catch (e) {
       console.error('[spot] 지도 열기 실패:', e);
-      notify('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요.', '지도 열기 실패');
+      toast.error('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요');
     }
   }, [vm, id]);
 
@@ -306,6 +309,40 @@ export default function SpotDetailScreen() {
       router.push({ pathname: '/report', params: { target_type: 'checkin', target_id: traceId } });
     }
   }, [router]);
+
+  // 갤러리 사진 길게 누르기 — 내 사진이면 삭제, 남의 사진이면 신고.
+  //   삭제는 서버(delete-checkin-photo)가 스토리지·대표사진·검수큐까지 함께 정리한다.
+  //   여기서 supabase를 직접 지우지 않는 이유: 그러면 파일이 남아 URL로 계속 보인다.
+  const handleGalleryLongPress = useCallback(async (photo: SpotGalleryPhoto) => {
+    if (!photo.is_mine) {
+      const idx = await actionSheet('이 사진', [
+        { label: '이 사진 신고하기', destructive: true },
+      ]);
+      if (idx === 0) {
+        router.push({ pathname: '/report', params: { target_type: 'checkin_photo', target_id: photo.photo_id } });
+      }
+      return;
+    }
+    const idx = await actionSheet('내 사진', [
+      { label: '이 사진 삭제하기', destructive: true },
+    ]);
+    if (idx !== 0) return;
+    const ok = await confirm(
+      PHOTO.deleteConfirm,
+      { title: '이 사진을 삭제할까요?', confirmText: '삭제', destructive: true },
+    );
+    if (!ok) return;
+    try {
+      const { error } = await supabase.functions.invoke('delete-checkin-photo', {
+        body: { photoId: photo.photo_id },
+      });
+      if (error) throw error;
+      toast.success(PHOTO.deleted);
+      serverDetail.refresh();
+    } catch (e: any) {
+      toast.error('사진을 삭제하지 못했어요. 잠시 후 다시 시도해주세요');
+    }
+  }, [router, serverDetail]);
 
   // ⋯ 메뉴. 항목 수 제한이 없다 — 자체 액션시트로 옮겼기 때문.
   //   (예전엔 OS Alert을 썼는데 안드로이드는 버튼 3개까지라 4번째인 '취소'가 잘려나가
@@ -396,7 +433,7 @@ export default function SpotDetailScreen() {
           name={vm.name}
           categoryLabel={vm.category_label}
           subcategory={vm.subcategory}
-          coverImageUrl={vm.cover_image_url}
+          coverImageUrl={vm.hero_image_url ?? vm.cover_image_url}
           metaText={[vm.region_summary, vm.distance_text].filter(Boolean).join(' · ')}
           savedCount={shownSavedCount}
           saved={locallySaved}
@@ -636,6 +673,55 @@ export default function SpotDetailScreen() {
             </View>
           );
         })()}
+
+        {/* ── 다녀간 강아지들 (사진 갤러리) ──
+            발도장에 붙은 사진을 강아지별 최신 1장씩 모아 보여준다.
+            비어 있어도 섹션은 남긴다 — 섹션째로 숨기면 "여기에 사진을 남길 수 있다"는 걸
+            아무도 모른 채로 계속 비어 있게 된다(§4.7 빈 상태는 화면 구성 요소). */}
+        <View style={s.section}>
+          <View style={s.sectionHead}>
+            <Text style={s.sectionTitle}>다녀간 강아지들</Text>
+          </View>
+          {(vm.dog_gallery?.length ?? 0) === 0 ? (
+            <View style={s.galleryEmpty}>
+              <Text style={s.galleryEmptyText}>아직 사진이 없어요</Text>
+              <Text style={s.galleryEmptySub}>발도장을 남길 때 사진을 함께 올리면 여기에 모여요.</Text>
+            </View>
+          ) : (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.galleryRail}
+            >
+              {vm.dog_gallery!.map(photo => (
+                // 길게 누르면 — 내 사진은 '삭제', 남의 사진은 '신고'.
+                // 갤러리에 버튼을 늘어놓으면 사진보다 버튼이 먼저 보이므로 롱프레스에 숨긴다.
+                // (사진은 사전 검수 없이 올라오므로 신고가 사후 안전장치다)
+                <TouchableOpacity
+                  key={photo.photo_id}
+                  style={s.galleryItem}
+                  activeOpacity={0.9}
+                  onLongPress={() => handleGalleryLongPress(photo)}
+                  accessibilityRole="image"
+                  accessibilityLabel={
+                    photo.is_mine
+                      ? '내 강아지 사진. 길게 누르면 삭제'
+                      : photo.dog_name ? `${photo.dog_name}의 사진. 길게 누르면 신고` : '사진. 길게 누르면 신고'
+                  }
+                >
+                  <AppImage
+                    source={{ uri: photo.image_url }}
+                    style={s.galleryPhoto}
+                    resizeMode="cover"
+                  />
+                  {!!photo.dog_name && (
+                    <Text style={s.galleryDogName} numberOfLines={1}>{photo.dog_name}</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
 
         {/* ── P3: 최근 흔적 ── */}
         <View style={s.section}>
@@ -997,6 +1083,23 @@ const s = StyleSheet.create({
   sectionMoreText: {
     ...Typography.caption,
     color: Colors.text.tertiary,
+  },
+
+  // ── 다녀간 강아지들 — 사진 갤러리 레일 ─────────────────────────
+  galleryRail: { gap: Spacing[10], paddingRight: Spacing[16] },
+  galleryEmpty: { paddingVertical: Spacing[16], gap: Spacing[4] },
+  galleryEmptyText: { ...Typography.body.m, color: Colors.text.secondary },
+  galleryEmptySub: { ...Typography.caption, color: Colors.text.tertiary },
+  galleryItem: { width: 108, gap: Spacing[6] },
+  galleryPhoto: {
+    width: 108, height: 108,
+    borderRadius: Radius.m,
+    backgroundColor: Colors.bg.secondary,
+  },
+  galleryDogName: {
+    ...Typography.caption,
+    color: Colors.text.secondary,
+    textAlign: 'center',
   },
 
   // ── 자주 찾는 강아지 — 가로 스크롤 레일 ───────────────────────────

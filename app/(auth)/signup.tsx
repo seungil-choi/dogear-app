@@ -23,15 +23,35 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
 import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
+import { VALID } from '../../src/constants/messages';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
 
 // 비밀번호 정책: 8자+ / 영문 + 숫자
+// 인라인 문구는 마침표를 쓰지 않는다(§3.1)
 function validatePassword(pw: string): { ok: boolean; reason?: string } {
-  if (pw.length < 8) return { ok: false, reason: '비밀번호는 8자 이상이에요.' };
-  if (!/[A-Za-z]/.test(pw)) return { ok: false, reason: '비밀번호에 영문을 포함해주세요.' };
-  if (!/\d/.test(pw)) return { ok: false, reason: '비밀번호에 숫자를 포함해주세요.' };
+  if (pw.length < 8) return { ok: false, reason: VALID.passwordShort };
+  if (!/[A-Za-z]/.test(pw)) return { ok: false, reason: '비밀번호에 영문을 넣어주세요' };
+  if (!/\d/.test(pw)) return { ok: false, reason: '비밀번호에 숫자를 넣어주세요' };
   return { ok: true };
+}
+
+/**
+ * Supabase signUp 오류를 사용자 문구로 옮긴다.
+ * 원문은 영문·기술용어라 그대로 띄우면 §3.0 금지(기술용어 노출)에 걸린다.
+ */
+function signupErrorMessage(raw?: string): string {
+  const m = (raw ?? '').toLowerCase();
+  if (m.includes('already registered') || m.includes('already been registered')) {
+    return '이미 가입된 이메일이에요. 로그인하거나 비밀번호를 찾아주세요.';
+  }
+  if (m.includes('rate limit') || m.includes('too many')) {
+    return '요청이 많아요. 잠시 후 다시 시도해주세요.';
+  }
+  if (m.includes('invalid') && m.includes('email')) {
+    return '이 이메일 주소는 사용할 수 없어요. 다른 주소로 시도해주세요.';
+  }
+  return '가입하지 못했어요. 잠시 후 다시 시도해주세요.';
 }
 
 export default function SignupScreen() {
@@ -70,7 +90,7 @@ export default function SignupScreen() {
         },
       });
       if (error) {
-        notify(error.message ?? '가입에 실패했어요.', '가입 실패');
+        notify(signupErrorMessage(error.message), '가입 실패');
         return;
       }
       track(EVENT.signup_completed, { screen_name: 'signup', provider: 'email' });
@@ -87,7 +107,7 @@ export default function SignupScreen() {
       router.replace('/(auth)/login');
     } catch (e: any) {
       console.error('signup error:', e);
-      notify('가입 처리 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', '가입 오류');
+      notify('가입하지 못했어요. 잠시 후 다시 시도해주세요.', '가입 실패');
     } finally {
       setBusy(false);
     }
@@ -140,6 +160,10 @@ export default function SignupScreen() {
                 />
               )}
             </View>
+            {/* 아이콘만으로는 "왜 안 되는지"를 못 알려준다 — 문구를 함께 준다(§2.1-1) */}
+            {email.length > 0 && !emailValid && (
+              <Text style={s.errorText}>{VALID.email}</Text>
+            )}
           </View>
 
           {/* 비밀번호 */}
@@ -185,7 +209,7 @@ export default function SignupScreen() {
               )}
             </View>
             {confirm.length > 0 && !matchOk && (
-              <Text style={s.errorText}>비밀번호가 일치하지 않아요.</Text>
+              <Text style={s.errorText}>{VALID.passwordMismatch}</Text>
             )}
           </View>
 

@@ -8,7 +8,7 @@ import React, { useState, useMemo } from 'react';
 import {
   View, Text, TouchableOpacity, ScrollView, StyleSheet,
 } from 'react-native';
-import { notify } from '../../src/utils/dialog';
+import { toast } from '../../src/utils/toast';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants/tokens';
@@ -54,11 +54,8 @@ export default function ConsentScreen() {
   const toggle = (key: string) => setChecks(prev => ({ ...prev, [key]: !prev[key] }));
 
   const onAgree = async () => {
-    if (!requiredChecked) {
-      notify('필수 항목에 모두 동의해야 서비스를 이용할 수 있어요.', '필수 항목 동의');
-      return;
-    }
-    if (submitting) return;
+    // 필수 미동의 시 버튼 자체가 비활성이다 — 이유는 버튼 위 안내문이 상시로 설명한다(§2.1-1)
+    if (!requiredChecked || submitting) return;
     setSubmitting(true);
     const agreedAt = new Date().toISOString();
 
@@ -82,7 +79,8 @@ export default function ConsentScreen() {
     } catch (e) {
       console.error('consent save error:', e);
       setSubmitting(false);
-      notify('동의 저장에 실패했어요. 네트워크를 확인하고 다시 시도해주세요.', '동의 저장 실패');
+      // 같은 화면에서 바로 다시 누를 수 있다 → 흐름을 끊지 않는다
+      toast.error('동의를 저장하지 못했어요. 연결을 확인하고 다시 시도해주세요');
       return;
     }
 
@@ -152,6 +150,10 @@ export default function ConsentScreen() {
       </ScrollView>
 
       <View style={s.footer}>
+        {/* 버튼이 왜 눌리지 않는지 알려준다 — 비활성 버튼만 두면 사용자는 막힌 이유를 모른다 */}
+        {!requiredChecked && (
+          <Text style={s.footerHint}>필수 항목에 모두 동의하면 시작할 수 있어요</Text>
+        )}
         <TouchableOpacity
           style={[s.cta, (!requiredChecked || submitting) && s.ctaDisabled]}
           onPress={onAgree}
@@ -223,6 +225,10 @@ const s = StyleSheet.create({
     paddingHorizontal: Spacing[20], paddingVertical: Spacing[16],
     borderTopWidth: 1, borderTopColor: Colors.border.default,
     backgroundColor: Colors.bg.primary,
+  },
+  footerHint: {
+    ...Typography.caption, color: Colors.text.secondary,
+    textAlign: 'center', marginBottom: Spacing[10],
   },
   cta: {
     height: 54, borderRadius: Radius.round,

@@ -13,7 +13,8 @@ import { setUserContext } from '../utils/analytics';
 
 // haversineDistance는 utils/geo로 이관 (SSOT)
 import { haversineDistance } from '../utils/geo';
-import { notify } from '../utils/dialog';
+import { toast } from '../utils/toast';
+import { SAVE_SPOT_FAILED } from '../constants/messages';
 import {
   computeSpotAggregate, buildHomeSpotCard, computeRegularStatus,
   buildFamiliarDogCards, buildTraceList, computeDogMapPinVariant,
@@ -21,6 +22,7 @@ import {
 import { categoryLabel, atmosphereLabel, regularStatusLabel, visitDateText, relativeTime, distanceTextOr } from '../utils/labels';
 import type { SpotDetailViewModel, DogMapSpotViewModel } from '../types';
 import { mergeSpotList } from './spotMerge';
+import { MAX_CHECKIN_PHOTOS } from '../config/checkin';
 import {
   mockUser, mockDog, mockDogs, mockSpots, mockCheckins, mockSavedSpots,
   mockVisitSummaries, mockFamiliarDogSignals, mockPrivacySetting,
@@ -126,7 +128,10 @@ interface AppState {
     selectedSpot?: HomeSpotCardViewModel;
     selectedTags: FeelingTag[];
     note: string;
+    /** @deprecated 단일 사진 — photoUris로 대체. 하위호환용으로 남김 */
     photoUri?: string;
+    /** 발도장 첨부 사진 로컬 URI (최대 3장) */
+    photoUris?: string[];
     visibility: VisibilityLevel;
   };
   /** 마지막으로 제출한 발도장의 공개 범위 — 다음 발도장의 기본값으로 사용 (persist) */
@@ -150,6 +155,8 @@ interface AppState {
   setPawTags: (tags: FeelingTag[]) => void;
   setPawNote: (note: string) => void;
   setPawPhoto: (uri?: string) => void;
+  /** 첨부 사진 목록 교체 (최대 3장) */
+  setPawPhotos: (uris: string[]) => void;
   setPawVisibility: (v: VisibilityLevel) => void;
   resetPawFlow: () => void;
   updatePrivacySetting: (updates: Partial<PrivacySetting>) => void;
@@ -351,7 +358,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
               if (!cur.some(s => s.saved_spot_id === existing.saved_spot_id)) {
                 set({ savedSpots: [...cur, existing] });
               }
-              notify('저장 해제에 실패했어요. 잠시 후 다시 시도해주세요.');
+              toast.error(SAVE_SPOT_FAILED.unsave);
             }
           });
       }
@@ -375,7 +382,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
             if (error) {
               console.error('saved_spots insert failed:', error);
               set({ savedSpots: get().savedSpots.filter(s => s.saved_spot_id !== newSaved.saved_spot_id) });
-              notify('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
+              toast.error(SAVE_SPOT_FAILED.save);
             }
           });
       }
@@ -454,6 +461,15 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   setPawTags: (tags) => set(s => ({ pawFlow: { ...s.pawFlow, selectedTags: tags } })),
   setPawNote: (note) => set(s => ({ pawFlow: { ...s.pawFlow, note } })),
   setPawPhoto: (uri) => set(s => ({ pawFlow: { ...s.pawFlow, photoUri: uri } })),
+  // 상한은 고르는 화면에서도 막지만, 스토어에 들어오는 값은 여기서 한 번 더 자른다.
+  // photoUri(단일)는 레거시 경로(로컬 기록·성공 화면)가 아직 읽으므로 첫 장을 채워 둔다.
+  setPawPhotos: (uris) => set(s => ({
+    pawFlow: {
+      ...s.pawFlow,
+      photoUris: uris.slice(0, MAX_CHECKIN_PHOTOS),
+      photoUri: uris[0],
+    },
+  })),
   setPawVisibility: (v) => set(s => ({ pawFlow: { ...s.pawFlow, visibility: v } })),
   resetPawFlow: () =>
     set(s => ({
@@ -584,7 +600,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
           // "차단했다고 봤는데 계속 보이는" 상태가 된다 — 안전 기능에서 가장 나쁜 실패다.
           console.error('[blockUser] 서버 저장 실패:', error?.message);
           set(s => ({ blockedUsers: s.blockedUsers.filter(b => b.block_id !== tempId) }));
-          notify('차단에 실패했어요. 네트워크를 확인하고 다시 시도해주세요.', '차단 실패');
+          toast.error('차단하지 못했어요. 연결을 확인하고 다시 시도해주세요');
           return;
         }
         set(s => ({
@@ -609,7 +625,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
             ? s
             : { blockedUsers: [...s.blockedUsers, removed] }));
         }
-        notify('차단 해제에 실패했어요. 잠시 후 다시 시도해주세요.');
+        toast.error('차단 해제를 하지 못했어요. 잠시 후 다시 시도해주세요');
       });
     }
   },

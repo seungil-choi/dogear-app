@@ -15,7 +15,7 @@ import {
   View, Text, TouchableOpacity, ScrollView, TextInput,
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { notify } from '../src/utils/dialog';
+import { toast } from '../src/utils/toast';
 import { track, EVENT } from '../src/utils/analytics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -69,14 +69,14 @@ export default function InfoCorrectionScreen() {
         place_id: spotId,
         suggestion_type: field,
       });
-      notify('운영자 검토 후 반영 여부를 결정해요. 감사합니다.', '제안 접수 완료');
+      toast.success('수정 제안을 접수했어요. 운영자가 검토할게요');
       router.back();
     } catch {
       track(EVENT.place_suggestion_submit_failed, {
         screen_name: 'info_correction',
         place_id: spotId,
       });
-      notify('제안 제출에 실패했어요. 잠시 후 다시 시도해주세요.', '제출 실패');
+      toast.error('제안을 보내지 못했어요. 잠시 후 다시 시도해주세요');
     } finally {
       setSubmitting(false);
     }

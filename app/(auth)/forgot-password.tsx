@@ -16,7 +16,7 @@ import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants/tokens';
 import { Icon } from '../../src/components/common/Icon';
 import { supabase } from '../../src/lib/supabase';
-import { notify } from '../../src/utils/dialog';
+import { toast } from '../../src/utils/toast';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
 
@@ -43,13 +43,14 @@ export default function ForgotPasswordScreen() {
             ? `${window.location.origin}/reset-password`
             : undefined,
       });
+      // 실패 원인이 무엇이든 사용자가 할 일은 같다(다시 시도) → 문구 하나로 통일
       if (error) {
-        notify(error.message ?? '재설정 메일 발송에 실패했어요.', '발송 실패');
+        toast.error('메일을 보내지 못했어요. 잠시 후 다시 시도해주세요');
         return;
       }
       setSent(true);
     } catch {
-      notify('재설정 메일 발송 중 문제가 발생했어요.', '오류');
+      toast.error('메일을 보내지 못했어요. 잠시 후 다시 시도해주세요');
     } finally {
       setBusy(false);
     }

@@ -64,7 +64,8 @@ export default function AccountManageScreen() {
       }
       router.replace('/(auth)/login');
     } catch {
-      notify('계정 삭제 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', '오류');
+      // 되돌릴 수 없는 작업의 결과는 Alert 유지(§2.2) — 놓치면 삭제 여부를 오해한다
+      notify('계정을 삭제하지 못했어요. 잠시 후 다시 시도해주세요.', '삭제 실패');
     } finally {
       setSubmitting(false);
     }

@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { stripExif } from '../src/lib/stripExif';
 
 import { Colors, Spacing, Radius, Typography, Layout } from '../src/constants/tokens';
 import { Icon } from '../src/components/common/Icon';
@@ -21,7 +22,9 @@ import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
 import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
 import { notify, actionSheet, confirm } from '../src/utils/dialog';
+import { toast } from '../src/utils/toast';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
+import { PERM, PHOTO } from '../src/constants/messages';
 import { track, EVENT } from '../src/utils/analytics';
 
 import { IS_REAL_AUTH } from '../src/config/env';
@@ -70,6 +73,15 @@ export default function DogEditScreen() {
     dog?.walking_style_tags ?? [],
   );
   const [saving, setSaving] = useState(false);
+  /** 부적절 표현 차단 — 어느 칸이 문제인지 나눠서 알려준다 */
+  const [blocked, setBlocked] = useState<{ name?: boolean; breed?: boolean; bio?: boolean }>({});
+
+  // 체중은 선택이지만, 넣었다면 말이 되는 값이어야 한다(dog-setup과 같은 규칙)
+  const weightError = (() => {
+    if (!weightKg.trim()) return '';
+    const w = parseFloat(weightKg);
+    return (Number.isNaN(w) || w <= 0 || w >= 100) ? '0보다 크고 100kg 미만으로 입력해주세요' : '';
+  })();
 
   // 활성 강아지가 바뀌면 폼 상태도 동기화 (Picker로 강아지 전환 시)
   useEffect(() => {
@@ -90,7 +102,7 @@ export default function DogEditScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>강아지 정보를 불러올 수 없어요.</Text>
+          <Text style={styles.emptyText}>강아지 정보를 불러오지 못했어요.{'\n'}잠시 후 다시 열어주세요.</Text>
         </View>
       </SafeAreaView>
     );
@@ -116,7 +128,7 @@ export default function DogEditScreen() {
       : ImagePicker.requestMediaLibraryPermissionsAsync;
     const { status } = await permFn();
     if (status !== 'granted') {
-      notify(source === 'camera' ? '카메라 접근 권한이 필요해요.' : '사진 접근 권한이 필요해요.', '권한 필요');
+      notify(source === 'camera' ? '사진 촬영에는 카메라 권한이 필요해요.' : PERM.photo, '권한 필요');
       return;
     }
     const result = source === 'camera'
@@ -124,7 +136,8 @@ export default function DogEditScreen() {
       : await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.8 });
 
     if (!result.canceled && result.assets[0]) {
-      setAvatarUri(result.assets[0].uri);
+      // 아바타는 '익숙한 강아지' 등으로 남에게 보인다 — 촬영 좌표를 지우고 들고 간다.
+      setAvatarUri(await stripExif(result.assets[0].uri));
     }
   }
 
@@ -145,19 +158,15 @@ export default function DogEditScreen() {
     if (saving) return;            // 더블탭 이중 업로드·이중 back 방지
 
     // 0. UGC 텍스트 사전 필터 (Apple 1.2) — 이름/견종은 타인에게 노출되므로 부적절어 차단
-    if (isObjectionable(name) || isObjectionable(breed) || isObjectionable(bio)) {
-      notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
-      return;
-    }
-
     // 1.5 체중 검증 (dog-setup과 동일 규칙) — 잘못된 값이 로컬/서버에 desync로 남지 않도록
-    if (weightKg.trim()) {
-      const w = parseFloat(weightKg);
-      if (Number.isNaN(w) || w <= 0 || w >= 100) {
-        notify('체중은 0보다 크고 100kg 미만의 숫자로 입력해주세요.', '체중 확인');
-        return;
-      }
-    }
+    // 둘 다 '지금 화면에서 고칠 수 있는 입력 문제' → 인라인으로 표시한다.
+    const nextBlocked = {
+      name:  isObjectionable(name),
+      breed: isObjectionable(breed),
+      bio:   isObjectionable(bio),
+    };
+    setBlocked(nextBlocked);
+    if (nextBlocked.name || nextBlocked.breed || nextBlocked.bio || weightError) return;
 
     setSaving(true);
     try {
@@ -184,7 +193,7 @@ export default function DogEditScreen() {
           bucket: 'dog-avatars',
           error_message: (e?.message ?? 'unknown').slice(0, 100),
         });
-        notify(e.message ?? '사진 업로드에 실패했어요.', '업로드 실패');
+        toast.error(PHOTO.uploadFailed);
         return;
       }
     }
@@ -219,7 +228,7 @@ export default function DogEditScreen() {
         .eq('dog_id', dog.dog_id);
 
       if (error) {
-        notify('프로필 저장에 실패했어요. 다시 시도해주세요.', '저장 실패');
+        toast.error('저장하지 못했어요. 잠시 후 다시 시도해주세요');
         return;
       }
     }
@@ -253,9 +262,9 @@ export default function DogEditScreen() {
 
     // 일반 삭제 — 다른 강아지가 있는 경우
     const ok = await confirm(
-      `${dog.name}의 발도장 기록과 단골 장소 정보가 삭제 예약돼요.\n30일 안에는 운영팀에 문의해 복구할 수 있어요.\n계속할까요?`,
+      `${dog.name}의 발도장 기록과 단골 장소 정보가 함께 사라져요.\n30일 안에는 운영팀에 문의해 복구할 수 있어요.`,
       {
-        title: `${dog.name} 삭제`,
+        title: `${dog.name}를 삭제할까요?`,
         confirmText: '삭제',
         destructive: true,
       },
@@ -264,10 +273,11 @@ export default function DogEditScreen() {
 
     const success = await deleteDog(dog.dog_id);
     if (!success) {
-      notify('삭제에 실패했어요. 잠시 후 다시 시도해주세요.', '삭제 실패');
+      toast.error('삭제하지 못했어요. 잠시 후 다시 시도해주세요');
       return;
     }
-    notify(`${dog.name}을(를) 삭제했어요. 30일 안에는 복구 가능해요.`, '삭제 완료');
+    // 삭제 확인은 confirm에서 이미 받았다 — 결과까지 모달로 막지 않는다
+    toast.success(`${dog.name}를 삭제했어요`);
     router.back();
   }
 
@@ -337,11 +347,11 @@ export default function DogEditScreen() {
 
           {/* ── 섹션 1: 기본 정보 ── */}
           <SectionCard title="기본 정보">
-            <FieldRow label="이름">
+            <FieldRow label="이름" error={blocked.name ? MODERATION_BLOCK_MESSAGE : undefined}>
               <TextInput
                 style={styles.input}
                 value={name}
-                onChangeText={setName}
+                onChangeText={(t) => { setName(t); if (blocked.name) setBlocked(b => ({ ...b, name: false })); }}
                 placeholder="강아지 이름"
                 placeholderTextColor={Colors.text.placeholder}
                 returnKeyType="next"
@@ -349,11 +359,11 @@ export default function DogEditScreen() {
               />
             </FieldRow>
             <Divider />
-            <FieldRow label="한 줄 소개">
+            <FieldRow label="한 줄 소개" error={blocked.bio ? MODERATION_BLOCK_MESSAGE : undefined}>
               <TextInput
                 style={styles.input}
                 value={bio}
-                onChangeText={setBio}
+                onChangeText={(t) => { setBio(t); if (blocked.bio) setBlocked(b => ({ ...b, bio: false })); }}
                 placeholder="낯은 가리지만 냄새 맡는 건 좋아해요"
                 placeholderTextColor={Colors.text.placeholder}
                 maxLength={80}
@@ -362,11 +372,11 @@ export default function DogEditScreen() {
               />
             </FieldRow>
             <Divider />
-            <FieldRow label="품종">
+            <FieldRow label="품종" error={blocked.breed ? MODERATION_BLOCK_MESSAGE : undefined}>
               <TextInput
                 style={styles.input}
                 value={breed}
-                onChangeText={setBreed}
+                onChangeText={(t) => { setBreed(t); if (blocked.breed) setBlocked(b => ({ ...b, breed: false })); }}
                 placeholder="예: 말티즈"
                 placeholderTextColor={Colors.text.placeholder}
                 returnKeyType="next"
@@ -374,7 +384,7 @@ export default function DogEditScreen() {
               />
             </FieldRow>
             <Divider />
-            <FieldRow label="체중 (kg)">
+            <FieldRow label="체중 (kg)" error={weightError || undefined}>
               <TextInput
                 style={styles.input}
                 value={weightKg}
@@ -514,11 +524,15 @@ function SectionCard({ title, children }: { title: string; children: React.React
   );
 }
 
-function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
+/** 입력 오류는 해당 칸 바로 아래에 붙인다(§2.1-1) — 모달로 띄우면 어디를 고칠지 모른다 */
+function FieldRow({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
   return (
     <View style={styles.fieldRow}>
       <Text style={styles.fieldLabel}>{label}</Text>
-      <View style={styles.fieldInput}>{children}</View>
+      <View style={styles.fieldInput}>
+        {children}
+        {!!error && <Text style={styles.fieldError}>{error}</Text>}
+      </View>
     </View>
   );
 }
@@ -605,6 +619,12 @@ const styles = StyleSheet.create({
   },
   fieldInput: {
     flex: 1,
+  },
+  fieldError: {
+    ...Typography.label.s,
+    color: Colors.status.error.text,
+    marginTop: Spacing[4],
+    letterSpacing: 0,
   },
   input: {
     ...Typography.body.l,
@@ -744,5 +764,7 @@ const styles = StyleSheet.create({
   emptyText: {
     ...Typography.body.m,
     color: Colors.text.tertiary,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });

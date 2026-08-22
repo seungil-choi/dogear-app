@@ -14,7 +14,9 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { relativeTime } from '../src/utils/labels';
-import { confirm, notify } from '../src/utils/dialog';
+import { confirm } from '../src/utils/dialog';
+import { toast } from '../src/utils/toast';
+import { OK } from '../src/constants/messages';
 import type { BlockedUser } from '../src/types';
 
 export default function BlockedUsersScreen() {
@@ -23,12 +25,14 @@ export default function BlockedUsersScreen() {
   const unblockUser  = useAppStore(s => s.unblockUser);
 
   const onUnblock = async (item: BlockedUser) => {
-    if (await confirm('차단을 해제하면 이 사용자의 콘텐츠가 다시 보여요.', {
-      title: '차단 해제',
-      confirmText: '해제할게요',
+    // 확인 다이얼로그: 제목은 질문, 버튼은 동사 하나로 통일한다
+    if (await confirm('이 사용자의 발도장과 사진이 다시 보이게 돼요.', {
+      title: '차단을 해제할까요?',
+      confirmText: '해제',
     })) {
       unblockUser(item.block_id);
-      notify('차단을 해제했어요. 이 사용자의 콘텐츠가 다시 보입니다.', '차단 해제 완료');
+      // 확인을 이미 한 번 눌렀다 — 결과까지 모달로 막지 않는다(§2.1)
+      toast.success(OK.unblocked);
     }
   };
 

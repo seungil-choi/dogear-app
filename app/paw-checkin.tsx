@@ -21,8 +21,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../src/utils/dialog';
+import { toast } from '../src/utils/toast';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
+import { PERM, PHOTO } from '../src/constants/messages';
 import { uploadImage } from '../src/lib/uploadImage';
+import { stripExifAll } from '../src/lib/stripExif';
 import { supabase } from '../src/lib/supabase';
 import { track, EVENT } from '../src/utils/analytics';
 import { useRouter } from 'expo-router';
@@ -34,8 +37,9 @@ import { Icon } from '../src/components/common/Icon';
 import { EmptyState } from '../src/components/common/EmptyState';
 import type { FeelingTag, VisibilityLevel } from '../src/types';
 import { feelingTagLabel, visibilityLabel } from '../src/utils/labels';
+import * as ImagePicker from 'expo-image-picker';
 import { checkPawmarkProximity, formatDistanceShort } from '../src/utils/geo';
-import { getPawmarkRadius, pawmarkCooldownRemainingMs } from '../src/config/checkin';
+import { getPawmarkRadius, pawmarkCooldownRemainingMs, MAX_CHECKIN_PHOTOS } from '../src/config/checkin';
 import {
   pawStepFlow, visiblePawFlow, nextPawStep, prevPawStep, pawIndicatorIndex, PAW_STEP_LABEL,
 } from '../src/utils/pawSteps';
@@ -64,6 +68,9 @@ const FEELING_TAGS: FeelingTag[] = [
  */
 const SHOW_VISIBILITY_STEP = false;
 const DEFAULT_VISIBILITY: VisibilityLevel = 'familiar_layer';
+
+// 사진 상한(MAX_CHECKIN_PHOTOS)은 src/config/checkin.ts 한 곳에만 둔다 —
+// 화면·스토어·서버가 각자 숫자를 들고 있으면 하나만 고치고 나머지를 빠뜨린다.
 
 /**
  * 단계 흐름 — 다음/이전/인디케이터가 모두 이 배열 하나에서 파생된다.
@@ -106,6 +113,7 @@ export default function PawCheckinModal() {
   const setPawSpot     = useAppStore(s => s.setPawSpot);
   const setPawTags     = useAppStore(s => s.setPawTags);
   const setPawPhoto    = useAppStore(s => s.setPawPhoto);
+  const setPawPhotos   = useAppStore(s => s.setPawPhotos);
   const setPawVisibility = useAppStore(s => s.setPawVisibility);
   const submitPawCheckin = useAppStore(s => s.submitPawCheckin);
   const resetPawFlow   = useAppStore(s => s.resetPawFlow);
@@ -170,7 +178,7 @@ export default function PawCheckinModal() {
         accuracy: loc.coords.accuracy ?? undefined,
       });
     } catch {
-      notify('위치를 가져올 수 없어요. 잠시 후 다시 시도해주세요.', '위치 조회 실패');
+      toast.error('현재 위치를 찾지 못했어요. 잠시 후 다시 시도해주세요');
     } finally {
       setIsRefreshingLocation(false);
     }
@@ -236,6 +244,39 @@ export default function PawCheckinModal() {
     if (prev !== undefined) setPawStep(prev);
   }, [step, setPawStep, handleClose, isPresetSpot]);
 
+  // ── 사진 첨부 (선택, 최대 3장) ─────────────────────────────
+  // allowsMultipleSelection으로 한 번에 여러 장. 남은 자리만큼만 받는다.
+  //
+  // 고르는 즉시 EXIF(촬영 좌표 포함)를 털어낸다 — 업로드 시점이 아니라 여기서 하는 이유는,
+  // 미리보기·재시도 등 이후 경로가 전부 "이미 좌표가 없는 파일"만 만지게 하기 위해서다.
+  const currentPhotos = pawFlow.photoUris ?? [];
+  const handleAddPhotos = useCallback(async () => {
+    const remaining = MAX_CHECKIN_PHOTOS - (pawFlow.photoUris?.length ?? 0);
+    if (remaining <= 0) return;
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        notify(PERM.photo, '권한 필요');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: remaining > 1,
+        selectionLimit: remaining,
+        quality: 0.8,
+      });
+      if (result.canceled) return;
+      const picked = await stripExifAll(result.assets.map(a => a.uri));
+      setPawPhotos([...(pawFlow.photoUris ?? []), ...picked].slice(0, MAX_CHECKIN_PHOTOS));
+    } catch {
+      toast.error(PHOTO.loadFailed);
+    }
+  }, [pawFlow.photoUris, setPawPhotos]);
+
+  const handleRemovePhoto = useCallback((uri: string) => {
+    setPawPhotos((pawFlow.photoUris ?? []).filter(u => u !== uri));
+  }, [pawFlow.photoUris, setPawPhotos]);
+
   const handleSubmit = useCallback(async () => {
     // 사진 업로드~서버 저장 전 구간에서 더블탭 시 이중 업로드·이중 발도장 방지.
     // isSubmitting은 submitToServer 내부에서만 켜져 업로드 구간을 못 덮으므로 별도 락 사용.
@@ -245,7 +286,7 @@ export default function PawCheckinModal() {
     // ── UGC 텍스트 사전 필터 (Apple 1.2) ──────────────────────
     // 메모는 흔적(trace)으로 타인에게 노출되므로 부적절어 차단
     if (isObjectionable(pawFlow.note)) {
-      notify(MODERATION_BLOCK_MESSAGE, '메모 확인');
+      toast.error(MODERATION_BLOCK_MESSAGE);
       return;
     }
     // ── 강아지 등록 가드 ──────────────────────────────────────
@@ -262,7 +303,7 @@ export default function PawCheckinModal() {
     // ── 위치 근접성 가드 ──────────────────────────────────────
     // 사용자가 spot 근처(카테고리별 반경)에 실제로 있어야만 발도장 가능
     if (!targetSpot) {
-      notify('장소 정보를 불러올 수 없어요.', '오류');
+      toast.error('장소 정보를 불러오지 못했어요');
       return;
     }
     // ── 1시간 쿨다운 가드 ────────────────────────────────────
@@ -272,31 +313,19 @@ export default function PawCheckinModal() {
         place_id: targetSpot.spot_id,
         remaining_min: cooldownMinLeft,
       });
-      notify(
-        `같은 장소엔 1시간에 한 번만 발도장을 남길 수 있어요.\n${cooldownMinLeft}분 후에 다시 시도해주세요.`,
-        '잠시 후 다시 가능',
-      );
+      // 안내는 위 쿨다운 패널·버튼 라벨이 이미 하고 있다(§4.9 인라인) — 모달로 겹치지 않는다
       return;
     }
     if (proximity && !proximity.ok) {
-      const radius = getPawmarkRadius(targetSpot.category);
       if (proximity.reason === 'invalid_spot') {
-        notify(
-          '장소 좌표 정보가 올바르지 않아요. 운영진에게 신고해주시면 확인하겠습니다.',
-          '장소 정보 오류',
-        );
-        return;
+        return;   // 근접성 패널이 이유를 상시 표시한다
       }
       if (proximity.reason === 'no_location') {
         track(EVENT.pawmark_blocked_no_location, {
           screen_name: 'paw_checkin',
           place_id: targetSpot.spot_id,
         });
-        notify(
-          '발도장을 남기려면 위치 권한이 필요해요. 권한 허용 후 다시 시도해주세요.',
-          '위치 권한 필요',
-        );
-        await refreshLocation();
+        await refreshLocation();   // 패널에 '설정 열기'·'위치 새로고침'이 이미 있다
         return;
       }
       if (proximity.reason === 'low_accuracy') {
@@ -305,11 +334,7 @@ export default function PawCheckinModal() {
           place_id: targetSpot.spot_id,
           accuracy: Math.round(proximity.accuracy),
         });
-        notify(
-          `현재 위치 정확도가 낮아요 (±${Math.round(proximity.accuracy)}m).\n야외 또는 창가로 이동해 위치를 새로고침해주세요.`,
-          '위치 정확도 부족',
-        );
-        return;
+        return;   // 패널이 정확도와 다음 행동을 이미 보여준다
       }
       if (proximity.reason === 'too_far') {
         track(EVENT.pawmark_blocked_too_far, {
@@ -318,67 +343,49 @@ export default function PawCheckinModal() {
           distance_m: Math.round(proximity.distance),
           allowed_m: Math.round(proximity.allowed),
         });
-        notify(
-          `현재 ${targetSpot.name}에서 약 ${formatDistanceShort(proximity.distance)} 떨어져 있어요.\n발도장은 장소 가까이(약 ${radius}m 이내)에서만 남길 수 있어요.`,
-          '장소 근처로 이동해주세요',
-        );
-        return;
+        return;   // 패널이 거리와 허용 반경을 이미 보여준다
       }
     }
     // ── 가드 통과 → 실제 제출 ──────────────────────────────────
     let serverResult: Parameters<typeof submitPawCheckin>[0];
     if (IS_REAL_AUTH) {
-      // 0) 첨부 사진이 로컬 URI면 Storage 업로드 → public URL 확보 (영속화)
-      //    실패 시 제출 중단 — 사진이 조용히 소실되는 것 방지, 사용자가 재시도/사진 제거 선택
-      //
-      // ⚠️ 지금은 이 블록에 도달하지 않는다 — Phase 2 대기.
-      //    pawFlow.photoUri를 채우는 UI(ImagePicker)가 이 화면에 아직 없어서,
-      //    setPawPhoto는 업로드 성공 후 URL을 되쓸 때만 호출된다.
-      //    그래서 checkin-photos 버킷이 계속 0건이다. 버그가 아니라 미구현이다.
-      //    PRD 11.4는 "선택 입력(사진/짧은 메모)"으로 적고 있고, 짧은 메모도 같은 상태다
-      //    (setPawNote 호출부·TextInput 모두 없음).
-      //    서버·DB·검수큐는 완비돼 있으므로 Phase 2에서는 UI만 붙이면 된다.
-      let uploadedPhotoUrl: string | undefined;
-      if (pawFlow.photoUri && !pawFlow.photoUri.startsWith('http')) {
+      // 0) 첨부 사진(최대 3장)을 Storage에 업로드 → public URL 확보 (영속화)
+      //    실패 시 제출 중단 — 사진이 조용히 소실되는 것 방지, 사용자가 재시도/사진 제거 선택.
+      //    한 장이라도 실패하면 전체를 멈춘다(일부만 올라간 채 발도장이 남는 상태를 만들지 않으려고).
+      const pendingPhotos = pawFlow.photoUris ?? [];
+      const uploadedPhotoUrls: string[] = [];
+      for (const uri of pendingPhotos) {
+        if (uri.startsWith('http')) {
+          uploadedPhotoUrls.push(uri); // 이미 업로드된 URL
+          continue;
+        }
         try {
-          const up = await uploadImage({
-            bucket: 'checkin-photos',
-            uri: pawFlow.photoUri,
-          });
-          uploadedPhotoUrl = up.url;
-          setPawPhoto(up.url); // store에도 영속 URL 반영 (로컬 기록/성공화면용)
+          const up = await uploadImage({ bucket: 'checkin-photos', uri });
+          uploadedPhotoUrls.push(up.url);
         } catch (e: any) {
           track(EVENT.photo_upload_failed, {
             screen_name: 'paw_checkin',
             bucket: 'checkin-photos',
             error_message: (e?.message ?? 'unknown').slice(0, 100),
           });
-          notify(e?.message ?? '사진 업로드에 실패했어요. 다시 시도하거나 사진을 빼주세요.', '사진 업로드 실패');
+          toast.error(PHOTO.uploadFailed);
           return;
         }
-      } else if (pawFlow.photoUri) {
-        uploadedPhotoUrl = pawFlow.photoUri; // 이미 업로드된 URL
       }
+      // store에도 영속 URL 반영 (성공 화면·로컬 기록용)
+      if (uploadedPhotoUrls.length > 0) setPawPhotos(uploadedPhotoUrls);
 
       try {
-        const r = await submitToServer(uploadedPhotoUrl); // Edge Function → Supabase 저장
+        const r = await submitToServer(uploadedPhotoUrls); // Edge Function → Supabase 저장
         serverResult = {
           checkinId: r.checkinId,
           visitCount: r.visitSummary?.visitCount,
           lastVisitAt: r.visitSummary?.lastVisitAt,
           regularStatus: r.visitSummary?.regularStatus as any,
         };
-        // 사진 포함 시 이미지 검수 큐 적재 (Apple 1.2 사후 모더레이션) — fire-and-forget
-        if (uploadedPhotoUrl && r.checkinId) {
-          supabase.from('media_moderation_queue').insert({
-            content_type: 'checkin_photo',
-            dog_id: dog.dog_id,
-            checkin_id: r.checkinId,
-            image_url: uploadedPhotoUrl,
-          }).then(({ error }) => {
-            if (error) console.error('moderation queue insert failed:', error);
-          });
-        }
+        // 검수큐(media_moderation_queue) 적재는 서버(paw-checkin 엣지함수)가 한다.
+        //   예전엔 여기서 클라가 직접 insert했는데, 사진이 checkin_photos에 저장되는 시점과
+        //   큐 적재가 갈라져 있으면 한쪽만 남는 상태가 생긴다. 같은 트랜잭션 경로에 둔다.
       } catch (err: any) {
         // 쿨다운/일일제한 분기 — 메시지 패턴으로 구분
         const msg = err?.message ?? '';
@@ -391,7 +398,12 @@ export default function PawCheckinModal() {
           place_id: selectedSpot?.spot_id,
           error_message: msg.slice(0, 100),
         });
-        notify(msg || '잠시 후 다시 시도해주세요.', '발도장 저장 실패');
+        // 서버 원문을 그대로 띄우지 않는다 — 영문·코드가 섞여 나올 수 있다(§3.0 금지)
+        toast.error(
+          /cooldown|쿨다운|간격/i.test(msg)  ? '같은 장소는 1시간에 한 번 남길 수 있어요' :
+          /daily|일일|하루|limit/i.test(msg) ? '오늘 남길 수 있는 발도장을 다 썼어요. 내일 다시 만나요' :
+                                               '발도장을 저장하지 못했어요. 잠시 후 다시 시도해주세요',
+        );
         return;
       }
     }
@@ -710,6 +722,46 @@ export default function PawCheckinModal() {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* ── 사진 첨부 (선택, 최대 3장) ───────────────────────── */}
+            <View style={s.photoBlock}>
+              <View style={s.photoHeader}>
+                <Text style={s.photoTitle}>사진 남기기</Text>
+                <Text style={s.photoCount}>{currentPhotos.length}/{MAX_CHECKIN_PHOTOS}</Text>
+              </View>
+              <Text style={s.photoDesc}>
+                이 장소를 보는 다른 보호자에게도 보여요. 안 올려도 괜찮아요.
+              </Text>
+
+              <View style={s.photoRow}>
+                {currentPhotos.map(uri => (
+                  <View key={uri} style={s.photoThumbWrap}>
+                    <AppImage source={{ uri }} style={s.photoThumb} resizeMode="cover" />
+                    <TouchableOpacity
+                      style={s.photoRemove}
+                      onPress={() => handleRemovePhoto(uri)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      accessibilityRole="button"
+                      accessibilityLabel="사진 빼기"
+                    >
+                      <Icon name="close" size={12} color={Colors.brand.onPrimary} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+
+                {currentPhotos.length < MAX_CHECKIN_PHOTOS && (
+                  <TouchableOpacity
+                    style={s.photoAdd}
+                    onPress={handleAddPhotos}
+                    activeOpacity={0.8}
+                    accessibilityRole="button"
+                    accessibilityLabel="사진 추가"
+                  >
+                    <Icon name="plus" size={20} color={Colors.brand.primary} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
           </View>
         )}
 
@@ -770,6 +822,10 @@ export default function PawCheckinModal() {
                 value={selectedTags.length > 0
                   ? selectedTags.map(t => feelingTagLabel[t]).join(', ')
                   : '선택 안 함'}
+              />
+              <SummaryRow
+                label="사진"
+                value={currentPhotos.length > 0 ? `${currentPhotos.length}장` : '없음'}
               />
               <SummaryRow label="공개 범위" value={visibilityLabel[visibility]} />
             </View>
@@ -1017,6 +1073,32 @@ const s = StyleSheet.create({
   tagChipSelected:     { backgroundColor: Colors.surface.selected, borderColor: Colors.brand.primary },
   tagChipText:         { ...Typography.label.m, color: Colors.text.secondary },
   tagChipTextSelected: { color: Colors.brand.accent, fontWeight: '700' },
+
+  // 사진 첨부 (선택, 최대 3장)
+  photoBlock:  { gap: Spacing[8] },
+  photoHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  photoTitle:  { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
+  photoCount:  { ...Typography.caption, color: Colors.text.tertiary },
+  photoDesc:   { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 18 },
+  photoRow:    { flexDirection: 'row', gap: Spacing[10], marginTop: Spacing[4] },
+  photoThumbWrap: { width: 80, height: 80 },
+  photoThumb: {
+    width: 80, height: 80, borderRadius: Radius.m,
+    backgroundColor: Colors.bg.secondary,
+  },
+  photoRemove: {
+    position: 'absolute', top: -6, right: -6,
+    width: 22, height: 22, borderRadius: 11,
+    backgroundColor: Colors.text.primary,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  photoAdd: {
+    width: 80, height: 80, borderRadius: Radius.m,
+    backgroundColor: Colors.brand.subtle,
+    borderWidth: 1.5, borderColor: Colors.brand.primaryLight,
+    borderStyle: 'dashed',
+    alignItems: 'center', justifyContent: 'center',
+  },
 
   // 공개 범위 카드
   visibilityList: { gap: Spacing[10] },

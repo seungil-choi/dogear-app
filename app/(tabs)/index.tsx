@@ -459,7 +459,7 @@ export default function HomeScreen() {
             </ScrollView>
           ) : (
             <View style={s.sectionEmpty}>
-              <Text style={s.sectionEmptyText}>아직 다녀온 곳이 없어요. 첫 발도장을 남겨보세요!</Text>
+              <Text style={s.sectionEmptyText}>아직 다녀온 곳이 없어요. 첫 발도장을 남겨보세요.</Text>
             </View>
           )}
         </View>

@@ -8,6 +8,7 @@ export default function NotFoundScreen() {
     <View style={s.container}>
       <Icon name="paw" size={56} color={Colors.text.tertiary} />
       <Text style={s.title}>페이지를 찾을 수 없어요</Text>
+      <Text style={s.desc}>주소가 바뀌었거나 사라진 화면이에요.</Text>
       <Link href="/(tabs)" style={s.link}>
         <Text style={s.linkText}>홈으로 돌아가기</Text>
       </Link>
@@ -18,6 +19,7 @@ export default function NotFoundScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing[16], backgroundColor: Colors.bg.primary },
   title: { ...Typography.title.m, color: Colors.text.primary },
+  desc: { ...Typography.body.m, color: Colors.text.secondary, textAlign: 'center' },
   link: {},
   linkText: { ...Typography.label.l, color: Colors.brand.primary },
 });

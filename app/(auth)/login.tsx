@@ -39,6 +39,7 @@ import { supabase } from '../../src/lib/supabase';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
 import { TextField } from '../../src/components/common/TextField';
+import { AUTH, GREET, VALID } from '../../src/constants/messages';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -82,6 +83,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [pwError, setPwError] = useState('');
   const [busy, setBusy] = useState(false);
 
   // 인증 완료 후 라우팅
@@ -113,11 +115,11 @@ export default function LoginScreen() {
         .maybeSingle();
 
       if (!consent) {
-        toast(`반갑습니다, ${name}님`);
+        toast(GREET.new(name));
         router.replace('/(auth)/consent');
         return;
       }
-      toast(`다시 오셨네요, ${name}님`);
+      toast(GREET.returning(name));
       router.replace('/(tabs)');
     } catch (e) {
       // 조회 실패로 로그인 자체를 막지는 않는다
@@ -129,11 +131,12 @@ export default function LoginScreen() {
   // 이메일 로그인
   const handleEmailLogin = async () => {
     const trimmed = email.trim();
-    if (!trimmed || !EMAIL_RE.test(trimmed)) {
-      setEmailError('올바른 이메일을 입력해주세요.');
-      return;
-    }
-    if (!password) { notify('비밀번호를 입력해주세요.'); return; }
+    // 입력 문제는 필드 옆에서 알린다(§2.1-1) — 두 칸을 한 번에 검사해야 왕복이 없다
+    const nextEmailError = !trimmed ? VALID.required('이메일') : !EMAIL_RE.test(trimmed) ? VALID.email : '';
+    const nextPwError = !password ? VALID.password : '';
+    setEmailError(nextEmailError);
+    setPwError(nextPwError);
+    if (nextEmailError || nextPwError) return;
 
     setBusy(true);
     try {
@@ -144,12 +147,13 @@ export default function LoginScreen() {
       }
       const { error } = await supabase.auth.signInWithPassword({ email: trimmed, password });
       if (error) {
-        notify(error.message ?? '로그인에 실패했어요. 입력 정보를 확인해주세요.');
+        // Supabase 원문(영문·기술용어)을 그대로 띄우지 않는다(§3.0 금지)
+        notify(AUTH.emailFailed);
         return;
       }
       proceedAfterAuth();
     } catch {
-      notify('로그인 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.');
+      notify(AUTH.emailFailed);
     } finally {
       setBusy(false);
     }
@@ -168,19 +172,20 @@ export default function LoginScreen() {
           AppleAuthentication.AppleAuthenticationScope.EMAIL,
         ],
       });
+      // 토큰 미수신·교환 실패·예외 — 사용자 입장에선 전부 같은 "로그인 실패"다(§4.2)
       if (!credential.identityToken) {
-        notify('인증 정보를 확인할 수 없어요. 다시 시도해주세요.');
+        notify(AUTH.socialFailed('Apple'));
         return;
       }
       const { error } = await supabase.auth.signInWithIdToken({
         provider: 'apple',
         token: credential.identityToken,
       });
-      if (error) { notify(error.message); return; }
+      if (error) { notify(AUTH.socialFailed('Apple')); return; }
       proceedAfterAuth();
     } catch (e: any) {
-      if (e?.code === 'ERR_REQUEST_CANCELED') return;
-      notify('Apple 로그인 중 문제가 발생했어요.');
+      if (e?.code === 'ERR_REQUEST_CANCELED') return;   // 사용자가 직접 취소 → 침묵
+      notify(AUTH.socialFailed('Apple'));
     }
   };
 
@@ -191,19 +196,19 @@ export default function LoginScreen() {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const userInfo = await GoogleSignin.signIn();
       const idToken = (userInfo as any).idToken ?? (userInfo as any).data?.idToken;
-      if (!idToken) { notify('인증 정보를 확인할 수 없어요. 다시 시도해주세요.'); return; }
+      if (!idToken) { notify(AUTH.socialFailed('구글')); return; }
       const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken });
-      if (error) { notify(error.message); return; }
+      if (error) { notify(AUTH.socialFailed('구글')); return; }
       proceedAfterAuth();
     } catch (e: any) {
-      if (e?.code === statusCodes.SIGN_IN_CANCELLED) return;
+      if (e?.code === statusCodes.SIGN_IN_CANCELLED) return;   // 사용자가 직접 취소 → 침묵
       if (e?.code === statusCodes.IN_PROGRESS) return;
       if (e?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        notify('Google Play Services가 필요해요.');
+        notify(AUTH.playServices);
         return;
       }
       console.error('Google Sign-In error:', e);
-      notify('Google 로그인 중 문제가 발생했어요.');
+      notify(AUTH.socialFailed('구글'));
     }
   };
 
@@ -217,14 +222,14 @@ export default function LoginScreen() {
       const { login } = await import('@react-native-kakao/user');
       const result = await login();
       const idToken = (result as any).idToken;
-      if (!idToken) { notify('인증 정보를 확인할 수 없어요. 다시 시도해주세요.'); return; }
+      if (!idToken) { notify(AUTH.socialFailed('카카오')); return; }
       const { error } = await supabase.auth.signInWithIdToken({ provider: 'kakao', token: idToken });
-      if (error) { notify(error.message); return; }
+      if (error) { notify(AUTH.socialFailed('카카오')); return; }
       proceedAfterAuth();
     } catch (e: any) {
-      if (e?.code === 'E_CANCELLED_OPERATION' || /cancel/i.test(e?.message ?? '')) return;
+      if (e?.code === 'E_CANCELLED_OPERATION' || /cancel/i.test(e?.message ?? '')) return;   // 취소 → 침묵
       console.error('Kakao login error:', e);
-      notify('카카오 로그인에 실패했어요. 잠시 후 다시 시도해주세요.');
+      notify(AUTH.socialFailed('카카오'));
     }
   };
 
@@ -341,7 +346,8 @@ export default function LoginScreen() {
               label="비밀번호"
               placeholder="비밀번호 입력"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(t) => { setPassword(t); if (pwError) setPwError(''); }}
+              error={pwError}
               secureTextEntry
               editable={!busy}
               textContentType="password"

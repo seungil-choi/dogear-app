@@ -2,8 +2,10 @@
  * 신고 화면 (App Store 1.2 UGC 정책 필수)
  *
  * 라우팅 파라미터:
- *   target_type: 'spot' | 'checkin' | 'dog' | 'user'
+ *   target_type: 'spot' | 'checkin' | 'dog' | 'user' | 'checkin_photo'
  *   target_id: string
+ *     checkin_photo는 checkin_photos.id — 장소 상세 갤러리에서 사진을 길게 눌러 들어온다.
+ *     사진은 사전 검수 없이 공개되므로 이 경로가 사후 안전장치다.
  *
  * 신고 사유 선택 + 상세 입력 → reportContent 액션 호출.
  */
@@ -13,7 +15,8 @@ import {
   View, Text, TouchableOpacity, ScrollView, TextInput,
   StyleSheet, KeyboardAvoidingView, Platform,
 } from 'react-native';
-import { notify } from '../src/utils/dialog';
+import { toast } from '../src/utils/toast';
+import { OK } from '../src/constants/messages';
 import { track, EVENT } from '../src/utils/analytics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -58,12 +61,10 @@ export default function ReportScreen() {
   const submittedRef = useRef(false);
 
   const submit = () => {
-    if (!reason) {
-      notify('신고 사유를 먼저 선택해주세요.', '신고 사유 선택');
-      return;
-    }
+    // 사유 미선택이면 버튼 자체가 비활성이다 — 이유는 버튼 위 안내문이 상시로 설명한다
+    if (!reason) return;
     if (!targetId) {
-      notify('신고 대상을 확인할 수 없어요.', '오류');
+      toast.error('신고 대상을 확인할 수 없어요');
       return;
     }
     if (submittedRef.current) return; // 더블탭 이중 신고·이중 back 방지
@@ -100,11 +101,11 @@ export default function ReportScreen() {
       }
     }
 
-    notify(
+    // 확인을 누르게 하지 않는다 — 알려주기만 하면 되는 결과다(§2.1-3)
+    toast.success(
       hidden
-        ? '24시간 내 검토 후 처리할게요. 해당 사용자의 콘텐츠는 더 이상 보이지 않아요.'
-        : '24시간 내에 검토 후 처리할게요. 소중한 신고 감사해요.',
-      '신고가 접수됐어요',
+        ? '신고를 접수했어요. 이 사용자의 콘텐츠는 더 이상 보이지 않아요'
+        : OK.report,
     );
     router.back();
   };
@@ -190,6 +191,8 @@ export default function ReportScreen() {
         </ScrollView>
 
         <View style={s.footer}>
+          {/* 버튼이 왜 눌리지 않는지 알려준다 */}
+          {!reason && <Text style={s.footerHint}>신고 사유를 선택하면 접수할 수 있어요</Text>}
           <TouchableOpacity
             style={[s.cta, !reason && s.ctaDisabled]}
             onPress={submit}
@@ -261,6 +264,10 @@ const s = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   ctaDisabled: { backgroundColor: Colors.border.strong },
+  footerHint: {
+    ...Typography.caption, color: Colors.text.secondary,
+    textAlign: 'center', marginBottom: Spacing[10],
+  },
   ctaLabel: { ...Typography.title.m, color: '#FFFFFF' },
 
   // ── 차단 옵션 체크박스 ──

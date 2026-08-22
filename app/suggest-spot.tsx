@@ -17,9 +17,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../src/utils/dialog';
+import { toast } from '../src/utils/toast';
+import { PERM, PHOTO } from '../src/constants/messages';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import * as ImagePicker from 'expo-image-picker';
+import { stripExif } from '../src/lib/stripExif';
 import * as Location from 'expo-location';
 import { formatKoreanAddress, extractNeighborhood } from '../src/utils/address';
 import { AppImage } from '../src/components/common/AppImage';
@@ -108,6 +111,8 @@ export default function SuggestSpotScreen() {
   const [step, setStep] = useState<Step>('checking');
   const [duplicates, setDuplicates] = useState<NearbyDuplicate[]>([]);
   const [hasHardBlock, setHasHardBlock] = useState(false);
+  /** 부적절 표현 차단 — 어느 칸이 문제인지 나눠서 알려준다 */
+  const [blocked, setBlocked] = useState<{ name?: boolean; description?: boolean }>({});
   const [createdSpotId, setCreatedSpotId] = useState<string | null>(null);
   /** 중복 후보 중 사용자가 고른 것. 후보가 하나면 자동 선택한다(고를 게 없으므로). */
   const [selectedDupId, setSelectedDupId] = useState<string | null>(null);
@@ -174,7 +179,7 @@ export default function SuggestSpotScreen() {
     try {
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        notify('사진 첨부에는 갤러리 권한이 필요해요.', '권한 필요');
+        notify(PERM.photo, '권한 필요');
         return;
       }
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -184,10 +189,11 @@ export default function SuggestSpotScreen() {
         aspect: [4, 3],
       });
       if (!result.canceled && result.assets[0]) {
-        setPhotoUri(result.assets[0].uri);
+        // 제안 사진은 검토를 거쳐 장소 페이지에 공개될 수 있다 — 촬영 좌표를 지우고 들고 간다.
+        setPhotoUri(await stripExif(result.assets[0].uri));
       }
     } catch {
-      notify('사진을 불러오지 못했어요. 잠시 후 다시 시도해주세요.', '오류');
+      toast.error(PHOTO.loadFailed);
     }
   }, []);
   const handleRemovePhoto = useCallback(() => setPhotoUri(null), []);
@@ -214,17 +220,17 @@ export default function SuggestSpotScreen() {
     submittingRef.current = true;
     try {
     // UGC 텍스트 사전 필터 (Apple 1.2) — 제안한 장소명/설명은 전체에게 노출됨
-    if (isObjectionable(name) || isObjectionable(description)) {
-      notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
+    // 입력 문제는 해당 칸 아래에서 알린다(§2.1-1) — 입력 화면으로 되돌려 보여준다
+    const nextBlocked = { name: isObjectionable(name), description: isObjectionable(description) };
+    setBlocked(nextBlocked);
+    if (nextBlocked.name || nextBlocked.description) {
+      setStep('form');
       return;
     }
 
     // hard_block 안전망 — duplicate_check 단계에서 우회되더라도 최종 제출 직전 재검증
     if (hasHardBlock) {
-      notify(
-        '동일한 이름·카테고리의 장소가 이미 매우 가까이 등록되어 있어요. 기존 장소를 선택해주세요.',
-        '제안 불가',
-      );
+      // 중복 확인 화면이 이유와 다음 행동을 이미 상시 표시한다 — 모달로 겹치지 않는다
       setStep('duplicate_check');
       return;
     }
@@ -241,10 +247,8 @@ export default function SuggestSpotScreen() {
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('[suggest-spot] 사진 업로드 실패 — 사진 없이 제안을 이어갑니다:', e);
-        notify(
-          `${(e as Error)?.message ?? '사진을 올리지 못했어요.'}\n장소는 그대로 제안됩니다.`,
-          '사진 업로드 실패',
-        );
+        // 제안은 그대로 진행된다 → 흐름을 끊지 않는다
+        toast.error('사진만 올리지 못했어요. 장소 제안은 그대로 접수돼요');
       }
     }
 
@@ -298,7 +302,7 @@ export default function SuggestSpotScreen() {
 
       if (spotError || !spotRow) {
         track(EVENT.place_suggestion_submit_failed, { screen_name: 'suggest_spot' });
-        notify('장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.', '제안 실패');
+        toast.error('장소를 제안하지 못했어요. 잠시 후 다시 시도해주세요');
         return;
       }
       serverSpotId = spotRow.spot_id;
@@ -324,7 +328,7 @@ export default function SuggestSpotScreen() {
         // 방금 내가 만든 hidden 행이라 RLS상 지울 수 있다(실패해도 사용자 흐름엔 영향 없음).
         await supabase.from('spots').delete().eq('spot_id', serverSpotId);
         track(EVENT.place_suggestion_submit_failed, { screen_name: 'suggest_spot' });
-        notify('장소 제안에 실패했어요. 잠시 후 다시 시도해주세요.', '제안 실패');
+        toast.error('장소를 제안하지 못했어요. 잠시 후 다시 시도해주세요');
         return;
       }
     }
@@ -525,11 +529,12 @@ export default function SuggestSpotScreen() {
               <TextInput
                 style={s.textInput}
                 value={name}
-                onChangeText={setName}
+                onChangeText={(t) => { setName(t); if (blocked.name) setBlocked(b => ({ ...b, name: false })); }}
                 placeholder="예) 한강 뚝섬지구"
                 placeholderTextColor={Colors.text.tertiary}
                 maxLength={40}
               />
+              {blocked.name && <Text style={s.fieldError}>{MODERATION_BLOCK_MESSAGE}</Text>}
             </View>
 
             {/* ── 대표 사진 (선택) ── */}
@@ -578,14 +583,16 @@ export default function SuggestSpotScreen() {
               <TextInput
                 style={[s.textInput, s.textInputMulti]}
                 value={description}
-                onChangeText={setDescription}
+                onChangeText={(t) => { setDescription(t); if (blocked.description) setBlocked(b => ({ ...b, description: false })); }}
                 placeholder="그늘이 많아요, 바닥이 흙이에요 같은 한마디"
                 placeholderTextColor={Colors.text.tertiary}
                 multiline
                 maxLength={80}
                 numberOfLines={2}
               />
-              <Text style={s.charCount}>{description.length}/80</Text>
+              {blocked.description
+                ? <Text style={s.fieldError}>{MODERATION_BLOCK_MESSAGE}</Text>
+                : <Text style={s.charCount}>{description.length}/80</Text>}
             </View>
 
             <View style={s.formSection}>
@@ -612,7 +619,7 @@ export default function SuggestSpotScreen() {
             <View style={s.guideBox}>
               <Icon name="info" size={14} color={Colors.text.tertiary} />
               <Text style={s.guideText}>
-                제안하신 장소는 검토 후 앱에 반영됩니다.{'\n'}
+                제안하신 장소는 검토 후 앱에 반영돼요.{'\n'}
                 검토 전까지는 나에게만 임시로 표시될 수 있어요.
               </Text>
             </View>
@@ -639,9 +646,9 @@ export default function SuggestSpotScreen() {
               <View style={s.doneIconCircle}>
                 <Icon name="paw-filled" size={40} color={Colors.brand.primary} />
               </View>
-              <Text style={s.doneTitle}>제안해 주셔서 감사해요!</Text>
+              <Text style={s.doneTitle}>제안해 주셔서 감사해요</Text>
               <Text style={s.doneDesc}>
-                검토가 완료되면 앱에 공식 등록됩니다.{'\n'}
+                검토가 끝나면 앱에 정식으로 등록돼요.{'\n'}
                 완료 시 알림으로 알려드릴게요.
               </Text>
             </View>
@@ -653,7 +660,7 @@ export default function SuggestSpotScreen() {
               </View>
               <Text style={s.tempNoticeDesc}>
                 제안하신 장소는 검토 전까지 <Text style={s.tempNoticeEm}>임시 반영</Text> 상태로
-                표시됩니다. 발도장 찍기, 장소 저장 등 일부 기능을 미리 사용할 수 있지만,
+                표시돼요. 발도장 찍기, 장소 저장 등 일부 기능을 미리 쓸 수 있지만,
                 검토 결과에 따라 변경될 수 있어요.
               </Text>
             </View>
@@ -877,6 +884,7 @@ const s = StyleSheet.create({
   },
   textInputMulti: { minHeight: 72, textAlignVertical: 'top' },
   charCount: { ...Typography.caption, color: Colors.text.tertiary, alignSelf: 'flex-end' },
+  fieldError: { ...Typography.label.s, color: Colors.status.error.text, marginTop: Spacing[6], letterSpacing: 0 },
 
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[8] },
   categoryChip: {

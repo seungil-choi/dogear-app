@@ -7,6 +7,7 @@ import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { stripExif } from '../../src/lib/stripExif';
 import { AppImage } from '../../src/components/common/AppImage';
 import { uploadImage } from '../../src/lib/uploadImage';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../../src/utils/moderation';
@@ -17,8 +18,18 @@ import { Button } from '../../src/components/common/Button';
 import { Icon } from '../../src/components/common/Icon';
 import type { DogSize, DogAgeGroup, Dog } from '../../src/types';
 import { sizeLabel, ageGroupLabel } from '../../src/utils/labels';
+import { toast } from '../../src/utils/toast';
+import { OK, PERM, PHOTO } from '../../src/constants/messages';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
+
+/** 체중은 선택 항목이지만, 넣었다면 말이 되는 값이어야 한다 */
+function weightErrorOf(raw: string): string {
+  if (!raw.trim()) return '';
+  const n = parseFloat(raw);
+  if (Number.isNaN(n) || n <= 0 || n >= 100) return '0보다 크고 100kg 미만으로 입력해주세요';
+  return '';
+}
 
 const SIZES: DogSize[] = ['small', 'medium', 'large'];
 const AGE_GROUPS: DogAgeGroup[] = ['puppy', 'adult', 'senior'];
@@ -61,6 +72,11 @@ export default function DogSetupScreen() {
   const [selectedTemperament, setSelectedTemperament] = useState<string[]>([]);
   const [selectedWalking, setSelectedWalking] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  /** 부적절 표현은 어느 칸이 문제인지 알려줘야 고칠 수 있다 — 필드별로 나눠 표시 */
+  const [nameBlocked, setNameBlocked] = useState(false);
+  const [bioBlocked, setBioBlocked] = useState(false);
+
+  const weightError = weightErrorOf(weightKg);
 
   // 가입 funnel 진입 추적 (마운트 시점 1회)
   useEffect(() => {
@@ -77,7 +93,7 @@ export default function DogSetupScreen() {
     try {
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!perm.granted) {
-        notify('사진 첨부에는 갤러리 권한이 필요해요.', '권한 필요');
+        notify(PERM.photo, '권한 필요');   // 설정으로 가야 풀리는 문제 → Alert 유지(§2.2)
         return;
       }
       const res = await ImagePicker.launchImageLibraryAsync({
@@ -86,9 +102,10 @@ export default function DogSetupScreen() {
         aspect: [1, 1],
         quality: 0.8,
       });
-      if (!res.canceled && res.assets?.[0]) setPhotoUri(res.assets[0].uri);
+      // 아바타는 '익숙한 강아지' 등으로 남에게 보인다 — 촬영 좌표를 지우고 들고 간다.
+      if (!res.canceled && res.assets?.[0]) setPhotoUri(await stripExif(res.assets[0].uri));
     } catch {
-      notify('사진을 불러오지 못했어요. 잠시 후 다시 시도해주세요.', '오류');
+      toast.error(PHOTO.loadFailed);
     }
   };
 
@@ -97,19 +114,17 @@ export default function DogSetupScreen() {
     setIsSaving(true);
 
     // UGC 사전 필터 — 이름·소개는 다른 보호자에게 보인다 (Apple 1.2)
-    if (isObjectionable(name) || isObjectionable(bio)) {
-      notify(MODERATION_BLOCK_MESSAGE, '입력 확인');
+    // 입력 문제이므로 모달이 아니라 **문제가 있는 칸 아래**에 표시한다(§2.1-1)
+    const badName = isObjectionable(name);
+    const badBio  = isObjectionable(bio);
+    setNameBlocked(badName);
+    setBioBlocked(badBio);
+    if (badName || badBio || weightError) {
       setIsSaving(false);
       return;
     }
 
     const weightNum = weightKg.trim() ? parseFloat(weightKg) : undefined;
-    const weightValid = weightNum === undefined || (!Number.isNaN(weightNum) && weightNum > 0 && weightNum < 100);
-    if (!weightValid) {
-      notify('체중은 0보다 크고 100kg 미만의 숫자로 입력해주세요.', '체중 확인');
-      setIsSaving(false);
-      return;
-    }
 
     // 사진은 스토리지에 먼저 올린다. 로컬 file:// 경로를 DB에 넣으면 다른 기기에서 깨진다.
     // 업로드 실패는 등록 자체를 막지 않고 사진만 포기한다.
@@ -121,10 +136,8 @@ export default function DogSetupScreen() {
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error('[dog-setup] 사진 업로드 실패 — 사진 없이 등록을 이어갑니다:', e);
-        notify(
-          `${(e as Error)?.message ?? '사진을 올리지 못했어요.'}\n프로필 편집에서 다시 시도할 수 있어요.`,
-          '사진 업로드 실패',
-        );
+        // 등록 자체는 계속된다 → 흐름을 끊지 않는다. 원문 오류는 콘솔에만 남긴다.
+        toast.error('사진만 올리지 못했어요. 프로필 편집에서 다시 넣을 수 있어요');
       }
     } else if (photoUri) {
       avatarUrl = photoUri;   // 데모 모드는 로컬 URI 그대로
@@ -151,7 +164,7 @@ export default function DogSetupScreen() {
         .single();
 
       if (error || !data) {
-        notify('강아지 등록에 실패했어요. 잠시 후 다시 시도해주세요.', '등록 실패');
+        toast.error('등록하지 못했어요. 잠시 후 다시 시도해주세요');
         setIsSaving(false);
         return;
       }
@@ -214,6 +227,8 @@ export default function DogSetupScreen() {
       temperament_count: selectedTemperament.length,
       walking_count: selectedWalking.length,
     });
+    // 성공에는 반드시 짧은 확인을 준다(§4.5) — 이전엔 아무 말 없이 화면만 바뀌었다
+    toast.success(OK.dogCreated(name.trim()));
     // 등록 완료 후 바로 홈으로 (OS 위치·알림 권한은 홈 진입 시 자동 요청)
     router.replace('/(tabs)');
   };
@@ -298,11 +313,11 @@ export default function DogSetupScreen() {
         <View style={s.field}>
           <Text style={s.fieldLabel}>이름</Text>
           <TextInput
-            style={[s.textInput, nameTouched && !name.trim() && s.textInputError]}
+            style={[s.textInput, ((nameTouched && !name.trim()) || nameBlocked) && s.textInputError]}
             placeholder="예: 보리, 초코, 몽이"
             placeholderTextColor={Colors.text.tertiary}
             value={name}
-            onChangeText={setName}
+            onChangeText={(t) => { setName(t); if (nameBlocked) setNameBlocked(false); }}
             onBlur={() => setNameTouched(true)}
             maxLength={20}
             accessibilityLabel="강아지 이름"
@@ -312,6 +327,8 @@ export default function DogSetupScreen() {
               바뀌어, 어디를 고쳐야 하는지 알려주지 못했다. */}
           {nameTouched && !name.trim() ? (
             <Text style={s.fieldError}>이름을 입력해주세요</Text>
+          ) : nameBlocked ? (
+            <Text style={s.fieldError}>{MODERATION_BLOCK_MESSAGE}</Text>
           ) : (
             <Text style={s.fieldHint}>
               이 이름이 다른 보호자에게 보이는 식별자가 돼요. 닉네임처럼 활용돼요.
@@ -323,16 +340,18 @@ export default function DogSetupScreen() {
         <View style={s.field}>
           <Text style={s.fieldLabel}>한 줄 소개 (선택)</Text>
           <TextInput
-            style={[s.textInput, s.textInputMulti]}
+            style={[s.textInput, s.textInputMulti, bioBlocked && s.textInputError]}
             placeholder="예: 낯은 가리지만 냄새 맡는 건 좋아해요"
             placeholderTextColor={Colors.text.tertiary}
             value={bio}
-            onChangeText={setBio}
+            onChangeText={(t) => { setBio(t); if (bioBlocked) setBioBlocked(false); }}
             maxLength={80}
             multiline
             accessibilityLabel="강아지 한 줄 소개"
           />
-          <Text style={s.fieldHint}>{bio.length}/80</Text>
+          {bioBlocked
+            ? <Text style={s.fieldError}>{MODERATION_BLOCK_MESSAGE}</Text>
+            : <Text style={s.fieldHint}>{bio.length}/80</Text>}
         </View>
 
         {/* 품종 + 체중 — 한 줄 (선택) */}
@@ -353,7 +372,7 @@ export default function DogSetupScreen() {
           <View style={s.fieldHalf}>
             <Text style={s.fieldLabel}>체중 (선택)</Text>
             <TextInput
-              style={s.textInput}
+              style={[s.textInput, !!weightError && s.textInputError]}
               placeholder="예: 4.5"
               placeholderTextColor={Colors.text.tertiary}
               value={weightKg}
@@ -363,6 +382,7 @@ export default function DogSetupScreen() {
               accessibilityLabel="강아지 체중, 킬로그램, 선택사항"
               returnKeyType="done"
             />
+            {!!weightError && <Text style={s.fieldError}>{weightError}</Text>}
           </View>
         </View>
 

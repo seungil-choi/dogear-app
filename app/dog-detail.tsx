@@ -73,7 +73,7 @@ export default function DogDetailScreen() {
             <Icon name="back" size={22} color={Colors.text.primary} />
           </TouchableOpacity>
         </View>
-        <View style={s.empty}><Text style={s.emptyText}>강아지를 찾을 수 없어요.</Text></View>
+        <View style={s.empty}><Text style={s.emptyText}>강아지 정보를 불러오지 못했어요.{'\n'}잠시 후 다시 열어주세요.</Text></View>
       </SafeAreaView>
     );
   }
@@ -88,10 +88,11 @@ export default function DogDetailScreen() {
   // 아직 조회 중(해결 대기)인 항목이 남았는지 — 빈 안내를 섣불리 띄우지 않기 위함
   const isResolving = rawListIds.length > 0 && listIds.length === 0 &&
     rawListIds.some(id => !spotMap[id]);
+  // 빈 상태는 사실 + 다음 행동 두 줄로 준다(§4.7)
   const emptyText =
-    tab === 'paw'   ? '아직 발도장을 남긴 곳이 없어요.' :
-    tab === 'saved' ? '아직 저장한 곳이 없어요.' :
-                      '아직 방문한 곳이 없어요.';
+    tab === 'paw'   ? '아직 발도장을 남긴 곳이 없어요.\n산책하며 발도장을 남기면 여기에 쌓여요.' :
+    tab === 'saved' ? '아직 저장한 곳이 없어요.\n가보고 싶은 곳을 저장해두세요.' :
+                      '아직 방문한 곳이 없어요.\n다녀온 장소가 여기에 기록돼요.';
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
@@ -221,5 +222,5 @@ const s = StyleSheet.create({
 
   list: { paddingHorizontal: Spacing[16], gap: Spacing[10] },
   empty: { paddingVertical: Spacing[40], alignItems: 'center' },
-  emptyText: { ...Typography.body.s, color: Colors.text.tertiary },
+  emptyText: { ...Typography.body.s, color: Colors.text.tertiary, textAlign: 'center', lineHeight: 20 },
 });

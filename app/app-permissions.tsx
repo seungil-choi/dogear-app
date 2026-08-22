@@ -13,6 +13,8 @@ import {
 import * as Notifications from 'expo-notifications';
 import * as Location from 'expo-location';
 import { notify } from '../src/utils/dialog';
+import { toast } from '../src/utils/toast';
+import { PERM } from '../src/constants/messages';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
@@ -86,17 +88,18 @@ export default function AppPermissionsScreen() {
   const handleNotifToggle = useCallback(async (next: boolean) => {
     if (Platform.OS === 'web') {
       if (typeof window === 'undefined' || !('Notification' in window)) {
-        notify('이 브라우저는 알림을 지원하지 않아요.', '알림 미지원');
+        // 사용자가 할 수 있는 게 없다 → 알려주기만 한다
+        toast('이 브라우저는 알림을 지원하지 않아요');
         return;
       }
       if (next) {
         const result = await window.Notification.requestPermission();
         setNotifEnabled(result === 'granted');
         if (result !== 'granted') {
-          notify('브라우저 사이트 설정에서 알림을 허용해주세요.', '알림 권한');
+          notify('브라우저의 사이트 설정에서 알림을 허용해주세요.', '알림 권한');
         }
       } else {
-        notify('알림 해제는 브라우저 사이트 설정에서 변경할 수 있어요.', '알림 권한');
+        toast('알림 해제는 브라우저의 사이트 설정에서 바꿀 수 있어요');
       }
       return;
     }
@@ -106,13 +109,13 @@ export default function AppPermissionsScreen() {
       if (status === 'granted') {
         setNotifEnabled(true);
       } else {
-        // OS가 다이얼로그를 차단한 상태 → 설정으로 안내
-        notify('설정에서 DogEar의 알림을 허용해주세요.', '알림 권한 필요');
+        // OS가 다이얼로그를 차단한 상태 → 설정으로 안내(§2.2 예외: 설정 이동 필요)
+        notify(PERM.notification, '알림 권한 필요');
         Linking.openSettings().catch(() => {});
       }
     } else {
       // 앱이 OS 권한을 직접 해제할 수 없음 → 설정으로 안내
-      notify('알림 해제는 시스템 설정에서 변경할 수 있어요.', '알림 권한');
+      notify(PERM.notificationOff, '알림 권한');
       Linking.openSettings().catch(() => {});
     }
   }, []);
