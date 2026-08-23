@@ -34,7 +34,7 @@ import { Icon } from '../../src/components/common/Icon';
 import { categoryLabel as catLabel } from '../../src/utils/labels';
 import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
-import type { FamiliarDogCardViewModel, SpotGalleryPhoto } from '../../src/types';
+import type { SpotVisitingDog, FamiliarDogCardViewModel, SpotGalleryPhoto } from '../../src/types';
 import { supabase } from '../../src/lib/supabase';
 
 /** 키비주얼 높이. 상단 바가 장소명을 넘겨받는 스크롤 지점도 이 값에서 계산한다. */
@@ -126,6 +126,31 @@ export default function SpotDetailScreen() {
   }, [id]);
 
   const [selectedDog, setSelectedDog] = useState<FamiliarDogCardViewModel | null>(null);
+
+  /**
+   * 다녀간 강아지 탭 → 상세 시트.
+   *
+   * 이 시트가 **타인 강아지 신고·차단의 유일한 경로**다(Apple UGC 1.2 — 콘텐츠가 보이는
+   * 자리에서 신고·차단할 수 있어야 한다). 그래서 탭을 막아두면 안 된다.
+   *
+   * 익숙한 강아지로도 잡혀 있으면 견종·성향까지 있는 풍부한 카드를 그대로 쓰고,
+   * 아니면 서버가 준 최소 정보(이름·아바타·방문수)로 시트를 채운다.
+   */
+  const handleVisitingDogPress = useCallback((dog: SpotVisitingDog) => {
+    if (dog.is_mine) { router.push('/dog-detail' as any); return; }
+    const rich = vm?.familiar_dogs?.find(f => f.dog_id === dog.dog_id);
+    setSelectedDog(rich ?? {
+      dog_id: dog.dog_id,
+      name: dog.name,
+      avatar_url: dog.avatar_url ?? undefined,
+      breed_text: '',
+      size_label: '',
+      breed_age_text: '',
+      temperament_preview: [],
+      recency_label: `${dog.visit_count}번 방문했어요`,
+      relation_text: dog.is_regular ? '이 장소의 단골이에요' : '이 장소에 다녀갔어요',
+    });
+  }, [vm, router]);
 
   const handleSave = useCallback(() => {
     // 강아지 미등록 사용자는 저장 불가(dog_id 필요) — 조용한 무반응 대신 등록 유도
@@ -630,17 +655,25 @@ export default function SpotDetailScreen() {
           </View>
         </View>
 
-        {/* ── P3: 자주 찾는 강아지 ── */}
+        {/* ── 다녀간 강아지 ──
+            **누가 왔나**에만 답한다. 사진은 아래 별도 섹션이 맡는다.
+            예전엔 이 둘을 '다녀간 강아지들'이라는 사진 레일 하나로 뭉쳐놨는데,
+            그러다 보니 둘 다 못 했다 — 사진 5장 올린 강아지는 1장만 보이고,
+            사진 없이 발도장만 찍은 강아지는 아예 안 보였다.
+
+            ⚠️ 서버가 **familiar_layer 발도장만** 담아 보낸다. spot_only는
+               "장소 분위기에만"을 고른 것이라 이름·아바타를 띄우면 안 된다. */}
         {(() => {
-          const dogs = vm.familiar_dogs;
+          const dogs = vm.visiting_dogs ?? [];
           return (
             <View style={s.section}>
               <View style={s.sectionHead}>
-                <Text style={s.sectionTitle}>자주 찾는 강아지</Text>
+                <Text style={s.sectionTitle}>다녀간 강아지</Text>
+                {dogs.length > 0 && <Text style={s.sectionCount}>{dogs.length}마리</Text>}
               </View>
               {dogs.length === 0 ? (
                 <Text style={s.familiarEmptyText}>
-                  발도장이 쌓이면 익숙한 강아지들이 보일 수 있어요
+                  아직 다녀간 강아지가 없어요. 첫 발도장을 남겨보세요.
                 </Text>
               ) : (
                 <ScrollView
@@ -652,7 +685,7 @@ export default function SpotDetailScreen() {
                     <TouchableOpacity
                       key={dog.dog_id}
                       style={s.familiarCell}
-                      onPress={() => setSelectedDog(dog)}
+                      onPress={() => handleVisitingDogPress(dog)}
                       activeOpacity={0.72}
                     >
                       <View style={s.familiarAvatarWrap}>
@@ -663,9 +696,18 @@ export default function SpotDetailScreen() {
                             <Text style={s.familiarAvatarInitial}>{dog.name[0]}</Text>
                           </View>
                         )}
+                        {/* 별도 섹션을 만들지 않고 배지로 흡수했다 */}
+                        {dog.is_regular && (
+                          <View style={s.dogBadge}><Text style={s.dogBadgeText}>단골</Text></View>
+                        )}
                       </View>
                       <Text style={s.familiarName} numberOfLines={1}>{dog.name}</Text>
-                      <Text style={s.familiarRecency} numberOfLines={2}>{dog.recency_label}</Text>
+                      <Text style={s.familiarRecency} numberOfLines={1}>
+                        {dog.is_mine ? '우리 아이' : `${dog.visit_count}번 방문`}
+                      </Text>
+                      {dog.is_familiar && !dog.is_mine && (
+                        <Text style={s.familiarTag} numberOfLines={1}>자주 마주쳐요</Text>
+                      )}
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -674,54 +716,63 @@ export default function SpotDetailScreen() {
           );
         })()}
 
-        {/* ── 다녀간 강아지들 (사진 갤러리) ──
-            발도장에 붙은 사진을 강아지별 최신 1장씩 모아 보여준다.
-            비어 있어도 섹션은 남긴다 — 섹션째로 숨기면 "여기에 사진을 남길 수 있다"는 걸
-            아무도 모른 채로 계속 비어 있게 된다(§4.7 빈 상태는 화면 구성 요소). */}
-        <View style={s.section}>
-          <View style={s.sectionHead}>
-            <Text style={s.sectionTitle}>다녀간 강아지들</Text>
-          </View>
-          {(vm.dog_gallery?.length ?? 0) === 0 ? (
-            <View style={s.galleryEmpty}>
-              <Text style={s.galleryEmptyText}>아직 사진이 없어요</Text>
-              <Text style={s.galleryEmptySub}>발도장을 남길 때 사진을 함께 올리면 여기에 모여요.</Text>
-            </View>
-          ) : (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={s.galleryRail}
-            >
-              {vm.dog_gallery!.map(photo => (
-                // 길게 누르면 — 내 사진은 '삭제', 남의 사진은 '신고'.
-                // 갤러리에 버튼을 늘어놓으면 사진보다 버튼이 먼저 보이므로 롱프레스에 숨긴다.
-                // (사진은 사전 검수 없이 올라오므로 신고가 사후 안전장치다)
-                <TouchableOpacity
-                  key={photo.photo_id}
-                  style={s.galleryItem}
-                  activeOpacity={0.9}
-                  onLongPress={() => handleGalleryLongPress(photo)}
-                  accessibilityRole="image"
-                  accessibilityLabel={
-                    photo.is_mine
-                      ? '내 강아지 사진. 길게 누르면 삭제'
-                      : photo.dog_name ? `${photo.dog_name}의 사진. 길게 누르면 신고` : '사진. 길게 누르면 신고'
-                  }
-                >
-                  <AppImage
-                    source={{ uri: photo.image_url }}
-                    style={s.galleryPhoto}
-                    resizeMode="cover"
-                  />
-                  {!!photo.dog_name && (
-                    <Text style={s.galleryDogName} numberOfLines={1}>{photo.dog_name}</Text>
+        {/* ── 사진 ──
+            전량 시간순 3열 그리드. 강아지당 제한이 없다 — 한 강아지가 5장을 올렸으면 5장 다 보인다.
+            **이름을 붙이지 않는다.** 누가 왔는지는 위 '다녀간 강아지'가 답하고,
+            이름을 떼야 spot_only("분위기에만 기여")로 올린 사진도 공개범위를 어기지 않는다.
+
+            비어 있어도 섹션은 남긴다 — 섹션째 숨기면 "여기에 사진을 남길 수 있다"는 걸
+            아무도 모른 채로 계속 비어 있게 된다(§4.7). */}
+        {(() => {
+          const photos = vm.photos?.items ?? [];
+          const total = vm.photos?.total ?? photos.length;
+          return (
+            <View style={s.section}>
+              <View style={s.sectionHead}>
+                <Text style={s.sectionTitle}>사진</Text>
+                {total > 0 && <Text style={s.sectionCount}>{total}장</Text>}
+              </View>
+              {photos.length === 0 ? (
+                <View style={s.galleryEmpty}>
+                  <Text style={s.galleryEmptyText}>아직 사진이 없어요</Text>
+                  <Text style={s.galleryEmptySub}>발도장을 남길 때 사진을 함께 올리면 여기에 모여요.</Text>
+                </View>
+              ) : (
+                <>
+                  <View style={s.photoGrid}>
+                    {photos.map(photo => (
+                      // 길게 누르면 — 내 사진은 '삭제', 남의 사진은 '신고'.
+                      // 버튼을 늘어놓으면 사진보다 버튼이 먼저 보이므로 롱프레스에 숨긴다.
+                      // (사진은 사전 검수 없이 올라오므로 신고가 사후 안전장치다)
+                      <TouchableOpacity
+                        key={photo.photo_id}
+                        style={s.photoCell}
+                        activeOpacity={0.9}
+                        onLongPress={() => handleGalleryLongPress(photo)}
+                        accessibilityRole="image"
+                        accessibilityLabel={photo.is_mine
+                          ? '내 강아지 사진. 길게 누르면 삭제'
+                          : '사진. 길게 누르면 신고'}
+                      >
+                        <AppImage source={{ uri: photo.image_url }} style={s.photoImg} resizeMode="cover" />
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  {total > photos.length && (
+                    <TouchableOpacity
+                      style={s.photoMoreBtn}
+                      onPress={() => router.push(`/spot/${id}/photos` as any)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={s.photoMoreText}>사진 {total}장 모두 보기</Text>
+                      <Icon name="forward" size={13} color={Colors.brand.primary} />
+                    </TouchableOpacity>
                   )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
-        </View>
+                </>
+              )}
+            </View>
+          );
+        })()}
 
         {/* ── P3: 최근 흔적 ── */}
         <View style={s.section}>
@@ -1103,6 +1154,32 @@ const s = StyleSheet.create({
   },
 
   // ── 자주 찾는 강아지 — 가로 스크롤 레일 ───────────────────────────
+  sectionCount: { ...Typography.caption, color: Colors.text.tertiary },
+
+  // 다녀간 강아지 배지 (단골)
+  dogBadge: {
+    position: 'absolute', bottom: -2, right: -2,
+    paddingHorizontal: 5, paddingVertical: 1,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.primary,
+    borderWidth: 2, borderColor: Colors.bg.primary,
+  },
+  dogBadgeText: { ...Typography.caption, fontSize: 9, lineHeight: 12, color: '#FFFFFF', fontWeight: '700' },
+  familiarTag: { ...Typography.caption, fontSize: 10, color: Colors.brand.primary, marginTop: 1 },
+
+  // 사진 3열 그리드.
+  //   RN의 gap은 **퍼센트를 받지 않는다**(숫자만). 그래서 가로 간격은 space-between으로 만들고
+  //   세로 간격만 rowGap(숫자)으로 준다. 셀 32% × 3 = 96%, 남는 4%가 가로 간격 둘이 된다.
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Spacing[6] },
+  photoCell: { width: '32%', aspectRatio: 1, borderRadius: Radius.m, overflow: 'hidden', backgroundColor: Colors.bg.secondary },
+  photoImg: { width: '100%', height: '100%' },
+  photoMoreBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing[4],
+    marginTop: Spacing[12], paddingVertical: Spacing[10],
+    borderRadius: Radius.m, borderWidth: 1, borderColor: Colors.border.default,
+  },
+  photoMoreText: { ...Typography.label.m, color: Colors.brand.primary },
+
   familiarRail: {
     gap: Spacing[20],
     paddingVertical: Spacing[4],

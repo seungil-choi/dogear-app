@@ -128,6 +128,14 @@ function RootLayoutInner() {
             animation: 'slide_from_right',
           }}
         />
+        {/* 장소 사진 전체 보기 — 상세는 12장만, 나머지는 여기서 이어 받는다 */}
+        <Stack.Screen
+          name="spot/[id]/photos"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
         <Stack.Screen
           name="paw-checkin"
           options={{

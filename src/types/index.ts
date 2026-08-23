@@ -286,23 +286,45 @@ export interface SpotDetailApiViewModel {
     photo_url: string | null;
     checked_in_at: string;
   }[];
-  /** 이곳에 다녀간 강아지들 — 강아지별 최신 1장 (기획 14번) */
-  dog_gallery?: {
-    photo_id: string;
-    image_url: string;
-    dog_name: string | null;
-    created_at: string;
-    /** 내 강아지 사진인지 — true일 때만 삭제를 내준다 */
-    is_mine?: boolean;
-  }[];
+  /**
+   * 누가 다녀갔나 — 사진 유무와 무관하다.
+   * ⚠️ **familiar_layer 발도장만** 담긴다. spot_only는 "장소 분위기에만"을 고른 것이라
+   *    이름·아바타를 노출하면 사용자가 고른 공개범위를 어긴다.
+   */
+  visiting_dogs?: SpotVisitingDog[];
+  /**
+   * 사진 — 전량 시간순, 강아지당 제한 없음. **이름을 붙이지 않는다.**
+   * 이름이 없기에 spot_only 사진도 안전하게 포함한다(private만 제외).
+   */
+  photos?: { total: number; items: SpotGalleryPhoto[] };
+  /** @deprecated v18에서 photos로 대체. 구버전 호환용 */
+  dog_gallery?: SpotGalleryPhoto[];
 }
 
-/** 장소 상세 "다녀간 강아지들" 갤러리의 사진 한 장 */
+/** 장소에 다녀간 강아지 한 마리 */
+export interface SpotVisitingDog {
+  dog_id: string;
+  name: string;
+  avatar_url: string | null;
+  /** 이 장소 방문 횟수(공개 동의한 발도장 기준) */
+  visit_count: number;
+  last_visit_at: string;
+  /** 단골 — 방문 요약이 판정한 값을 그대로 쓴다(화면마다 재계산하면 어긋난다) */
+  is_regular: boolean;
+  /** 나와 자주 마주친 강아지 — 별도 섹션 대신 배지로 보여준다 */
+  is_familiar: boolean;
+  is_mine: boolean;
+}
+
+/**
+ * 장소 사진 갤러리의 사진 한 장.
+ *
+ * ⚠️ **강아지 이름을 담지 않는다.** 누가 왔는지는 visiting_dogs가 답한다.
+ *    이름을 떼야 spot_only("분위기에만 기여")로 올린 사진도 공개범위를 어기지 않는다.
+ */
 export interface SpotGalleryPhoto {
   photo_id: string;
   image_url: string;
-  /** 사진을 남긴 강아지 이름 (없으면 표시 생략) */
-  dog_name?: string | null;
   created_at: string;
   /**
    * 내 강아지가 남긴 사진인지. 서버(spot-detail)가 판정해서 내려준다.
@@ -329,8 +351,10 @@ export interface SpotDetailViewModel {
    * 없으면(=undefined) 카테고리 기본 썸네일을 그린다. 자동 승격은 하지 않는다.
    */
   hero_image_url?: string;
-  /** 이곳에 다녀간 강아지들 — 강아지별 최신 1장 */
-  dog_gallery?: SpotGalleryPhoto[];
+  /** 누가 다녀갔나 (사진 유무 무관) */
+  visiting_dogs?: SpotVisitingDog[];
+  /** 사진 — 상세엔 앞 12장만. total은 "모두 보기"의 개수 표시용 */
+  photos?: { total: number; items: SpotGalleryPhoto[] };
   is_saved: boolean;
   atmosphere_summary: string;
   atmosphere_state: AtmosphereState;

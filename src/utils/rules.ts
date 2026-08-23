@@ -314,7 +314,9 @@ export function buildSpotDetailFromApi(
     cover_image_url: spot.cover_image_url ?? undefined,
     // 히어로 우선순위는 서버가 정한다(공식사진 → 대표사진). 화면이 다시 계산하지 않는다.
     hero_image_url: spot.hero_image_url ?? spot.cover_image_url ?? undefined,
-    dog_gallery: api.dog_gallery ?? [],
+    visiting_dogs: api.visiting_dogs ?? [],
+    // v18 이전 서버(dog_gallery만 주는)와도 돌아가게 폴백을 둔다 — OTA 시차 동안 필요
+    photos: api.photos ?? { total: (api.dog_gallery ?? []).length, items: api.dog_gallery ?? [] },
     is_saved: !!(ur && ur.saved_type),
     atmosphere_summary: atmosphereLabel[api.atmosphere.state],
     atmosphere_state: api.atmosphere.state,

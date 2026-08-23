@@ -14,6 +14,10 @@ const MAX_RECENT_CHECKINS = 20;
 const MAX_FAMILIAR_DOGS = 6;
 /** 갤러리에 내보낼 사진 수 — 강아지별 대표 1장씩(기획 14번) */
 const MAX_GALLERY_PHOTOS = 12;
+/** 다녀간 강아지 레일에 올릴 최대 마리 수 */
+const MAX_VISITING_DOGS = 20;
+/** 방문 집계를 위해 훑는 발도장 상한 — 오래된 장소에서 전량 스캔을 막는다 */
+const VISIT_SCAN_LIMIT = 400;
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req);
@@ -68,6 +72,7 @@ Deno.serve(async (req: Request) => {
       familiarDogsResult,
       blocksResult,
       galleryResult,
+      visitingResult,
     ] = await Promise.all([
       // 스팟 기본 정보
       //   hidden 허용 — 사용자가 방금 제안한(검토 대기) 장소의 상세를 본인은 볼 수 있어야 한다.
@@ -137,12 +142,25 @@ Deno.serve(async (req: Request) => {
       //   시간 제한 없음: 흔적(48h)과 달리 갤러리는 장소의 누적된 모습이다.
       svc
         .from('checkin_photos')
-        .select('id, image_url, dog_id, created_at, paw_checkins!inner(visibility_level)')
+        .select('id, image_url, dog_id, created_at, paw_checkins!inner(visibility_level)', { count: 'exact' })
         .eq('spot_id', spotId)
         .eq('status', 'visible')
         .neq('paw_checkins.visibility_level', 'private')
         .order('created_at', { ascending: false })
-        .limit(MAX_GALLERY_PHOTOS * 4), // dedupe·차단 필터로 줄어들 것을 감안해 넉넉히
+        .limit(MAX_GALLERY_PHOTOS * 3), // 차단 필터로 줄어들 것을 감안해 넉넉히
+
+      // ── 다녀간 강아지 (신설) ─────────────────────────────────────
+      // ⚠️ **familiar_layer만** 본다. spot_only는 "장소 분위기에만 기여"를 고른 것이라
+      //    이름·아바타를 띄우면 사용자가 고른 공개범위를 어긴다.
+      //    (사진 갤러리는 이름을 안 붙이므로 private만 제외하면 된다 — 기준이 다른 이유다)
+      svc
+        .from('paw_checkins')
+        .select('dog_id, checked_in_at')
+        .eq('spot_id', spotId)
+        .eq('visibility_level', 'familiar_layer')
+        .eq('is_valid_for_aggregate', true)
+        .order('checked_in_at', { ascending: false })
+        .limit(VISIT_SCAN_LIMIT),
     ]);
 
     if (spotResult.error || !spotResult.data) {
@@ -156,6 +174,7 @@ Deno.serve(async (req: Request) => {
       ...(recentCheckinsResult.data ?? []).map((c: any) => c.dog_id),
       ...(familiarDogsResult.data ?? []).map((f: any) => f.visible_dog_id),
       ...(galleryResult.data ?? []).map((p: any) => p.dog_id),
+      ...(visitingResult.data ?? []).map((v: any) => v.dog_id),
     ].filter(Boolean)));
     const ownerByDog: Record<string, string> = {};
     const dogBriefById: Record<string, { name: string; avatar_url: string | null }> = {};
@@ -231,26 +250,66 @@ Deno.serve(async (req: Request) => {
       checked_in_at: c.checked_in_at,
     }));
 
-    // ── 강아지 사진 갤러리 (기획 14번) ──────────────────────────
-    // 강아지별 대표 1장씩만 — 한 강아지의 사진이 갤러리를 덮는 것을 막는다.
-    // 정렬은 최신순이므로 각 강아지의 가장 최근 사진이 남는다.
-    const seenGalleryDogs = new Set<string>();
-    const galleryPhotos = (galleryResult.data ?? [])
-      .filter((p: any) => !isBlockedDog(p.dog_id))
-      .filter((p: any) => {
-        if (seenGalleryDogs.has(p.dog_id)) return false;
-        seenGalleryDogs.add(p.dog_id);
-        return true;
-      })
+    // ── 사진 갤러리 ─────────────────────────────────────────────
+    // v18에서 성격이 바뀌었다. 예전엔 **강아지별 1장**만 남겨 "다녀간 강아지" 목록 노릇을
+    // 겸하게 했는데, 그러다 보니 둘 다 못 했다 — 5장 올린 강아지는 1장만 보이고,
+    // 사진 없이 발도장만 찍은 강아지는 아예 안 보였다.
+    // 이제 사진은 **전량 시간순**이고, 누가 왔는지는 visiting_dogs가 따로 답한다.
+    //
+    // 이름을 빼는 게 핵심이다. 이름이 없으면 spot_only("분위기에만 기여")도 안전하게
+    // 포함할 수 있다 — 사용자가 고른 공개범위와 어긋나지 않는다.
+    const visiblePhotos = (galleryResult.data ?? [])
+      .filter((p: any) => !isBlockedDog(p.dog_id));
+    const galleryPhotos = visiblePhotos
       .slice(0, MAX_GALLERY_PHOTOS)
       .map((p: any) => ({
         photo_id: p.id,
         image_url: p.image_url,
-        dog_name: dogBriefById[p.dog_id]?.name ?? null,
         created_at: p.created_at,
         // 내 강아지 사진인지 — 화면이 '삭제'를 내줄지 '신고'를 내줄지 가른다.
         // 클라가 dog_id를 비교하게 하면 남의 강아지 id를 알려주게 되므로 서버가 판정만 내려준다.
         is_mine: !!dogId && p.dog_id === dogId,
+      }));
+    // 총계는 차단 필터 이전 값이라 근사치다. "모두 보기"의 개수 표시에만 쓴다.
+    const photoTotal = (galleryResult as any).count ?? visiblePhotos.length;
+
+    // ── 다녀간 강아지 (신설) ────────────────────────────────────
+    // 사진이 없어도 나온다. 이게 예전 구조에서 빠져 있던 것이다.
+    const visitAgg: Record<string, { count: number; last: string }> = {};
+    for (const v of (visitingResult.data ?? [])) {
+      if (isBlockedDog(v.dog_id)) continue;
+      const cur = visitAgg[v.dog_id];
+      if (cur) { cur.count += 1; }
+      else { visitAgg[v.dog_id] = { count: 1, last: v.checked_in_at }; }
+    }
+    const familiarIdSet = new Set(familiarDogs.map((d: any) => d.dog_id));
+    // 단골 여부는 방문 요약이 이미 판정해둔 값을 쓴다(재계산하면 화면마다 달라진다)
+    const visitingIds = Object.keys(visitAgg);
+    const regularSet = new Set<string>();
+    if (visitingIds.length > 0) {
+      const { data: summaries } = await svc
+        .from('spot_visit_summaries')
+        .select('dog_id, regular_status')
+        .eq('spot_id', spotId)
+        .in('dog_id', visitingIds);
+      for (const r of summaries ?? []) {
+        if (r.regular_status && r.regular_status !== 'none') regularSet.add(r.dog_id);
+      }
+    }
+    const visitingDogs = visitingIds
+      .filter((id) => dogBriefById[id])
+      .sort((a, b) => (visitAgg[b].last > visitAgg[a].last ? 1 : -1))
+      .slice(0, MAX_VISITING_DOGS)
+      .map((id) => ({
+        dog_id: id,
+        name: dogBriefById[id].name,
+        avatar_url: dogBriefById[id].avatar_url,
+        visit_count: visitAgg[id].count,
+        last_visit_at: visitAgg[id].last,
+        is_regular: regularSet.has(id),
+        // '나와 자주 마주친' 관계 — 별도 섹션 대신 배지로 흡수한다
+        is_familiar: familiarIdSet.has(id),
+        is_mine: !!dogId && id === dogId,
       }));
 
     // ── 히어로 이미지 우선순위 (기획 14번 D4) ────────────────────
@@ -314,7 +373,11 @@ Deno.serve(async (req: Request) => {
         // 검토 대기(hidden) 상태를 화면이 알 수 있게 — 제안자 본인에게만 보이는 상태다
         is_pending_review: spot.status === 'hidden',
       },
-      // 이곳에 다녀간 강아지들 — 강아지별 최신 1장
+      // 누가 다녀갔나 — 사진 유무와 무관. familiar_layer 발도장만(이름·아바타 노출 동의)
+      visiting_dogs: visitingDogs,
+      // 사진 — 전량 시간순, 이름 없음. private 발도장만 제외
+      photos: { total: photoTotal, items: galleryPhotos },
+      /** @deprecated v18에서 photos로 대체. 구버전 앱 호환용으로 한 릴리스만 유지한다 */
       dog_gallery: galleryPhotos,
       atmosphere: {
         state: atmosphereState,
