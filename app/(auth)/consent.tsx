@@ -28,7 +28,7 @@ const ITEMS: ConsentItem[] = [
   { key: 'terms',     label: '서비스 이용약관 동의',           required: true,  detailRoute: '/(legal)/terms' },
   { key: 'privacy',   label: '개인정보 수집·이용 동의',        required: true,  detailRoute: '/(legal)/privacy-policy' },
   { key: 'location',  label: '위치기반서비스 이용약관 동의',    required: true,  detailRoute: '/(legal)/location-terms' },
-  { key: 'marketing', label: '마케팅 정보 수신 동의',           required: false },
+  { key: 'marketing', label: '앱 푸시 광고 수신 동의',           required: false },
 ];
 
 export default function ConsentScreen() {
@@ -71,7 +71,11 @@ export default function ConsentScreen() {
         terms:       !!checks.terms,
         privacy:     !!checks.privacy,
         location:    !!checks.location,
-        marketing:   !!checks.marketing,
+        // 광고 동의는 매체별로 나눠 쓴다(정보통신망법 §50 — 앱푸시 ≠ 문자).
+        // 문자(marketing_sms)는 Phase 2에서 본인확인으로 번호를 확보한 뒤 따로 받는다.
+        marketing:      !!checks.marketing,   // 레거시 컬럼, 당분간 같이 채운다
+        marketing_push: !!checks.marketing,
+        marketing_agreed_at: checks.marketing ? agreedAt : null,
         agreed_at:   agreedAt,
         updated_at:  agreedAt,
       });
@@ -145,7 +149,8 @@ export default function ConsentScreen() {
         ))}
 
         <Text style={s.note}>
-          마케팅 수신에 동의하지 않아도 서비스 이용에는 영향이 없어요.
+          광고 수신에 동의하지 않아도 서비스 이용에는 영향이 없어요.{'\n'}
+          발도장·익숙한 강아지 같은 서비스 알림은 광고 동의와 별개로 받으실 수 있어요.
         </Text>
       </ScrollView>
 
