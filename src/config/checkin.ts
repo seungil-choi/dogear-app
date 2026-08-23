@@ -16,10 +16,10 @@ import type { SpotCategory } from '@/types';
 
 /** 카테고리별 허용 반경 (m). 미지정 카테고리는 DEFAULT_RADIUS_M 사용. */
 const CATEGORY_RADIUS_M: Partial<Record<SpotCategory, number>> = {
-  park:      100,  // 공원: 잔디·산책로 포함하면 100m 정도
-  trail:     150,  // 산책로: 선형이라 여유 필요
-  riverside: 200,  // 강변/하천: 한강공원 등 매우 김
-  beach:     150,  // 해변: 면적 큼
+  park:       60,  // 공원: 입구·잔디 근처. 100m는 길 건너에서도 찍혔다
+  trail:      80,  // 산책로: 선형이라 약간 여유
+  riverside: 100,  // 강변/하천: 한강공원 등 김
+  beach:      80,  // 해변: 면적 큼
   rest_spot:  20,  // 쉼터: 작음
   // 시설은 전부 점포 단위 — 건물 하나다. 넓게 잡으면 옆 가게에서도 찍힌다.
   pet_cafe:     20,
@@ -34,9 +34,11 @@ export const PAWMARK_PROXIMITY = {
   /** 카테고리 미지정 시 기본 반경 */
   DEFAULT_RADIUS_M: 20,
   /** GPS accuracy가 이보다 크면 신뢰 불가로 보고 차단 */
-  MIN_ACCURACY_M: 100,
-  /** 거리 허용 = 반경 + accuracy * ACCURACY_MARGIN_RATIO */
+  MIN_ACCURACY_M: 50,
+  /** 거리 허용 = 반경 + min(accuracy * RATIO, MAX_MARGIN) */
   ACCURACY_MARGIN_RATIO: 0.5,
+  /** 마진 상한 — 정확도가 나빠도 이 이상은 봐주지 않는다 */
+  MAX_ACCURACY_MARGIN_M: 20,
 } as const;
 
 /**

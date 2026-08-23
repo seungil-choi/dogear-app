@@ -23,10 +23,10 @@ import { corsHeaders, handleCors } from '../_shared/cors.ts';
 
 // ─── 발도장 근접성 정책 (클라이언트 src/config/checkin.ts와 미러) ───
 const CATEGORY_RADIUS_M: Record<string, number> = {
-  park:      100,
-  trail:     150,
-  riverside: 200,
-  beach:     150,
+  park:       60,
+  trail:      80,
+  riverside: 100,
+  beach:      80,
   rest_spot:  20,
   // 시설은 전부 점포 단위 — 건물 하나다.
   pet_cafe:     20,
@@ -42,8 +42,14 @@ const DEFAULT_RADIUS_M = 20;
  *    Deno 환경이라 TS import 불가 → 값 직접 복제. 변경 시 양쪽 모두 수정.
  */
 const MAX_CHECKIN_PHOTOS = 3;
-const MIN_ACCURACY_M = 100;
+// 정확도가 이보다 나쁘면 위치를 믿지 않는다. 100m는 너무 관대했다 —
+// 그만큼 마진(정확도×0.5)도 함께 커져 실질 허용 반경이 +50m까지 늘어났다.
+const MIN_ACCURACY_M = 50;
 const ACCURACY_MARGIN_RATIO = 0.5;
+/** 마진 상한 — 정확도가 나빠도 이 이상은 봐주지 않는다 */
+const MAX_ACCURACY_MARGIN_M = 20;
+/** 좌표가 이보다 오래됐으면 거부한다(ms). 스토어에 남은 옛 좌표로 찍히는 것을 막는다 */
+const MAX_LOCATION_AGE_MS = 2 * 60 * 1000;
 
 function getRadiusForCategory(category?: string): number {
   return (category && CATEGORY_RADIUS_M[category]) || DEFAULT_RADIUS_M;
@@ -119,6 +125,7 @@ Deno.serve(async (req: Request) => {
       userLat,
       userLng,
       accuracy,
+      locationCapturedAt,
     } = body;
 
     // 필수 필드 검증
@@ -232,9 +239,29 @@ Deno.serve(async (req: Request) => {
         { status: 403, headers: corsHeaders }
       );
     }
+    // 좌표의 나이를 본다.
+    //   예전에는 앱이 **스토어에 저장된 위치**를 그대로 보냈다. 그 값은 persist까지 돼서
+    //   공원에서 잡힌 좌표가 집에서도 살아 있었고, 서버는 거리 0m로 계산해 통과시켰다.
+    //   이제 앱이 제출 시점에 새로 읽어 locationCapturedAt과 함께 보낸다.
+    //   (구버전 앱은 이 값을 안 보낸다 — 없으면 통과시키되, 스토어 값이라 위험하다는 건 안다)
+    if (typeof locationCapturedAt === 'number' && locationCapturedAt > 0) {
+      const age = Date.now() - locationCapturedAt;
+      if (age > MAX_LOCATION_AGE_MS) {
+        return Response.json(
+          {
+            error: 'stale_location',
+            message: '위치 정보가 오래됐어요. 현재 위치를 새로 잡은 뒤 다시 시도해주세요.',
+          },
+          { status: 403, headers: corsHeaders },
+        );
+      }
+    }
+
     const distance = haversineMeters(userLat, userLng, spot.latitude, spot.longitude);
     const radius = getRadiusForCategory(spot.category);
-    const margin = typeof accuracy === 'number' ? accuracy * ACCURACY_MARGIN_RATIO : 0;
+    const margin = typeof accuracy === 'number'
+      ? Math.min(accuracy * ACCURACY_MARGIN_RATIO, MAX_ACCURACY_MARGIN_M)
+      : 0;
     const allowed = radius + margin;
     if (distance > allowed) {
       return Response.json(

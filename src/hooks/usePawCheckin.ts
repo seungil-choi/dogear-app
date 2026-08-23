@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
+import * as Location from 'expo-location';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 import type { VisibilityLevel } from '@/types';
@@ -36,6 +37,7 @@ export function usePawCheckin(): UsePawCheckinReturn {
   const activeDog = useAppStore(s => s.activeDog);
   const pawFlow = useAppStore(s => s.pawFlow);
   const currentLocation = useAppStore(s => s.currentLocation);
+  const setCurrentLocation = useAppStore(s => s.setCurrentLocation);
   const selectedSpotId = pawFlow.selectedSpot?.spot_id;
   const selectedFeelingTags = pawFlow.selectedTags;
   const note = pawFlow.note;
@@ -53,6 +55,32 @@ export function usePawCheckin(): UsePawCheckinReturn {
     setError(null);
 
     try {
+      // ⚠️ 스토어의 currentLocation을 그대로 보내지 않는다.
+      //    그 값은 지도·앱 진입 때 잡힌 것이라 **몇 시간 전 좌표일 수 있고**,
+      //    실제로 공원에서 잡힌 좌표가 남아 집에서도 발도장이 찍혔다(거리 0m).
+      //    제출 시점에 새로 읽고, 실패하면 스토어 값으로 폴백하되 나이를 함께 보낸다.
+      let fix: { latitude: number; longitude: number; accuracy?: number; capturedAt: number } | null = null;
+      try {
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        fix = {
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+          accuracy: loc.coords.accuracy ?? undefined,
+          capturedAt: loc.timestamp ?? Date.now(),
+        };
+        setCurrentLocation(fix);
+      } catch {
+        // GPS를 못 읽었다 — 스토어 값으로 진행하되 서버가 나이를 보고 판단한다
+        if (currentLocation) {
+          fix = {
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+            accuracy: currentLocation.accuracy,
+            capturedAt: currentLocation.capturedAt ?? 0,
+          };
+        }
+      }
+
       const { data, error: fnError } = await supabase.functions.invoke('paw-checkin', {
         body: {
           dogId: activeDog.dog_id,
@@ -62,10 +90,11 @@ export function usePawCheckin(): UsePawCheckinReturn {
           photoUrls: photoUrls?.length ? photoUrls : undefined,
           visibilityLevel: visibilityLevel as VisibilityLevel,
           sourceType: 'global_cta',
-          // 서버 측 근접성 재검증을 위한 좌표/정확도
-          userLat: currentLocation?.latitude,
-          userLng: currentLocation?.longitude,
-          accuracy: currentLocation?.accuracy,
+          // 서버 측 근접성 재검증을 위한 좌표/정확도/측정시각
+          userLat: fix?.latitude,
+          userLng: fix?.longitude,
+          accuracy: fix?.accuracy,
+          locationCapturedAt: fix?.capturedAt,
         },
       });
 
@@ -122,7 +151,7 @@ export function usePawCheckin(): UsePawCheckinReturn {
     } finally {
       setIsSubmitting(false);
     }
-  }, [activeDog, selectedSpotId, selectedFeelingTags, note, visibilityLevel, currentLocation]);
+  }, [activeDog, selectedSpotId, selectedFeelingTags, note, visibilityLevel, currentLocation, setCurrentLocation]);
 
   return { submit, isSubmitting, error };
 }

@@ -100,7 +100,13 @@ interface AppState {
   consent: ConsentRecord | null;
 
   // Location
-  currentLocation: { latitude: number; longitude: number; accuracy?: number } | null;
+  /**
+   * 마지막으로 알려진 내 위치.
+   * ⚠️ **나이를 반드시 함께 본다.** capturedAt 없이 쓰면 며칠 전 좌표인지 알 수 없다.
+   *    발도장은 이 값을 신뢰하지 않고 제출 시점에 새로 읽는다(집에서 공원 발도장이
+   *    찍히던 사고의 원인이 여기였다).
+   */
+  currentLocation: { latitude: number; longitude: number; accuracy?: number; capturedAt?: number } | null;
 
   // Dogs
   dogs: Dog[];
@@ -695,7 +701,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   },
 
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
-  setCurrentLocation: (currentLocation) => set({ currentLocation }),
+  // 호출부가 빠뜨려도 나이를 알 수 있게 여기서 시각을 박는다.
+  setCurrentLocation: (currentLocation) =>
+    set({ currentLocation: currentLocation ? { capturedAt: Date.now(), ...currentLocation } : null }),
   setPushEnabled: (pushEnabled) => set({ pushEnabled }),
 
   setSpots: (spots) => set({ spots }),
@@ -991,7 +999,9 @@ export const useAppStore = DEV_PREVIEW_SEED
           familiarSignals: state.familiarSignals,
           suggestedSpots: state.suggestedSpots,
           blockedUsers: state.blockedUsers,
-          currentLocation: state.currentLocation,
+          // ⚠️ currentLocation은 **persist하지 않는다.**
+          //    저장하면 공원에서 잡힌 좌표가 앱을 껐다 켜도 남아, 집에서도 그 좌표로
+          //    발도장이 찍혔다(거리 0m로 계산됨). 위치는 세션마다 새로 잡는다.
           lastUsedVisibility: state.lastUsedVisibility,
         }),
       })

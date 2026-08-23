@@ -81,8 +81,14 @@ export function checkPawmarkProximity({ currentLocation, spot }: CheckArgs): Pro
   );
 
   const baseRadius = getPawmarkRadius(spot.category);
-  const margin =
-    accuracy != null ? accuracy * PAWMARK_PROXIMITY.ACCURACY_MARGIN_RATIO : 0;
+  // 마진에 상한을 둔다 — 없으면 정확도가 나쁠수록 허용 반경이 함께 커져서
+  // 정확도 50m일 때 공원 반경이 60 → 85m가 됐다(서버와 같은 규칙).
+  const margin = accuracy != null
+    ? Math.min(
+        accuracy * PAWMARK_PROXIMITY.ACCURACY_MARGIN_RATIO,
+        PAWMARK_PROXIMITY.MAX_ACCURACY_MARGIN_M,
+      )
+    : 0;
   const allowed = baseRadius + margin;
 
   if (distance > allowed) {
