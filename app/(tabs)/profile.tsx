@@ -272,18 +272,19 @@ export default function ProfileScreen() {
         )}
 
         {/* ══════════════════════════════════════
-            2) 내 기록 — 내가 남긴 것을 모아 보는 자리
+            2) 내 갤러리 — 내가 올린 사진
             설정과 분리한다. 설정은 '앞으로 어떻게 할지'이고 여기는 '이미 남긴 것'이다.
+            섹션명과 행 이름이 같아('내 기록 > 내 갤러리') 한 번 더 읽게 만들던 것을 합쳤다.
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
             <Icon name="image" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>내 기록</Text>
+            <Text style={s.sectionTitle}>내 갤러리</Text>
           </View>
           <View style={s.settingsCard}>
             <SettingsRow
               icon="image"
-              label="내 갤러리"
+              label="내가 올린 사진"
               onPress={() => router.push('/my-gallery' as any)}
             />
           </View>

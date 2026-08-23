@@ -80,7 +80,14 @@ export default function MyGalleryScreen() {
     if (dogIds.length === 0) return [];
     const { data, error } = await supabase
       .from('checkin_photos')
-      .select('id, image_url, created_at, spot_id, checkin_id, spots(name), paw_checkins(note, visibility_level)')
+      // ⚠️ FK 이름을 반드시 명시한다. checkin_photos↔spots 사이에 관계가 **두 개**라
+      //    (checkin_photos.spot_id → spots / spots.representative_photo_id → checkin_photos)
+      //    그냥 `spots(name)`이라고 쓰면 PostgREST가 PGRST201로 거부한다.
+      .select(
+        'id, image_url, created_at, spot_id, checkin_id,' +
+        'spots!checkin_photos_spot_id_fkey(name),' +
+        'paw_checkins!checkin_photos_checkin_id_fkey(note, visibility_level)',
+      )
       .in('dog_id', dogIds)
       // status는 'visible' | 'hidden' 두 값이다('active'가 아니다 —
       // spots.status와 헷갈리기 쉽다. CHECK 제약이 이 둘만 허용한다).

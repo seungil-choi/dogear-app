@@ -16,8 +16,8 @@ import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import {
-  View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Linking, Platform, Share, Modal, Pressable, Animated,
+  View, Text, ScrollView, TouchableOpacity, FlatList,
+  StyleSheet, Linking, Platform, Share, Modal, Pressable, Animated, Dimensions,
 } from 'react-native';
 import { actionSheet, confirm } from '../../src/utils/dialog';
 import { toast } from '../../src/utils/toast';
@@ -42,9 +42,16 @@ const KEY_VISUAL_HEIGHT = 260;
 /** 다녀간 강아지 레일에 처음 보이는 수 */
 const DOG_RAIL_LIMIT = 8;
 
+/** 사진 그리드 3열 — section의 좌우 여백(16)과 칸 사이 간격(6)을 뺀 실측 폭 */
+const PHOTO_GAP = 6;
+const SCREEN_W = Dimensions.get('window').width;
+const PHOTO_CELL = (SCREEN_W - 16 * 2 - PHOTO_GAP * 2) / 3;
+
 export default function SpotDetailScreen() {
   // 레일에 처음 보일 강아지 수. 넘치면 '더보기'로 그리드로 펼친다.
   const [expandDogs, setExpandDogs] = useState(false);
+  // 사진 전체화면 뷰어 — 그리드에서 탭한 사진의 인덱스
+  const [photoViewer, setPhotoViewer] = useState<number | null>(null);
   const params = useLocalSearchParams<{ id: string | string[] }>();
   // id는 string[] 로 올 수도 있음 (catch-all route) — 항상 첫 번째 값 사용
   const id     = Array.isArray(params.id) ? params.id[0] : (params.id ?? '');
@@ -702,13 +709,6 @@ export default function SpotDetailScreen() {
                   </View>
                 ))}
               </View>
-              {vm.total_checkin_count > 0 && (
-                <Text style={s.moodMeta}>
-                  발도장 {vm.total_checkin_count}개
-                  {vm.recent_trace_count > 0 ? ` · 최근 ${vm.recent_trace_count}개` : ''}
-                </Text>
-              )}
-
               {/* ── 남긴 말 ──
                   발도장에 붙은 **메모만** 뽑아 보여준다. 태그는 고르는 것이고 사진은
                   찍는 것인데, 메모만 사용자가 직접 쓴 문장이다. 이 장소의 유일한
@@ -800,17 +800,23 @@ export default function SpotDetailScreen() {
                           <View style={s.dogBadge}><Text style={s.dogBadgeText}>단골</Text></View>
                         )}
                       </View>
-                      <Text style={s.familiarName} numberOfLines={1}>{dog.name}</Text>
+                      {/* 내 아이는 이름 옆 주황 알약으로 표시한다.
+                          아래 줄에 '우리 아이'라고 쓰면 남의 강아지 칸과 높이가 달라지고,
+                          정작 이름에서는 내 아이인지 안 보였다. */}
+                      <View style={s.familiarNameRow}>
+                        <Text style={s.familiarName} numberOfLines={1}>{dog.name}</Text>
+                        {dog.is_mine && (
+                          <View style={s.minePill}><Text style={s.minePillText}>나</Text></View>
+                        )}
+                      </View>
                       {/* 여기 있던 'N번 방문'을 뺐다.
                           ① 남의 강아지 방문 횟수는 행동 데이터다 — rules.ts의
                              softenedRecencyLabel이 "정확한 시간·횟수·패턴 절대 노출 금지"로
                              막아둔 것을 이 레일이 그대로 뚫고 있었다.
                           ② 목록에서 알고 싶은 건 '누가 왔나'지 '몇 번 왔나'가 아니다.
                              관계는 아래 시트가 완화된 문구로 말한다. */}
-                      {(dog.is_mine || dog.is_familiar) && (
-                        <Text style={s.familiarRecency} numberOfLines={1}>
-                          {dog.is_mine ? '우리 아이' : '자주 마주쳐요'}
-                        </Text>
+                      {dog.is_familiar && !dog.is_mine && (
+                        <Text style={s.familiarRecency} numberOfLines={1}>자주 마주쳐요</Text>
                       )}
                     </TouchableOpacity>
                   ))}
@@ -834,7 +840,16 @@ export default function SpotDetailScreen() {
             <View style={s.section}>
               <View style={s.sectionHead}>
                 <Text style={s.sectionTitle}>사진</Text>
-                {total > 0 && <Text style={s.sectionCount}>{total}장</Text>}
+                {/* 장수 대신 문을 둔다 — '1장'은 정보값이 없고 초라해 보이기만 한다 */}
+                {total > 0 && (
+                  <TouchableOpacity
+                    style={s.sectionMore}
+                    onPress={() => router.push(`/spot/${id}/photos` as any)}
+                  >
+                    <Text style={s.sectionMoreText}>전체보기</Text>
+                    <Icon name="forward" size={12} color={Colors.text.tertiary} />
+                  </TouchableOpacity>
+                )}
               </View>
               {photos.length === 0 ? (
                 <View style={s.galleryEmpty}>
@@ -852,6 +867,7 @@ export default function SpotDetailScreen() {
                         key={photo.photo_id}
                         style={s.photoCell}
                         activeOpacity={0.9}
+                        onPress={() => setPhotoViewer(photos.indexOf(photo))}
                         onLongPress={() => handleGalleryLongPress(photo)}
                         accessibilityRole="image"
                         accessibilityLabel={photo.is_mine
@@ -862,16 +878,6 @@ export default function SpotDetailScreen() {
                       </TouchableOpacity>
                     ))}
                   </View>
-                  {total > photos.length && (
-                    <TouchableOpacity
-                      style={s.photoMoreBtn}
-                      onPress={() => router.push(`/spot/${id}/photos` as any)}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={s.photoMoreText}>사진 {total}장 모두 보기</Text>
-                      <Icon name="forward" size={13} color={Colors.brand.primary} />
-                    </TouchableOpacity>
-                  )}
                 </>
               )}
             </View>
@@ -879,6 +885,67 @@ export default function SpotDetailScreen() {
         })()}
 
       </Animated.ScrollView>
+
+      {/* ── 사진 전체화면 뷰어 ──
+          좌우로 넘기고, 닫기와 신고를 둔다. 사진은 사전 검수 없이 올라오므로
+          **보이는 자리에 신고가 있어야 한다**(Apple UGC 1.2). */}
+      <Modal
+        visible={photoViewer !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPhotoViewer(null)}
+      >
+        <View style={s.pvBackdrop}>
+          <FlatList
+            data={vm.photos?.items ?? []}
+            horizontal
+            pagingEnabled
+            keyExtractor={ph => ph.photo_id}
+            initialScrollIndex={photoViewer ?? 0}
+            getItemLayout={(_, i) => ({ length: SCREEN_W, offset: SCREEN_W * i, index: i })}
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={e =>
+              setPhotoViewer(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W))}
+            renderItem={({ item }) => (
+              <Pressable
+                style={{ width: SCREEN_W, flex: 1, justifyContent: 'center' }}
+                onPress={() => setPhotoViewer(null)}
+              >
+                <AppImage
+                  source={{ uri: item.image_url }}
+                  style={{ width: SCREEN_W, aspectRatio: 1 }}
+                  resizeMode="contain"
+                />
+              </Pressable>
+            )}
+          />
+
+          <TouchableOpacity
+            style={s.pvClose}
+            onPress={() => setPhotoViewer(null)}
+            hitSlop={12}
+            accessibilityLabel="닫기"
+          >
+            <Icon name="close" size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+
+          {(() => {
+            const cur = (vm.photos?.items ?? [])[photoViewer ?? -1];
+            if (!cur) return null;
+            return (
+              <TouchableOpacity
+                style={s.pvAction}
+                onPress={() => handleGalleryLongPress(cur)}
+                hitSlop={12}
+                accessibilityLabel={cur.is_mine ? '사진 삭제' : '사진 신고'}
+              >
+                <Icon name={cur.is_mine ? 'trash' : 'flag'} size={18} color="#FFFFFF" />
+                <Text style={s.pvActionText}>{cur.is_mine ? '삭제' : '신고'}</Text>
+              </TouchableOpacity>
+            );
+          })()}
+        </View>
+      </Modal>
 
       {/* ── 자주 찾는 강아지 — 바텀시트 상세 레이어 ── */}
       <Modal
@@ -1185,7 +1252,6 @@ const s = StyleSheet.create({
   galleryEmptySub: { ...Typography.caption, color: Colors.text.tertiary },
 
   // ── 자주 찾는 강아지 — 가로 스크롤 레일 ───────────────────────────
-  sectionCount: { ...Typography.caption, color: Colors.text.tertiary },
 
   // ── 장소 분위기 ─────────────────────────────────────────
   moodTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[8], marginTop: Spacing[12] },
@@ -1197,7 +1263,6 @@ const s = StyleSheet.create({
   },
   moodTagLabel: { ...Typography.body.s, color: Colors.text.primary },
   moodTagCount: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
-  moodMeta: { ...Typography.caption, color: Colors.text.tertiary, marginTop: Spacing[10] },
 
   // 남긴 말 — 인용처럼. 카드로 감싸면 태그 칩과 무게가 같아져 둘 다 안 읽힌다.
   noteList: { marginTop: Spacing[14], gap: Spacing[10] },
@@ -1224,15 +1289,24 @@ const s = StyleSheet.create({
   // 사진 3열 그리드.
   //   RN의 gap은 **퍼센트를 받지 않는다**(숫자만). 그래서 가로 간격은 space-between으로 만들고
   //   세로 간격만 rowGap(숫자)으로 준다. 셀 32% × 3 = 96%, 남는 4%가 가로 간격 둘이 된다.
-  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: Spacing[6] },
-  photoCell: { width: '32%', aspectRatio: 1, borderRadius: Radius.m, overflow: 'hidden', backgroundColor: Colors.bg.secondary },
+  // ⚠️ justifyContent:'space-between'을 쓰면 안 된다 — 3열 그리드에 사진이 2장이면
+  //    양끝으로 벌어져 가운데가 뻥 뚫린다. 고정 폭 + gap으로 항상 왼쪽부터 채운다.
+  //    (예전엔 gap:'2%'였는데 RN은 gap에 퍼센트를 못 받아서 space-between으로 바꿨던 자리다)
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: PHOTO_GAP },
+  photoCell: { width: PHOTO_CELL, aspectRatio: 1, borderRadius: Radius.m, overflow: 'hidden', backgroundColor: Colors.bg.secondary },
   photoImg: { width: '100%', height: '100%' },
-  photoMoreBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing[4],
-    marginTop: Spacing[12], paddingVertical: Spacing[10],
-    borderRadius: Radius.m, borderWidth: 1, borderColor: Colors.border.default,
+
+  // ── 사진 전체화면 뷰어 ──────────────────────────────────
+  pvBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.94)', justifyContent: 'center' },
+  pvClose: { position: 'absolute', top: 48, right: 20, padding: Spacing[6] },
+  pvAction: {
+    position: 'absolute', bottom: 40, alignSelf: 'center',
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
+    paddingHorizontal: Spacing[16], paddingVertical: Spacing[10],
+    borderRadius: Radius.round,
+    backgroundColor: 'rgba(255,255,255,0.16)',
   },
-  photoMoreText: { ...Typography.label.m, color: Colors.brand.primary },
+  pvActionText: { ...Typography.body.s, color: '#FFFFFF', fontWeight: '600' },
 
   familiarRail: {
     gap: Spacing[20],
@@ -1261,12 +1335,22 @@ const s = StyleSheet.create({
     color: Colors.brand.accent,
     fontWeight: '700',
   },
+  familiarNameRow: { flexDirection: 'row', alignItems: 'center', gap: 3, maxWidth: 80 },
   familiarName: {
     ...Typography.label.s,
     color: Colors.text.primary,
     fontWeight: '600',
     textAlign: 'center',
+    flexShrink: 1,
   },
+  // 내 아이 표시 — 이름에 붙는 작은 알약
+  minePill: {
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.brand.primary,
+  },
+  minePillText: { ...Typography.label.s, color: '#FFFFFF', fontWeight: '700', fontSize: 10, lineHeight: 13 },
   familiarRecency: {
     ...Typography.caption,
     color: Colors.text.tertiary,
