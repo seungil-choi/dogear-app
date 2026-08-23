@@ -33,6 +33,8 @@ import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens'
 import { useAppStore } from '../../src/store/useAppStore';
 import {
   // NaverLogo는 재개 시 다시 import (컴포넌트는 SnsLogos.tsx에 그대로 남겨둠)
+  // ⚠️ 네이버는 **폐기가 아니라 보류**다 — iOS 런칭 후 추가 예정(2026-08-23 확정).
+  //    app.json의 @react-native-seoul/naver-login 플러그인도 그때 쓰려고 남겨둔 것이니 지우지 말 것.
   AppleLogo, GoogleLogo, KakaoLogo,
 } from '../../src/components/common/SnsLogos';
 import { supabase } from '../../src/lib/supabase';
