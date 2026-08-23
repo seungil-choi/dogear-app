@@ -16,6 +16,7 @@ import { useNearbySpots } from '../src/hooks/useNearbySpots';
 import { useUserData } from '../src/hooks/useUserData';
 import { usePushToken } from '../src/hooks/usePushToken';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
+import { installErrorReporter } from '../src/utils/errorReporter';
 
 /** 운영자 제재로 앱 본체를 막아야 하는 상태인가 (정책 18번 §7·§8.1) */
 function isRestrictedUser(status?: string | null) {
@@ -31,6 +32,10 @@ function AuthGate() {
   // 루트 네비게이터가 마운트되기 전 router.replace 호출 방지
   // ("Attempted to navigate before mounting the Root Layout" 크래시 차단)
   const navReady = !!useRootNavigationState()?.key;
+
+  // 전역 오류 수집 — 되도록 일찍, 1회만. ErrorBoundary가 못 잡는
+  // 이벤트 핸들러·비동기 예외를 여기서 받는다.
+  useEffect(() => { installErrorReporter(); }, []);
 
   useEffect(() => {
     if (!navReady) return;

@@ -16,6 +16,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import { Colors, Typography, Spacing, Radius } from '../../constants/tokens';
 import { Icon } from './Icon';
 import { track, EVENT } from '../../utils/analytics';
+import { reportError } from '../../utils/errorReporter';
 import { IS_REAL_AUTH as IS_REAL } from '../../config/env';
 
 interface Props {
@@ -54,6 +55,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
     } catch {
       // analytics 실패는 무시
     }
+
+    // analytics는 '몇 건 터졌나'를 세고, 여기는 '무엇이 왜 터졌나'를 남긴다.
+    // 스택이 있어야 고칠 수 있어서 둘을 따로 보낸다.
+    void reportError(error, 'boundary', true);
 
     if (!IS_REAL) {
       // dev: 콘솔에 자세히

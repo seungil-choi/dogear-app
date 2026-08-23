@@ -145,3 +145,13 @@ enabled = false
 port = 54327
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"
+
+# ── 엣지 함수 JWT 검증 ────────────────────────────────────────
+# 아래 둘은 **사용자 토큰이 아니라 공유 비밀(x-cron-secret)** 로 인증한다.
+# 게이트웨이 JWT 검증을 켜두면 DB 트리거·pg_cron이 부를 때 401로 막힌다.
+# (실제로 notify-admins가 이것 때문에 UNAUTHORIZED_NO_AUTH_HEADER를 받았다)
+[functions.run-content-deletions]
+verify_jwt = false
+
+[functions.notify-admins]
+verify_jwt = false
