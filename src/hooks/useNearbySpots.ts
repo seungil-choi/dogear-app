@@ -139,7 +139,9 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         // 기계 생성 설명(카테고리·시설 재서술)은 버린다 — 판정 기준은 authoredDescription 한 곳
         description: authoredDescription(s.description, s.subcategory),
         caution: s.caution ?? undefined,
-        status: 'active' as const,
+        // 서버가 준 상태를 그대로 쓴다. 예전엔 'active'로 못박아서, 검토 중(pending)
+        // 장소가 정식 장소처럼 추천에까지 올라갔다.
+        status: (s.is_pending_review ? 'pending' : 'active') as Spot['status'],
         created_source: (s.created_source ?? 'seed') as Spot['created_source'],
         created_at: s.created_at ?? new Date().toISOString(),
       }));

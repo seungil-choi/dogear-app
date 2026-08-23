@@ -18,7 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
-import { PERM, PHOTO } from '../src/constants/messages';
+import { PERM, PHOTO, rateLimitMessage } from '../src/constants/messages';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import * as ImagePicker from 'expo-image-picker';
@@ -293,7 +293,8 @@ export default function SuggestSpotScreen() {
           description: payload.description || null,
           tags: payload.additional_tags,
           cover_image_url: payload.cover_image_url ?? null,
-          status: 'hidden',
+          // pending = 즉시 공개 + '검토 중' 배지. hidden은 운영자가 내린 것이라 뜻이 다르다.
+          status: 'pending',
           created_source: 'user_suggested',
           suggested_by_user_id: user.user_id,
         })
@@ -302,7 +303,8 @@ export default function SuggestSpotScreen() {
 
       if (spotError || !spotRow) {
         track(EVENT.place_suggestion_submit_failed, { screen_name: 'suggest_spot' });
-        toast.error('장소를 제안하지 못했어요. 잠시 후 다시 시도해주세요');
+        // 레이트 리밋은 '실패'가 아니라 '지금은 안 된다'다 — 원인을 알려야 다시 안 누른다
+        toast.error(rateLimitMessage(spotError) ?? '장소를 제안하지 못했어요. 잠시 후 다시 시도해주세요');
         return;
       }
       serverSpotId = spotRow.spot_id;

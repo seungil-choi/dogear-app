@@ -63,6 +63,8 @@ Deno.serve(async (req: Request) => {
       svc.rpc('get_spots_nearby', {
         p_lat: latitude, p_lng: longitude, p_radius_m: radius, p_limit: MAX_RESULTS,
       }),
+      // 구버전 앱이 만든 hidden 임시 장소 — 제안자 본인에게만 보인다.
+      // 신규(pending)는 ①이 이미 모두에게 내려주므로 여기서 다루지 않는다.
       supabase
         .from('spots')
         .select('spot_id, name, category, subcategory, latitude, longitude, address_text, neighborhood, cover_image_url, description, tags')
@@ -176,6 +178,9 @@ Deno.serve(async (req: Request) => {
           checkin_count: checkinCount || null,
           user_visit_count: visitCount || null,
           saved_count: savedCount || null,
+          // 검토 중(사용자 제안, 아직 미승인) 표시용.
+          // active면 아무 것도 안 싣는다(omitEmpty) — 기본값은 정상 장소다.
+          is_pending_review: spot.status === 'pending' ? true : null,
         }),
       };
     });

@@ -137,6 +137,7 @@ export function buildHomeSpotCard(
     visit_count: summary?.visit_count,
     last_visit_text: summary ? relativeTime(summary.last_visit_at) : undefined,
     last_visit_at: summary?.last_visit_at,
+    is_pending_review: spot.status === 'pending' || undefined,
   };
 }
 

@@ -163,7 +163,9 @@ export default function ExploreScreen() {
   // 실데이터 dep으로 memo화 — 지도 팬 중 매 프레임 카드 전량 재빌드 + WebView 마커 재주입 방지.
   // dep는 getHomeCards가 읽는 상태와 정확히 같게 — 홈 화면과 같은 규칙
   const homeCards = useMemo(
-    () => getHomeCards(),
+    // 지도 목록은 "주변에 뭐가 있나"라 검토 중 장소도 보여준다(카드에 배지가 붙는다).
+    // 홈의 '오늘의 추천'은 포함하지 않는다 — 검증 전 장소를 앱이 먼저 권할 수는 없다.
+    () => getHomeCards({ includePending: true }),
     [getHomeCards, spots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers],
   );
 
@@ -348,7 +350,7 @@ export default function ExploreScreen() {
           // 서버는 원본을 그대로 내려주므로 여기서 안 거르면 기계 생성문이 스토어에 섞인다.
           description: authoredDescription(sp.description, sp.subcategory),
           features: sp.facility_tags ?? undefined,
-          status: 'active' as const,
+          status: (sp.is_pending_review ? 'pending' : 'active') as Spot['status'],
           created_source: 'seed' as const,
           created_at: new Date().toISOString(),
         }));
@@ -1095,6 +1097,7 @@ export default function ExploreScreen() {
                       }
                       isSaved={isSaved(card.spot_id)}
                       coverImageUrl={card.cover_image_url}
+                      isPendingReview={card.is_pending_review}
                       onPress={() => router.push(`/spot/${card.spot_id}`)}
                     />
                   </View>
@@ -1166,6 +1169,7 @@ export default function ExploreScreen() {
                 }
                 isSaved={isSaved(card.spot_id)}
                 coverImageUrl={card.cover_image_url}
+                isPendingReview={card.is_pending_review}
                 onPress={() => router.push(`/spot/${card.spot_id}`)}
               />
             ))

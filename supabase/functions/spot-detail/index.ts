@@ -81,7 +81,7 @@ Deno.serve(async (req: Request) => {
         .from('spots')
         .select('*')
         .eq('spot_id', spotId)
-        .in('status', ['active', 'hidden'])
+        .in('status', ['active', 'hidden', 'pending'])
         .single(),
 
       // 최근 48시간 흔적 — '나만 보기'(private)만 빼고 조회. service-role로 전체 조회.
@@ -370,8 +370,11 @@ Deno.serve(async (req: Request) => {
         // 설명 정제 규칙은 앱의 authoredDescription 한 곳에만 둔다
         description: spot.description ?? null,
         facility_tags: Array.isArray(spot.tags) ? spot.tags : [],
-        // 검토 대기(hidden) 상태를 화면이 알 수 있게 — 제안자 본인에게만 보이는 상태다
-        is_pending_review: spot.status === 'hidden',
+        // 검토 중 표시.
+        //   pending = 사용자 제안, **모두에게 보이는** 상태(2026-08-23 전환)
+        //   hidden  = 구버전 앱이 만든 임시 장소. 제안자 본인에게만 보인다.
+        // 화면에서는 둘 다 '검토 중' 배지로 같게 다룬다 — 사용자가 구분할 필요가 없다.
+        is_pending_review: spot.status === 'pending' || spot.status === 'hidden',
       },
       // 누가 다녀갔나 — 사진 유무와 무관. familiar_layer 발도장만(이름·아바타 노출 동의)
       visiting_dogs: visitingDogs,

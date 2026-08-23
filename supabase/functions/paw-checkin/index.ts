@@ -190,7 +190,7 @@ Deno.serve(async (req: Request) => {
       .from('spots')
       .select('spot_id, name, latitude, longitude, category')
       .eq('spot_id', spotId)
-      .in('status', ['active', 'hidden'])
+      .in('status', ['active', 'hidden', 'pending'])
       .single();
 
     if (spotError || !spot) {

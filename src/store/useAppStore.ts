@@ -232,7 +232,13 @@ interface AppState {
 
   // Computed helpers
   getSpotDetail: (spotId: string) => SpotDetailViewModel | null;
-  getHomeCards: () => HomeSpotCardViewModel[];
+  /**
+   * 홈 추천 카드.
+   * @param opts.includePending 검토 중(사용자 제안) 장소도 포함할지.
+   *   홈 추천에는 넣지 않는다 — 아직 검증 안 된 곳을 앱이 먼저 권하는 꼴이 된다.
+   *   지도 목록은 "주변에 뭐가 있나"를 보여주는 자리라 포함한다.
+   */
+  getHomeCards: (opts?: { includePending?: boolean }) => HomeSpotCardViewModel[];
   getDogMapSpots: () => DogMapSpotViewModel[];
   isSaved: (spotId: string) => boolean;
 }
@@ -769,7 +775,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     const { spots } = get();
     const normalize = (s: string) => s.trim().toLowerCase();
     return spots
-      .filter(s => s.status === 'active')
+      // 검토 중인 장소도 대상이다. active만 보던 때는 남이 방금 올린 장소가 안 잡혀서
+      // 같은 곳이 두 번 등록됐다 — 즉시 노출로 바꾸면서 눈에 띄게 됐다.
+      .filter(s => s.status === 'active' || s.status === 'pending')
       .map(s => ({ spot: s, dist: haversineDistance(lat, lng, s.latitude, s.longitude) }))
       .filter(({ dist }) => dist <= 15)
       .map(({ spot, dist }) => ({
@@ -787,8 +795,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   // ─── Computed: Home Cards ───────────────────────────────────
   // 거리는 currentLocation 기반으로 실제 계산 (mock random 제거)
-  getHomeCards: () => {
+  getHomeCards: (opts) => {
     const { spots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers } = get();
+    const includePending = opts?.includePending ?? false;
     // 강아지가 없어도 주변 장소 추천은 노출한다(개인화만 생략). 홈이 텅 비지 않도록.
 
     // 차단한 사용자/강아지의 발도장 제외
@@ -802,7 +811,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     }
 
     return spots
-      .filter(s => s.status === 'active')
+      .filter(s => s.status === 'active' || (includePending && s.status === 'pending'))
       .map(spot => {
         // 서버 집계(전체 강아지)가 있으면 우선 사용, 없으면(데모/오프라인) 로컬 checkins로 폴백
         const agg = serverAggregateToSpotAggregate(spot.spot_id, spotAggregates[spot.spot_id])

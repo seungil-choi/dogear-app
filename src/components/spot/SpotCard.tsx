@@ -105,12 +105,14 @@ interface ListCardProps {
   relationSummary?: string;
   isSaved?: boolean;
   coverImageUrl?: string;
+  /** 검토 중(사용자 제안, 미승인) — 목록에서도 정식 장소와 구분되어야 한다 */
+  isPendingReview?: boolean;
   onPress: () => void;
 }
 
 export function ListSpotCard({
   name, categoryLabel, subcategory, distanceText, atmosphereSummary, relationSummary,
-  isSaved, coverImageUrl, onPress,
+  isSaved, coverImageUrl, isPendingReview, onPress,
 }: ListCardProps) {
   return (
     <TouchableOpacity style={s.listCard} onPress={onPress} activeOpacity={0.85}>
@@ -137,6 +139,11 @@ export function ListSpotCard({
           {/* 방문 횟수 + 단골 스팟 인라인 */}
           <View style={s.listMetaRow}>
             <Text style={s.compactDistance}>{distanceText}</Text>
+            {isPendingReview && (
+              <View style={s.pendingChip}>
+                <Text style={s.pendingChipText}>검토 중</Text>
+              </View>
+            )}
             {relationSummary && (
               <View style={s.relationChip}>
                 <View style={s.relationDot} />
@@ -289,6 +296,17 @@ const s = StyleSheet.create({
   compactCategory: { ...Typography.caption, color: Colors.text.tertiary },
   compactName:     { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
   compactDistance: { ...Typography.caption, color: Colors.text.tertiary },
+
+  // 검토 중 칩 — 눈에 띄되 경고로 읽히지 않게. 위반이 아니라 '아직 확인 전'이다.
+  pendingChip: {
+    paddingHorizontal: Spacing[6],
+    paddingVertical: 1,
+    borderRadius: Radius.round,
+    backgroundColor: Colors.surface.subtle,
+    borderWidth: 1,
+    borderColor: Colors.border.default,
+  },
+  pendingChipText: { ...Typography.label.s, color: Colors.text.tertiary },
 
   badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[4], marginTop: Spacing[6] },
   badge: {

@@ -94,3 +94,20 @@ export const PAW = {
 export const DANGER = {
   checkinDelete: '이 발도장과 함께 올린 사진도 모두 삭제돼요. 되돌릴 수 없어요.',
 } as const;
+
+// ─── 장소 제안 (2026-08-23 — 즉시 노출 전환과 함께 추가) ────────
+// 서버 트리거가 안정된 키만 던지고(spot_suggest_rate_limit_*), 문구는 여기서 정한다(§3.2).
+// 상한값은 서버가 정하므로 문구에 숫자를 박지 않는다 — 서버에서 조정하면 문구가 거짓말이 된다.
+export const SUGGEST = {
+  rateLimitNearby: '이 근처에 최근 등록한 장소가 많아요. 조금 뒤에 다시 시도해주세요',
+  rateLimitDaily:  '오늘 등록할 수 있는 장소를 다 채웠어요. 내일 다시 시도해주세요',
+  pendingNotice:   '등록됐어요. 바로 보이고, 운영팀 확인 뒤 정식 장소가 돼요',
+} as const;
+
+/** 서버 트리거의 레이트 리밋 오류를 사람이 읽을 문구로 바꾼다. 해당 없으면 null */
+export function rateLimitMessage(raw: unknown): string | null {
+  const m = (raw as { message?: string } | undefined)?.message ?? '';
+  if (m.includes('spot_suggest_rate_limit_nearby')) return SUGGEST.rateLimitNearby;
+  if (m.includes('spot_suggest_rate_limit_daily'))  return SUGGEST.rateLimitDaily;
+  return null;
+}

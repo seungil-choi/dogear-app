@@ -14,7 +14,12 @@ export type SpotCategory =
   | 'pet_cafe' | 'vet' | 'pet_grooming' | 'pet_boarding'
   // 사용자 제안 전용 — 맞는 유형이 없을 때. 공공데이터에는 없다.
   | 'other';
-export type SpotStatus = 'active' | 'hidden' | 'archived';
+/**
+ * pending = 사용자가 제안해 **즉시 공개된** 장소. 아직 운영자 승인 전이라 '검토 중' 배지가 붙는다.
+ * hidden  = 운영자가 내린 것(위반·신고). 사용자에게 보이지 않는다.
+ * 둘은 뜻이 정반대라 절대 섞지 않는다.
+ */
+export type SpotStatus = 'active' | 'pending' | 'hidden' | 'archived';
 export type VisibilityLevel = 'private' | 'spot_only' | 'familiar_layer';
 export type RegularStatus = 'none' | 'candidate' | 'regular';
 export type AtmosphereState = 'quiet' | 'active' | 'mixed' | 'unknown';
@@ -167,6 +172,11 @@ export interface HomeSpotCardViewModel {
   last_visit_text?: string;
   /** 마지막 방문 ISO 타임스탬프 – 최신순 정렬용 */
   last_visit_at?: string;
+  /**
+   * 검토 중(사용자 제안, 아직 미승인). 목록·지도 카드에 배지를 띄운다.
+   * 상세에만 배지가 있던 때는 목록에서 검토 중인지 알 수 없었다.
+   */
+  is_pending_review?: boolean;
 }
 
 export interface MapPinViewModel {
