@@ -272,7 +272,25 @@ export default function ProfileScreen() {
         )}
 
         {/* ══════════════════════════════════════
-            2) 발도장 설정 (활성 강아지 기준)
+            2) 내 기록 — 내가 남긴 것을 모아 보는 자리
+            설정과 분리한다. 설정은 '앞으로 어떻게 할지'이고 여기는 '이미 남긴 것'이다.
+        ══════════════════════════════════════ */}
+        <View style={s.section}>
+          <View style={s.sectionTitleRow}>
+            <Icon name="image" size={15} color={Colors.text.secondary} />
+            <Text style={s.sectionTitle}>내 기록</Text>
+          </View>
+          <View style={s.settingsCard}>
+            <SettingsRow
+              icon="image"
+              label="내 갤러리"
+              onPress={() => router.push('/my-gallery' as any)}
+            />
+          </View>
+        </View>
+
+        {/* ══════════════════════════════════════
+            3) 발도장 설정 (활성 강아지 기준)
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
@@ -312,7 +330,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            3) 설정 — 알림 / 차단 / 계정 관리
+            4) 설정 — 알림 / 차단 / 계정 관리
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
@@ -328,7 +346,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            4) 약관 및 지원
+            5) 약관 및 지원
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
@@ -342,7 +360,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            5) 로그아웃 — 조용한 단일 행
+            6) 로그아웃 — 조용한 단일 행
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.settingsCard}>

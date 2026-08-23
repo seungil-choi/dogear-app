@@ -243,6 +243,14 @@ function RootLayoutInner() {
             animation: 'slide_from_right',
           }}
         />
+        {/* 내 갤러리 — 내가 올린 사진을 모아 보고 관리한다(마이페이지에서 진입) */}
+        <Stack.Screen
+          name="my-gallery"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
         {/* 조치 내역·이의제기 (§8.3) — 알림함의 조치 통지에서 진입 */}
         <Stack.Screen
           name="moderation-notices"
