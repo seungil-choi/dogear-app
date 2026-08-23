@@ -163,73 +163,8 @@ export function ListSpotCard({
 
 const s = StyleSheet.create({
   // ── Featured ──────────────────────────
-  featured: {
-    backgroundColor: Colors.surface.default,
-    borderRadius: Radius.card,
-    overflow: 'hidden',
-    flexDirection: 'row',
-    marginHorizontal: Spacing[16],
-    borderWidth: 1,
-    borderColor: Colors.border.default,
-  },
-  featuredImage: {
-    width: 128,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  featuredRegularBadge: {
-    position: 'absolute',
-    top: Spacing[8],
-    left: Spacing[8],
-    backgroundColor: Colors.brand.primary,
-    paddingHorizontal: Spacing[6],
-    paddingVertical: 3,
-    borderRadius: Radius.round,
-  },
-  featuredRegularText: { ...Typography.label.s, color: Colors.brand.onPrimary, fontWeight: '700' },
-  featuredContent: {
-    flex: 1,
-    padding: Spacing[16],
-    gap: Spacing[4],
-    justifyContent: 'center',
-  },
-  featuredCta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    marginTop: Spacing[6],
-  },
-  featuredCtaText: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '600' },
 
   // ── Compact ──────────────────────────
-  compact: {
-    width: 168,
-    backgroundColor: Colors.surface.default,
-    borderRadius: Radius.card,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.border.default,
-  },
-  compactImage: {
-    height: 100,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  compactRegularDot: {
-    position: 'absolute',
-    top: Spacing[8],
-    right: Spacing[8],
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.brand.primary,
-  },
-  compactContent: {
-    padding: Spacing[14],
-    paddingTop: Spacing[12],
-    paddingBottom: Spacing[14],
-    gap: Spacing[4],
-  },
 
   // ── List ──────────────────────────────
   listCard: {
@@ -289,12 +224,7 @@ const s = StyleSheet.create({
   subText: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 16, marginTop: 1 },
 
   // ── Shared ────────────────────────────
-  categoryLabel: { ...Typography.caption, color: Colors.text.tertiary },
-  name:          { ...Typography.title.s, color: Colors.text.primary },
-  distance:      { ...Typography.caption, color: Colors.text.tertiary },
 
-  compactCategory: { ...Typography.caption, color: Colors.text.tertiary },
-  compactName:     { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
   compactDistance: { ...Typography.caption, color: Colors.text.tertiary },
 
   // 검토 중 칩 — 눈에 띄되 경고로 읽히지 않게. 위반이 아니라 '아직 확인 전'이다.
@@ -308,17 +238,6 @@ const s = StyleSheet.create({
   },
   pendingChipText: { ...Typography.label.s, color: Colors.text.tertiary },
 
-  badgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[4], marginTop: Spacing[6] },
-  badge: {
-    backgroundColor: Colors.bg.secondary,
-    paddingHorizontal: Spacing[10],
-    paddingVertical: Spacing[4],
-    borderRadius: Radius.round,
-  },
-  badgeText: { ...Typography.label.s, color: Colors.text.secondary },
-  visitedBadge: {
-    backgroundColor: Colors.surface.selected,
-  },
 
 });
 

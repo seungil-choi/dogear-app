@@ -261,6 +261,8 @@ export interface SpotDetailApiViewModel {
   atmosphere: {
     state: AtmosphereState;
     top_feeling_tags: FeelingTag[];
+    /** 같은 태그를 횟수와 함께. 구버전 서버에는 없다(폴백 필요) */
+    top_feeling_tag_counts?: { tag: FeelingTag; count: number }[];
     recent_checkin_count: number;
     total_checkin_count: number;
   };
@@ -384,6 +386,8 @@ export interface SpotDetailViewModel {
   /** 원천 데이터의 편의시설 태그 */
   facility_tags?: string[];
   dominant_tags: string[];
+  /** '장소 분위기' 섹션용 — 태그와 횟수. 서버가 안 주면 dominant_tags로 폴백(횟수 0) */
+  tag_counts: { tag: string; count: number }[];
   user_relation?: UserRelation;
   familiar_dogs: FamiliarDogCardViewModel[];
   recent_traces: TraceListItemViewModel[];

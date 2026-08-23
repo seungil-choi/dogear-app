@@ -40,11 +40,6 @@ export function PrivacyChip({
 }
 
 const s = StyleSheet.create({
-  chip: {
-    paddingHorizontal: Spacing[10],
-    paddingVertical: Spacing[4],
-    borderRadius: Radius.round,
-  },
   chipText: {
     ...Typography.label.s,
     fontWeight: '500',

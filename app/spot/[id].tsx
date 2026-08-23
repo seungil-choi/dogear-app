@@ -19,7 +19,7 @@ import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, Linking, Platform, Share, Modal, Pressable, Animated,
 } from 'react-native';
-import { notify, actionSheet, confirm } from '../../src/utils/dialog';
+import { actionSheet, confirm } from '../../src/utils/dialog';
 import { toast } from '../../src/utils/toast';
 import { PHOTO } from '../../src/constants/messages';
 import { track, EVENT } from '../../src/utils/analytics';
@@ -31,16 +31,20 @@ import { useSpotDetail } from '../../src/hooks/useSpotDetail';
 import { buildSpotDetailFromApi, displaySavedCount } from '../../src/utils/rules';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
-import { categoryLabel as catLabel } from '../../src/utils/labels';
+import { categoryLabel as catLabel, feelingTagLabel } from '../../src/utils/labels';
 import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
-import type { SpotVisitingDog, FamiliarDogCardViewModel, SpotGalleryPhoto } from '../../src/types';
+import type { SpotVisitingDog, FamiliarDogCardViewModel, SpotGalleryPhoto, FeelingTag } from '../../src/types';
 import { supabase } from '../../src/lib/supabase';
 
 /** 키비주얼 높이. 상단 바가 장소명을 넘겨받는 스크롤 지점도 이 값에서 계산한다. */
 const KEY_VISUAL_HEIGHT = 260;
+/** 다녀간 강아지 레일에 처음 보이는 수 */
+const DOG_RAIL_LIMIT = 8;
 
 export default function SpotDetailScreen() {
+  // 레일에 처음 보일 강아지 수. 넘치면 '더보기'로 그리드로 펼친다.
+  const [expandDogs, setExpandDogs] = useState(false);
   const params = useLocalSearchParams<{ id: string | string[] }>();
   // id는 string[] 로 올 수도 있음 (catch-all route) — 항상 첫 번째 값 사용
   const id     = Array.isArray(params.id) ? params.id[0] : (params.id ?? '');
@@ -322,16 +326,6 @@ export default function SpotDetailScreen() {
           dog_avatar_url: dog.avatar_url ?? '',
         },
       });
-    }
-  }, [router]);
-
-  // 타인 흔적(메모/사진) 신고 — Apple UGC 1.2
-  const handleReportTrace = useCallback(async (traceId: string) => {
-    const idx = await actionSheet('이 흔적', [
-      { label: '이 흔적 신고하기', destructive: true },
-    ]);
-    if (idx === 0) {
-      router.push({ pathname: '/report', params: { target_type: 'checkin', target_id: traceId } });
     }
   }, [router]);
 
@@ -655,6 +649,55 @@ export default function SpotDetailScreen() {
           </View>
         </View>
 
+        {/* ── 장소 분위기 ──
+            발도장을 **집계**해서 이 장소가 어떤 곳인지 답한다.
+
+            예전엔 이 자리가 '최근 흔적'이었다 — 발도장을 시간순으로 3건 나열했다.
+            그런데 '다녀간 강아지'가 누구인지를, '사진'이 사진을 각각 가져가고 나니
+            흔적에 남은 건 상대시간 + 태그 하나뿐인 **익명의 시간 로그**였다.
+
+            사용자가 장소 상세에서 알고 싶은 건 "여기 어때?"지 "누가 몇 시에 왔나"가
+            아니다. 개별 흔적은 /visit-history가 이미 맡고 있으므로 링크만 남긴다.
+            집계는 데이터가 적어도 성립한다 — 흔적 3건은 초라해 보이지만
+            "조용해요 3"은 정보다. */}
+        <View style={s.section}>
+          <View style={s.sectionHead}>
+            <Text style={s.sectionTitle}>장소 분위기</Text>
+            {/* ⚠️ /visit-history/[id]는 **내 방문 기록만** 보여준다(남의 흔적이 아니다).
+                예전 '최근 흔적'의 더보기도 같은 곳으로 갔는데 라벨이 '더보기'라
+                이 장소 전체 흔적으로 가는 줄 읽혔다. 목적지대로 부른다. */}
+            <TouchableOpacity style={s.sectionMore} onPress={() => router.push(`/visit-history/${id}`)}>
+              <Text style={s.sectionMoreText}>내 방문 기록</Text>
+              <Icon name="forward" size={12} color={Colors.text.tertiary} />
+            </TouchableOpacity>
+          </View>
+
+          {vm.tag_counts.length > 0 ? (
+            <>
+              <View style={s.moodTagRow}>
+                {vm.tag_counts.map(({ tag, count }) => (
+                  <View key={tag} style={s.moodTag}>
+                    <Text style={s.moodTagLabel}>{feelingTagLabel[tag as FeelingTag] ?? tag}</Text>
+                    {/* 로컬 폴백엔 횟수가 없다(0) — 그때는 숫자를 숨긴다 */}
+                    {count > 0 && <Text style={s.moodTagCount}>{count}</Text>}
+                  </View>
+                ))}
+              </View>
+              {vm.total_checkin_count > 0 && (
+                <Text style={s.moodMeta}>
+                  발도장 {vm.total_checkin_count}개
+                  {vm.recent_trace_count > 0 ? ` · 최근 ${vm.recent_trace_count}개` : ''}
+                </Text>
+              )}
+            </>
+          ) : (
+            <View style={s.noTrace}>
+              <Icon name="paw" size={20} color={Colors.text.tertiary} />
+              <Text style={s.noTraceText}>아직 흔적이 없어요. 첫 발도장을 남겨보세요!</Text>
+            </View>
+          )}
+        </View>
+
         {/* ── 다녀간 강아지 ──
             **누가 왔나**에만 답한다. 사진은 아래 별도 섹션이 맡는다.
             예전엔 이 둘을 '다녀간 강아지들'이라는 사진 레일 하나로 뭉쳐놨는데,
@@ -665,23 +708,35 @@ export default function SpotDetailScreen() {
                "장소 분위기에만"을 고른 것이라 이름·아바타를 띄우면 안 된다. */}
         {(() => {
           const dogs = vm.visiting_dogs ?? [];
+          // 접힘 = 가로 레일(ScrollView) / 펼침 = 줄바꿈 그리드(View)
+          const Container: React.ComponentType<any> = expandDogs ? View : ScrollView;
           return (
             <View style={s.section}>
               <View style={s.sectionHead}>
                 <Text style={s.sectionTitle}>다녀간 강아지</Text>
-                {dogs.length > 0 && <Text style={s.sectionCount}>{dogs.length}마리</Text>}
+                {/* 마릿수는 쓰지 않는다 — 바로 위 스탯 카드에 이미 같은 숫자가 있고,
+                    레일에 아바타가 다 보이는데 세어줄 이유도 없다.
+                    대신 레일은 끝이 어디인지 안 보이므로 펼칠 문을 둔다. */}
+                {!expandDogs && dogs.length > DOG_RAIL_LIMIT && (
+                  <TouchableOpacity style={s.sectionMore} onPress={() => setExpandDogs(true)}>
+                    <Text style={s.sectionMoreText}>더보기</Text>
+                    <Icon name="forward" size={12} color={Colors.text.tertiary} />
+                  </TouchableOpacity>
+                )}
               </View>
               {dogs.length === 0 ? (
                 <Text style={s.familiarEmptyText}>
                   아직 다녀간 강아지가 없어요. 첫 발도장을 남겨보세요.
                 </Text>
               ) : (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={s.familiarRail}
+                // 펼치면 세로로 흐르는 그리드다. 여기서 ScrollView를 쓰면 부모 세로
+                // ScrollView와 중첩돼 스크롤이 서로 먹는다 — 일반 View로 그린다.
+                <Container
+                  {...(expandDogs
+                    ? { style: s.familiarGrid }
+                    : { horizontal: true, showsHorizontalScrollIndicator: false, contentContainerStyle: s.familiarRail })}
                 >
-                  {dogs.map(dog => (
+                  {(expandDogs ? dogs : dogs.slice(0, DOG_RAIL_LIMIT)).map(dog => (
                     <TouchableOpacity
                       key={dog.dog_id}
                       style={s.familiarCell}
@@ -710,7 +765,7 @@ export default function SpotDetailScreen() {
                       )}
                     </TouchableOpacity>
                   ))}
-                </ScrollView>
+                </Container>
               )}
             </View>
           );
@@ -773,67 +828,6 @@ export default function SpotDetailScreen() {
             </View>
           );
         })()}
-
-        {/* ── P3: 최근 흔적 ── */}
-        <View style={s.section}>
-          <View style={s.sectionHead}>
-            <Text style={s.sectionTitle}>최근 흔적</Text>
-            <TouchableOpacity style={s.sectionMore} onPress={() => router.push(`/visit-history/${id}`)}>
-              <Text style={s.sectionMoreText}>더보기</Text>
-              <Icon name="forward" size={12} color={Colors.text.tertiary} />
-            </TouchableOpacity>
-          </View>
-
-          {vm.recent_traces.length > 0 ? (
-            <View style={s.traceList}>
-              {vm.recent_traces.map((trace, idx) => (
-                <TouchableOpacity
-                  key={trace.trace_id}
-                  style={[s.traceRow, idx < vm.recent_traces.length - 1 && s.traceRowBorder]}
-                  activeOpacity={0.75}
-                  onPress={() => router.push(`/visit-history/${id}`)}
-                  onLongPress={() => handleReportTrace(trace.trace_id)}
-                  delayLongPress={400}
-                  accessibilityHint="길게 누르면 이 흔적을 신고할 수 있어요"
-                >
-                  <View style={s.traceIconWrap}>
-                    <Icon name="paw-filled" size={14} color={Colors.brand.primary} />
-                  </View>
-                  <View style={s.traceContent}>
-                    <View style={s.traceTopRow}>
-                      <Text style={s.traceTime}>{trace.relative_time_text}</Text>
-                      {trace.primary_tag_label ? (
-                        <View style={s.traceTag}>
-                          <Text style={s.traceTagText}>{trace.primary_tag_label}</Text>
-                        </View>
-                      ) : null}
-                    </View>
-                    {trace.secondary_text && (
-                      <Text style={s.traceNote} numberOfLines={1}>{trace.secondary_text}</Text>
-                    )}
-                    {/* Phase 2: 사진 라벨 — 사진 기능 구현 후 노출
-                    {trace.photo_count != null && trace.photo_count > 0 && (
-                      <Text style={s.tracePhotoLabel}>사진 {trace.photo_count}장</Text>
-                    )}
-                    */}
-                  </View>
-                  {/* Phase 2: 사진 썸네일 — 사진 업로드/표시 기능 구현 후 활성화
-                  {trace.has_photo && (
-                    <View style={s.traceThumb}>
-                      <Icon name="camera" size={16} color={Colors.text.tertiary} />
-                    </View>
-                  )}
-                  */}
-                </TouchableOpacity>
-              ))}
-            </View>
-          ) : (
-            <View style={s.noTrace}>
-              <Icon name="paw" size={20} color={Colors.text.tertiary} />
-              <Text style={s.noTraceText}>아직 흔적이 없어요. 첫 발도장을 남겨보세요!</Text>
-            </View>
-          )}
-        </View>
 
       </Animated.ScrollView>
 
@@ -1137,24 +1131,27 @@ const s = StyleSheet.create({
   },
 
   // ── 다녀간 강아지들 — 사진 갤러리 레일 ─────────────────────────
-  galleryRail: { gap: Spacing[10], paddingRight: Spacing[16] },
   galleryEmpty: { paddingVertical: Spacing[16], gap: Spacing[4] },
   galleryEmptyText: { ...Typography.body.m, color: Colors.text.secondary },
   galleryEmptySub: { ...Typography.caption, color: Colors.text.tertiary },
-  galleryItem: { width: 108, gap: Spacing[6] },
-  galleryPhoto: {
-    width: 108, height: 108,
-    borderRadius: Radius.m,
-    backgroundColor: Colors.bg.secondary,
-  },
-  galleryDogName: {
-    ...Typography.caption,
-    color: Colors.text.secondary,
-    textAlign: 'center',
-  },
 
   // ── 자주 찾는 강아지 — 가로 스크롤 레일 ───────────────────────────
   sectionCount: { ...Typography.caption, color: Colors.text.tertiary },
+
+  // ── 장소 분위기 ─────────────────────────────────────────
+  moodTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[8], marginTop: Spacing[12] },
+  moodTag: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
+    paddingHorizontal: Spacing[12], paddingVertical: Spacing[8],
+    borderRadius: Radius.round,
+    backgroundColor: Colors.surface.subtle,
+  },
+  moodTagLabel: { ...Typography.body.s, color: Colors.text.primary },
+  moodTagCount: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
+  moodMeta: { ...Typography.caption, color: Colors.text.tertiary, marginTop: Spacing[10] },
+
+  // 펼친 상태 — 가로 레일 대신 줄바꿈 그리드
+  familiarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[16], paddingTop: Spacing[12] },
 
   // 다녀간 강아지 배지 (단골)
   dogBadge: {
@@ -1372,62 +1369,6 @@ const s = StyleSheet.create({
   },
 
   // ── 흔적 리스트 ──────────────────────────────────────────────────
-  traceList: {
-    borderRadius: Radius.card,
-    borderWidth: 1,
-    borderColor: Colors.border.default,
-    overflow: 'hidden',
-  },
-  traceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[12],
-    paddingVertical: Spacing[14],
-    paddingHorizontal: Spacing[16],
-    backgroundColor: Colors.surface.default,
-  },
-  traceRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border.subtle,
-  },
-  traceIconWrap: {
-    width: 32, height: 32,
-    borderRadius: 10,
-    backgroundColor: Colors.brand.subtle,
-    borderWidth: 1,
-    borderColor: Colors.border.brand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  traceContent: { flex: 1, gap: Spacing[4] },
-  traceTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[8],
-  },
-  traceTime: {
-    ...Typography.label.s,
-    color: Colors.text.primary,
-    fontWeight: '600',
-  },
-  traceTag: {
-    backgroundColor: Colors.bg.secondary,
-    paddingHorizontal: Spacing[8],
-    paddingVertical: 2,
-    borderRadius: Radius.round,
-  },
-  traceTagText: { ...Typography.caption, color: Colors.text.secondary },
-  tracePhotoLabel: { ...Typography.caption, color: Colors.brand.primary },
-  traceNote: { ...Typography.caption, color: Colors.text.tertiary },
-  traceThumb: {
-    width: 44, height: 44,
-    borderRadius: Radius.m,
-    backgroundColor: Colors.bg.secondary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
   noTrace: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -787,8 +787,6 @@ const s = StyleSheet.create({
     borderColor: Colors.border.default,
     padding: Spacing[16],
   },
-  dupCardBlock: { borderColor: Colors.status.error.border, backgroundColor: Colors.status.error.bg },
-  dupCardMain: { flexDirection: 'row', alignItems: 'center', gap: Spacing[12] },
   dupCardInfo: { flex: 1, gap: Spacing[4] },
   dupName: { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
   dupMeta: { ...Typography.body.s, color: Colors.text.tertiary },
@@ -802,15 +800,6 @@ const s = StyleSheet.create({
   },
   blockBadgeText: { ...Typography.label.s, color: Colors.status.error.text },
 
-  useSpotBtn: {
-    paddingHorizontal: Spacing[14], paddingVertical: Spacing[10],
-    backgroundColor: Colors.brand.primary,
-    borderRadius: Radius.m,
-  },
-  useSpotBtnStrong: {
-    backgroundColor: Colors.brand.secondary, // hard_block은 더 짙은 강조
-  },
-  useSpotBtnText: { ...Typography.label.s, color: Colors.brand.onPrimary, fontWeight: '700' },
 
   hardBlockNotice: {
     flexDirection: 'row',
@@ -824,14 +813,6 @@ const s = StyleSheet.create({
   },
   hardBlockText: { flex: 1, ...Typography.body.s, color: Colors.status.error.text, lineHeight: 20 },
 
-  forceSubmitBtn: {
-    alignSelf: 'center',
-    paddingHorizontal: Spacing[24], paddingVertical: Spacing[14],
-    borderRadius: Radius.round,
-    borderWidth: 1.5,
-    borderColor: Colors.brand.primary,
-  },
-  forceSubmitText: { ...Typography.label.m, color: Colors.brand.accent, fontWeight: '600' },
 
   // ── Form ──
   formSection: { gap: Spacing[10] },

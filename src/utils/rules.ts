@@ -332,6 +332,10 @@ export function buildSpotDetailFromApi(
     is_pending_review:    !!spot.is_pending_review,
     facility_tags:        spot.facility_tags ?? [],
     dominant_tags: api.atmosphere.top_feeling_tags,
+    // 구버전 서버(횟수 없음)에서도 태그는 보이게 — 횟수만 0으로 떨어진다
+    tag_counts:
+      api.atmosphere.top_feeling_tag_counts ??
+      (api.atmosphere.top_feeling_tags ?? []).map(tag => ({ tag, count: 0 })),
     user_relation,
     familiar_dogs,
     recent_traces,

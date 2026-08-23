@@ -203,7 +203,8 @@ Deno.serve(async (req: Request) => {
 
     // 분위기 태그 집계
     const allTags: string[] = recentCheckins.flatMap((c: any) => c.feeling_tags ?? []);
-    const topTags = getTopTags(allTags);
+    const topTagCounts = getTopTagCounts(allTags);
+    const topTags = topTagCounts.map((t) => t.tag);
     const atmosphereState = deriveAtmosphereState(topTags);
 
     // 익숙한 강아지 정보 조회 (dog_id → dog 정보) — 차단한 강아지 제외
@@ -385,6 +386,8 @@ Deno.serve(async (req: Request) => {
       atmosphere: {
         state: atmosphereState,
         top_feeling_tags: topTags,
+        // 같은 데이터의 횟수 포함본. top_feeling_tags는 구버전 앱 호환으로 남긴다.
+        top_feeling_tag_counts: topTagCounts,
         recent_checkin_count: recentCheckins.length,
         total_checkin_count: totalCheckinCount ?? 0,
       },
@@ -415,7 +418,12 @@ Deno.serve(async (req: Request) => {
   }
 });
 
-function getTopTags(tags: string[]): string[] {
+/**
+ * 상위 태그를 **횟수와 함께** 돌려준다.
+ * 예전엔 빈도를 세어놓고 이름만 남겨 버렸다. 화면에서 "조용해요"만 보이면
+ * 한 명이 한 번 고른 것인지 스무 명이 고른 것인지 알 수 없다.
+ */
+function getTopTagCounts(tags: string[]): { tag: string; count: number }[] {
   const freq: Record<string, number> = {};
   for (const tag of tags) {
     freq[tag] = (freq[tag] ?? 0) + 1;
@@ -423,7 +431,11 @@ function getTopTags(tags: string[]): string[] {
   return Object.entries(freq)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
-    .map(([tag]) => tag);
+    .map(([tag, count]) => ({ tag, count }));
+}
+
+function getTopTags(tags: string[]): string[] {
+  return getTopTagCounts(tags).map((t) => t.tag);
 }
 
 function deriveAtmosphereState(tags: string[]): string {

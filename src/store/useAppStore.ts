@@ -902,6 +902,8 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       first_checkin_at: null,
       facility_tags: spot.features ?? [],
       dominant_tags: agg.dominant_feeling_tags,
+      // 로컬 폴백(데모·오프라인)엔 태그별 횟수가 없다 — 태그만 보이고 횟수는 감춘다
+      tag_counts: agg.dominant_feeling_tags.map(tag => ({ tag, count: 0 })),
       description: spot.description,
       address_text: spot.address_text,
       opening_hours: spot.opening_hours,

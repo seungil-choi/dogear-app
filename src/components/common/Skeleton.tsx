@@ -69,18 +69,6 @@ const styles = StyleSheet.create({
   base: {
     backgroundColor: Colors.border.default,
   },
-  spotCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  spotCardImage: {
-    marginRight: 12,
-  },
-  spotCardContent: {
-    flex: 1,
-  },
   rail: {
     flexDirection: 'row',
     paddingHorizontal: 20,
@@ -89,18 +77,6 @@ const styles = StyleSheet.create({
   railCard: {
     flex: 1,
   },
-  detailHeader: {},
-  detailMeta: {
-    paddingHorizontal: 20,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-  },
-  badge: {
-    marginRight: 8,
-  },
   mb4: { marginBottom: 4 },
   mb6: { marginBottom: 6 },
-  mb8: { marginBottom: 8 },
-  mb12: { marginBottom: 12 },
 });
