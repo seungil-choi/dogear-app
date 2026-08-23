@@ -143,7 +143,7 @@ export function buildHomeSpotCard(
 
 // ─── 자주 찾는 강아지 — 완화된 최근성 텍스트 ──────────────────
 // 정확한 시간·횟수·패턴 절대 노출 금지 (개인정보보호 + 비소셜 원칙)
-function softenedRecencyLabel(checkinCount: number, lastSeenAt: string): string {
+export function softenedRecencyLabel(checkinCount: number, lastSeenAt: string): string {
   const diffDays = (Date.now() - new Date(lastSeenAt).getTime()) / 86_400_000;
   if (checkinCount >= 3 && diffDays <= 7) return '최근 자주 찾고 있어요';
   if (diffDays <= 7) return '최근 방문 기록이 있어요';

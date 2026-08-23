@@ -28,7 +28,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { useSpotDetail } from '../../src/hooks/useSpotDetail';
-import { buildSpotDetailFromApi, displaySavedCount } from '../../src/utils/rules';
+import { buildSpotDetailFromApi, displaySavedCount, softenedRecencyLabel } from '../../src/utils/rules';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
 import { categoryLabel as catLabel, feelingTagLabel } from '../../src/utils/labels';
@@ -151,7 +151,8 @@ export default function SpotDetailScreen() {
       size_label: '',
       breed_age_text: '',
       temperament_preview: [],
-      recency_label: `${dog.visit_count}번 방문했어요`,
+      // 폴백에서도 횟수를 그대로 쓰지 않는다 — familiar_dogs 경로와 같은 규칙을 탄다
+      recency_label: softenedRecencyLabel(dog.visit_count, dog.last_visit_at),
       relation_text: dog.is_regular ? '이 장소의 단골이에요' : '이 장소에 다녀갔어요',
     });
   }, [vm, router]);
@@ -757,11 +758,16 @@ export default function SpotDetailScreen() {
                         )}
                       </View>
                       <Text style={s.familiarName} numberOfLines={1}>{dog.name}</Text>
-                      <Text style={s.familiarRecency} numberOfLines={1}>
-                        {dog.is_mine ? '우리 아이' : `${dog.visit_count}번 방문`}
-                      </Text>
-                      {dog.is_familiar && !dog.is_mine && (
-                        <Text style={s.familiarTag} numberOfLines={1}>자주 마주쳐요</Text>
+                      {/* 여기 있던 'N번 방문'을 뺐다.
+                          ① 남의 강아지 방문 횟수는 행동 데이터다 — rules.ts의
+                             softenedRecencyLabel이 "정확한 시간·횟수·패턴 절대 노출 금지"로
+                             막아둔 것을 이 레일이 그대로 뚫고 있었다.
+                          ② 목록에서 알고 싶은 건 '누가 왔나'지 '몇 번 왔나'가 아니다.
+                             관계는 아래 시트가 완화된 문구로 말한다. */}
+                      {(dog.is_mine || dog.is_familiar) && (
+                        <Text style={s.familiarRecency} numberOfLines={1}>
+                          {dog.is_mine ? '우리 아이' : '자주 마주쳐요'}
+                        </Text>
                       )}
                     </TouchableOpacity>
                   ))}
