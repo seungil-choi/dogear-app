@@ -287,6 +287,7 @@ export function buildSpotDetailFromApi(
     relative_time_text: relativeTime(c.checked_in_at),
     primary_tag_label: c.feeling_tags[0] ? feelingTagLabel[c.feeling_tags[0]] : '',
     secondary_text: c.note ?? (c.feeling_tags[1] ? feelingTagLabel[c.feeling_tags[1]] : undefined),
+    note: c.note?.trim() || undefined,
     has_photo: !!c.photo_url,
     photo_count: c.photo_url ? 1 : 0,
   }));

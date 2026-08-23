@@ -140,6 +140,13 @@ export default function SpotDetailScreen() {
    * 익숙한 강아지로도 잡혀 있으면 견종·성향까지 있는 풍부한 카드를 그대로 쓰고,
    * 아니면 서버가 준 최소 정보(이름·아바타·방문수)로 시트를 채운다.
    */
+  // 분위기 섹션에 띄울 메모. secondary_text는 메모가 없으면 태그로 대체되므로
+  // 반드시 note로 고른다(태그가 따옴표 안에 들어가면 남이 쓴 말처럼 보인다).
+  const notes = useMemo(
+    () => (vm?.recent_traces ?? []).filter(t => t.note).slice(0, 3),
+    [vm],
+  );
+
   const handleVisitingDogPress = useCallback((dog: SpotVisitingDog) => {
     if (dog.is_mine) { router.push('/dog-detail' as any); return; }
     const rich = vm?.familiar_dogs?.find(f => f.dog_id === dog.dog_id);
@@ -310,6 +317,17 @@ export default function SpotDetailScreen() {
   }, [vm, id]);
 
   // 타인 강아지(익숙한 강아지) 신고/차단 — Apple UGC 1.2: 콘텐츠가 보이는 자리에서 신고·차단
+  // 타인 메모 신고 — Apple UGC 1.2.
+  // 메모를 다시 노출하는 이상 신고 경로도 같이 있어야 한다.
+  const handleReportTrace = useCallback(async (traceId: string) => {
+    const idx = await actionSheet('이 메모', [
+      { label: '이 메모 신고하기', destructive: true },
+    ]);
+    if (idx === 0) {
+      router.push({ pathname: '/report', params: { target_type: 'checkin', target_id: traceId } });
+    }
+  }, [router]);
+
   const handleReportDog = useCallback(async (dog: FamiliarDogCardViewModel) => {
     const idx = await actionSheet(dog.name, [
       { label: '이 강아지 신고하기', destructive: true },
@@ -689,6 +707,31 @@ export default function SpotDetailScreen() {
                   발도장 {vm.total_checkin_count}개
                   {vm.recent_trace_count > 0 ? ` · 최근 ${vm.recent_trace_count}개` : ''}
                 </Text>
+              )}
+
+              {/* ── 남긴 말 ──
+                  발도장에 붙은 **메모만** 뽑아 보여준다. 태그는 고르는 것이고 사진은
+                  찍는 것인데, 메모만 사용자가 직접 쓴 문장이다. 이 장소의 유일한
+                  고유 콘텐츠라 읽을 자리가 없으면 아무도 쓰지 않게 된다.
+
+                  시각·작성자는 붙이지 않는다 — 예전 '최근 흔적'이 공허했던 건
+                  시간 로그가 정보를 거의 담지 않았기 때문이다. 문장만 남긴다.
+                  (서버가 private 발도장과 차단한 사용자를 이미 걸러서 보낸다) */}
+              {notes.length > 0 && (
+                <View style={s.noteList}>
+                  {notes.map(t => (
+                    <TouchableOpacity
+                      key={t.trace_id}
+                      style={s.noteRow}
+                      activeOpacity={0.75}
+                      onLongPress={() => handleReportTrace(t.trace_id)}
+                      delayLongPress={400}
+                      accessibilityHint="길게 누르면 이 메모를 신고할 수 있어요"
+                    >
+                      <Text style={s.noteText} numberOfLines={2}>{t.note}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               )}
             </>
           ) : (
@@ -1156,6 +1199,15 @@ const s = StyleSheet.create({
   moodTagCount: { ...Typography.label.s, color: Colors.brand.primary, fontWeight: '700' },
   moodMeta: { ...Typography.caption, color: Colors.text.tertiary, marginTop: Spacing[10] },
 
+  // 남긴 말 — 인용처럼. 카드로 감싸면 태그 칩과 무게가 같아져 둘 다 안 읽힌다.
+  noteList: { marginTop: Spacing[14], gap: Spacing[10] },
+  noteRow: {
+    borderLeftWidth: 2,
+    borderLeftColor: Colors.border.default,
+    paddingLeft: Spacing[10],
+  },
+  noteText: { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 20 },
+
   // 펼친 상태 — 가로 레일 대신 줄바꿈 그리드
   familiarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[16], paddingTop: Spacing[12] },
 
@@ -1168,7 +1220,6 @@ const s = StyleSheet.create({
     borderWidth: 2, borderColor: Colors.bg.primary,
   },
   dogBadgeText: { ...Typography.caption, fontSize: 9, lineHeight: 12, color: '#FFFFFF', fontWeight: '700' },
-  familiarTag: { ...Typography.caption, fontSize: 10, color: Colors.brand.primary, marginTop: 1 },
 
   // 사진 3열 그리드.
   //   RN의 gap은 **퍼센트를 받지 않는다**(숫자만). 그래서 가로 간격은 space-between으로 만들고

@@ -229,6 +229,12 @@ export interface TraceListItemViewModel {
   relative_time_text: string;
   primary_tag_label: string;
   secondary_text?: string;
+  /**
+   * 사용자가 직접 쓴 메모만. **secondary_text와 다르다** —
+   * secondary_text는 메모가 없으면 두 번째 태그로 대체되므로,
+   * "메모가 있는 흔적"을 고르는 데 쓸 수 없다.
+   */
+  note?: string;
   has_photo: boolean;
   photo_count?: number;
 }
