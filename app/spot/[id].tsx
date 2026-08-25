@@ -14,6 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
+import { PhotoViewer } from '../../src/components/common/PhotoViewer';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import {
   View, Text, ScrollView, TouchableOpacity, FlatList,
@@ -887,66 +888,15 @@ export default function SpotDetailScreen() {
       </Animated.ScrollView>
 
       {/* ── 사진 전체화면 뷰어 ──
-          좌우로 넘기고, 닫기와 신고를 둔다. 사진은 사전 검수 없이 올라오므로
-          **보이는 자리에 신고가 있어야 한다**(Apple UGC 1.2). */}
-      <Modal
-        visible={photoViewer !== null}
-        transparent
-        animationType="fade"
-        statusBarTranslucent
-        onRequestClose={() => setPhotoViewer(null)}
-      >
-        <View style={s.pvBackdrop}>
-          <FlatList
-            data={vm.photos?.items ?? []}
-            horizontal
-            pagingEnabled
-            keyExtractor={ph => ph.photo_id}
-            initialScrollIndex={photoViewer ?? 0}
-            getItemLayout={(_, i) => ({ length: SCREEN_W, offset: SCREEN_W * i, index: i })}
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={e =>
-              setPhotoViewer(Math.round(e.nativeEvent.contentOffset.x / SCREEN_W))}
-            renderItem={({ item }) => (
-              <Pressable
-                style={{ width: SCREEN_W, flex: 1, justifyContent: 'center' }}
-                onPress={() => setPhotoViewer(null)}
-              >
-                <AppImage
-                  source={{ uri: item.image_url }}
-                  style={{ width: SCREEN_W, aspectRatio: 1 }}
-                  resizeMode="contain"
-                />
-              </Pressable>
-            )}
-          />
-
-          <TouchableOpacity
-            style={[s.pvClose, { top: insets.top + Spacing[10] }]}
-            onPress={() => setPhotoViewer(null)}
-            hitSlop={12}
-            accessibilityLabel="닫기"
-          >
-            <Icon name="close" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
-
-          {(() => {
-            const cur = (vm.photos?.items ?? [])[photoViewer ?? -1];
-            if (!cur) return null;
-            return (
-              <TouchableOpacity
-                style={[s.pvAction, { bottom: insets.bottom + Spacing[20] }]}
-                onPress={() => handleGalleryLongPress(cur)}
-                hitSlop={12}
-                accessibilityLabel={cur.is_mine ? '사진 삭제' : '사진 신고'}
-              >
-                <Icon name={cur.is_mine ? 'trash' : 'flag'} size={18} color="#FFFFFF" />
-                <Text style={s.pvActionText}>{cur.is_mine ? '삭제' : '신고'}</Text>
-              </TouchableOpacity>
-            );
-          })()}
-        </View>
-      </Modal>
+          이미 이 장소 안이라 제목엔 몇 번째인지만 띄운다.
+          사진은 사전 검수 없이 올라오므로 신고/삭제를 헤더 ⋯에 둔다(Apple UGC 1.2). */}
+      <PhotoViewer
+        photos={vm.photos?.items ?? []}
+        index={photoViewer}
+        onIndexChange={setPhotoViewer}
+        onClose={() => setPhotoViewer(null)}
+        onMenu={handleGalleryLongPress}
+      />
 
       {/* ── 자주 찾는 강아지 — 바텀시트 상세 레이어 ── */}
       <Modal
@@ -1299,18 +1249,8 @@ const s = StyleSheet.create({
   photoImg: { width: '100%', height: '100%' },
 
   // ── 사진 전체화면 뷰어 ──────────────────────────────────
-  pvBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.94)', justifyContent: 'center' },
   // top/bottom은 인셋으로 런타임에 덮어쓴다 — Modal은 SafeAreaView 바깥이라
   // 고정값을 쓰면 안드로이드 내비게이션 바가 버튼을 덮어 누를 수 없다.
-  pvClose: { position: 'absolute', right: 20, padding: Spacing[6] },
-  pvAction: {
-    position: 'absolute', alignSelf: 'center',
-    flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
-    paddingHorizontal: Spacing[16], paddingVertical: Spacing[10],
-    borderRadius: Radius.round,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-  },
-  pvActionText: { ...Typography.body.s, color: '#FFFFFF', fontWeight: '600' },
 
   familiarRail: {
     gap: Spacing[20],

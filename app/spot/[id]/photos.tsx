@@ -19,6 +19,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../../../src/consta
 import { Icon } from '../../../src/components/common/Icon';
 import { AppImage } from '../../../src/components/common/AppImage';
 import { EmptyState } from '../../../src/components/common/EmptyState';
+import { PhotoViewer } from '../../../src/components/common/PhotoViewer';
 import { supabase } from '../../../src/lib/supabase';
 import { useAppStore } from '../../../src/store/useAppStore';
 import { actionSheet, confirm } from '../../../src/utils/dialog';
@@ -148,59 +149,16 @@ export default function SpotPhotosScreen() {
         />
       )}
 
-      {/* 전체화면 뷰어 — 좌우로 넘긴다 */}
-      <Modal
-        visible={viewer !== null}
-        transparent
-        animationType="fade"
-        statusBarTranslucent
-        onRequestClose={() => setViewer(null)}
-      >
-        <Pressable style={s.viewerBackdrop} onPress={() => setViewer(null)}>
-          <FlatList
-            data={photos}
-            horizontal
-            pagingEnabled
-            keyExtractor={p => p.photo_id}
-            initialScrollIndex={viewer ?? 0}
-            getItemLayout={(_, i) => ({ length: w, offset: w * i, index: i })}
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={e =>
-              setViewer(Math.round(e.nativeEvent.contentOffset.x / w))}
-            renderItem={({ item }) => (
-              <View style={{ width: w, justifyContent: 'center' }}>
-                <AppImage source={{ uri: item.image_url }} style={{ width: w, aspectRatio: 1 }} resizeMode="contain" />
-              </View>
-            )}
-          />
-          <TouchableOpacity
-            style={[s.viewerClose, { top: insets.top + Spacing[10] }]}
-            onPress={() => setViewer(null)}
-            hitSlop={12}
-            accessibilityLabel="닫기"
-          >
-            <Icon name="close" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
+      {/* 전체화면 뷰어 — 장소 상세의 것과 같은 컴포넌트를 쓴다.
+          예전엔 화면마다 따로 만들어서 닫기·신고 위치가 제각각이었다. */}
+      <PhotoViewer
+        photos={photos}
+        index={viewer}
+        onIndexChange={setViewer}
+        onClose={() => setViewer(null)}
+        onMenu={onLongPress}
+      />
 
-          {/* 사진은 사전 검수 없이 올라온다 — 보이는 자리에 신고가 있어야 한다(Apple UGC 1.2).
-              장소 상세의 뷰어와 동작을 맞춘다. */}
-          {(() => {
-            const cur = photos[viewer ?? -1];
-            if (!cur) return null;
-            return (
-              <TouchableOpacity
-                style={[s.viewerAction, { bottom: insets.bottom + Spacing[20] }]}
-                onPress={() => onLongPress(cur)}
-                hitSlop={12}
-                accessibilityLabel={cur.is_mine ? '사진 삭제' : '사진 신고'}
-              >
-                <Icon name={cur.is_mine ? 'trash' : 'flag'} size={18} color="#FFFFFF" />
-                <Text style={s.viewerActionText}>{cur.is_mine ? '삭제' : '신고'}</Text>
-              </TouchableOpacity>
-            );
-          })()}
-        </Pressable>
-      </Modal>
     </SafeAreaView>
   );
 }
@@ -216,14 +174,4 @@ const s = StyleSheet.create({
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { flex: 1, textAlign: 'center', ...Typography.title.m, color: Colors.text.primary },
   grid: { padding: Spacing[16] },
-  viewerBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.94)', justifyContent: 'center' },
-  viewerClose: { position: 'absolute', right: 20, padding: Spacing[6] },
-  viewerAction: {
-    position: 'absolute', alignSelf: 'center',
-    flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
-    paddingHorizontal: Spacing[16], paddingVertical: Spacing[10],
-    borderRadius: Radius.round,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-  },
-  viewerActionText: { ...Typography.body.s, color: '#FFFFFF', fontWeight: '600' },
 });

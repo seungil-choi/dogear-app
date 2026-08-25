@@ -28,6 +28,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { AppImage } from '../src/components/common/AppImage';
 import { EmptyState } from '../src/components/common/EmptyState';
+import { PhotoViewer, photoViewerFooterStyles as pvf } from '../src/components/common/PhotoViewer';
 import { supabase } from '../src/lib/supabase';
 import { useAppStore } from '../src/store/useAppStore';
 import { actionSheet, confirm } from '../src/utils/dialog';
@@ -265,82 +266,34 @@ export default function MyGalleryScreen() {
         />
       )}
 
-      {/* ── 전체화면 뷰어 + 정보 바 ── */}
-      <Modal
-        visible={viewer !== null}
-        transparent
-        animationType="fade"
-        statusBarTranslucent
-        onRequestClose={() => setViewer(null)}
-      >
-        <View style={s.viewerBackdrop}>
-          <FlatList
-            data={photos}
-            horizontal
-            pagingEnabled
-            keyExtractor={p => p.photo_id}
-            initialScrollIndex={viewer ?? 0}
-            getItemLayout={(_, i) => ({ length: w, offset: w * i, index: i })}
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={e =>
-              setViewer(Math.round(e.nativeEvent.contentOffset.x / w))}
-            renderItem={({ item }) => (
-              <Pressable style={{ width: w, flex: 1, justifyContent: 'center' }} onPress={() => setViewer(null)}>
-                <AppImage source={{ uri: item.image_url }} style={{ width: w, aspectRatio: 1 }} resizeMode="contain" />
-              </Pressable>
-            )}
-          />
-
-          <TouchableOpacity
-            style={[s.viewerClose, { top: insets.top + Spacing[10] }]}
-            onPress={() => setViewer(null)}
-            hitSlop={12}
-            accessibilityLabel="닫기"
-          >
-            <Icon name="close" size={22} color="#FFFFFF" />
-          </TouchableOpacity>
-
-          {current && (
-            <View style={[s.infoBar, { paddingBottom: insets.bottom + Spacing[20] }]}>
-              <View style={s.infoTopRow}>
-                <Text style={s.infoPlace} numberOfLines={1}>
-                  {current.spot_name ?? '삭제된 장소'}
-                </Text>
-                <Text style={s.infoDate}>{formatDate(current.created_at)}</Text>
-              </View>
-              <View style={s.infoChipRow}>
-                <View style={s.infoChip}>
-                  <Text style={s.infoChipText}>{visibilityLabel[current.visibility]}</Text>
-                </View>
-              </View>
-              {current.note ? (
-                <Text style={s.infoNote} numberOfLines={2}>{current.note}</Text>
-              ) : null}
-              <View style={s.infoActions}>
-                {/* 장소가 사라졌으면 이동할 곳이 없다 — 버튼을 감춘다 */}
-                {current.spot_name ? (
-                  <TouchableOpacity
-                    style={s.infoGoBtn}
-                    onPress={() => { setViewer(null); router.push(`/spot/${current.spot_id}`); }}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={s.infoGoText}>장소 보기</Text>
-                    <Icon name="forward" size={13} color="#FFFFFF" />
-                  </TouchableOpacity>
-                ) : <View />}
-                <TouchableOpacity
-                  style={s.infoMoreBtn}
-                  onPress={() => openActions(current)}
-                  hitSlop={8}
-                  accessibilityLabel="사진 관리"
-                >
-                  <Icon name="more" size={18} color="#FFFFFF" />
-                </TouchableOpacity>
+      {/* ── 전체화면 뷰어 ──
+          조작(닫기·관리)은 헤더 한 줄에 모으고, 하단엔 읽을 것만 둔다.
+          제목(장소명)을 누르면 그 장소로 간다 — 별도 '장소 보기' 버튼이 필요 없다. */}
+      <PhotoViewer
+        photos={photos}
+        index={viewer}
+        onIndexChange={setViewer}
+        onClose={() => setViewer(null)}
+        title={p => p.spot_name ?? '삭제된 장소'}
+        subtitle={p => formatDate(p.created_at)}
+        // 장소가 사라졌으면 갈 곳이 없다
+        onTitlePress={p => {
+          if (!p.spot_name) return;
+          setViewer(null);
+          router.push(`/spot/${p.spot_id}`);
+        }}
+        onMenu={openActions}
+        renderFooter={p => (
+          <>
+            <View style={pvf.chipRow}>
+              <View style={pvf.chip}>
+                <Text style={pvf.chipText}>{visibilityLabel[p.visibility]}</Text>
               </View>
             </View>
-          )}
-        </View>
-      </Modal>
+            {p.note ? <Text style={pvf.note} numberOfLines={2}>{p.note}</Text> : null}
+          </>
+        )}
+      />
 
       {/* ── 메모 수정 ── */}
       <Modal
@@ -407,34 +360,8 @@ const s = StyleSheet.create({
   },
 
   // ── 뷰어 ────────────────────────────────────────────────
-  viewerBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.94)', justifyContent: 'center' },
   // top은 인셋으로 런타임에 덮어쓴다(기기마다 노치·상태바 높이가 다르다)
-  viewerClose: { position: 'absolute', right: 20, padding: Spacing[6] },
 
-  infoBar: {
-    position: 'absolute', left: 0, right: 0, bottom: 0,
-    paddingHorizontal: Spacing[20], paddingTop: Spacing[16],
-    // paddingBottom은 인셋으로 런타임에 덮어쓴다 — 안드로이드 내비바와 겹치면 안 된다
-    backgroundColor: 'rgba(0,0,0,0.55)',
-  },
-  infoTopRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing[8] },
-  infoPlace: { flex: 1, ...Typography.title.s, color: '#FFFFFF' },
-  infoDate: { ...Typography.caption, color: 'rgba(255,255,255,0.7)' },
-  infoChipRow: { flexDirection: 'row', gap: Spacing[6], marginTop: Spacing[8] },
-  infoChip: {
-    paddingHorizontal: Spacing[8], paddingVertical: 2,
-    borderRadius: Radius.round,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-  },
-  infoChipText: { ...Typography.label.s, color: '#FFFFFF' },
-  infoNote: { ...Typography.body.s, color: 'rgba(255,255,255,0.9)', marginTop: Spacing[10], lineHeight: 20 },
-  infoActions: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginTop: Spacing[14],
-  },
-  infoGoBtn: { flexDirection: 'row', alignItems: 'center', gap: Spacing[4] },
-  infoGoText: { ...Typography.body.s, color: '#FFFFFF', fontWeight: '600' },
-  infoMoreBtn: { padding: Spacing[6] },
 
   // ── 메모 수정 시트 ───────────────────────────────────────
   sheetBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
