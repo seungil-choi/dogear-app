@@ -90,7 +90,10 @@ interface AppState {
   user: User | null;
   dog: Dog | null;         // legacy alias → activeDog
   activeDog: Dog | null;   // 현재 활성 강아지
+  /** 활성 강아지의 설정 — 아래 맵에서 파생된다 */
   privacySetting: PrivacySetting;
+  /** 강아지별 공개 설정. 강아지를 바꾸면 여기서 꺼내 쓴다 */
+  privacySettingsByDog: Record<string, PrivacySetting>;
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
   isAuthLoading: boolean;
@@ -165,7 +168,17 @@ interface AppState {
   setPawPhotos: (uris: string[]) => void;
   setPawVisibility: (v: VisibilityLevel) => void;
   resetPawFlow: () => void;
-  updatePrivacySetting: (updates: Partial<PrivacySetting>) => void;
+  /**
+   * 활성 강아지의 공개 설정을 바꾸고 **서버에도 저장한다.**
+   *
+   * ⚠️ 예전엔 로컬 zustand만 바꿨다. 서버(familiar-dogs·notify-familiar)는
+   *    privacy_settings 테이블을 실제로 보는데 앱이 한 번도 쓰지 않아서,
+   *    "자주 만나는 강아지에게 보이기"를 꺼도 서버는 계속 켜진 걸로 봤다.
+   *    처리방침 §6이 보장한 기능이 동작하지 않던 상태다.
+   */
+  updatePrivacySetting: (updates: Partial<PrivacySetting>) => Promise<void>;
+  /** 서버에서 읽은 강아지별 설정을 한 번에 넣는다(로그인 직후) */
+  setPrivacySettings: (rows: PrivacySetting[]) => void;
 
   // 발도장 삭제 (개인정보 자기결정권)
   deleteCheckin: (checkinId: string) => void;
@@ -257,6 +270,7 @@ const initialState = DEV_PREVIEW_SEED
       activeDog: mockDog,
       dogs: mockDogs,
       privacySetting: mockPrivacySetting,
+      privacySettingsByDog: {},
       isAuthenticated: true,
       hasCompletedOnboarding: true,
       isAuthLoading: false,
@@ -280,6 +294,7 @@ const initialState = DEV_PREVIEW_SEED
       activeDog: null,
       dogs: [],
       privacySetting: defaultPrivacySetting,
+      privacySettingsByDog: {},
       isAuthenticated: false,
       hasCompletedOnboarding: false,
       isAuthLoading: true,
@@ -344,6 +359,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     selectedSpotId: null,
     // 다음 계정이 이전 사용자 값을 상속하지 않도록 개인 설정/임시 데이터도 초기화
     privacySetting: defaultPrivacySetting,
+    privacySettingsByDog: {},
     suggestedSpots: [],
     lastUsedVisibility: undefined,
     pawFlow: { step: 1, selectedTags: [], note: '', visibility: 'familiar_layer' },
@@ -494,8 +510,50 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       },
     })),
 
-  updatePrivacySetting: (updates) =>
-    set(s => ({ privacySetting: { ...s.privacySetting, ...updates, updated_at: new Date().toISOString() } })),
+  setPrivacySettings: (rows) => {
+    const map: Record<string, PrivacySetting> = {};
+    for (const r of rows) map[r.dog_id] = r;
+    const { activeDog } = get();
+    set({
+      privacySettingsByDog: map,
+      // 활성 강아지 것이 있으면 그것으로 맞춘다
+      ...(activeDog && map[activeDog.dog_id] ? { privacySetting: map[activeDog.dog_id] } : {}),
+    });
+  },
+
+  updatePrivacySetting: async (updates) => {
+    const { activeDog, privacySetting, privacySettingsByDog } = get();
+    const dogId = activeDog?.dog_id ?? privacySetting.dog_id;
+    const next: PrivacySetting = {
+      ...privacySetting, ...updates,
+      dog_id: dogId,
+      updated_at: new Date().toISOString(),
+    };
+    const prev = privacySetting;
+
+    // 낙관적 반영 — 토글이 손가락을 따라오지 않으면 고장으로 읽힌다
+    set({ privacySetting: next, privacySettingsByDog: { ...privacySettingsByDog, [dogId]: next } });
+
+    if (!IS_REAL_AUTH || !dogId) return;
+
+    // ⚠️ 서버에 반드시 써야 한다. 예전엔 로컬만 바꿔서, 사용자가 "보이기"를 꺼도
+    //    familiar-dogs·notify-familiar는 계속 켜진 값을 읽었다(처리방침 §6 위반 상태).
+    const { error } = await supabase
+      .from('privacy_settings')
+      .update({
+        default_visibility_level: next.default_visibility_level,
+        allow_familiar_layer_exposure: next.allow_familiar_layer_exposure,
+        updated_at: next.updated_at,
+      })
+      .eq('dog_id', dogId);
+
+    if (error) {
+      // 되돌린다 — 껐다고 믿게 두는 게 가장 나쁘다
+      console.error('[privacy] 저장 실패:', error.message);
+      set({ privacySetting: prev, privacySettingsByDog: { ...privacySettingsByDog, [dogId]: prev } });
+      toast.error('설정을 저장하지 못했어요. 연결을 확인하고 다시 시도해주세요');
+    }
+  },
 
   // 발도장 삭제 — 본인 발도장만 삭제 가능
   deleteCheckin: (checkinId) => {
@@ -657,7 +715,11 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     setUserContext({ user_id: user?.auth_id ?? null });
   },
   setActiveDog: (dog) => {
-    set({ activeDog: dog, dog });
+    // 공개 설정은 강아지별이다 — 바꿀 때 같이 갈아끼우지 않으면
+    // 스와이프해도 이전 강아지 값이 그대로 보인다.
+    const map = get().privacySettingsByDog;
+    const ps = dog ? map[dog.dog_id] : undefined;
+    set({ activeDog: dog, dog, ...(ps ? { privacySetting: ps } : {}) });
     setUserContext({ dog_profile_id: dog?.dog_id ?? null });
   },
   registerDog: (newDog) => {

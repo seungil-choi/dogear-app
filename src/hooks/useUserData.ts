@@ -25,6 +25,7 @@ export function useUserData() {
   const setSavedSpots     = useAppStore(s => s.setSavedSpots);
   const setVisitSummaries = useAppStore(s => s.setVisitSummaries);
   const setBlockedUsers   = useAppStore(s => s.setBlockedUsers);
+  const setPrivacySettings = useAppStore(s => s.setPrivacySettings);
 
   // 한 번만 로드하도록 dog_id 추적
   const loadedDogRef = useRef<string | null>(null);
@@ -53,7 +54,7 @@ export function useUserData() {
     // 익숙한 강아지(familiar) 신호는 직접 조회하지 않는다 — 프라이버시상 RLS로 직접 접근을
     // 차단했고(정확한 last_seen/횟수 노출 방지), 화면엔 spot-detail/familiar-dogs Edge Function이
     // 6조건 검증 + 완화해 제공한다.
-    const [checkinRes, savedRes, summaryRes, blocksRes] = await Promise.allSettled([
+    const [checkinRes, savedRes, summaryRes, blocksRes, privacyRes] = await Promise.allSettled([
       // 발도장 목록 (최근 200개)
       supabase
         .from('paw_checkins')
@@ -78,6 +79,13 @@ export function useUserData() {
       supabase
         .from('blocks')
         .select('*'),
+
+      // 공개 설정 — **강아지별**이다. 내 강아지 전부를 한 번에 받아
+      // 강아지를 전환해도 그 아이 값이 바로 보이게 한다.
+      // (예전엔 앱이 이 테이블을 아예 읽지 않아, 화면의 토글이 서버와 무관했다)
+      supabase
+        .from('privacy_settings')
+        .select('privacy_setting_id, dog_id, default_visibility_level, allow_familiar_layer_exposure, allow_future_reactions, updated_at'),
     ]);
 
     // 더 최신 요청이 시작됐다면(강아지 전환) 이 응답은 버린다 — 전역 스토어를 덮지 않게.
@@ -138,6 +146,10 @@ export function useUserData() {
         blocked_at: b.created_at,
       }));
       setBlockedUsers(mapped);
+    }
+
+    if (privacyRes.status === 'fulfilled' && privacyRes.value.data) {
+      setPrivacySettings(privacyRes.value.data as any);
     }
   }
 }

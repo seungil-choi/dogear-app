@@ -271,6 +271,54 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {/* ── 이 아이의 공개 설정 ──
+            강아지 카드에 이어 붙인다. 공개 설정은 **강아지 단위**라
+            따로 떨어진 '발도장 설정' 섹션에 두면 누구 설정인지 흐려졌다.
+            (스와이프해서 강아지를 바꾸면 이 값도 그 아이 것으로 바뀐다) */}
+        <View style={s.dogSettings}>
+          <View style={s.dogSettingsHead}>
+            <Icon name="lock" size={13} color={Colors.brand.primary} />
+            <Text style={s.dogSettingsTitle}>
+              <Text style={s.dogSettingsName}>{activeDog.name}</Text>의 공개 설정
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            style={s.dogSettingRow}
+            onPress={() => router.push('/privacy-settings')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`발도장 공개 범위, 현재 ${visibilityText}`}
+          >
+            <View style={s.dogSettingText}>
+              <Text style={s.dogSettingLabel}>발도장 공개 범위</Text>
+              <Text style={s.dogSettingValue}>{visibilityText}</Text>
+            </View>
+            <Icon name="forward" size={16} color={Colors.text.tertiary} />
+          </TouchableOpacity>
+
+          <View style={s.dogSettingDivider} />
+
+          <View style={s.dogSettingRow}>
+            <View style={s.dogSettingText}>
+              <Text style={s.dogSettingLabel}>산책 친구 찾기에 보이기</Text>
+              <Text style={s.dogSettingSub}>
+                안전 조건 6가지를 모두 충족했을 때만 보여요
+              </Text>
+            </View>
+            <Switch
+              value={privacySetting.allow_familiar_layer_exposure}
+              onValueChange={v => { void updatePrivacySetting({ allow_familiar_layer_exposure: v }); }}
+              trackColor={{ false: Colors.border.default, true: Colors.brand.primaryLight }}
+              thumbColor={
+                privacySetting.allow_familiar_layer_exposure
+                  ? Colors.brand.primary
+                  : Colors.bg.secondary
+              }
+            />
+          </View>
+        </View>
+
         {/* ══════════════════════════════════════
             2) 내 갤러리 — 내가 올린 사진
             설정과 분리한다. 설정은 '앞으로 어떻게 할지'이고 여기는 '이미 남긴 것'이다.
@@ -291,47 +339,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            3) 발도장 설정 (활성 강아지 기준)
-        ══════════════════════════════════════ */}
-        <View style={s.section}>
-          <View style={s.sectionTitleRow}>
-            <Icon name="lock" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>
-              발도장 설정
-              <Text style={s.sectionTitleDog}> · {activeDog.name}</Text>
-            </Text>
-          </View>
-          <View style={s.settingsCard}>
-            <SettingsRow
-              icon="lock"
-              label="발도장 공개 범위"
-              value={visibilityText}
-              onPress={() => router.push('/privacy-settings')}
-            />
-            <SettingsRow
-              icon="person"
-              label="자주 만나는 강아지에게 보이기"
-              rightEl={
-                <Switch
-                  value={privacySetting.allow_familiar_layer_exposure}
-                  onValueChange={v => updatePrivacySetting({ allow_familiar_layer_exposure: v })}
-                  trackColor={{ false: Colors.border.default, true: Colors.brand.primaryLight }}
-                  thumbColor={
-                    privacySetting.allow_familiar_layer_exposure
-                      ? Colors.brand.primary
-                      : Colors.bg.secondary
-                  }
-                />
-              }
-            />
-          </View>
-          <Text style={s.sectionHint}>
-            6가지 안전 조건을 모두 충족해야 다른 강아지에게 보여져요
-          </Text>
-        </View>
-
-        {/* ══════════════════════════════════════
-            4) 설정 — 알림 / 차단 / 계정 관리
+            3) 설정 — 알림 / 차단 / 계정 관리
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
@@ -347,7 +355,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            5) 약관 및 지원
+            4) 약관 및 지원
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.sectionTitleRow}>
@@ -361,7 +369,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* ══════════════════════════════════════
-            6) 로그아웃 — 조용한 단일 행
+            5) 로그아웃 — 조용한 단일 행
         ══════════════════════════════════════ */}
         <View style={s.section}>
           <View style={s.settingsCard}>
@@ -393,11 +401,50 @@ const s = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.border.default },
   dotActive: { backgroundColor: Colors.brand.primary, width: 18 },
 
+  // ── 이 아이의 공개 설정 ─────────────────────────────────
+  // 강아지 카드의 연장으로 읽혀야 한다. 그래서 일반 설정 카드(회색 테두리 + 흰 배경)와
+  // 다르게 **브랜드 옅은 배경 + 주황 테두리**를 쓴다 — "이건 이 아이 것"이라는 신호.
+  dogSettings: {
+    marginHorizontal: Spacing[16],
+    marginTop: Spacing[4],
+    marginBottom: Spacing[24],
+    backgroundColor: Colors.brand.subtle,
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Colors.brand.primaryLight,
+    paddingHorizontal: Spacing[16],
+    paddingVertical: Spacing[4],
+  },
+  dogSettingsHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[6],
+    paddingTop: Spacing[12],
+    paddingBottom: Spacing[8],
+  },
+  dogSettingsTitle: { ...Typography.label.m, color: Colors.text.secondary },
+  dogSettingsName: { color: Colors.brand.primary, fontWeight: '700' },
+
+  dogSettingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[12],
+    paddingVertical: Spacing[12],
+    minHeight: 52,
+  },
+  dogSettingText: { flex: 1, gap: 2 },
+  dogSettingLabel: { ...Typography.body.m, color: Colors.text.primary },
+  dogSettingValue: { ...Typography.caption, color: Colors.brand.primary, fontWeight: '600' },
+  dogSettingSub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 16 },
+  // 카드 안쪽 구분선 — 배경이 옅어서 border.default는 안 보인다
+  dogSettingDivider: { height: 1, backgroundColor: 'rgba(255,122,48,0.16)' },
+
   // 카드 자체의 생김새는 DogProfileCard가 갖는다. 여기서는 배치만 정한다.
   hero: {
     marginHorizontal: Spacing[16],
     marginTop: Spacing[12],
-    marginBottom: Spacing[20],
+    // 아래에 '이 아이의 공개 설정'이 이어지므로 여백을 좁힌다 — 한 덩어리로 읽히게
+    marginBottom: Spacing[10],
   },
 
   safe:    { flex: 1, backgroundColor: Colors.bg.primary },
@@ -454,18 +501,6 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
     textAlign: 'center',
     paddingTop: Spacing[16],
-  },
-  sectionTitleDog: {
-    ...Typography.label.m,
-    color: Colors.brand.accent,
-    fontWeight: '600',
-    letterSpacing: 0,
-  },
-  sectionHint: {
-    ...Typography.caption,
-    color: Colors.text.tertiary,
-    lineHeight: 18,
-    paddingHorizontal: Spacing[4],
   },
 
   // 설정 카드
