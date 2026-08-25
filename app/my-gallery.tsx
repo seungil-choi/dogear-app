@@ -22,7 +22,7 @@ import {
   View, Text, StyleSheet, TouchableOpacity, FlatList,
   ActivityIndicator, Modal, Pressable, Dimensions, TextInput,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
 import { Icon } from '../src/components/common/Icon';
@@ -65,6 +65,9 @@ function one<T>(v: T | T[] | null | undefined): T | null {
 export default function MyGalleryScreen() {
   const router = useRouter();
   const dogs = useAppStore(s => s.dogs);
+  // Modal은 SafeAreaView 바깥이라 인셋이 자동으로 안 먹는다.
+  // 안 넣으면 안드로이드 하단 내비게이션 바가 정보 바 위에 겹쳐 버튼을 누를 수 없다.
+  const insets = useSafeAreaInsets();
   const dogIds = useMemo(() => dogs.map(d => d.dog_id), [dogs]);
 
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
@@ -263,7 +266,13 @@ export default function MyGalleryScreen() {
       )}
 
       {/* ── 전체화면 뷰어 + 정보 바 ── */}
-      <Modal visible={viewer !== null} transparent animationType="fade" onRequestClose={() => setViewer(null)}>
+      <Modal
+        visible={viewer !== null}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setViewer(null)}
+      >
         <View style={s.viewerBackdrop}>
           <FlatList
             data={photos}
@@ -282,12 +291,17 @@ export default function MyGalleryScreen() {
             )}
           />
 
-          <TouchableOpacity style={s.viewerClose} onPress={() => setViewer(null)} hitSlop={12} accessibilityLabel="닫기">
+          <TouchableOpacity
+            style={[s.viewerClose, { top: insets.top + Spacing[10] }]}
+            onPress={() => setViewer(null)}
+            hitSlop={12}
+            accessibilityLabel="닫기"
+          >
             <Icon name="close" size={22} color="#FFFFFF" />
           </TouchableOpacity>
 
           {current && (
-            <View style={s.infoBar}>
+            <View style={[s.infoBar, { paddingBottom: insets.bottom + Spacing[20] }]}>
               <View style={s.infoTopRow}>
                 <Text style={s.infoPlace} numberOfLines={1}>
                   {current.spot_name ?? '삭제된 장소'}
@@ -329,9 +343,15 @@ export default function MyGalleryScreen() {
       </Modal>
 
       {/* ── 메모 수정 ── */}
-      <Modal visible={editing !== null} transparent animationType="slide" onRequestClose={() => setEditing(null)}>
+      <Modal
+        visible={editing !== null}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setEditing(null)}
+      >
         <Pressable style={s.sheetBackdrop} onPress={() => setEditing(null)}>
-          <Pressable style={s.sheet} onPress={e => e.stopPropagation()}>
+          <Pressable style={[s.sheet, { paddingBottom: insets.bottom + Spacing[20] }]} onPress={e => e.stopPropagation()}>
             <View style={s.sheetHandle} />
             <Text style={s.sheetTitle}>메모 수정</Text>
             <Text style={s.sheetDesc}>
@@ -388,11 +408,13 @@ const s = StyleSheet.create({
 
   // ── 뷰어 ────────────────────────────────────────────────
   viewerBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.94)', justifyContent: 'center' },
-  viewerClose: { position: 'absolute', top: 48, right: 20, padding: Spacing[6] },
+  // top은 인셋으로 런타임에 덮어쓴다(기기마다 노치·상태바 높이가 다르다)
+  viewerClose: { position: 'absolute', right: 20, padding: Spacing[6] },
 
   infoBar: {
     position: 'absolute', left: 0, right: 0, bottom: 0,
-    paddingHorizontal: Spacing[20], paddingTop: Spacing[16], paddingBottom: Spacing[32],
+    paddingHorizontal: Spacing[20], paddingTop: Spacing[16],
+    // paddingBottom은 인셋으로 런타임에 덮어쓴다 — 안드로이드 내비바와 겹치면 안 된다
     backgroundColor: 'rgba(0,0,0,0.55)',
   },
   infoTopRow: { flexDirection: 'row', alignItems: 'baseline', gap: Spacing[8] },
@@ -419,7 +441,7 @@ const s = StyleSheet.create({
   sheet: {
     backgroundColor: Colors.bg.primary,
     borderTopLeftRadius: Radius.l, borderTopRightRadius: Radius.l,
-    paddingHorizontal: Spacing[20], paddingTop: Spacing[10], paddingBottom: Spacing[32],
+    paddingHorizontal: Spacing[20], paddingTop: Spacing[10],
   },
   sheetHandle: {
     alignSelf: 'center', width: 36, height: 4, borderRadius: 2,

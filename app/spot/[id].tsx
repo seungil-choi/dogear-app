@@ -893,6 +893,7 @@ export default function SpotDetailScreen() {
         visible={photoViewer !== null}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() => setPhotoViewer(null)}
       >
         <View style={s.pvBackdrop}>
@@ -921,7 +922,7 @@ export default function SpotDetailScreen() {
           />
 
           <TouchableOpacity
-            style={s.pvClose}
+            style={[s.pvClose, { top: insets.top + Spacing[10] }]}
             onPress={() => setPhotoViewer(null)}
             hitSlop={12}
             accessibilityLabel="닫기"
@@ -934,7 +935,7 @@ export default function SpotDetailScreen() {
             if (!cur) return null;
             return (
               <TouchableOpacity
-                style={s.pvAction}
+                style={[s.pvAction, { bottom: insets.bottom + Spacing[20] }]}
                 onPress={() => handleGalleryLongPress(cur)}
                 hitSlop={12}
                 accessibilityLabel={cur.is_mine ? '사진 삭제' : '사진 신고'}
@@ -952,6 +953,7 @@ export default function SpotDetailScreen() {
         visible={selectedDog !== null}
         transparent
         animationType="slide"
+        statusBarTranslucent
         onRequestClose={() => setSelectedDog(null)}
       >
         <Pressable style={s.sheetBackdrop} onPress={() => setSelectedDog(null)}>
@@ -1298,9 +1300,11 @@ const s = StyleSheet.create({
 
   // ── 사진 전체화면 뷰어 ──────────────────────────────────
   pvBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.94)', justifyContent: 'center' },
-  pvClose: { position: 'absolute', top: 48, right: 20, padding: Spacing[6] },
+  // top/bottom은 인셋으로 런타임에 덮어쓴다 — Modal은 SafeAreaView 바깥이라
+  // 고정값을 쓰면 안드로이드 내비게이션 바가 버튼을 덮어 누를 수 없다.
+  pvClose: { position: 'absolute', right: 20, padding: Spacing[6] },
   pvAction: {
-    position: 'absolute', bottom: 40, alignSelf: 'center',
+    position: 'absolute', alignSelf: 'center',
     flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
     paddingHorizontal: Spacing[16], paddingVertical: Spacing[10],
     borderRadius: Radius.round,
