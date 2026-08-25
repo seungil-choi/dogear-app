@@ -176,7 +176,7 @@ interface AppState {
    *    "자주 만나는 강아지에게 보이기"를 꺼도 서버는 계속 켜진 걸로 봤다.
    *    처리방침 §6이 보장한 기능이 동작하지 않던 상태다.
    */
-  updatePrivacySetting: (updates: Partial<PrivacySetting>) => Promise<void>;
+  updatePrivacySetting: (updates: Partial<PrivacySetting>, dogId?: string) => Promise<void>;
   /** 서버에서 읽은 강아지별 설정을 한 번에 넣는다(로그인 직후) */
   setPrivacySettings: (rows: PrivacySetting[]) => void;
 
@@ -521,18 +521,25 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     });
   },
 
-  updatePrivacySetting: async (updates) => {
+  updatePrivacySetting: async (updates, dogIdArg) => {
     const { activeDog, privacySetting, privacySettingsByDog } = get();
-    const dogId = activeDog?.dog_id ?? privacySetting.dog_id;
+    // 페이저는 모든 강아지 페이지를 동시에 그린다 — '활성 강아지'에 기대면
+    // 스와이프 직후 엉뚱한 아이의 설정을 바꿀 수 있다. 호출부가 명시하면 그걸 쓴다.
+    const dogId = dogIdArg ?? activeDog?.dog_id ?? privacySetting.dog_id;
+    const base = privacySettingsByDog[dogId] ?? privacySetting;
     const next: PrivacySetting = {
-      ...privacySetting, ...updates,
+      ...base, ...updates,
       dog_id: dogId,
       updated_at: new Date().toISOString(),
     };
-    const prev = privacySetting;
+    const prev = base;
 
     // 낙관적 반영 — 토글이 손가락을 따라오지 않으면 고장으로 읽힌다
-    set({ privacySetting: next, privacySettingsByDog: { ...privacySettingsByDog, [dogId]: next } });
+    const isActive = activeDog?.dog_id === dogId;
+    set({
+      privacySettingsByDog: { ...privacySettingsByDog, [dogId]: next },
+      ...(isActive ? { privacySetting: next } : {}),
+    });
 
     if (!IS_REAL_AUTH || !dogId) return;
 
@@ -550,7 +557,10 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     if (error) {
       // 되돌린다 — 껐다고 믿게 두는 게 가장 나쁘다
       console.error('[privacy] 저장 실패:', error.message);
-      set({ privacySetting: prev, privacySettingsByDog: { ...privacySettingsByDog, [dogId]: prev } });
+      set({
+        privacySettingsByDog: { ...privacySettingsByDog, [dogId]: prev },
+        ...(isActive ? { privacySetting: prev } : {}),
+      });
       toast.error('설정을 저장하지 못했어요. 연결을 확인하고 다시 시도해주세요');
     }
   },

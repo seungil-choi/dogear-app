@@ -28,7 +28,7 @@ import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 import { visibilityLabel } from '../../src/utils/labels';
 import { DogProfileCard } from '../../src/components/dog/DogProfileCard';
-import type { Dog } from '../../src/types';
+import type { Dog, PrivacySetting } from '../../src/types';
 import { severSocialSessions } from '@/lib/socialSession';
 
 const MAX_DOGS = 5;
@@ -69,11 +69,46 @@ function SettingsRow({
  * 편집·추가는 화면 우측 상단 ⋯ 로 뺐다 — 프로필은 한 번 맞춰두면 거의 안 건드리는데
  * 카드 절반을 버튼이 차지하고 있었다.
  */
-function DogCard({ dog, width, onOpenDetail }: { dog: Dog; width: number; onOpenDetail: () => void }) {
+function DogCard({
+  dog, width, setting, onOpenDetail,
+}: {
+  dog: Dog;
+  width: number;
+  /** 이 아이의 공개 설정 — 카드 안엔 **요약만** 띄운다 */
+  setting?: PrivacySetting;
+  onOpenDetail: () => void;
+}) {
   return (
     <View style={{ width }}>
-      {/* 홈의 강아지 카드와 같은 컴포넌트다 — 두 화면이 딴 물건처럼 보이지 않도록 */}
-      <DogProfileCard dog={dog} onPress={onOpenDetail} showBio style={s.hero} />
+      {/* 홈의 강아지 카드와 같은 컴포넌트다 — 두 화면이 딴 물건처럼 보이지 않도록.
+          공개 설정은 강아지 단위라 카드 안에 이어 붙인다(스와이프하면 같이 넘어간다).
+          다만 **여기선 보여주기만** 하고 실제 변경은 상세에서 한다 —
+          카드는 전체가 탭 영역이라 안에 컨트롤을 넣으면 터치가 서로 먹는다. */}
+      <DogProfileCard
+        dog={dog}
+        onPress={onOpenDetail}
+        showBio
+        style={s.hero}
+        footer={setting ? <DogPrivacySummary setting={setting} /> : undefined}
+      />
+    </View>
+  );
+}
+
+/** 카드 안 공개 설정 요약 — 읽기 전용. 관리는 강아지 상세에서. */
+function DogPrivacySummary({ setting }: { setting: PrivacySetting }) {
+  return (
+    <View style={s.privacySummary}>
+      <View style={s.privacyDivider} />
+      <View style={s.privacyRow}>
+        <Icon name="lock" size={13} color="rgba(255,255,255,0.85)" />
+        <Text style={s.privacyText} numberOfLines={1}>
+          {visibilityLabel[setting.default_visibility_level]}
+          {' · '}
+          산책 친구 찾기 {setting.allow_familiar_layer_exposure ? '켬' : '끔'}
+        </Text>
+        <Icon name="forward" size={13} color="rgba(255,255,255,0.7)" />
+      </View>
     </View>
   );
 }
@@ -85,6 +120,7 @@ export default function ProfileScreen() {
   const dogs                 = useAppStore(s => s.dogs);
   const setActiveDog         = useAppStore(s => s.setActiveDog);
   const privacySetting       = useAppStore(s => s.privacySetting);
+  const privacySettingsByDog = useAppStore(s => s.privacySettingsByDog);
   const updatePrivacySetting = useAppStore(s => s.updatePrivacySetting);
   const logout               = useAppStore(s => s.logout);
 
@@ -254,6 +290,7 @@ export default function ProfileScreen() {
               key={d.dog_id}
               dog={d}
               width={pageWidth}
+              setting={privacySettingsByDog[d.dog_id]}
               onOpenDetail={() => handleOpenDetail(d)}
             />
           ))}
@@ -270,54 +307,6 @@ export default function ProfileScreen() {
             ))}
           </View>
         )}
-
-        {/* ── 이 아이의 공개 설정 ──
-            강아지 카드에 이어 붙인다. 공개 설정은 **강아지 단위**라
-            따로 떨어진 '발도장 설정' 섹션에 두면 누구 설정인지 흐려졌다.
-            (스와이프해서 강아지를 바꾸면 이 값도 그 아이 것으로 바뀐다) */}
-        <View style={s.dogSettings}>
-          <View style={s.dogSettingsHead}>
-            <Icon name="lock" size={13} color={Colors.brand.primary} />
-            <Text style={s.dogSettingsTitle}>
-              <Text style={s.dogSettingsName}>{activeDog.name}</Text>의 공개 설정
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={s.dogSettingRow}
-            onPress={() => router.push('/privacy-settings')}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-            accessibilityLabel={`발도장 공개 범위, 현재 ${visibilityText}`}
-          >
-            <View style={s.dogSettingText}>
-              <Text style={s.dogSettingLabel}>발도장 공개 범위</Text>
-              <Text style={s.dogSettingValue}>{visibilityText}</Text>
-            </View>
-            <Icon name="forward" size={16} color={Colors.text.tertiary} />
-          </TouchableOpacity>
-
-          <View style={s.dogSettingDivider} />
-
-          <View style={s.dogSettingRow}>
-            <View style={s.dogSettingText}>
-              <Text style={s.dogSettingLabel}>산책 친구 찾기에 보이기</Text>
-              <Text style={s.dogSettingSub}>
-                안전 조건 6가지를 모두 충족했을 때만 보여요
-              </Text>
-            </View>
-            <Switch
-              value={privacySetting.allow_familiar_layer_exposure}
-              onValueChange={v => { void updatePrivacySetting({ allow_familiar_layer_exposure: v }); }}
-              trackColor={{ false: Colors.border.default, true: Colors.brand.primaryLight }}
-              thumbColor={
-                privacySetting.allow_familiar_layer_exposure
-                  ? Colors.brand.primary
-                  : Colors.bg.secondary
-              }
-            />
-          </View>
-        </View>
 
         {/* ══════════════════════════════════════
             2) 내 갤러리 — 내가 올린 사진
@@ -401,43 +390,22 @@ const s = StyleSheet.create({
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.border.default },
   dotActive: { backgroundColor: Colors.brand.primary, width: 18 },
 
-  // ── 이 아이의 공개 설정 ─────────────────────────────────
-  // 강아지 카드의 연장으로 읽혀야 한다. 그래서 일반 설정 카드(회색 테두리 + 흰 배경)와
-  // 다르게 **브랜드 옅은 배경 + 주황 테두리**를 쓴다 — "이건 이 아이 것"이라는 신호.
-  dogSettings: {
-    marginHorizontal: Spacing[16],
-    marginTop: Spacing[4],
-    marginBottom: Spacing[24],
-    backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.card,
-    borderWidth: 1,
-    borderColor: Colors.brand.primaryLight,
-    paddingHorizontal: Spacing[16],
-    paddingVertical: Spacing[4],
+  // ── 카드 안 공개 설정 요약 ──────────────────────────────
+  // 카드가 솔리드 오렌지라 색을 여기서 맞춘다. 읽기 전용이라 컨트롤은 없다.
+  privacySummary: { marginTop: Spacing[2] },
+  // 카드 padding(16) 밖으로 빼서 선이 카드 폭을 가득 채우게 한다
+  privacyDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.28)',
+    marginHorizontal: -Spacing[16],
+    marginBottom: Spacing[10],
   },
-  dogSettingsHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[6],
-    paddingTop: Spacing[12],
-    paddingBottom: Spacing[8],
+  privacyRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
+  privacyText: {
+    flex: 1,
+    ...Typography.label.m,
+    color: 'rgba(255,255,255,0.92)',
   },
-  dogSettingsTitle: { ...Typography.label.m, color: Colors.text.secondary },
-  dogSettingsName: { color: Colors.brand.primary, fontWeight: '700' },
-
-  dogSettingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[12],
-    paddingVertical: Spacing[12],
-    minHeight: 52,
-  },
-  dogSettingText: { flex: 1, gap: 2 },
-  dogSettingLabel: { ...Typography.body.m, color: Colors.text.primary },
-  dogSettingValue: { ...Typography.caption, color: Colors.brand.primary, fontWeight: '600' },
-  dogSettingSub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 16 },
-  // 카드 안쪽 구분선 — 배경이 옅어서 border.default는 안 보인다
-  dogSettingDivider: { height: 1, backgroundColor: 'rgba(255,122,48,0.16)' },
 
   // 카드 자체의 생김새는 DogProfileCard가 갖는다. 여기서는 배치만 정한다.
   hero: {

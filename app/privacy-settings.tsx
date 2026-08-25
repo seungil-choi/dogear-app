@@ -67,7 +67,7 @@ export default function PrivacySettingsScreen() {
                   s.levelItem,
                   privacySetting.default_visibility_level === level && s.levelItemSelected,
                 ]}
-                onPress={() => updatePrivacySetting({ default_visibility_level: level })}
+                onPress={() => { void updatePrivacySetting({ default_visibility_level: level }); }}
                 accessibilityRole="radio"
                 accessibilityState={{ selected: privacySetting.default_visibility_level === level }}
                 accessibilityLabel={`${LEVEL_DESC[level].title}. ${LEVEL_DESC[level].desc}`}
@@ -92,7 +92,7 @@ export default function PrivacySettingsScreen() {
             </View>
             <Switch
               value={privacySetting.allow_familiar_layer_exposure}
-              onValueChange={v => updatePrivacySetting({ allow_familiar_layer_exposure: v })}
+              onValueChange={v => { void updatePrivacySetting({ allow_familiar_layer_exposure: v }); }}
               trackColor={{ false: Colors.border.default, true: Colors.brand.primaryLight }}
               thumbColor={privacySetting.allow_familiar_layer_exposure ? Colors.brand.primary : Colors.bg.secondary}
             />

@@ -8,7 +8,7 @@
  */
 import React, { useMemo, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -19,7 +19,7 @@ import { Icon } from '../src/components/common/Icon';
 import { AppImage } from '../src/components/common/AppImage';
 import { ListSpotCard } from '../src/components/spot/SpotCard';
 import { categoryLabel } from '../src/utils/labels';
-import { sizeLabel } from '../src/utils/labels';
+import { sizeLabel, visibilityLabel } from '../src/utils/labels';
 import type { Spot } from '../src/types';
 
 type TabKey = 'paw' | 'saved' | 'visit';
@@ -28,6 +28,8 @@ export default function DogDetailScreen() {
   const router = useRouter();
   const dog          = useAppStore(s => s.activeDog);
   const checkins     = useAppStore(s => s.checkins);
+  const privacySettingsByDog = useAppStore(s => s.privacySettingsByDog);
+  const updatePrivacySetting = useAppStore(s => s.updatePrivacySetting);
   const savedSpots   = useAppStore(s => s.savedSpots);
   const visits       = useAppStore(s => s.visitSummaries);
 
@@ -77,6 +79,9 @@ export default function DogDetailScreen() {
       </SafeAreaView>
     );
   }
+
+  // 이 아이의 공개 설정. 서버에서 못 받았으면 섹션을 그리지 않는다
+  const setting = privacySettingsByDog[dog.dog_id];
 
   const counts = { paw: pawSpotIds.length, saved: savedSpots.length, visit: visits.length };
   const rawListIds =
@@ -134,6 +139,48 @@ export default function DogDetailScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* ── 공개 설정 ──
+            공개 설정은 **강아지 단위**다. 마이페이지 카드에는 요약만 띄우고
+            실제 변경은 여기서 한다 — 카드는 전체가 탭 영역이라 안에 컨트롤을 넣으면
+            터치가 서로 먹는다. */}
+        {setting && (
+          <View style={s.privacy}>
+            <View style={s.privacyHead}>
+              <Icon name="lock" size={14} color={Colors.brand.primary} />
+              <Text style={s.privacyTitle}>공개 설정</Text>
+            </View>
+
+            <TouchableOpacity
+              style={s.privacyRow}
+              onPress={() => router.push('/privacy-settings')}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={`발도장 공개 범위, 현재 ${visibilityLabel[setting.default_visibility_level]}`}
+            >
+              <Text style={s.privacyLabel}>발도장 공개 범위</Text>
+              <Text style={s.privacyValue}>{visibilityLabel[setting.default_visibility_level]}</Text>
+              <Icon name="forward" size={15} color={Colors.text.tertiary} />
+            </TouchableOpacity>
+
+            <View style={s.privacySep} />
+
+            <View style={s.privacyRow}>
+              <View style={s.privacyLabelWrap}>
+                <Text style={s.privacyLabel}>산책 친구 찾기에 보이기</Text>
+                <Text style={s.privacySub}>안전 조건 6가지를 모두 충족했을 때만 보여요</Text>
+              </View>
+              <Switch
+                value={setting.allow_familiar_layer_exposure}
+                onValueChange={v => {
+                  void updatePrivacySetting({ allow_familiar_layer_exposure: v }, dog.dog_id);
+                }}
+                trackColor={{ false: Colors.border.default, true: Colors.brand.primaryLight }}
+                thumbColor={setting.allow_familiar_layer_exposure ? Colors.brand.primary : Colors.bg.secondary}
+              />
+            </View>
+          </View>
+        )}
 
         {/* 세그먼트 탭 */}
         <View style={s.tabs}>
@@ -206,6 +253,32 @@ const s = StyleSheet.create({
   },
   summaryItem: { flex: 1, alignItems: 'center' },
   summaryNum: { ...Typography.title.m, color: Colors.brand.primary },
+  // ── 공개 설정 ───────────────────────────────────────────
+  privacy: {
+    marginHorizontal: Spacing[16],
+    marginTop: Spacing[16],
+    backgroundColor: Colors.brand.subtle,
+    borderRadius: Radius.card,
+    borderWidth: 1,
+    borderColor: Colors.brand.primaryLight,
+    paddingHorizontal: Spacing[16],
+  },
+  privacyHead: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
+    paddingTop: Spacing[14], paddingBottom: Spacing[6],
+  },
+  privacyTitle: { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '700' },
+  privacyRow: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[10],
+    paddingVertical: Spacing[12], minHeight: 52,
+  },
+  privacyLabelWrap: { flex: 1, gap: 2 },
+  privacyLabel: { flex: 1, ...Typography.body.m, color: Colors.text.primary },
+  privacyValue: { ...Typography.body.s, color: Colors.brand.primary, fontWeight: '700' },
+  privacySub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 16 },
+  // 배경이 옅어 border.default는 안 보인다
+  privacySep: { height: 1, backgroundColor: 'rgba(255,122,48,0.16)' },
+
   summaryLabel: { ...Typography.label.s, color: Colors.text.secondary, marginTop: Spacing[2], letterSpacing: 0 },
 
   tabs: {
