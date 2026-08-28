@@ -153,11 +153,15 @@ Deno.serve(async (req: Request) => {
       // ⚠️ **familiar_layer만** 본다. spot_only는 "장소 분위기에만 기여"를 고른 것이라
       //    이름·아바타를 띄우면 사용자가 고른 공개범위를 어긴다.
       //    (사진 갤러리는 이름을 안 붙이므로 private만 제외하면 된다 — 기준이 다른 이유다)
+      // ⚠️ 발도장의 visibility_level로 거르지 않는다(2026-08-23 변경).
+      //    신원 노출 여부는 **강아지의 현재 설정 하나**가 정한다 — 아래에서 필터한다.
+      //    발도장마다 값을 박아두면 토글을 켰을 때 과거 발도장이 안 보여서,
+      //    사용자는 켰는데 안 나온다고 느낀다. 프라이버시 토글은 즉시·소급이어야 한다.
       svc
         .from('paw_checkins')
         .select('dog_id, checked_in_at')
         .eq('spot_id', spotId)
-        .eq('visibility_level', 'familiar_layer')
+        .neq('visibility_level', 'private')
         .eq('is_valid_for_aggregate', true)
         .order('checked_in_at', { ascending: false })
         .limit(VISIT_SCAN_LIMIT),
@@ -284,6 +288,24 @@ Deno.serve(async (req: Request) => {
       else { visitAgg[v.dog_id] = { count: 1, last: v.checked_in_at }; }
     }
     const familiarIdSet = new Set(familiarDogs.map((d: any) => d.dog_id));
+
+    // ⚠️ 신원 노출 게이트 — 여기가 유일한 관문이다.
+    //    자기 설정을 켠 강아지만 이름·아바타가 나간다. 끄면 즉시, 과거 발도장까지 사라진다.
+    //    **내 강아지는 예외** — 내가 나를 못 보면 "왜 내가 없지"가 된다.
+    const exposedIds = new Set<string>();
+    const candidateIds = Object.keys(visitAgg);
+    if (candidateIds.length > 0) {
+      const { data: ps } = await svc
+        .from('privacy_settings')
+        .select('dog_id, allow_familiar_layer_exposure')
+        .in('dog_id', candidateIds);
+      for (const r of ps ?? []) {
+        if (r.allow_familiar_layer_exposure === true) exposedIds.add(r.dog_id);
+      }
+    }
+    if (dogId) exposedIds.add(dogId);
+    for (const id of candidateIds) if (!exposedIds.has(id)) delete visitAgg[id];
+
     // 단골 여부는 방문 요약이 이미 판정해둔 값을 쓴다(재계산하면 화면마다 달라진다)
     const visitingIds = Object.keys(visitAgg);
     const regularSet = new Set<string>();

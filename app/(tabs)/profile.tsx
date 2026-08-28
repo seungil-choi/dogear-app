@@ -4,10 +4,12 @@
  * 역할: 여러 강아지 프로필과 서비스 설정을 관리
  *
  * 구조:
- *   1) 내 강아지 — 좌우 스와이프 카드, 페이지 도트, 강아지 추가
- *   2) 발도장 설정 — 활성 강아지 기준 공개 범위 / 안전 설정
+ *   1) 내 강아지 — 좌우 스와이프 카드(공개 상태 요약 포함), 페이지 도트
+ *   2) 내 갤러리 — 내가 올린 사진
  *   3) 앱 설정 — 알림, 약관, 개인정보
  *   4) 로그아웃
+ *
+ * 공개 설정은 여기서 바꾸지 않는다 — 카드엔 요약만 띄우고 관리는 강아지 상세에서 한다.
  */
 
 import React, { useCallback } from 'react';
@@ -105,15 +107,13 @@ function DogPrivacySummary({ setting }: { setting: PrivacySetting }) {
         {/* 값만 나열하면 뭐가 뭔지 모른다 — 라벨을 앞에 둔다.
             화살표는 붙이지 않는다. 이 줄만 따로 눌리는 것처럼 보이는데
             실제로는 카드 전체가 하나의 문이다(중복 신호). */}
-        {/* 공개 범위가 주된 값이고 친구 찾기는 부차다 — 뒷절은 눌러 둔다.
-            다만 **꺼짐일 때만** 밝게 한다. 켜짐이 기본값이라 알릴 게 없고,
-            직접 끈 상태는 "내가 껐다"를 확인시켜 주는 편이 낫다. */}
+        {/* 상태는 둘뿐이다 — 공개인지 아닌지.
+            '장소 분위기에만' 같은 내부 용어를 쓰지 않는다. 사용자가 궁금한 건
+            "우리 아이가 남들에게 보이나"이지 기여 범위의 이름이 아니다. */}
         <Text style={s.privacyText} numberOfLines={1}>
-          {visibilityLabel[setting.default_visibility_level]}
-          <Text style={s.privacyKey}>{'  ·  '}친구 찾기 </Text>
-          <Text style={setting.allow_familiar_layer_exposure ? s.privacyKey : undefined}>
-            {setting.allow_familiar_layer_exposure ? '켜짐' : '꺼짐'}
-          </Text>
+          {setting.allow_familiar_layer_exposure
+            ? '우리 아이 프로필 공개 중'
+            : '프로필 없이 기록 중'}
         </Text>
       </View>
     </View>
@@ -416,7 +416,6 @@ const s = StyleSheet.create({
     // 태그 칩과 무게가 비슷하면 카드 하단이 웅성거린다 — 한 단계 눌러 둔다
     color: 'rgba(255,255,255,0.92)',
   },
-  privacyKey: { color: 'rgba(255,255,255,0.6)', fontWeight: '400' },
 
   // 카드 자체의 생김새는 DogProfileCard가 갖는다. 여기서는 배치만 정한다.
   hero: {

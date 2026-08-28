@@ -10,9 +10,8 @@
  *   갤러리에서 사진은 쭉 넘겨보는 물건이다. 상세를 별도 화면으로 두면 한 장 보려고
  *   두 번 진입해야 하고, 옆 사진으로 넘어갈 수 없다. 전체화면 뷰어에 정보 바를 얹었다.
  *
- * ⚠️ 공개 범위는 **발도장 단위**다(사진 단위가 아니다).
- *    한 발도장에 사진이 최대 3장이라, 바꾸면 그 발도장의 사진이 함께 바뀐다.
- *    확인창에서 이 사실을 반드시 말한다 — 안 하면 "이 사진만 숨긴 줄" 안다.
+ * ⚠️ 공개 여부는 **강아지 설정 하나**가 정한다(2026-08-23). 사진·발도장 단위로
+ *    따로 고르지 않는다 — 설정과 어긋나면 어느 쪽이 진짜인지 알 수 없게 된다.
  *
  * 조회는 RLS를 그대로 탄다(checkin_photos_own_select). 남의 사진은 애초에 안 나온다.
  * 삭제만 엣지 함수로 간다 — 스토리지·대표사진·검수큐까지 함께 정리해야 하기 때문이다.
@@ -34,14 +33,11 @@ import { useAppStore } from '../src/store/useAppStore';
 import { actionSheet, confirm } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
 import { PHOTO } from '../src/constants/messages';
-import { visibilityLabel } from '../src/utils/labels';
 import type { VisibilityLevel } from '../src/types';
 
 const PAGE_SIZE = 30;
 const COLS = 3;
 
-/** 공개 범위 변경지 — privacy-settings와 같은 순서·문구 */
-const LEVELS: VisibilityLevel[] = ['private', 'spot_only', 'familiar_layer'];
 
 interface GalleryPhoto {
   photo_id: string;
@@ -153,35 +149,6 @@ export default function MyGalleryScreen() {
     toast.success(PHOTO.deleted);
   }, []);
 
-  // ── 공개 범위 ─────────────────────────────────────────────
-  const handleVisibility = useCallback(async (p: GalleryPhoto) => {
-    const others = photos.filter(x => x.checkin_id === p.checkin_id).length;
-    const idx = await actionSheet(
-      '이 발도장의 공개 범위',
-      LEVELS.map(l => ({ label: l === p.visibility ? `${visibilityLabel[l]} (지금)` : visibilityLabel[l] })),
-    );
-    if (idx < 0) return;
-    const next = LEVELS[idx];
-    if (next === p.visibility) return;
-
-    // 발도장 단위라는 사실을 숨기지 않는다
-    const scope = others > 1
-      ? `이 발도장에 올린 사진 ${others}장이 함께 바뀌어요.`
-      : '이 사진이 붙은 발도장의 공개 범위가 바뀌어요.';
-    if (!(await confirm(`${scope}\n${visibilityLabel[next]}로 바꿀까요?`, {
-      title: '공개 범위를 바꿀까요?', confirmText: '변경',
-    }))) return;
-
-    const { error } = await supabase
-      .from('paw_checkins')
-      .update({ visibility_level: next })
-      .eq('checkin_id', p.checkin_id);
-    if (error) { toast.error('공개 범위를 바꾸지 못했어요. 잠시 후 다시 시도해주세요'); return; }
-
-    setPhotos(prev => prev.map(x =>
-      x.checkin_id === p.checkin_id ? { ...x, visibility: next } : x));
-    toast.success(`${visibilityLabel[next]}로 바꿨어요`);
-  }, [photos]);
 
   // ── 메모 ─────────────────────────────────────────────────
   const saveNote = useCallback(async () => {
@@ -201,15 +168,15 @@ export default function MyGalleryScreen() {
   }, [editing, noteDraft, savingNote]);
 
   const openActions = useCallback(async (p: GalleryPhoto) => {
+    // 공개 범위는 **강아지 설정 하나**가 전역으로 정한다(2026-08-23).
+    // 사진마다 따로 고를 수 있게 두면 설정과 어긋나고, 어느 쪽이 진짜인지 흐려진다.
     const idx = await actionSheet('이 사진', [
       { label: '메모 수정' },
-      { label: '공개 범위' },
       { label: '사진 삭제', destructive: true },
     ]);
     if (idx === 0) { setNoteDraft(p.note ?? ''); setEditing(p); }
-    else if (idx === 1) await handleVisibility(p);
-    else if (idx === 2) await handleDelete(p);
-  }, [handleVisibility, handleDelete]);
+    else if (idx === 1) await handleDelete(p);
+  }, [handleDelete]);
 
   const w = Dimensions.get('window').width;
   const cell = (w - Spacing[16] * 2 - Spacing[4] * (COLS - 1)) / COLS;
@@ -255,7 +222,7 @@ export default function MyGalleryScreen() {
               accessibilityLabel={`${item.spot_name ?? '장소'} 사진. 길게 누르면 관리`}
             >
               <AppImage source={{ uri: item.image_url }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-              {/* 나만 보기는 눈에 띄어야 한다 — 공개인 줄 알고 올린 사진과 구분된다 */}
+              {/* 예전 정책으로 '나만 보기'로 남은 사진 — 지금은 새로 만들 수 없다 */}
               {item.visibility === 'private' && (
                 <View style={s.privateChip}>
                   <Icon name="lock" size={9} color="#FFFFFF" />
@@ -285,9 +252,12 @@ export default function MyGalleryScreen() {
         onMenu={openActions}
         renderFooter={p => (
           <>
+            {/* 공개 여부는 강아지 설정이 정한다 — 여기선 결과만 알린다 */}
             <View style={pvf.chipRow}>
               <View style={pvf.chip}>
-                <Text style={pvf.chipText}>{visibilityLabel[p.visibility]}</Text>
+                <Text style={pvf.chipText}>
+                  {p.visibility === 'private' ? '나만 보기' : '프로필 없이 공개'}
+                </Text>
               </View>
             </View>
             {p.note ? <Text style={pvf.note} numberOfLines={2}>{p.note}</Text> : null}
@@ -308,7 +278,7 @@ export default function MyGalleryScreen() {
             <View style={s.sheetHandle} />
             <Text style={s.sheetTitle}>메모 수정</Text>
             <Text style={s.sheetDesc}>
-              이 발도장에 남긴 메모예요. 공개 범위에 따라 장소 상세에 보일 수 있어요.
+              이 발도장에 남긴 메모예요. 장소 상세의 '남긴 말'에 이름 없이 보일 수 있어요.
             </Text>
             <TextInput
               style={s.noteInput}

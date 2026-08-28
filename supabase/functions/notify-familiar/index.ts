@@ -90,7 +90,8 @@ Deno.serve(async (req: Request) => {
     ]);
     const optedIn = new Set(
       (privacy ?? [])
-        .filter((p: any) => p.allow_familiar_layer_exposure === true && p.default_visibility_level === 'familiar_layer')
+        // 2026-08-23: default_visibility_level 조건 제거 — 토글 하나가 노출을 정한다
+        .filter((p: any) => p.allow_familiar_layer_exposure === true)
         .map((p: any) => p.dog_id)
     );
     // SEC-09: 액터와 차단관계(양방향)인 유저는 수신 대상에서 제외 — 차단당한 스토커가 위치 알림 수신 방지

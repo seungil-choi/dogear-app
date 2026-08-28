@@ -4,29 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
-import { PrivacyChip } from '../src/components/common/StatusBadge';
 import { Icon } from '../src/components/common/Icon';
-import type { VisibilityLevel } from '../src/types';
-import { visibilityLabel } from '../src/utils/labels';
 import { SAFETY_CONDITION_TEXTS } from '../src/config/familiar-layer';
 
-const VISIBILITY_LEVELS: VisibilityLevel[] = ['private', 'spot_only', 'familiar_layer'];
 
-// title은 labels.ts visibilityLabel SSOT 사용
-const LEVEL_DESC: Record<VisibilityLevel, { title: string; desc: string }> = {
-  private: {
-    title: visibilityLabel.private,
-    desc: '내 발도장은 나만 볼 수 있어요. 장소 분위기나 익숙한 강아지 통계에도 전혀 반영되지 않아요.',
-  },
-  spot_only: {
-    title: visibilityLabel.spot_only,
-    desc: '장소의 분위기 통계에만 보태져요. 우리 아이 정보는 어디에도 나오지 않아요.',
-  },
-  familiar_layer: {
-    title: visibilityLabel.familiar_layer,
-    desc: '안전 조건을 모두 충족했을 때만, 자주 마주치는 강아지에게 최소한의 정보로 소개돼요.',
-  },
-};
 
 // 안전 조건은 src/config/familiar-layer.ts SSOT에서 import
 const SAFETY_CONDITIONS = SAFETY_CONDITION_TEXTS;
@@ -48,46 +29,22 @@ export default function PrivacySettingsScreen() {
         >
           <Icon name="back" size={24} color={Colors.text.primary} />
         </TouchableOpacity>
-        <Text style={s.navTitle}>공개 범위 설정</Text>
+        <Text style={s.navTitle}>우리 아이 공개 설정</Text>
         <View style={s.backBtn} />
       </View>
 
       <ScrollView style={s.scroll} contentContainerStyle={s.content}>
-        {/* 기본 공개 범위 */}
-        <View style={s.section}>
-          <Text style={s.sectionTitle}>기본 공개 범위</Text>
-          <Text style={s.sectionDesc}>
-            발도장마다 직접 바꿀 수 있어요. 여기선 기본값만 정해두세요.
-          </Text>
-          <View style={s.levelList}>
-            {VISIBILITY_LEVELS.map(level => (
-              <TouchableOpacity
-                key={level}
-                style={[
-                  s.levelItem,
-                  privacySetting.default_visibility_level === level && s.levelItemSelected,
-                ]}
-                onPress={() => { void updatePrivacySetting({ default_visibility_level: level }); }}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: privacySetting.default_visibility_level === level }}
-                accessibilityLabel={`${LEVEL_DESC[level].title}. ${LEVEL_DESC[level].desc}`}
-              >
-                <View style={s.levelHeader}>
-                  <PrivacyChip level={level} selected={privacySetting.default_visibility_level === level} />
-                </View>
-                <Text style={s.levelDesc}>{LEVEL_DESC[level].desc}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* 익숙한 레이어 허용 여부 */}
+        {/* ── 유일한 공개 컨트롤 ──
+            예전엔 3단계 '기본 공개 범위'와 이 토글이 함께 있었다. 서버가 둘을 AND로
+            봐서 범위를 골라도 토글이 꺼져 있으면 조용히 제외됐고, 화면엔 그 사실이
+            없었다. 이제 이 스위치 하나가 신원 노출을 정한다(즉시·소급). */}
         <View style={s.section}>
           <View style={s.switchRow}>
             <View style={s.switchInfo}>
-              <Text style={s.switchLabel}>자주 만나는 강아지에게 보이기</Text>
+              <Text style={s.switchLabel}>우리 아이 프로필 공개</Text>
               <Text style={s.switchDesc}>
-                안전 조건을 모두 충족한 경우에만, 같은 장소를 자주 찾는 강아지에게 우리 아이가 소개돼요
+                켜면 같은 장소를 자주 찾는 강아지에게 우리 아이 프로필(이름·사진·견종·성격)이 소개돼요.
+                끄면 프로필 없이 기록만 남아요. 장소 분위기에는 보태지고, 우리 아이는 아무에게도 보이지 않아요.
               </Text>
             </View>
             <Switch
@@ -144,21 +101,6 @@ const s = StyleSheet.create({
   sectionDesc: { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 20 },
 
   // Visibility level list
-  levelList: { gap: Spacing[8] },
-  levelItem: {
-    backgroundColor: Colors.surface.default,
-    borderRadius: Radius.card,
-    padding: Spacing[14],
-    borderWidth: 1.5,
-    borderColor: Colors.border.subtle,
-    gap: Spacing[8],
-  },
-  levelItemSelected: {
-    borderColor: Colors.brand.primary,
-    backgroundColor: Colors.brand.subtle,
-  },
-  levelHeader: { flexDirection: 'row' },
-  levelDesc: { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 20 },
 
   // Toggle row
   switchRow: {

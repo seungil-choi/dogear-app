@@ -10,7 +10,6 @@
  * 4단계:
  *   Step 1. 장소 확인    (P1)
  *   Step 2. 느낌/태그    (P2)
- *   Step 3. 공개 범위    (P1)
  *   Step 4. 완료 확인
  */
 
@@ -36,7 +35,7 @@ import { Button } from '../src/components/common/Button';
 import { Icon } from '../src/components/common/Icon';
 import { EmptyState } from '../src/components/common/EmptyState';
 import type { FeelingTag, VisibilityLevel } from '../src/types';
-import { feelingTagLabel, visibilityLabel } from '../src/utils/labels';
+import { feelingTagLabel } from '../src/utils/labels';
 import * as ImagePicker from 'expo-image-picker';
 import { checkPawmarkProximity, formatDistanceShort } from '../src/utils/geo';
 import { getPawmarkRadius, pawmarkCooldownRemainingMs, MAX_CHECKIN_PHOTOS } from '../src/config/checkin';
@@ -53,21 +52,21 @@ const FEELING_TAGS: FeelingTag[] = [
   'quiet', 'good', 'many_dogs', 'come_back_again', 'noisy', 'good_for_short_rest',
 ];
 
-// ─── 공개 범위 상세 설명 ─────────────────────────────────────
 /**
- * 공개 범위 선택 단계 노출 여부 — Phase 1에서는 숨긴다.
+ * 발도장은 공개 범위를 묻지 않는다.
  *
- * 왜: 발도장을 남기는 순간에 "나만 보기 / 장소 분위기에만 / 산책 친구 찾기"를
- *     고르게 하는 건, 아직 서비스가 뭘 해주는지 모르는 사용자에게 너무 이른 질문이다.
- *     선택지가 셋이면 고민이 생기고, 고민은 발도장 완료율을 깎는다.
- *     Phase 2에서 '자주 보는 강아지 친구' 기능이 붙어 공개 범위가
- *     실제로 무엇을 바꾸는지 체감된 뒤에 다시 노출한다.
- * 기본값: 산책 친구 찾기(familiar_layer) — 가장 넓은 범위.
- *     설정 화면(privacy-settings)에서는 지금도 바꿀 수 있으므로 선택권이 없어지는 건 아니다.
- * ⚠️ 이 값을 true로 되돌리면 단계·인디케이터·기본값이 함께 살아난다.
+ * 왜: 발도장을 남기는 순간에 3지선다를 고르게 하는 건 아직 서비스가 뭘 해주는지
+ *     모르는 사용자에게 너무 이른 질문이다. 고민이 생기면 완료율이 깎인다.
+ *
+ * 2026-08-23 변경 — 3단계가 통째로 없어졌다.
+ *   신원 노출 여부는 **강아지 설정의 토글 하나**가 정한다(즉시·소급).
+ *   그래서 발도장에는 저장할 '범위'가 없다. 항상 spot_only로 남기고,
+ *   이름·아바타를 내보낼지는 서버가 조회 시점에 그 토글을 보고 판단한다.
+ *
+ *   ⚠️ 이전 기본값이 `familiar_layer`(최대 노출)였다. 사용자가 동의한 적 없는
+ *      값이 박혀 있었다 — 이번에 바로잡았다.
  */
-const SHOW_VISIBILITY_STEP = false;
-const DEFAULT_VISIBILITY: VisibilityLevel = 'familiar_layer';
+const CHECKIN_VISIBILITY: VisibilityLevel = 'spot_only';
 
 // 사진 상한(MAX_CHECKIN_PHOTOS)은 src/config/checkin.ts 한 곳에만 둔다 —
 // 화면·스토어·서버가 각자 숫자를 들고 있으면 하나만 고치고 나머지를 빠뜨린다.
@@ -76,34 +75,7 @@ const DEFAULT_VISIBILITY: VisibilityLevel = 'familiar_layer';
  * 단계 흐름 — 다음/이전/인디케이터가 모두 이 배열 하나에서 파생된다.
  * 계산과 테스트는 `src/utils/pawSteps.ts`에 있다(화면을 띄우지 않고 검증하려고 떼어냈다).
  */
-const STEP_FLOW = pawStepFlow(SHOW_VISIBILITY_STEP);
-
-const VISIBILITY_OPTIONS: {
-  level: VisibilityLevel;
-  icon: string;
-  title: string;
-  desc: string;
-}[] = [
-  // title은 labels.ts visibilityLabel SSOT 사용
-  {
-    level: 'private',
-    icon:  'lock',
-    title: visibilityLabel.private,
-    desc:  '나만 볼 수 있는 기록이에요. 통계에도 반영되지 않아요.',
-  },
-  {
-    level: 'spot_only',
-    icon:  'map',
-    title: visibilityLabel.spot_only,
-    desc:  '장소 분위기 통계에만 더해져요. 우리 아이 정보는 나오지 않아요.',
-  },
-  {
-    level: 'familiar_layer',
-    icon:  'paw',
-    title: visibilityLabel.familiar_layer,
-    desc:  '안전 조건을 모두 충족한 강아지에게만 최소한의 정보로 소개돼요.',
-  },
-];
+const STEP_FLOW = pawStepFlow(false);
 
 export default function PawCheckinModal() {
   const router = useRouter();
@@ -208,11 +180,11 @@ export default function PawCheckinModal() {
     if (isPresetSpot && pawFlow.step === 1) {
       setPawStep(2);
     }
-    // 공개 범위 단계를 숨긴 동안에는 기본값을 강제한다.
-    //   스토어 초기값만 바꾸면, 이전 버전에서 'spot_only'를 쓰던 기기의
-    //   lastUsedVisibility가 그대로 남아 계속 그 값으로 제출된다.
-    if (!SHOW_VISIBILITY_STEP && pawFlow.visibility !== DEFAULT_VISIBILITY) {
-      setPawVisibility(DEFAULT_VISIBILITY);
+    // 발도장은 항상 같은 값으로 남긴다 — 노출은 강아지 설정이 정한다.
+    //   기기에 남아 있던 예전 값(lastUsedVisibility 등)이 그대로 제출되지 않도록
+    //   진입 때마다 덮어쓴다.
+    if (pawFlow.visibility !== CHECKIN_VISIBILITY) {
+      setPawVisibility(CHECKIN_VISIBILITY);
     }
     // 진입 자체가 발도장 시작 액션
     track(EVENT.pawmark_start_clicked, {
@@ -765,46 +737,6 @@ export default function PawCheckinModal() {
           </View>
         )}
 
-        {/* ── STEP 3: 공개 범위 — Phase 1에서는 숨김(SHOW_VISIBILITY_STEP) ── */}
-        {SHOW_VISIBILITY_STEP && step === 3 && (
-          <View style={s.stepContainer}>
-            <View style={s.stepTitleBlock}>
-              <Text style={s.stepTitle}>이 발도장, 누구에게 보여줄까요?</Text>
-              <Text style={s.stepDesc}>나중에 언제든 바꿀 수 있어요</Text>
-            </View>
-
-            <View style={s.visibilityList}>
-              {VISIBILITY_OPTIONS.map(opt => {
-                const selected = visibility === opt.level;
-                return (
-                  <TouchableOpacity
-                    key={opt.level}
-                    style={[s.visibilityCard, selected && s.visibilityCardSelected]}
-                    onPress={() => setPawVisibility(opt.level)}
-                    activeOpacity={0.85}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected }}
-                    accessibilityLabel={`${opt.title}, ${opt.desc}`}
-                  >
-                    <View style={[s.visibilityIcon, selected && s.visibilityIconSelected]}>
-                      <Icon name={opt.icon as any} size={20} color={selected ? Colors.brand.onPrimary : Colors.text.secondary} />
-                    </View>
-                    <View style={s.visibilityText}>
-                      <Text style={[s.visibilityTitle, selected && s.visibilityTitleSelected]}>
-                        {opt.title}
-                      </Text>
-                      <Text style={s.visibilityDesc}>{opt.desc}</Text>
-                    </View>
-                    {selected && (
-                      <Icon name="check" size={18} color={Colors.brand.primary} />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        )}
-
         {/* ── STEP 4: 완료 확인 ── */}
         {step === 4 && (
           <View style={s.stepContainer}>
@@ -827,7 +759,6 @@ export default function PawCheckinModal() {
                 label="사진"
                 value={currentPhotos.length > 0 ? `${currentPhotos.length}장` : '없음'}
               />
-              <SummaryRow label="공개 범위" value={visibilityLabel[visibility]} />
             </View>
 
             {/* ── 1시간 쿨다운 안내 ───────────────────────────────── */}
@@ -1099,30 +1030,6 @@ const s = StyleSheet.create({
     borderStyle: 'dashed',
     alignItems: 'center', justifyContent: 'center',
   },
-
-  // 공개 범위 카드
-  visibilityList: { gap: Spacing[10] },
-  visibilityCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing[14],
-    padding: Spacing[16],
-    backgroundColor: Colors.surface.default,
-    borderRadius: Radius.card,
-    borderWidth: 1, borderColor: Colors.border.default,
-  },
-  visibilityCardSelected: { borderColor: Colors.brand.primary, backgroundColor: Colors.surface.selected },
-  visibilityIcon: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: Colors.bg.secondary,
-    alignItems: 'center', justifyContent: 'center',
-    flexShrink: 0,
-  },
-  visibilityIconSelected: { backgroundColor: Colors.brand.primary },
-  visibilityText:          { flex: 1, gap: Spacing[4] },
-  visibilityTitle:         { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
-  visibilityTitleSelected: { color: Colors.brand.accent },
-  visibilityDesc:          { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 18 },
 
   // 완료 확인
   confirmIconWrap: { alignItems: 'center', gap: Spacing[12] },

@@ -19,7 +19,7 @@ import { Icon } from '../src/components/common/Icon';
 import { AppImage } from '../src/components/common/AppImage';
 import { ListSpotCard } from '../src/components/spot/SpotCard';
 import { categoryLabel } from '../src/utils/labels';
-import { sizeLabel, visibilityLabel } from '../src/utils/labels';
+import { sizeLabel } from '../src/utils/labels';
 import type { Spot } from '../src/types';
 
 type TabKey = 'paw' | 'saved' | 'visit';
@@ -141,24 +141,14 @@ export default function DogDetailScreen() {
               <Text style={s.privacyTitle}>공개 설정</Text>
             </View>
 
-            <TouchableOpacity
-              style={s.privacyRow}
-              onPress={() => router.push('/privacy-settings')}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel={`발도장 공개 범위, 현재 ${visibilityLabel[setting.default_visibility_level]}`}
-            >
-              <Text style={s.privacyLabel}>발도장 공개 범위</Text>
-              <Text style={s.privacyValue}>{visibilityLabel[setting.default_visibility_level]}</Text>
-              <Icon name="forward" size={15} color={Colors.text.tertiary} />
-            </TouchableOpacity>
-
-            <View style={s.privacySep} />
-
             <View style={s.privacyRow}>
               <View style={s.privacyLabelWrap}>
-                <Text style={s.privacyLabel}>산책 친구 찾기에 보이기</Text>
-                <Text style={s.privacySub}>안전 조건 6가지를 모두 충족했을 때만 보여요</Text>
+                <Text style={s.privacyLabel}>우리 아이 프로필 공개</Text>
+                <Text style={s.privacySub}>
+                  {setting.allow_familiar_layer_exposure
+                    ? '같은 장소를 자주 찾는 강아지에게 우리 아이가 소개돼요'
+                    : '프로필 없이 기록만 남아요. 장소 분위기에는 보태집니다'}
+                </Text>
               </View>
               <Switch
                 value={setting.allow_familiar_layer_exposure}
@@ -169,6 +159,20 @@ export default function DogDetailScreen() {
                 thumbColor={setting.allow_familiar_layer_exposure ? Colors.brand.primary : Colors.bg.secondary}
               />
             </View>
+
+            <View style={s.privacySep} />
+
+            {/* 안전 조건 6가지가 궁금한 사람을 위한 문. 설정 자체는 위 스위치가 전부다. */}
+            <TouchableOpacity
+              style={s.privacyRow}
+              onPress={() => router.push('/privacy-settings')}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="공개 설정 자세히 보기"
+            >
+              <Text style={s.privacyLabel}>어떤 조건에서 보이나요?</Text>
+              <Icon name="forward" size={15} color={Colors.text.tertiary} />
+            </TouchableOpacity>
           </View>
         )}
 
@@ -298,7 +302,6 @@ const s = StyleSheet.create({
   },
   privacyLabelWrap: { flex: 1, gap: 1 },
   privacyLabel: { flex: 1, ...Typography.body.m, color: Colors.text.primary },
-  privacyValue: { ...Typography.body.s, color: Colors.brand.primary, fontWeight: '600' },
   privacySub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 15 },
   privacySep: { height: 1, backgroundColor: Colors.border.default },
 

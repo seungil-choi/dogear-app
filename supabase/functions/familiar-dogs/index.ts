@@ -10,10 +10,14 @@
  * 노출 조건 (모두 충족해야 함):
  * 1. 조회하는 강아지(dogId)도 해당 스팟에 체크인 기록 있음
  * 2. 노출 대상 강아지의 exposure_allowed = true
- * 3. 노출 대상 강아지의 default_visibility_level = 'familiar_layer'
- * 4. 노출 대상 강아지의 allow_familiar_layer_exposure = true
- * 5. 노출 대상 강아지가 최근 30일 내 해당 스팟 familiar_layer 체크인 2회 이상
- * 6. 조회 강아지와 노출 강아지가 서로 다름
+ * 3. 노출 대상 강아지의 **allow_familiar_layer_exposure = true** ← 유일한 공개 설정
+ * 4. 노출 대상 강아지가 최근 30일 내 해당 스팟에 체크인 2회 이상(private 제외)
+ * 5. 조회 강아지와 노출 강아지가 서로 다름
+ *
+ * ⚠️ 2026-08-23 이전에는 여기에 `default_visibility_level = 'familiar_layer'`가
+ *    더 있었다. 설정이 3단계 범위 + 토글 둘로 갈려 있던 시절의 흔적인데, 둘이 AND라
+ *    범위를 골라도 토글이 꺼져 있으면 조용히 제외됐고 화면에는 그 사실이 없었다.
+ *    지금은 토글 하나가 노출을 정한다 — 끄면 즉시, 과거 발도장까지 사라진다.
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -106,13 +110,13 @@ Deno.serve(async (req: Request) => {
       .select('dog_id, default_visibility_level, allow_familiar_layer_exposure')
       .in('dog_id', candidateDogIds);
 
+    // ⚠️ 2026-08-23: default_visibility_level 조건을 뺐다.
+    //    설정이 3단계(범위) + 토글 둘이던 시절의 흔적인데, 둘이 AND라
+    //    범위를 '산책 친구 찾기'로 골라도 토글이 꺼져 있으면 조용히 제외됐고
+    //    화면 어디에도 그 사실이 없었다. 이제 **토글 하나가 노출을 정한다.**
     const allowedDogIds = new Set<string>(
       (privacySettings ?? [])
-        .filter(
-          (p: any) =>
-            p.default_visibility_level === 'familiar_layer' &&
-            p.allow_familiar_layer_exposure === true
-        )
+        .filter((p: any) => p.allow_familiar_layer_exposure === true)
         .map((p: any) => p.dog_id)
     );
 
@@ -120,14 +124,16 @@ Deno.serve(async (req: Request) => {
       return Response.json({ familiar_dogs: [] }, { headers: corsHeaders });
     }
 
-    // 조건 5: 최근 30일 familiar_layer 체크인 수 검증
+    // 조건 5: 최근 30일 발도장 수 검증
+    //   발도장의 visibility_level로 거르지 않는다 — 노출 판단은 위 설정이 이미 했다.
+    //   여기서 또 거르면 토글을 켠 뒤에도 과거 발도장이 안 세어져 조건을 못 채운다.
     const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const { data: recentCheckins } = await serviceClient
       .from('paw_checkins')
       .select('dog_id')
       .in('dog_id', [...allowedDogIds])
       .eq('spot_id', spotId)
-      .eq('visibility_level', 'familiar_layer')
+      .neq('visibility_level', 'private')
       .gte('checked_in_at', since30d);
 
     const checkinCountMap: Record<string, number> = {};
