@@ -24,12 +24,13 @@ import { useAppStore } from '../../src/store/useAppStore';
 // 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
 import { haversineDistance } from '../../src/utils/geo';
 import { displaySavedCount } from '../../src/utils/rules';
-import { DogProfileCard, dogCardFooterStyles } from '../../src/components/dog/DogProfileCard';
+import { dogCardFooterStyles } from '../../src/components/dog/DogProfileCard';
+import { DogCarousel } from '../../src/components/dog/DogCarousel';
 import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotCard';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import { isRecommendableCategory } from '../../src/constants/spotCategories';
 import { Icon } from '../../src/components/common/Icon';
-import { sizeLabel, ageGroupLabel, relativeTime } from '../../src/utils/labels';
+import { relativeTime } from '../../src/utils/labels';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { HomeRailSkeleton } from '../../src/components/common/Skeleton';
 import type { Dog, HomeSpotCardViewModel } from '../../src/types';
@@ -49,41 +50,6 @@ function DogAvatar({ dog, size = 52 }: { dog: Dog; size?: number }) {
     <View style={[{ width: size, height: size, borderRadius: size / 2 }, sa.avatarPlaceholder]}>
       <Text style={[sa.avatarInitial, { fontSize: size * 0.38 }]}>{dog.name[0]}</Text>
     </View>
-  );
-}
-
-// ─── 강아지 선택 모달 ─────────────────────────────────────────────
-function DogPickerModal({
-  dogs, activeDogId, onSelect, onClose,
-}: { dogs: Dog[]; activeDogId: string; onSelect: (dog: Dog) => void; onClose: () => void }) {
-  return (
-    <Modal transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={sa.modalOverlay} activeOpacity={1} onPress={onClose}>
-        <View style={sa.modalCard}>
-          <Text style={sa.modalTitle}>강아지 선택</Text>
-          {dogs.map(dog => (
-            <TouchableOpacity
-              key={dog.dog_id}
-              style={[sa.modalItem, dog.dog_id === activeDogId && sa.modalItemActive]}
-              onPress={() => { onSelect(dog); onClose(); }}
-            >
-              <DogAvatar dog={dog} size={40} />
-              <View style={sa.modalItemInfo}>
-                <Text style={[sa.modalItemName, dog.dog_id === activeDogId && sa.modalItemNameActive]}>
-                  {dog.name}
-                </Text>
-                <Text style={sa.modalItemSub}>
-                  {dog.breed ?? sizeLabel[dog.size]} · {ageGroupLabel[dog.age_group]}
-                </Text>
-              </View>
-              {dog.dog_id === activeDogId && (
-                <Icon name="check" size={18} color={Colors.brand.primary} />
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-      </TouchableOpacity>
-    </Modal>
   );
 }
 
@@ -160,9 +126,7 @@ export default function HomeScreen() {
   );
   // 성능: featuredCards 등에서 spots.find(O(n))를 루프로 돌지 않도록 spot_id → Spot Map 1회 구성
   const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [featuredPage, setFeaturedPage] = useState(0);
-  const multiDog = dogs.length > 1;
 
   // 홈 진입 추적 (마운트 시 1회)
   useEffect(() => {
@@ -279,15 +243,6 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
-      {pickerOpen && dog && (
-        <DogPickerModal
-          dogs={dogs}
-          activeDogId={dog.dog_id}
-          onSelect={(d) => setActiveDog(d)}
-          onClose={() => setPickerOpen(false)}
-        />
-      )}
-
       <ScrollView
         style={s.scroll}
         contentContainerStyle={s.content}
@@ -346,17 +301,18 @@ export default function HomeScreen() {
             내정보 탭과 같은 컴포넌트다. 예전엔 두 화면이 각자 그려서
             배경·글자색·아바타 크기·태그 모양이 전부 달랐다. */}
         {dog && (
-          <DogProfileCard
-            dog={dog}
-            style={s.profileCard}
-            onPress={() => router.push('/dog-detail' as any)}
-            onPressName={multiDog ? () => setPickerOpen(true) : undefined}
-            footer={lastWalkText ? (
+          <DogCarousel
+            dogs={dogs}
+            activeDogId={dog.dog_id}
+            onActiveChange={setActiveDog}
+            onOpenDetail={() => router.push('/dog-detail' as any)}
+            cardStyle={s.profileCard}
+            renderFooter={() => (lastWalkText ? (
               <View style={dogCardFooterStyles.row}>
                 <Icon name="walk" size={12} color="rgba(255,255,255,0.9)" />
                 <Text style={dogCardFooterStyles.text}>최근 산책 · {lastWalkText}</Text>
               </View>
-            ) : undefined}
+            ) : undefined)}
           />
         )}
 
@@ -563,28 +519,6 @@ const sa = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarInitial: { color: Colors.brand.accent, fontWeight: '700' },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalCard: {
-    width: 280,
-    backgroundColor: Colors.surface.default,
-    borderRadius: Radius.l,
-    paddingVertical: Spacing[20],
-    paddingHorizontal: Spacing[20],
-    gap: Spacing[4],
-    ...Shadow.l,
-  },
-  modalTitle: { ...Typography.title.s, color: Colors.text.primary, fontWeight: '700', marginBottom: Spacing[8] },
-  modalItem: { flexDirection: 'row', alignItems: 'center', gap: Spacing[12], paddingVertical: Spacing[12], paddingHorizontal: Spacing[10], borderRadius: Radius.m },
-  modalItemActive: { backgroundColor: Colors.brand.subtle },
-  modalItemInfo: { flex: 1, gap: Spacing[2] },
-  modalItemName: { ...Typography.label.l, color: Colors.text.primary, fontWeight: '600' },
-  modalItemNameActive: { color: Colors.brand.accent },
-  modalItemSub: { ...Typography.caption, color: Colors.text.tertiary },
 });
 
 // ─── 메인 스타일 ──────────────────────────────────────────────────

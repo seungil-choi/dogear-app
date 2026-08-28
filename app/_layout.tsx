@@ -191,13 +191,6 @@ function RootLayoutInner() {
           }}
         />
         <Stack.Screen
-          name="privacy-settings"
-          options={{
-            presentation: 'card',
-            animation: 'slide_from_right',
-          }}
-        />
-        <Stack.Screen
           name="report"
           options={{
             presentation: 'modal',

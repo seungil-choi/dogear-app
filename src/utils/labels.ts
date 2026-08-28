@@ -48,7 +48,7 @@ export const categoryLabel: Record<SpotCategory, string> = {
 
 // ─── 공개 범위 라벨 (SSOT) ─────────────────────────────
 // ⚠️ 이 파일이 visibility 라벨의 단일 진실 공급원(Single Source of Truth)입니다.
-//   - 다른 화면(StatusBadge / paw-checkin / privacy-settings / visit-history 등)
+//   - 다른 화면(StatusBadge / visit-history 등)
 //     에서는 반드시 이 객체를 import해서 사용하세요. 하드코딩 금지.
 //   - 통일된 표현: "장소 분위기에만" (체크인 단계에서 사용자가 보는 자연어)
 export const visibilityLabel: Record<VisibilityLevel, string> = {

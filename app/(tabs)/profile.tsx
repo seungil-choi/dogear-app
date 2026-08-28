@@ -29,7 +29,7 @@ import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 import { visibilityLabel } from '../../src/utils/labels';
-import { DogProfileCard } from '../../src/components/dog/DogProfileCard';
+import { DogCarousel } from '../../src/components/dog/DogCarousel';
 import type { Dog, PrivacySetting } from '../../src/types';
 import { severSocialSessions } from '@/lib/socialSession';
 
@@ -71,32 +71,6 @@ function SettingsRow({
  * 편집·추가는 화면 우측 상단 ⋯ 로 뺐다 — 프로필은 한 번 맞춰두면 거의 안 건드리는데
  * 카드 절반을 버튼이 차지하고 있었다.
  */
-function DogCard({
-  dog, width, setting, onOpenDetail,
-}: {
-  dog: Dog;
-  width: number;
-  /** 이 아이의 공개 설정 — 카드 안엔 **요약만** 띄운다 */
-  setting?: PrivacySetting;
-  onOpenDetail: () => void;
-}) {
-  return (
-    <View style={{ width }}>
-      {/* 홈의 강아지 카드와 같은 컴포넌트다 — 두 화면이 딴 물건처럼 보이지 않도록.
-          공개 설정은 강아지 단위라 카드 안에 이어 붙인다(스와이프하면 같이 넘어간다).
-          다만 **여기선 보여주기만** 하고 실제 변경은 상세에서 한다 —
-          카드는 전체가 탭 영역이라 안에 컨트롤을 넣으면 터치가 서로 먹는다. */}
-      <DogProfileCard
-        dog={dog}
-        onPress={onOpenDetail}
-        showBio
-        style={s.hero}
-        footer={setting ? <DogPrivacySummary setting={setting} /> : undefined}
-      />
-    </View>
-  );
-}
-
 /** 카드 안 공개 설정 요약 — 읽기 전용. 관리는 강아지 상세에서. */
 function DogPrivacySummary({ setting }: { setting: PrivacySetting }) {
   return (
@@ -178,15 +152,6 @@ export default function ProfileScreen() {
   }, [activeDog, canAddMore, setActiveDog, router]);
 
   // 스와이프로 활성 강아지를 바꾼다 — 별도 '바꾸기' 버튼 없이 카드가 곧 전환 수단이다
-  const pageWidth = Dimensions.get('window').width;
-  const handleDogPageChange = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const idx = Math.round(e.nativeEvent.contentOffset.x / pageWidth);
-      const next = dogs[idx];
-      if (next && next.dog_id !== activeDog?.dog_id) setActiveDog(next);
-    },
-    [dogs, activeDog, setActiveDog, pageWidth],
-  );
 
   const handleOpenDetail = useCallback((dog: Dog) => {
     setActiveDog(dog);            // 상세는 활성 강아지 기준 데이터를 보여줌
@@ -259,7 +224,6 @@ export default function ProfileScreen() {
   }
 
   const currentVisibility = privacySetting.default_visibility_level;
-  const visibilityText    = visibilityLabel[currentVisibility] ?? currentVisibility;
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
@@ -285,35 +249,17 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={handleDogPageChange}
-          scrollEventThrottle={16}
-        >
-          {dogs.map(d => (
-            <DogCard
-              key={d.dog_id}
-              dog={d}
-              width={pageWidth}
-              setting={privacySettingsByDog[d.dog_id]}
-              onOpenDetail={() => handleOpenDetail(d)}
-            />
-          ))}
-        </ScrollView>
-
-        {/* 여러 마리일 때만 도트 — 한 마리면 넘길 것이 없다 */}
-        {dogs.length > 1 && (
-          <View style={s.dots}>
-            {dogs.map(d => (
-              <View
-                key={d.dog_id}
-                style={[s.dot, d.dog_id === activeDog.dog_id && s.dotActive]}
-              />
-            ))}
-          </View>
-        )}
+        <DogCarousel
+          dogs={dogs}
+          activeDogId={activeDog.dog_id}
+          onActiveChange={setActiveDog}
+          onOpenDetail={handleOpenDetail}
+          cardStyle={s.hero}
+          renderFooter={d => {
+            const setting = privacySettingsByDog[d.dog_id];
+            return setting ? <DogPrivacySummary setting={setting} /> : undefined;
+          }}
+        />
 
         {/* ══════════════════════════════════════
             2) 내 갤러리 — 내가 올린 사진
@@ -393,9 +339,6 @@ const s = StyleSheet.create({
     width: 36, height: 36, borderRadius: 18,
     alignItems: 'center', justifyContent: 'center',
   },
-  dots: { flexDirection: 'row', justifyContent: 'center', gap: Spacing[6], marginTop: -Spacing[12], marginBottom: Spacing[16] },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.border.default },
-  dotActive: { backgroundColor: Colors.brand.primary, width: 18 },
 
   // ── 카드 안 공개 설정 요약 ──────────────────────────────
   // 카드가 솔리드 오렌지라 색을 여기서 맞춘다. 읽기 전용이라 컨트롤은 없다.

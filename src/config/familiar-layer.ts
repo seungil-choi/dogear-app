@@ -4,7 +4,7 @@
  * 사용자에게 약속하는 안전 조건과 실제 검증 로직이 분기되지 않도록
  * 이 파일이 단일 진실 공급원입니다.
  *
- * - UI(privacy-settings.tsx): SAFETY_CONDITION_TEXTS import
+ * - UI(app/dog-detail.tsx): SAFETY_CONDITION_TEXTS import — 공개 토글 아래 인라인
  * - 클라이언트 검증(utils/rules.ts): FAMILIAR_LAYER_POLICY 상수 import
  * - 서버 검증(Edge Function paw-checkin/index.ts):
  *     Deno 환경이라 TS import 불가 → 같은 값을 코드 상단에 복제 + 주석으로 동기화 약속.
@@ -32,7 +32,7 @@ export const FAMILIAR_LAYER_POLICY = {
 } as const;
 
 /**
- * 사용자에게 노출되는 안전 조건 텍스트 (privacy-settings 화면).
+ * 사용자에게 노출되는 안전 조건 텍스트 (강아지 상세의 공개 설정).
  * 위 정책 값과 동기화되어 있어야 함.
  *
  * 변경 시 약관 (legal/privacy-policy)도 함께 검토.

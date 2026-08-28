@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
+import { SAFETY_CONDITION_TEXTS } from '../src/config/familiar-layer';
 import { useInteractedSpots } from '../src/hooks/useInteractedSpots';
 import { Icon } from '../src/components/common/Icon';
 import { AppImage } from '../src/components/common/AppImage';
@@ -160,19 +161,26 @@ export default function DogDetailScreen() {
               />
             </View>
 
-            <View style={s.privacySep} />
-
-            {/* 안전 조건 6가지가 궁금한 사람을 위한 문. 설정 자체는 위 스위치가 전부다. */}
-            <TouchableOpacity
-              style={s.privacyRow}
-              onPress={() => router.push('/privacy-settings')}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="공개 설정 자세히 보기"
-            >
-              <Text style={s.privacyLabel}>어떤 조건에서 보이나요?</Text>
-              <Icon name="forward" size={15} color={Colors.text.tertiary} />
-            </TouchableOpacity>
+            {/* 켰을 때만 조건을 편다.
+                꺼져 있으면 아무 데도 안 보이므로 조건은 읽을 이유가 없다.
+                예전엔 이 자리에 '어떤 조건에서 보이나요? ›' 링크가 있었는데,
+                들어가면 **같은 토글이 또 있는** 화면이라 중복이었다. 조건만 여기로 옮겼다. */}
+            {setting.allow_familiar_layer_exposure && (
+              <>
+                <View style={s.privacySep} />
+                <View style={s.conditions}>
+                  <Text style={s.conditionsTitle}>
+                    아래 조건을 모두 충족했을 때만 보여요
+                  </Text>
+                  {SAFETY_CONDITION_TEXTS.map((cond, i) => (
+                    <View key={i} style={s.conditionRow}>
+                      <View style={s.conditionDot} />
+                      <Text style={s.conditionText}>{cond}</Text>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
           </View>
         )}
 
@@ -304,6 +312,16 @@ const s = StyleSheet.create({
   privacyLabel: { flex: 1, ...Typography.body.m, color: Colors.text.primary },
   privacySub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 15 },
   privacySep: { height: 1, backgroundColor: Colors.border.default },
+
+  // 안전 조건 — 토글이 켜졌을 때만 편다
+  conditions: { paddingVertical: Spacing[12], gap: Spacing[8] },
+  conditionsTitle: { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '600' },
+  conditionRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing[8] },
+  conditionDot: {
+    width: 4, height: 4, borderRadius: 2, marginTop: 7,
+    backgroundColor: Colors.brand.primary,
+  },
+  conditionText: { flex: 1, ...Typography.caption, color: Colors.text.secondary, lineHeight: 18 },
 
   summaryLabel: { ...Typography.label.s, color: Colors.text.secondary, marginTop: Spacing[2], letterSpacing: 0 },
   summaryLabelOn: { color: Colors.text.primary, fontWeight: '600' },
