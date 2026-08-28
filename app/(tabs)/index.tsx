@@ -24,7 +24,7 @@ import { useAppStore } from '../../src/store/useAppStore';
 // 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
 import { haversineDistance } from '../../src/utils/geo';
 import { displaySavedCount } from '../../src/utils/rules';
-import { dogCardFooterStyles } from '../../src/components/dog/DogProfileCard';
+import { DogCardFooter } from '../../src/components/dog/DogProfileCard';
 import { DogCarousel } from '../../src/components/dog/DogCarousel';
 import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotCard';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
@@ -204,15 +204,16 @@ export default function HomeScreen() {
   // DogProfileCard 안으로 옮겼다 — 내정보 탭에 똑같은 코드가 복사돼 있었다.
 
   // ── 최근 산책 — 방문 기록 중 가장 최신 last_visit_at ──────────────
-  const lastWalkText = useMemo(() => {
-    if (!dog) return null;
-    const mine = visitSummaries.filter(vs => vs.dog_id === dog.dog_id);
+  // 활성 강아지가 아니라 '그 카드의 강아지' 기준이다. 캐러셀은 손을 떼야 활성이
+  // 바뀌므로, 활성 하나만 보면 넘기는 동안 앞 아이의 산책이 남아 있는다.
+  const lastWalkTextFor = useCallback((d: Dog) => {
+    const mine = visitSummaries.filter(vs => vs.dog_id === d.dog_id);
     if (mine.length === 0) return null;
     const latest = mine.reduce((a, b) =>
       new Date(a.last_visit_at) > new Date(b.last_visit_at) ? a : b
     );
     return relativeTime(latest.last_visit_at);
-  }, [dog, visitSummaries]);
+  }, [visitSummaries]);
 
   const handlePressCard = useCallback((spotId: string, source: 'recommended' | 'recent' | 'frequent' = 'recommended') => {
     const eventName =
@@ -306,13 +307,16 @@ export default function HomeScreen() {
             activeDogId={dog.dog_id}
             onActiveChange={setActiveDog}
             onOpenDetail={() => router.push('/dog-detail' as any)}
-            cardStyle={s.profileCard}
-            renderFooter={() => (lastWalkText ? (
-              <View style={dogCardFooterStyles.row}>
-                <Icon name="walk" size={12} color="rgba(255,255,255,0.9)" />
-                <Text style={dogCardFooterStyles.text}>최근 산책 · {lastWalkText}</Text>
-              </View>
-            ) : undefined)}
+            style={s.dogSection}
+            renderFooter={d => {
+              const walked = lastWalkTextFor(d);
+              return (
+                <DogCardFooter
+                  icon="walk"
+                  text={walked ? `최근 산책 · ${walked}` : '아직 산책 기록이 없어요'}
+                />
+              );
+            }}
           />
         )}
 
@@ -580,10 +584,11 @@ const s = StyleSheet.create({
   },
 
   // ── 강아지 프로필 카드 ──
-  // 카드의 생김새는 DogProfileCard가 갖는다(내정보 탭과 공용). 여기서는 배치만 정한다.
-  profileCard: {
-    marginHorizontal: Spacing[16],
-    marginBottom: Spacing[4],
+  // 카드 생김새는 DogProfileCard가, 카드 인셋·도트 간격은 DogCarousel이 갖는다
+  // (내정보 탭과 공용). 여기서 정하는 것은 블록 바깥 여백뿐이다.
+  dogSection: {
+    marginTop: Spacing[4],
+    marginBottom: Spacing[16],
   },
 
   // ── 섹션 공통 ──

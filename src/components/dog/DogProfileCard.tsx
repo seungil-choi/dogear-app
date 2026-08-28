@@ -11,16 +11,17 @@
  *   품종·나이·체중을 잇는 규칙과 태그 3개 자르기는 양쪽에 똑같이 복사돼 있었다.
  *   SpotKeyVisual과 같은 이유로 한 곳에서만 그린다.
  *
- * 화면별로 다른 것은 슬롯과 두 개의 스위치뿐이다.
- *   홈     : onPressName(여러 마리 전환 ▾), footer(최근 산책)
- *   내정보 : showBio
+ * 화면별로 다른 것은 카드 하단 슬롯 하나뿐이다.
+ *   홈     : 최근 산책
+ *   내정보 : 공개 상태
+ * 그 슬롯도 생김새는 DogCardFooter가 갖는다 — 두 화면이 각자 그리면 또 갈라진다.
  */
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { Colors, Typography, Spacing, Radius } from '../../constants/tokens';
 import { ageGroupLabel, temperamentLabels, walkingStyleLabels } from '../../utils/labels';
 import { AppImage } from '../common/AppImage';
-import { Icon } from '../common/Icon';
+import { Icon, type IconName } from '../common/Icon';
 import type { Dog } from '../../types';
 
 /** 카드에 올릴 태그 최대 개수 — 넘으면 두 줄로 흘러 카드 높이가 들쭉날쭉해진다 */
@@ -30,11 +31,9 @@ interface DogProfileCardProps {
   dog: Dog;
   /** 카드 전체 탭 — 보통 강아지 상세로 */
   onPress?: () => void;
-  /** 이름 옆 ▾ 탭 — 여러 마리일 때 전환. 없으면 화살표 자체를 그리지 않는다. */
-  onPressName?: () => void;
   /** 소개(bio) 노출 — 내정보처럼 카드가 화면의 주인공일 때만 */
   showBio?: boolean;
-  /** 태그 아래 한 줄 슬롯 — 홈의 '최근 산책' */
+  /** 태그 아래 한 줄 슬롯 — DogCardFooter를 넣는다 */
   footer?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }
@@ -57,7 +56,7 @@ export function dogTagLabels(dog: Dog): string[] {
 }
 
 export function DogProfileCard({
-  dog, onPress, onPressName, showBio, footer, style,
+  dog, onPress, showBio, footer, style,
 }: DogProfileCardProps) {
   const meta = dogMetaText(dog);
   const tags = dogTagLabels(dog);
@@ -83,26 +82,11 @@ export function DogProfileCard({
         </View>
 
         <View style={s.info}>
-          {/* 이름 줄은 강아지가 여러 마리일 때만 따로 눌린다(전환 ▾).
-              한 마리면 Touchable을 아예 그리지 않는다 — disabled로 두면 그 자리에서만
-              카드 탭이 먹지 않을 위험이 있어(중첩 Touchable의 responder 처리),
-              "이름을 눌렀는데 상세가 안 열린다"가 된다. */}
-          {onPressName ? (
-            <TouchableOpacity
-              style={s.nameRow}
-              onPress={onPressName}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="다른 강아지 선택"
-            >
-              <Text style={s.name} numberOfLines={1}>{dog.name}</Text>
-              <Icon name="down" size={16} color="#FFFFFF" />
-            </TouchableOpacity>
-          ) : (
-            <View style={s.nameRow}>
-              <Text style={s.name} numberOfLines={1}>{dog.name}</Text>
-            </View>
-          )}
+          {/* 이름 줄은 따로 눌리지 않는다. 강아지 전환은 카드를 넘겨서 한다(DogCarousel).
+              중첩 Touchable을 두면 "이름을 눌렀는데 상세가 안 열린다"가 된다. */}
+          <View style={s.nameRow}>
+            <Text style={s.name} numberOfLines={1}>{dog.name}</Text>
+          </View>
           {!!meta && <Text style={s.meta} numberOfLines={1}>{meta}</Text>}
         </View>
       </View>
@@ -119,7 +103,10 @@ export function DogProfileCard({
         </View>
       )}
 
-      {footer}
+      {/* 캐러셀은 카드 높이를 가장 높은 카드에 맞춘다. 그냥 두면 소개·태그가 짧은 아이의
+          카드에서 이 줄 아래로 빈 주황색이 남는다 — 바닥에 붙여 두면 넘길 때
+          구분선 높이가 그대로라 화면이 흔들리지 않는다. */}
+      {!!footer && <View style={s.footerSlot}>{footer}</View>}
     </TouchableOpacity>
   );
 }
@@ -161,6 +148,8 @@ const s = StyleSheet.create({
     lineHeight: 19,
   },
 
+  footerSlot: { marginTop: 'auto' },
+
   tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6] },
   tag: {
     paddingHorizontal: Spacing[10], paddingVertical: 4,
@@ -170,8 +159,40 @@ const s = StyleSheet.create({
   tagText: { ...Typography.label.s, color: '#FFFFFF', fontWeight: '600' },
 });
 
-/** 카드 위에 올리는 보조 정보 한 줄 — 카드가 브랜드색이라 색을 여기서 맞춰준다. */
-export const dogCardFooterStyles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing[4] },
-  text: { ...Typography.label.s, color: 'rgba(255,255,255,0.9)' },
+/**
+ * 카드 하단 한 줄 — 홈은 '최근 산책', 내정보는 '공개 상태'.
+ *
+ * 내용만 다르고 생김새는 같아야 한다. 예전엔 홈이 구분선 없는 작은 글씨,
+ * 내정보가 구분선 + 자물쇠였다. 같은 카드인데 아래쪽만 딴 물건이었다.
+ *
+ * 홈에서는 기록이 없어도 이 줄을 그린다 — 있을 때만 그리면 카드 높이가
+ * 강아지마다 달라져 넘길 때 아래 내용이 덜컹거린다.
+ */
+export function DogCardFooter({ icon, text }: { icon: IconName; text: string }) {
+  return (
+    <View>
+      <View style={f.divider} />
+      <View style={f.row}>
+        <Icon name={icon} size={12} color="rgba(255,255,255,0.75)" />
+        <Text style={f.text} numberOfLines={1}>{text}</Text>
+      </View>
+    </View>
+  );
+}
+
+const f = StyleSheet.create({
+  // 카드 padding(16) 밖으로 빼서 선이 카드 폭을 가득 채운다
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    marginHorizontal: -Spacing[16],
+    marginBottom: Spacing[12],   // 위(카드 gap 12)와 대칭
+  },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
+  text: {
+    flex: 1,
+    ...Typography.label.s,
+    // 태그 칩과 무게가 비슷하면 카드 하단이 웅성거린다 — 한 단계 눌러 둔다
+    color: 'rgba(255,255,255,0.92)',
+  },
 });

@@ -30,6 +30,7 @@ import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 import { visibilityLabel } from '../../src/utils/labels';
 import { DogCarousel } from '../../src/components/dog/DogCarousel';
+import { DogCardFooter } from '../../src/components/dog/DogProfileCard';
 import type { Dog, PrivacySetting } from '../../src/types';
 import { severSocialSessions } from '@/lib/socialSession';
 
@@ -71,26 +72,24 @@ function SettingsRow({
  * 편집·추가는 화면 우측 상단 ⋯ 로 뺐다 — 프로필은 한 번 맞춰두면 거의 안 건드리는데
  * 카드 절반을 버튼이 차지하고 있었다.
  */
-/** 카드 안 공개 설정 요약 — 읽기 전용. 관리는 강아지 상세에서. */
+/**
+ * 카드 안 공개 설정 요약 — 읽기 전용. 관리는 강아지 상세에서.
+ *
+ * 줄의 생김새는 DogCardFooter가 갖는다(홈의 '최근 산책'과 같은 자리·같은 모양).
+ * 화살표는 붙이지 않는다 — 이 줄만 따로 눌리는 것처럼 보이는데 실제로는
+ * 카드 전체가 하나의 문이다(중복 신호).
+ *
+ * 상태는 둘뿐이다 — 공개인지 아닌지. '장소 분위기에만' 같은 내부 용어를 쓰지 않는다.
+ * 사용자가 궁금한 건 "우리 아이가 남들에게 보이나"이지 기여 범위의 이름이 아니다.
+ */
 function DogPrivacySummary({ setting }: { setting: PrivacySetting }) {
   return (
-    <View style={s.privacySummary}>
-      <View style={s.privacyDivider} />
-      <View style={s.privacyRow}>
-        <Icon name="lock" size={12} color="rgba(255,255,255,0.75)" />
-        {/* 값만 나열하면 뭐가 뭔지 모른다 — 라벨을 앞에 둔다.
-            화살표는 붙이지 않는다. 이 줄만 따로 눌리는 것처럼 보이는데
-            실제로는 카드 전체가 하나의 문이다(중복 신호). */}
-        {/* 상태는 둘뿐이다 — 공개인지 아닌지.
-            '장소 분위기에만' 같은 내부 용어를 쓰지 않는다. 사용자가 궁금한 건
-            "우리 아이가 남들에게 보이나"이지 기여 범위의 이름이 아니다. */}
-        <Text style={s.privacyText} numberOfLines={1}>
-          {setting.allow_familiar_layer_exposure
-            ? '우리 아이 프로필 공개 중'
-            : '프로필 없이 기록 중'}
-        </Text>
-      </View>
-    </View>
+    <DogCardFooter
+      icon="lock"
+      text={setting.allow_familiar_layer_exposure
+        ? '우리 아이 프로필 공개 중'
+        : '프로필 없이 기록 중'}
+    />
   );
 }
 
@@ -254,7 +253,7 @@ export default function ProfileScreen() {
           activeDogId={activeDog.dog_id}
           onActiveChange={setActiveDog}
           onOpenDetail={handleOpenDetail}
-          cardStyle={s.hero}
+          style={s.hero}
           renderFooter={d => {
             const setting = privacySettingsByDog[d.dog_id];
             return setting ? <DogPrivacySummary setting={setting} /> : undefined;
@@ -344,26 +343,10 @@ const s = StyleSheet.create({
   // 카드가 솔리드 오렌지라 색을 여기서 맞춘다. 읽기 전용이라 컨트롤은 없다.
   // 카드에 gap:12가 이미 있어 위 여백은 그것으로 충분하다.
   // 여기에 marginTop을 더 주면 선 위(14)와 아래(10)가 어긋나 나뉜 느낌이 안 난다.
-  privacySummary: {},
-  // 카드 padding(16) 밖으로 빼서 선이 카드 폭을 가득 채우게 한다
-  privacyDivider: {
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    marginHorizontal: -Spacing[16],
-    marginBottom: Spacing[12],   // 위(카드 gap 12)와 대칭
-  },
-  privacyRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
-  privacyText: {
-    flex: 1,
-    ...Typography.label.s,
-    // 태그 칩과 무게가 비슷하면 카드 하단이 웅성거린다 — 한 단계 눌러 둔다
-    color: 'rgba(255,255,255,0.92)',
-  },
-
-  // 카드 자체의 생김새는 DogProfileCard가 갖는다. 여기서는 배치만 정한다.
+  // 카드 생김새는 DogProfileCard가, 카드 인셋·도트 간격은 DogCarousel이 갖는다
+  // (홈과 공용). 여기서 정하는 것은 블록 바깥 여백뿐이다.
   hero: {
-    marginHorizontal: Spacing[16],
-    marginTop: Spacing[12],
+    marginTop: Spacing[4],
     marginBottom: Spacing[16],
   },
 
