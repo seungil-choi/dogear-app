@@ -8,9 +8,9 @@
  */
 import React, { useMemo, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Switch, Modal, Pressable,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { useAppStore } from '../src/store/useAppStore';
@@ -35,6 +35,10 @@ export default function DogDetailScreen() {
   const visits       = useAppStore(s => s.visitSummaries);
 
   const [tab, setTab] = useState<TabKey>('paw');
+  // 조건 목록은 레이어로 뺐다 — 아래 주석 참고
+  const [showConditions, setShowConditions] = useState(false);
+  // Modal은 SafeAreaView 밖이라 인셋이 자동으로 안 먹는다(안드로이드 하단 내비바 겹침)
+  const insets = useSafeAreaInsets();
 
   const isSaved = (spotId: string) => savedSpots.some(sv => sv.spot_id === spotId);
 
@@ -144,7 +148,20 @@ export default function DogDetailScreen() {
 
             <View style={s.privacyRow}>
               <View style={s.privacyLabelWrap}>
-                <Text style={s.privacyLabel}>우리 아이 프로필 공개</Text>
+                <View style={s.privacyLabelRow}>
+                  <Text style={s.privacyLabel}>우리 아이 프로필 공개</Text>
+                  {/* 조건 4줄은 중요하지만 늘 펼쳐 둘 만큼은 아니다 — 한 번 읽고 나면
+                      매번 자리만 차지한다. 필요한 사람이 눌러서 보게 한다.
+                      토글이 꺼져 있어도 띄운다("켜면 어떻게 되나"가 켜기 전 궁금증이다). */}
+                  <TouchableOpacity
+                    onPress={() => setShowConditions(true)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel="프로필이 보이는 조건 보기"
+                  >
+                    <Icon name="info" size={15} color={Colors.text.tertiary} />
+                  </TouchableOpacity>
+                </View>
                 <Text style={s.privacySub}>
                   {setting.allow_familiar_layer_exposure
                     ? '같은 장소를 자주 찾는 강아지에게 우리 아이가 소개돼요'
@@ -161,26 +178,6 @@ export default function DogDetailScreen() {
               />
             </View>
 
-            {/* 켰을 때만 조건을 편다.
-                꺼져 있으면 아무 데도 안 보이므로 조건은 읽을 이유가 없다.
-                예전엔 이 자리에 '어떤 조건에서 보이나요? ›' 링크가 있었는데,
-                들어가면 **같은 토글이 또 있는** 화면이라 중복이었다. 조건만 여기로 옮겼다. */}
-            {setting.allow_familiar_layer_exposure && (
-              <>
-                <View style={s.privacySep} />
-                <View style={s.conditions}>
-                  <Text style={s.conditionsTitle}>
-                    아래 조건을 모두 충족했을 때만 보여요
-                  </Text>
-                  {SAFETY_CONDITION_TEXTS.map((cond, i) => (
-                    <View key={i} style={s.conditionRow}>
-                      <View style={s.conditionDot} />
-                      <Text style={s.conditionText}>{cond}</Text>
-                    </View>
-                  ))}
-                </View>
-              </>
-            )}
           </View>
         )}
 
@@ -237,6 +234,61 @@ export default function DogDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* ── 프로필이 보이는 조건 (레이어) ──
+          닫는 경로를 넷 둔다 — 하나가 막혀도 갇히지 않게:
+          1) [닫기] 버튼  2) 우상단 ×  3) 배경(딤) 탭  4) 안드로이드 뒤로가기
+          ActionSheetHost와 같은 규칙이다. */}
+      <Modal
+        visible={showConditions}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShowConditions(false)}
+      >
+        <Pressable style={s.backdrop} onPress={() => setShowConditions(false)}>
+          {/* 카드 안쪽 탭이 배경까지 번져 닫히지 않도록 흡수한다 */}
+          <Pressable
+            style={[s.sheet, { marginBottom: insets.bottom, marginTop: insets.top }]}
+            onPress={() => {}}
+          >
+            <View style={s.sheetHead}>
+              <Text style={s.sheetTitle}>이럴 때만 보여요</Text>
+              <TouchableOpacity
+                onPress={() => setShowConditions(false)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                accessibilityRole="button"
+                accessibilityLabel="닫기"
+              >
+                <Icon name="close" size={20} color={Colors.text.tertiary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={s.sheetLead}>
+              프로필 공개를 켜도 아무에게나 보이지는 않습니다.
+              아래를 <Text style={s.sheetLeadStrong}>모두</Text> 충족했을 때만 소개돼요.
+            </Text>
+
+            <View style={s.sheetList}>
+              {SAFETY_CONDITION_TEXTS.map((cond, i) => (
+                <View key={i} style={s.conditionRow}>
+                  <View style={s.conditionDot} />
+                  <Text style={s.conditionText}>{cond}</Text>
+                </View>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={s.sheetBtn}
+              onPress={() => setShowConditions(false)}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+            >
+              <Text style={s.sheetBtnText}>닫기</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -309,13 +361,39 @@ const s = StyleSheet.create({
     paddingVertical: Spacing[12], minHeight: 48,
   },
   privacyLabelWrap: { flex: 1, gap: 1 },
-  privacyLabel: { flex: 1, ...Typography.body.m, color: Colors.text.primary },
+  privacyLabelRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
+  privacyLabel: { ...Typography.body.m, color: Colors.text.primary },
   privacySub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 15 },
-  privacySep: { height: 1, backgroundColor: Colors.border.default },
+
 
   // 안전 조건 — 토글이 켜졌을 때만 편다
-  conditions: { paddingVertical: Spacing[12], gap: Spacing[8] },
-  conditionsTitle: { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '600' },
+  // ── 조건 레이어 ──
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing[24],
+  },
+  sheet: {
+    backgroundColor: Colors.bg.primary,
+    borderRadius: Radius.card,
+    padding: Spacing[20],
+    gap: Spacing[14],
+  },
+  sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sheetTitle: { ...Typography.title.m, color: Colors.text.primary, fontWeight: '700' },
+  sheetLead: { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 20 },
+  sheetLeadStrong: { color: Colors.text.primary, fontWeight: '700' },
+  sheetList: { gap: Spacing[8] },
+  sheetBtn: {
+    marginTop: Spacing[2],
+    paddingVertical: Spacing[14],
+    borderRadius: Radius.m,
+    backgroundColor: Colors.brand.primary,
+    alignItems: 'center',
+  },
+  sheetBtnText: { ...Typography.label.l, color: '#FFFFFF', fontWeight: '700' },
+
   conditionRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing[8] },
   conditionDot: {
     width: 4, height: 4, borderRadius: 2, marginTop: 7,

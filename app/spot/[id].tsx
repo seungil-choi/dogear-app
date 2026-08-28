@@ -1226,7 +1226,8 @@ const s = StyleSheet.create({
   noteText: { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 20 },
 
   // 펼친 상태 — 가로 레일 대신 줄바꿈 그리드
-  familiarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[16], paddingTop: Spacing[12] },
+  // 레일과 같은 간격 규칙. 이 폭이면 한 줄에 4마리가 들어간다(예전엔 3마리).
+  familiarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[10], paddingTop: Spacing[12] },
 
   // 다녀간 강아지 배지 (단골)
   dogBadge: {
@@ -1252,14 +1253,17 @@ const s = StyleSheet.create({
   // top/bottom은 인셋으로 런타임에 덮어쓴다 — Modal은 SafeAreaView 바깥이라
   // 고정값을 쓰면 안드로이드 내비게이션 바가 버튼을 덮어 누를 수 없다.
 
+  // 칸 폭(80)에 아바타(52)가 가운데 놓이므로 칸 안쪽에 이미 14씩 남는다.
+  // 여기에 gap 20을 더하면 아바타 사이가 48 — 아바타만큼 벌어져 레일이 헐거웠다.
+  // 칸을 이름이 들어갈 만큼만 남기고 gap을 줄여 30으로 좁힌다.
   familiarRail: {
-    gap: Spacing[20],
+    gap: Spacing[10],
     paddingVertical: Spacing[4],
   },
   familiarCell: {
     alignItems: 'center',
     gap: Spacing[6],
-    width: 80,
+    width: 72,
   },
   familiarAvatarWrap: {
     width: 52, height: 52,
@@ -1279,7 +1283,7 @@ const s = StyleSheet.create({
     color: Colors.brand.accent,
     fontWeight: '700',
   },
-  familiarNameRow: { flexDirection: 'row', alignItems: 'center', gap: 3, maxWidth: 80 },
+  familiarNameRow: { flexDirection: 'row', alignItems: 'center', gap: 3, maxWidth: 72 },
   familiarName: {
     ...Typography.label.s,
     color: Colors.text.primary,
