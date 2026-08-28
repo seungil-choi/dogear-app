@@ -101,13 +101,20 @@ function DogPrivacySummary({ setting }: { setting: PrivacySetting }) {
     <View style={s.privacySummary}>
       <View style={s.privacyDivider} />
       <View style={s.privacyRow}>
-        <Icon name="lock" size={13} color="rgba(255,255,255,0.85)" />
+        <Icon name="lock" size={12} color="rgba(255,255,255,0.75)" />
+        {/* 값만 나열하면 뭐가 뭔지 모른다 — 라벨을 앞에 둔다.
+            화살표는 붙이지 않는다. 이 줄만 따로 눌리는 것처럼 보이는데
+            실제로는 카드 전체가 하나의 문이다(중복 신호). */}
+        {/* 공개 범위가 주된 값이고 친구 찾기는 부차다 — 뒷절은 눌러 둔다.
+            다만 **꺼짐일 때만** 밝게 한다. 켜짐이 기본값이라 알릴 게 없고,
+            직접 끈 상태는 "내가 껐다"를 확인시켜 주는 편이 낫다. */}
         <Text style={s.privacyText} numberOfLines={1}>
           {visibilityLabel[setting.default_visibility_level]}
-          {' · '}
-          산책 친구 찾기 {setting.allow_familiar_layer_exposure ? '켬' : '끔'}
+          <Text style={s.privacyKey}>{'  ·  '}친구 찾기 </Text>
+          <Text style={setting.allow_familiar_layer_exposure ? s.privacyKey : undefined}>
+            {setting.allow_familiar_layer_exposure ? '켜짐' : '꺼짐'}
+          </Text>
         </Text>
-        <Icon name="forward" size={13} color="rgba(255,255,255,0.7)" />
       </View>
     </View>
   );
@@ -392,27 +399,30 @@ const s = StyleSheet.create({
 
   // ── 카드 안 공개 설정 요약 ──────────────────────────────
   // 카드가 솔리드 오렌지라 색을 여기서 맞춘다. 읽기 전용이라 컨트롤은 없다.
-  privacySummary: { marginTop: Spacing[2] },
+  // 카드에 gap:12가 이미 있어 위 여백은 그것으로 충분하다.
+  // 여기에 marginTop을 더 주면 선 위(14)와 아래(10)가 어긋나 나뉜 느낌이 안 난다.
+  privacySummary: {},
   // 카드 padding(16) 밖으로 빼서 선이 카드 폭을 가득 채우게 한다
   privacyDivider: {
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.28)',
+    backgroundColor: 'rgba(255,255,255,0.22)',
     marginHorizontal: -Spacing[16],
-    marginBottom: Spacing[10],
+    marginBottom: Spacing[12],   // 위(카드 gap 12)와 대칭
   },
   privacyRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[6] },
   privacyText: {
     flex: 1,
-    ...Typography.label.m,
+    ...Typography.label.s,
+    // 태그 칩과 무게가 비슷하면 카드 하단이 웅성거린다 — 한 단계 눌러 둔다
     color: 'rgba(255,255,255,0.92)',
   },
+  privacyKey: { color: 'rgba(255,255,255,0.6)', fontWeight: '400' },
 
   // 카드 자체의 생김새는 DogProfileCard가 갖는다. 여기서는 배치만 정한다.
   hero: {
     marginHorizontal: Spacing[16],
     marginTop: Spacing[12],
-    // 아래에 '이 아이의 공개 설정'이 이어지므로 여백을 좁힌다 — 한 덩어리로 읽히게
-    marginBottom: Spacing[10],
+    marginBottom: Spacing[16],
   },
 
   safe:    { flex: 1, backgroundColor: Colors.bg.primary },

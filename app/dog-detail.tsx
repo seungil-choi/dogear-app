@@ -130,16 +130,6 @@ export default function DogDetailScreen() {
           </Text>
         </View>
 
-        {/* 활동 요약 */}
-        <View style={s.summary}>
-          {([['paw','발도장'],['saved','저장'],['visit','방문']] as [TabKey,string][]).map(([k,label]) => (
-            <TouchableOpacity key={k} style={s.summaryItem} onPress={() => setTab(k)} activeOpacity={0.7}>
-              <Text style={s.summaryNum}>{counts[k]}</Text>
-              <Text style={s.summaryLabel}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
         {/* ── 공개 설정 ──
             공개 설정은 **강아지 단위**다. 마이페이지 카드에는 요약만 띄우고
             실제 변경은 여기서 한다 — 카드는 전체가 탭 영역이라 안에 컨트롤을 넣으면
@@ -147,7 +137,7 @@ export default function DogDetailScreen() {
         {setting && (
           <View style={s.privacy}>
             <View style={s.privacyHead}>
-              <Icon name="lock" size={14} color={Colors.brand.primary} />
+              <Icon name="lock" size={12} color={Colors.text.tertiary} />
               <Text style={s.privacyTitle}>공개 설정</Text>
             </View>
 
@@ -182,13 +172,28 @@ export default function DogDetailScreen() {
           </View>
         )}
 
-        {/* 세그먼트 탭 */}
-        <View style={s.tabs}>
-          {([['paw','발도장'],['saved','저장한 곳'],['visit','방문한 곳']] as [TabKey,string][]).map(([k,label]) => (
-            <TouchableOpacity key={k} style={[s.tab, tab === k && s.tabActive]} onPress={() => setTab(k)} activeOpacity={0.8}>
-              <Text style={[s.tabText, tab === k && s.tabTextActive]}>{label}</Text>
-            </TouchableOpacity>
-          ))}
+        {/* ── 활동 요약 = 세그먼트 탭 ──
+            숫자 블록이 이미 탭을 바꾸고 있었는데 아래에 탭 줄이 또 있었다.
+            같은 일을 하는 컨트롤이 둘이라 어느 쪽을 눌러야 하는지 흐렸다.
+            숫자가 곧 탭이다 — 활성 칸만 흰 알약으로 떠오른다. */}
+        <View style={s.summary}>
+          {([['paw','발도장'],['saved','저장'],['visit','방문']] as [TabKey,string][]).map(([k,label]) => {
+            const on = tab === k;
+            return (
+              <TouchableOpacity
+                key={k}
+                style={[s.summaryItem, on && s.summaryItemOn]}
+                onPress={() => setTab(k)}
+                activeOpacity={0.8}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: on }}
+                accessibilityLabel={`${label} ${counts[k]}개`}
+              >
+                <Text style={[s.summaryNum, !on && s.summaryNumOff]}>{counts[k]}</Text>
+                <Text style={[s.summaryLabel, on && s.summaryLabelOn]}>{label}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* 리스트 */}
@@ -246,52 +251,60 @@ const s = StyleSheet.create({
   name: { ...Typography.title.m, color: Colors.text.primary },
   meta: { ...Typography.body.s, color: Colors.text.secondary, marginTop: Spacing[4] },
 
+  // 숫자 블록이 곧 세그먼트 탭이다(별도 칩 줄 없음).
+  // 트랙(회색) 위에서 활성 칸만 흰 알약으로 떠오른다 — iOS 세그먼트 컨트롤 관례.
   summary: {
     flexDirection: 'row',
     marginHorizontal: Spacing[16], marginBottom: Spacing[16],
-    backgroundColor: Colors.bg.secondary, borderRadius: Radius.m, paddingVertical: Spacing[14],
+    backgroundColor: Colors.bg.secondary,
+    borderRadius: Radius.m,
+    padding: Spacing[4],
+    gap: Spacing[4],
   },
-  summaryItem: { flex: 1, alignItems: 'center' },
+  summaryItem: {
+    flex: 1, alignItems: 'center',
+    paddingVertical: Spacing[10],
+    borderRadius: Radius.m - 4,
+  },
+  summaryItemOn: {
+    backgroundColor: Colors.surface.default,
+    // 알약이 트랙에서 떠 보이게. 안드로이드는 elevation을 따로 준다.
+    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
+  },
   summaryNum: { ...Typography.title.m, color: Colors.brand.primary },
+  // 비활성은 숫자까지 눌러둔다 — 셋 다 주황이면 어느 게 열려 있는지 안 보인다
+  summaryNumOff: { color: Colors.text.tertiary },
   // ── 공개 설정 ───────────────────────────────────────────
+  // ⚠️ 바로 위 '활동 요약'(bg.secondary, 테두리 없음)보다 조용해야 한다.
+  //    처음엔 옅은 주황 배경 + 주황 테두리로 만들었는데, 활동을 보러 들어온
+  //    화면에서 설정이 가장 눈에 띄어 위계가 뒤집혔다. 같은 층위로 맞춘다.
   privacy: {
     marginHorizontal: Spacing[16],
-    marginTop: Spacing[16],
-    backgroundColor: Colors.brand.subtle,
-    borderRadius: Radius.card,
-    borderWidth: 1,
-    borderColor: Colors.brand.primaryLight,
-    paddingHorizontal: Spacing[16],
+    marginBottom: Spacing[16],
+    backgroundColor: Colors.bg.secondary,
+    borderRadius: Radius.m,
+    paddingHorizontal: Spacing[14],
   },
   privacyHead: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing[6],
-    paddingTop: Spacing[14], paddingBottom: Spacing[6],
+    paddingTop: Spacing[12], paddingBottom: Spacing[2],
   },
-  privacyTitle: { ...Typography.label.m, color: Colors.text.secondary, fontWeight: '700' },
+  privacyTitle: { ...Typography.label.s, color: Colors.text.tertiary, fontWeight: '600' },
   privacyRow: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing[10],
-    paddingVertical: Spacing[12], minHeight: 52,
+    paddingVertical: Spacing[12], minHeight: 48,
   },
-  privacyLabelWrap: { flex: 1, gap: 2 },
+  privacyLabelWrap: { flex: 1, gap: 1 },
   privacyLabel: { flex: 1, ...Typography.body.m, color: Colors.text.primary },
-  privacyValue: { ...Typography.body.s, color: Colors.brand.primary, fontWeight: '700' },
-  privacySub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 16 },
-  // 배경이 옅어 border.default는 안 보인다
-  privacySep: { height: 1, backgroundColor: 'rgba(255,122,48,0.16)' },
+  privacyValue: { ...Typography.body.s, color: Colors.brand.primary, fontWeight: '600' },
+  privacySub: { ...Typography.caption, color: Colors.text.tertiary, lineHeight: 15 },
+  privacySep: { height: 1, backgroundColor: Colors.border.default },
 
   summaryLabel: { ...Typography.label.s, color: Colors.text.secondary, marginTop: Spacing[2], letterSpacing: 0 },
+  summaryLabelOn: { color: Colors.text.primary, fontWeight: '600' },
 
-  tabs: {
-    flexDirection: 'row', gap: Spacing[8],
-    paddingHorizontal: Spacing[16], marginBottom: Spacing[12],
-  },
-  tab: {
-    flex: 1, alignItems: 'center', paddingVertical: Spacing[10],
-    borderRadius: Radius.round, backgroundColor: Colors.bg.secondary,
-  },
-  tabActive: { backgroundColor: Colors.brand.primary },
-  tabText: { ...Typography.label.m, color: Colors.text.secondary },
-  tabTextActive: { color: Colors.text.inverse, fontWeight: '600' },
 
   list: { paddingHorizontal: Spacing[16], gap: Spacing[10] },
   empty: { paddingVertical: Spacing[40], alignItems: 'center' },
