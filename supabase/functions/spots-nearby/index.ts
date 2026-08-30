@@ -53,6 +53,14 @@ Deno.serve(async (req: Request) => {
 
     const radius = Math.min(radiusMeters, MAX_RADIUS_M);
 
+    // 위치정보 이용사실 확인자료(취급대장) — 관리지침 §4.1의 '장소 탐색' 목적.
+    // 좌표는 남기지 않는다(누가·언제·무슨 목적뿐). 같은 사용자는 10분에 1건으로 접힌다.
+    // await하지 않는다 — 대장 기록이 느리다고 장소 조회가 늦어지면 안 된다.
+    supabase.rpc('log_location_access', { p_purpose: 'nearby_search' })
+      .then(({ error }) => {
+        if (error) console.warn('location access log failed:', error.message);
+      });
+
     // 두 조회는 서로 의존하지 않으므로 병렬로 던진다. 예전엔 순차 await라
     // 매 호출 왕복이 2번 직렬로 쌓였다(콜드에선 이 차이가 더 크게 보인다).
     //   ① get_spots_nearby: 주변 활성 장소 (service_role 전용, 쿼터는 RPC 안)
