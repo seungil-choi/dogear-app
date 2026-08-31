@@ -5,14 +5,14 @@
  *
  * 구조:
  *   1) 내 강아지 — 좌우 스와이프 카드(공개 상태 요약 포함), 페이지 도트
- *   2) 내 갤러리 — 내가 올린 사진
+ *   2) 사진 — 내가 올린 사진 3장 미리보기 + 전체보기
  *   3) 앱 설정 — 알림, 약관, 개인정보
  *   4) 로그아웃
  *
  * 공개 설정은 여기서 바꾸지 않는다 — 카드엔 요약만 띄우고 관리는 강아지 상세에서 한다.
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, Linking, Dimensions,
   type NativeSyntheticEvent, type NativeScrollEvent,
@@ -28,6 +28,7 @@ import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
+import { AppImage } from '../../src/components/common/AppImage';
 import { visibilityLabel } from '../../src/utils/labels';
 import { DogCarousel } from '../../src/components/dog/DogCarousel';
 import { DogCardFooter } from '../../src/components/dog/DogProfileCard';
@@ -35,6 +36,46 @@ import type { Dog, PrivacySetting } from '../../src/types';
 import { severSocialSessions } from '@/lib/socialSession';
 
 const MAX_DOGS = 5;
+
+/** 사진 미리보기 — 장소 상세와 같은 3열 한 줄 */
+const PHOTO_PREVIEW = 3;
+const PHOTO_GAP = 6;
+const PHOTO_CELL = (Dimensions.get('window').width - Spacing[16] * 2 - PHOTO_GAP * 2) / PHOTO_PREVIEW;
+
+/**
+ * 최근 사진 3장 — 마이에서 바로 보여주는 미리보기.
+ *
+ * 예전엔 '내가 올린 사진 ›' 텍스트 행 하나였다. 사진을 모아둔 곳인데 사진이
+ * 한 장도 안 보여서, 눌러보기 전엔 뭐가 있는지 알 수 없었다.
+ * 장소 상세의 「사진」 섹션과 같은 모양으로 맞춘다.
+ */
+function useRecentPhotos(dogIds: string[]) {
+  const [photos, setPhotos] = useState<{ id: string; url: string }[]>([]);
+  const key = dogIds.join(',');
+
+  useEffect(() => {
+    let alive = true;
+    if (dogIds.length === 0) { setPhotos([]); return; }
+    (async () => {
+      // ⚠️ status는 'visible' | 'hidden'이다('active'가 아니다).
+      //    여기선 spots 조인이 필요 없으므로 PGRST201(모호한 임베드) 걱정도 없다.
+      const { data, error } = await supabase
+        .from('checkin_photos')
+        .select('id, image_url')
+        .in('dog_id', dogIds)
+        .eq('status', 'visible')
+        .order('created_at', { ascending: false })
+        .limit(PHOTO_PREVIEW);
+      if (!alive) return;
+      // 미리보기 실패는 조용히 접는다 — 설정 화면 전체를 토스트로 막을 일이 아니다.
+      if (error) { setPhotos([]); return; }
+      setPhotos((data ?? []).map((r: any) => ({ id: r.id, url: r.image_url })));
+    })();
+    return () => { alive = false; };
+  }, [key]);   // eslint-disable-line react-hooks/exhaustive-deps
+
+  return photos;
+}
 
 // ─── 설정 행 ─────────────────────────────────────────────────────
 function SettingsRow({
@@ -103,6 +144,8 @@ export default function ProfileScreen() {
   const privacySettingsByDog = useAppStore(s => s.privacySettingsByDog);
   const updatePrivacySetting = useAppStore(s => s.updatePrivacySetting);
   const logout               = useAppStore(s => s.logout);
+
+  const recentPhotos = useRecentPhotos(useMemo(() => dogs.map(d => d.dog_id), [dogs]));
 
   // 로그아웃: 확인 다이얼로그 + store 비우기 + 인증화면 이동
   const handleLogout = useCallback(async () => {
@@ -261,22 +304,56 @@ export default function ProfileScreen() {
         />
 
         {/* ══════════════════════════════════════
-            2) 내 갤러리 — 내가 올린 사진
+            2) 사진 — 내가 올린 사진
             설정과 분리한다. 설정은 '앞으로 어떻게 할지'이고 여기는 '이미 남긴 것'이다.
-            섹션명과 행 이름이 같아('내 기록 > 내 갤러리') 한 번 더 읽게 만들던 것을 합쳤다.
+            텍스트 행 하나였던 것을 3장 미리보기로 바꿨다 — 사진을 모아둔 곳인데
+            사진이 한 장도 안 보여서 눌러보기 전엔 뭐가 있는지 알 수 없었다.
         ══════════════════════════════════════ */}
         <View style={s.section}>
-          <View style={s.sectionTitleRow}>
-            <Icon name="image" size={15} color={Colors.text.secondary} />
-            <Text style={s.sectionTitle}>내 갤러리</Text>
+          <View style={s.sectionHead}>
+            <View style={s.sectionTitleRow}>
+              <Icon name="image" size={15} color={Colors.text.secondary} />
+              {/* '내 갤러리' → '사진'. 장소 상세도 '사진'이라 부른다 —
+                  같은 것을 두 이름으로 부르고 있었다. '갤러리'는 기능 이름이고
+                  '사진'은 물건 이름이다. 사용자가 찾는 건 물건이다. */}
+              <Text style={s.sectionTitle}>사진</Text>
+            </View>
+            {recentPhotos.length > 0 && (
+              <TouchableOpacity
+                style={s.sectionMore}
+                onPress={() => router.push('/my-gallery' as any)}
+                accessibilityRole="button"
+              >
+                <Text style={s.sectionMoreText}>전체보기</Text>
+                <Icon name="forward" size={12} color={Colors.text.tertiary} />
+              </TouchableOpacity>
+            )}
           </View>
-          <View style={s.settingsCard}>
-            <SettingsRow
-              icon="image"
-              label="내가 올린 사진"
+          {recentPhotos.length === 0 ? (
+            <TouchableOpacity
+              style={s.photoEmpty}
               onPress={() => router.push('/my-gallery' as any)}
-            />
-          </View>
+              activeOpacity={0.8}
+            >
+              <Text style={s.photoEmptyText}>아직 올린 사진이 없어요</Text>
+              <Text style={s.photoEmptySub}>발도장을 남길 때 사진을 함께 올리면 여기에 모여요.</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={s.photoRow}>
+              {recentPhotos.map(ph => (
+                <TouchableOpacity
+                  key={ph.id}
+                  style={s.photoCell}
+                  activeOpacity={0.9}
+                  onPress={() => router.push('/my-gallery' as any)}
+                  accessibilityRole="image"
+                  accessibilityLabel="내가 올린 사진"
+                >
+                  <AppImage source={{ uri: ph.url }} style={s.photoImg} resizeMode="cover" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
         </View>
 
         {/* ══════════════════════════════════════
@@ -343,6 +420,31 @@ const s = StyleSheet.create({
   // 카드가 솔리드 오렌지라 색을 여기서 맞춘다. 읽기 전용이라 컨트롤은 없다.
   // 카드에 gap:12가 이미 있어 위 여백은 그것으로 충분하다.
   // 여기에 marginTop을 더 주면 선 위(14)와 아래(10)가 어긋나 나뉜 느낌이 안 난다.
+  // ── 사진 미리보기 (장소 상세의 「사진」 섹션과 같은 규격) ──
+  sectionHead: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: Spacing[16],
+  },
+  sectionMore: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  sectionMoreText: { ...Typography.label.s, color: Colors.text.tertiary },
+  photoRow: {
+    flexDirection: 'row', gap: PHOTO_GAP,
+    paddingHorizontal: Spacing[16], marginTop: Spacing[10],
+  },
+  photoCell: {
+    width: PHOTO_CELL, aspectRatio: 1,
+    borderRadius: Radius.m, overflow: 'hidden', backgroundColor: Colors.bg.secondary,
+  },
+  photoImg: { width: '100%', height: '100%' },
+  photoEmpty: {
+    marginHorizontal: Spacing[16], marginTop: Spacing[10],
+    paddingVertical: Spacing[20], paddingHorizontal: Spacing[16],
+    borderRadius: Radius.l, backgroundColor: Colors.bg.secondary,
+    borderWidth: 1, borderColor: Colors.border.subtle,
+  },
+  photoEmptyText: { ...Typography.body.s, color: Colors.text.secondary, fontWeight: '600' },
+  photoEmptySub: { ...Typography.caption, color: Colors.text.tertiary, marginTop: 3, lineHeight: 17 },
+
   // 카드 생김새는 DogProfileCard가, 카드 인셋·도트 간격은 DogCarousel이 갖는다
   // (홈과 공용). 여기서 정하는 것은 블록 바깥 여백뿐이다.
   hero: {

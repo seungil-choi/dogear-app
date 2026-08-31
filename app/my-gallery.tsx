@@ -1,5 +1,8 @@
 /**
- * 내 갤러리 — 내가 올린 발도장 사진 전부
+ * 내 사진 — 내가 올린 발도장 사진 전부
+ *
+ * 마이의 「사진」 섹션에서 [전체보기]로 들어온다.
+ * '갤러리'라는 이름은 쓰지 않는다 — 장소 상세도 '사진'이라 부른다.
  *
  * 왜 필요했나:
  *   사진을 올릴 수는 있는데 **모아 보거나 관리할 자리가 없었다.**
@@ -188,7 +191,7 @@ export default function MyGalleryScreen() {
         <TouchableOpacity style={s.backBtn} onPress={() => router.back()} hitSlop={8} accessibilityLabel="뒤로 가기">
           <Icon name="back" size={22} color={Colors.text.primary} />
         </TouchableOpacity>
-        <Text style={s.headerTitle}>내 갤러리</Text>
+        <Text style={s.headerTitle}>내 사진</Text>
         <View style={{ width: 40 }} />
       </View>
 

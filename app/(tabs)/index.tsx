@@ -481,7 +481,7 @@ export default function HomeScreen() {
               </View>
               <View style={s.starterStep}>
                 <View style={s.starterStepNum}><Text style={s.starterStepNumText}>3</Text></View>
-                <Text style={s.starterStepText}>오늘의 느낌과 공개 범위 선택 → 완료!</Text>
+                <Text style={s.starterStepText}>오늘의 느낌과 사진 남기고 → 완료!</Text>
               </View>
             </View>
             <TouchableOpacity

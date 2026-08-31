@@ -45,7 +45,7 @@ const SLIDES: {
     iconColor: Colors.onboarding.familiar,
     bg: '#EEF3FA',
     title: '내 정보는 내가 조절해요',
-    desc: '공개 범위를 내가 직접 정할 수 있어요.\n안전 조건을 충족한 강아지에게만\n우리 아이가 보여져요.',
+    desc: '우리 아이 프로필 공개를 언제든 끌 수 있어요.\n켜 두어도 안전 조건을 충족한\n강아지에게만 보여져요.',
   },
 ];
 

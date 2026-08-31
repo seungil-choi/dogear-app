@@ -752,8 +752,12 @@ export default function SpotDetailScreen() {
             ⚠️ 서버가 **familiar_layer 발도장만** 담아 보낸다. spot_only는
                "장소 분위기에만"을 고른 것이라 이름·아바타를 띄우면 안 된다. */}
         {(() => {
-          const dogs = vm.visiting_dogs ?? [];
-          // 접힘 = 가로 레일(ScrollView) / 펼침 = 줄바꿈 그리드(View)
+          // 내 아이는 무조건 맨 앞이다. 서버 정렬을 그대로 쓰면 8마리 레일 뒤로 묻혀
+          // "우리 애도 왔는데 안 보인다"가 된다. 나머지 순서는 서버가 정한 대로 둔다.
+          const dogs = [...(vm.visiting_dogs ?? [])].sort(
+            (a, b) => Number(!!b.is_mine) - Number(!!a.is_mine),
+          );
+          // 접힘 = 가로 레일(ScrollView) / 펼침 = 세로 목록(View)
           const Container: React.ComponentType<any> = expandDogs ? View : ScrollView;
           return (
             <View style={s.section}>
@@ -778,13 +782,13 @@ export default function SpotDetailScreen() {
                 // ScrollView와 중첩돼 스크롤이 서로 먹는다 — 일반 View로 그린다.
                 <Container
                   {...(expandDogs
-                    ? { style: s.familiarGrid }
+                    ? { style: s.familiarList }
                     : { horizontal: true, showsHorizontalScrollIndicator: false, contentContainerStyle: s.familiarRail })}
                 >
                   {(expandDogs ? dogs : dogs.slice(0, DOG_RAIL_LIMIT)).map(dog => (
                     <TouchableOpacity
                       key={dog.dog_id}
-                      style={s.familiarCell}
+                      style={expandDogs ? s.familiarRow : s.familiarCell}
                       onPress={() => handleVisitingDogPress(dog)}
                       activeOpacity={0.72}
                     >
@@ -803,22 +807,31 @@ export default function SpotDetailScreen() {
                       </View>
                       {/* 내 아이는 이름 옆 주황 알약으로 표시한다.
                           아래 줄에 '우리 아이'라고 쓰면 남의 강아지 칸과 높이가 달라지고,
-                          정작 이름에서는 내 아이인지 안 보였다. */}
-                      <View style={s.familiarNameRow}>
-                        <Text style={s.familiarName} numberOfLines={1}>{dog.name}</Text>
-                        {dog.is_mine && (
-                          <View style={s.minePill}><Text style={s.minePillText}>나</Text></View>
+                          정작 이름에서는 내 아이인지 안 보였다.
+
+                          ⚠️ 펼침 목록도 **레일과 정보량이 같아야 한다.** 세로로 세우면
+                             자리가 남아 'N번 방문'·'마지막 방문' 같은 걸 붙이고 싶어지는데,
+                             그 순간 "누가 언제 오는지 명단"이 된다. rules.ts의
+                             softenedRecencyLabel이 "정확한 시간·횟수·패턴 절대 노출 금지"로
+                             막아둔 것과 정면으로 부딪힌다. 표현만 바꾸고 정보는 늘리지 않는다. */}
+                      <View style={expandDogs ? s.familiarRowText : undefined}>
+                        <View style={[s.familiarNameRow, expandDogs && s.familiarNameRowWide]}>
+                          <Text
+                            style={[s.familiarName, expandDogs && s.familiarNameLeft]}
+                            numberOfLines={1}
+                          >{dog.name}</Text>
+                          {dog.is_mine && (
+                            <View style={s.minePill}><Text style={s.minePillText}>나</Text></View>
+                          )}
+                        </View>
+                        {dog.is_familiar && !dog.is_mine && (
+                          <Text
+                            style={[s.familiarRecency, expandDogs && s.familiarRecencyLeft]}
+                            numberOfLines={1}
+                          >자주 마주쳐요</Text>
                         )}
                       </View>
-                      {/* 여기 있던 'N번 방문'을 뺐다.
-                          ① 남의 강아지 방문 횟수는 행동 데이터다 — rules.ts의
-                             softenedRecencyLabel이 "정확한 시간·횟수·패턴 절대 노출 금지"로
-                             막아둔 것을 이 레일이 그대로 뚫고 있었다.
-                          ② 목록에서 알고 싶은 건 '누가 왔나'지 '몇 번 왔나'가 아니다.
-                             관계는 아래 시트가 완화된 문구로 말한다. */}
-                      {dog.is_familiar && !dog.is_mine && (
-                        <Text style={s.familiarRecency} numberOfLines={1}>자주 마주쳐요</Text>
-                      )}
+                      {expandDogs && <Icon name="forward" size={15} color={Colors.text.tertiary} />}
                     </TouchableOpacity>
                   ))}
                 </Container>
@@ -1226,8 +1239,17 @@ const s = StyleSheet.create({
   noteText: { ...Typography.body.s, color: Colors.text.secondary, lineHeight: 20 },
 
   // 펼친 상태 — 가로 레일 대신 줄바꿈 그리드
-  // 레일과 같은 간격 규칙. 이 폭이면 한 줄에 4마리가 들어간다(예전엔 3마리).
-  familiarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[10], paddingTop: Spacing[12] },
+  // 펼치면 세로 목록이다. 그리드는 이름이 잘려 누군지 알아보기 어려웠다.
+  familiarList: { paddingTop: Spacing[4] },
+  familiarRow: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing[12],
+    paddingVertical: Spacing[10],
+    borderBottomWidth: 1, borderBottomColor: Colors.border.subtle,
+  },
+  familiarRowText: { flex: 1, minWidth: 0, gap: 2 },
+  familiarNameRowWide: { maxWidth: undefined },
+  familiarNameLeft: { ...Typography.body.m, textAlign: 'left', fontWeight: '600' },
+  familiarRecencyLeft: { textAlign: 'left' },
 
   // 다녀간 강아지 배지 (단골)
   dogBadge: {
