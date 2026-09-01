@@ -46,6 +46,8 @@ export interface KakaoMapProps {
 
 export interface KakaoMapRef {
   setCenter: (lat: number, lng: number, level?: number) => void;
+  /** 여러 지점을 한 화면에 담는다. padBottom = 바텀시트가 가리는 높이(px) */
+  fitBounds: (points: { lat: number; lng: number }[], padBottom?: number) => void;
 }
 
 /**
@@ -95,6 +97,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
   // ref API
   useImperativeHandle(ref, () => ({
     setCenter: (lat, lng, level) => send({ type: 'setCenter', latitude: lat, longitude: lng, level }),
+    fitBounds: (points, padBottom) => send({ type: 'fitBounds', points, padBottom }),
   }), [send]);
 
   // markers prop 변경 시 동기화

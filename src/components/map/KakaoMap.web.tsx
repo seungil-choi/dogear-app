@@ -338,6 +338,27 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
       if (level != null) mapRef.current.setLevel(level);
       mapRef.current.panTo(pos);
     },
+    // 네이티브(kakaoMapHtml.ts)의 fitBounds와 동일한 규칙을 유지한다.
+    fitBounds: (points: { lat: number; lng: number }[], padBottom?: number) => {
+      const map = mapRef.current;
+      if (!map || !points?.length) return;
+      const kakao = (window as any).kakao;
+      const pb = padBottom ?? 40;
+
+      // 한 곳뿐이면 경계가 점이라 setBounds가 최대까지 당겨버린다.
+      if (points.length === 1) {
+        map.setLevel(CLUSTER_LEVEL - 1);
+        map.panTo(new kakao.maps.LatLng(points[0].lat, points[0].lng));
+        return;
+      }
+
+      const b = new kakao.maps.LatLngBounds();
+      points.forEach(p => b.extend(new kakao.maps.LatLng(p.lat, p.lng)));
+      map.setBounds(b, 48, 48, pb, 48);
+
+      if (map.getLevel() >= CLUSTER_LEVEL) map.setLevel(CLUSTER_LEVEL - 1);
+      if (map.getLevel() < 1) map.setLevel(1);
+    },
   }), []);
 
   if (!KAKAO_JS_KEY) {

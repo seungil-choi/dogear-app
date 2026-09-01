@@ -498,6 +498,8 @@ export default function ExploreScreen() {
   //   대신 묶인 장소들을 하단 패널에 그대로 펼쳐 보여준다.
   //   좌표가 완전히 겹쳐 확대해도 안 풀리는 묶음(지구 대표좌표 55곳)도 이 목록으로 도달한다.
   const [clusterIds, setClusterIds] = useState<string[] | null>(null);
+  // 클러스터를 열기 직전의 카메라. 닫을 때 되돌려 "내가 어디 보고 있었지"를 막는다.
+  const preClusterCamRef = useRef<{ lat: number; lng: number; level: number } | null>(null);
   const clusterCards = useMemo(() => {
     if (!clusterIds) return null;
     const idSet = new Set(clusterIds);
@@ -550,7 +552,28 @@ export default function ExploreScreen() {
     setVisibleCount(LIST_PAGE);
     if (snapState === 'min' || snapState === 'peek') snapToHeight('half');
     cardListRef.current?.scrollTo({ y: 0, animated: true });
-  }, [selectSpot, snapState, snapToHeight]);
+
+    // 숫자 핀을 눌렀는데 지도가 그대로면 "열렸다"는 확인이 지도에서 안 된다.
+    // 고정 배율 줌인 대신 **그 무리의 경계에 맞춘다** — 흩어진 무리는 펼쳐지고,
+    // 한 건물에 몰린 무리는 최대에서 알아서 멈춘다(fitBounds가 캡을 건다).
+    preClusterCamRef.current = { lat: mapCenter.lat, lng: mapCenter.lng, level: zoomLevel };
+    const pts = ids
+      .map(id => spotsById.get(id))
+      .filter((sp): sp is NonNullable<typeof sp> => !!sp)
+      .map(sp => ({ lat: sp.latitude, lng: sp.longitude }));
+    // 시트가 지도 하단을 가리므로 그만큼 비워 둔다 — 안 그러면 핀이 시트 뒤로 숨는다.
+    if (pts.length > 0) mapRef.current?.fitBounds(pts, Math.round(PANEL_HALF_H));
+  }, [selectSpot, snapState, snapToHeight, spotsById, mapCenter.lat, mapCenter.lng, zoomLevel, PANEL_HALF_H]);
+
+  // 클러스터 목록을 닫으면 원래 보던 곳으로 되돌린다.
+  const closeCluster = useCallback(() => {
+    setClusterIds(null);
+    const cam = preClusterCamRef.current;
+    if (cam) {
+      mapRef.current?.setCenter(cam.lat, cam.lng, cam.level);
+      preClusterCamRef.current = null;
+    }
+  }, []);
 
   const handlePinPress = useCallback((spotId: string) => {
     setClusterIds(null);
@@ -955,7 +978,7 @@ export default function ExploreScreen() {
                 {isClusterMode && (
                   <TouchableOpacity
                     style={s.panelExpandBtn}
-                    onPress={() => setClusterIds(null)}
+                    onPress={closeCluster}
                     accessibilityLabel="겹친 장소 목록 닫기"
                   >
                     <Icon name="close" size={16} color={Colors.text.tertiary} />

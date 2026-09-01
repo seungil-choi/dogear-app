@@ -7,6 +7,7 @@
  * 통신 프로토콜 (postMessage):
  *   App → Map:
  *     { type: 'setCenter', latitude, longitude, level? }
+ *     { type: 'fitBounds', points: [{lat,lng}], padBottom? }
  *     { type: 'setMarkers', markers: [{ id, latitude, longitude, label, variant }] }
  *       variant = 나와의 관계. 유형은 핀으로 구분하지 않는다.
  *     { type: 'setUserLocation', latitude, longitude }
@@ -390,6 +391,39 @@ ${CLUSTER_GRID_JS}
         map.panTo(pos);
       }
 
+      /**
+       * 여러 지점을 한 화면에 담는다 — 클러스터(숫자 핀)를 눌렀을 때 쓴다.
+       *
+       * 고정 배율로 줌인하지 않는 이유:
+       *   흩어진 무리는 한 단계로 안 풀리고, 한 건물에 몰린 무리는 아무리 당겨도 안 풀린다.
+       *   경계에 맞추면 배율을 고를 필요 없이 두 경우가 알아서 처리된다.
+       *
+       * padBottom: 바텀시트가 지도 하단을 가리므로 그만큼 비워 둔다.
+       *            (안 그러면 핀이 시트 뒤에 숨어 "눌렀는데 안 보인다"가 된다)
+       */
+      function fitBounds(pts, padBottom) {
+        if (!map || !pts || !pts.length) return;
+        var pb = padBottom != null ? padBottom : 40;
+
+        // 한 곳뿐이면 경계가 점이라 setBounds가 최대까지 당겨버린다 — 직접 배율을 준다.
+        if (pts.length === 1) {
+          setCenter(pts[0].lat, pts[0].lng, CLUSTER_MIN_LEVEL - 1);
+          return;
+        }
+
+        var b = new kakao.maps.LatLngBounds();
+        for (var i = 0; i < pts.length; i++) {
+          b.extend(new kakao.maps.LatLng(pts[i].lat, pts[i].lng));
+        }
+        map.setBounds(b, 48, 48, pb, 48);
+
+        // 경계에 맞췄는데도 여전히 클러스터 구간이면 한 단계 더 당겨 핀을 흩는다.
+        if (map.getLevel() >= CLUSTER_MIN_LEVEL) map.setLevel(CLUSTER_MIN_LEVEL - 1);
+
+        // 같은 좌표에 겹친 무리 — 여기서 멈춘다. 더 당겨도 안 흩어지고 거리감만 사라진다.
+        if (map.getLevel() < 1) map.setLevel(1);
+      }
+
       // 사용자 위치 표시 — 외곽 링 + 내부 점 (브랜드 컬러)
       function setUserLocation(lat, lng) {
         if (!map) return;
@@ -419,6 +453,7 @@ ${CLUSTER_GRID_JS}
         }
         if (!data || !data.type) return;
         if (data.type === 'setCenter') setCenter(data.latitude, data.longitude, data.level);
+        else if (data.type === 'fitBounds') fitBounds(data.points, data.padBottom);
         else if (data.type === 'setMarkers') setMarkers(data.markers || []);
         else if (data.type === 'setUserLocation') setUserLocation(data.latitude, data.longitude);
         else if (data.type === 'selectMarker') selectMarker(data.id);
