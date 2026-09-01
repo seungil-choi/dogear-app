@@ -205,9 +205,20 @@ Deno.serve(async (req: Request) => {
     const stats = (Array.isArray(statsRows) ? statsRows[0] : statsRows) ?? {};
     const totalCheckinCount: number = stats.checkin_count ?? 0;
 
-    // 분위기 태그 집계
-    const allTags: string[] = recentCheckins.flatMap((c: any) => c.feeling_tags ?? []);
-    const topTagCounts = getTopTagCounts(allTags);
+    // 분위기 태그 집계 — **누적(spot_stats)을 우선 쓴다.**
+    //   예전엔 최근 발도장 원본에서만 뽑아, 회원이 탈퇴하면 그 장소의 분위기가 함께 사라졌다.
+    //   "여기가 어떤 곳인가"는 남긴 사람이 떠나도 유효한 정보다.
+    //   누적이 비어 있으면(도입 이전 장소) 기존 방식으로 물러선다.
+    const { data: statsRow } = await svc
+      .from('spot_stats').select('mood_counts').eq('spot_id', spotId).maybeSingle();
+    const accMoods = (statsRow?.mood_counts ?? {}) as Record<string, number>;
+    const topTagCounts = Object.keys(accMoods).length > 0
+      ? Object.entries(accMoods)
+          .map(([tag, count]) => ({ tag, count: Number(count) || 0 }))
+          .filter(t => t.count > 0)
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 3)
+      : getTopTagCounts(recentCheckins.flatMap((c: any) => c.feeling_tags ?? []));
     const topTags = topTagCounts.map((t) => t.tag);
     const atmosphereState = deriveAtmosphereState(topTags);
 
