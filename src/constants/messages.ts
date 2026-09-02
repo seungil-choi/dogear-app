@@ -63,9 +63,26 @@ export const SAVE_SPOT_FAILED = {
 } as const;
 
 // ─── 4.6 인사 (토스트) ───────────────────────────────────
+//
+// ⚠️ 이름은 **믿을 수 있을 때만** 부른다.
+//   소셜 로그인은 닉네임을 안 주는 경우가 많고, 그때 Edge Function이
+//   '카카오사용자'·'네이버사용자' 같은 자리표시자를 넣는다. 그걸 사람 이름으로
+//   믿으면 "다시 오셨네요, 카카오사용자님"이 된다(2026-09-02 실제 발생).
+//   이메일 앞부분도 이름이 아니다(fbdprj 등).
+//   부를 이름이 없으면 그냥 인사한다 — 어색한 호칭보다 낫다.
+const PLACEHOLDER_NAMES = ['카카오사용자', '네이버사용자', '사용자', '반려인'];
+
+/** 인사에 쓸 수 있는 이름인가. 자리표시자·빈 값이면 이름 없이 간다. */
+export function greetableName(raw?: string | null): string | null {
+  const n = (raw ?? '').trim();
+  if (!n) return null;
+  if (PLACEHOLDER_NAMES.includes(n)) return null;
+  return n;
+}
+
 export const GREET = {
-  new: (name: string) => `반갑습니다, ${name}님`,
-  returning: (name: string) => `다시 오셨네요, ${name}님`,
+  new:       (name?: string | null) => (greetableName(name) ? `반갑습니다, ${greetableName(name)}님` : '반갑습니다'),
+  returning: (name?: string | null) => (greetableName(name) ? `다시 오셨네요, ${greetableName(name)}님` : '반갑습니다'),
 } as const;
 
 // 4.7 빈 상태도 상수로 두지 않는다.

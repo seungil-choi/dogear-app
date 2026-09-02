@@ -106,9 +106,9 @@ export default function LoginScreen() {
       if (!user) { router.replace('/(tabs)'); return; }
 
       const meta: any = user.user_metadata ?? {};
-      const name =
-        meta.nickname || meta.name || meta.full_name ||
-        (user.email ? user.email.split('@')[0] : '') || '반려인';
+      // 이메일 앞부분(fbdprj 등)은 이름이 아니다 — 넣지 않는다.
+      // 쓸 이름이 없으면 GREET이 이름 없이 인사한다.
+      const name = meta.nickname || meta.name || meta.full_name || null;
 
       const { data: consent } = await supabase
         .from('consents')
