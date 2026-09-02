@@ -401,27 +401,103 @@ ${CLUSTER_GRID_JS}
        * padBottom: 바텀시트가 지도 하단을 가리므로 그만큼 비워 둔다.
        *            (안 그러면 핀이 시트 뒤에 숨어 "눌렀는데 안 보인다"가 된다)
        */
+      /** 두 지점의 대략 거리(m). spiderfy 판정에만 쓰므로 근사로 충분하다. */
+      function roughMeters(a, b) {
+        var dy = (a.lat - b.lat) * 111320;
+        var dx = (a.lng - b.lng) * 111320 * Math.cos(a.lat * Math.PI / 180);
+        return Math.sqrt(dx*dx + dy*dy);
+      }
+
+      /**
+       * 겹친 마커를 부채꼴로 펼친다 (Leaflet.markercluster의 spiderfy와 같은 발상).
+       *
+       * 왜 필요한가: 같은 건물에 병원·미용실이 여러 곳 있으면 **아무리 줌인해도
+       * 안 흩어진다.** 그때 화면만 확대되고 숫자 핀은 그대로라 "눌렀는데 안 풀렸다"가
+       * 된다. 펼쳐서 하나씩 고를 수 있게 해야 클릭이 답을 준다.
+       */
+      var spiderLegs = [], spiderOverlays = [];
+      function unspiderfy() {
+        spiderLegs.forEach(function(l) { l.setMap(null); });
+        spiderOverlays.forEach(function(o) { o.setMap(null); });
+        spiderLegs = []; spiderOverlays = [];
+      }
+
+      function spiderfy(items) {
+        unspiderfy();
+        if (!map || !items || items.length < 2) return;
+        var cLa = 0, cLn = 0;
+        items.forEach(function(it) { cLa += it.latitude; cLn += it.longitude; });
+        var center = new kakao.maps.LatLng(cLa / items.length, cLn / items.length);
+
+        // 화면 픽셀 기준으로 벌린다 — 배율이 달라도 벌어진 정도가 같아 보인다.
+        var proj = map.getProjection();
+        var cPt = proj.pointFromCoords(center);
+        var R = 26 + items.length * 5;   // 개수가 많을수록 원을 키운다
+
+        items.forEach(function(it, i) {
+          var a = (2 * Math.PI * i) / items.length - Math.PI / 2;
+          var pt = new kakao.maps.Point(cPt.x + R * Math.cos(a), cPt.y + R * Math.sin(a));
+          var pos = proj.coordsFromPoint(pt);
+
+          // 다리 — 원래 자리에서 나왔다는 걸 선으로 잇는다. 없으면 그냥 흩어진 핀이다.
+          var leg = new kakao.maps.Polyline({
+            path: [center, pos], strokeWeight: 1.5,
+            strokeColor: '#FF7A30', strokeOpacity: 0.55, strokeStyle: 'solid',
+          });
+          leg.setMap(map);
+          spiderLegs.push(leg);
+
+          // 일반 핀과 같은 함수로 만든다 — 클릭은 document 위임이라 그대로 동작한다.
+          spiderOverlays.push(createOverlay(it, pos.getLat(), pos.getLng()));
+        });
+      }
+
+      /**
+       * 여러 지점을 한 화면에 담는다 — 클러스터(숫자 핀)를 눌렀을 때 쓴다.
+       *
+       * setBounds는 **즉시 점프**해서 어디로 들어왔는지 눈으로 못 따라간다.
+       * 단계적으로 배율을 낮추며 애니메이션으로 들어간다.
+       */
       function fitBounds(pts, padBottom) {
         if (!map || !pts || !pts.length) return;
+        unspiderfy();
         var pb = padBottom != null ? padBottom : 40;
 
-        // 한 곳뿐이면 경계가 점이라 setBounds가 최대까지 당겨버린다 — 직접 배율을 준다.
+        var cLa = 0, cLn = 0;
+        pts.forEach(function(p) { cLa += p.lat; cLn += p.lng; });
+        var center = new kakao.maps.LatLng(cLa / pts.length, cLn / pts.length);
+
+        // 무리가 실질적으로 한 점이면 줌인해봐야 안 풀린다 — 바로 펼친다.
+        var maxSpread = 0;
+        var c0 = { lat: cLa / pts.length, lng: cLn / pts.length };
+        pts.forEach(function(p) { maxSpread = Math.max(maxSpread, roughMeters(c0, p)); });
+
+        var target;
         if (pts.length === 1) {
-          setCenter(pts[0].lat, pts[0].lng, CLUSTER_MIN_LEVEL - 1);
-          return;
+          target = CLUSTER_MIN_LEVEL - 1;
+        } else {
+          var b = new kakao.maps.LatLngBounds();
+          pts.forEach(function(p) { b.extend(new kakao.maps.LatLng(p.lat, p.lng)); });
+          var before = map.getLevel();
+          map.setBounds(b, 48, 48, pb, 48);      // 목표 배율만 계산
+          target = map.getLevel();
+          if (target >= CLUSTER_MIN_LEVEL) target = CLUSTER_MIN_LEVEL - 1;
+          if (target < 1) target = 1;
+          map.setLevel(before);                   // 되돌린 뒤 애니메이션으로 다시 간다
         }
 
-        var b = new kakao.maps.LatLngBounds();
-        for (var i = 0; i < pts.length; i++) {
-          b.extend(new kakao.maps.LatLng(pts[i].lat, pts[i].lng));
-        }
-        map.setBounds(b, 48, 48, pb, 48);
+        map.panTo(center);
+        map.setLevel(target, { animate: { duration: 350 } });
 
-        // 경계에 맞췄는데도 여전히 클러스터 구간이면 한 단계 더 당겨 핀을 흩는다.
-        if (map.getLevel() >= CLUSTER_MIN_LEVEL) map.setLevel(CLUSTER_MIN_LEVEL - 1);
-
-        // 같은 좌표에 겹친 무리 — 여기서 멈춘다. 더 당겨도 안 흩어지고 거리감만 사라진다.
-        if (map.getLevel() < 1) map.setLevel(1);
+        // 애니메이션이 끝난 뒤에도 안 흩어졌으면(같은 건물) 펼친다.
+        setTimeout(function() {
+          if (maxSpread < 25 && pts.length > 1) {
+            var ids = {};
+            pts.forEach(function(p) { if (p.id) ids[p.id] = true; });
+            var items = allItems.filter(function(it) { return ids[it.id]; });
+            if (items.length > 1) spiderfy(items);
+          }
+        }, 420);
       }
 
       // 사용자 위치 표시 — 외곽 링 + 내부 점 (브랜드 컬러)
@@ -452,7 +528,7 @@ ${CLUSTER_GRID_JS}
           try { data = JSON.parse(data); } catch(e) { return; }
         }
         if (!data || !data.type) return;
-        if (data.type === 'setCenter') setCenter(data.latitude, data.longitude, data.level);
+        if (data.type === 'setCenter') { unspiderfy(); setCenter(data.latitude, data.longitude, data.level); }
         else if (data.type === 'fitBounds') fitBounds(data.points, data.padBottom);
         else if (data.type === 'setMarkers') setMarkers(data.markers || []);
         else if (data.type === 'setUserLocation') setUserLocation(data.latitude, data.longitude);

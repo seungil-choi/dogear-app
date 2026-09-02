@@ -550,7 +550,8 @@ export default function ExploreScreen() {
     selectSpot(null);
     setClusterIds(ids);
     setVisibleCount(LIST_PAGE);
-    if (snapState === 'min' || snapState === 'peek') snapToHeight('half');
+    // 시트를 함께 올리지 않는다 — 지도·시트·목록이 한꺼번에 움직이면
+    // 어디를 봐야 할지 모른다. 지도만 움직이고 목록은 제자리에서 조용히 바뀐다.
     cardListRef.current?.scrollTo({ y: 0, animated: true });
 
     // 숫자 핀을 눌렀는데 지도가 그대로면 "열렸다"는 확인이 지도에서 안 된다.
@@ -560,10 +561,10 @@ export default function ExploreScreen() {
     const pts = ids
       .map(id => spotsById.get(id))
       .filter((sp): sp is NonNullable<typeof sp> => !!sp)
-      .map(sp => ({ lat: sp.latitude, lng: sp.longitude }));
+      .map(sp => ({ lat: sp.latitude, lng: sp.longitude, id: sp.spot_id }));
     // 시트가 지도 하단을 가리므로 그만큼 비워 둔다 — 안 그러면 핀이 시트 뒤로 숨는다.
     if (pts.length > 0) mapRef.current?.fitBounds(pts, Math.round(PANEL_HALF_H));
-  }, [selectSpot, snapState, snapToHeight, spotsById, mapCenter.lat, mapCenter.lng, zoomLevel, PANEL_HALF_H]);
+  }, [selectSpot, spotsById, mapCenter.lat, mapCenter.lng, zoomLevel, PANEL_HALF_H]);
 
   // 클러스터 목록을 닫으면 원래 보던 곳으로 되돌린다.
   const closeCluster = useCallback(() => {

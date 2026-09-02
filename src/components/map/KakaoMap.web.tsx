@@ -339,7 +339,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
       mapRef.current.panTo(pos);
     },
     // 네이티브(kakaoMapHtml.ts)의 fitBounds와 동일한 규칙을 유지한다.
-    fitBounds: (points: { lat: number; lng: number }[], padBottom?: number) => {
+    fitBounds: (points: { lat: number; lng: number; id?: string }[], padBottom?: number) => {
       const map = mapRef.current;
       if (!map || !points?.length) return;
       const kakao = (window as any).kakao;

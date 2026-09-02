@@ -46,8 +46,9 @@ export interface KakaoMapProps {
 
 export interface KakaoMapRef {
   setCenter: (lat: number, lng: number, level?: number) => void;
-  /** 여러 지점을 한 화면에 담는다. padBottom = 바텀시트가 가리는 높이(px) */
-  fitBounds: (points: { lat: number; lng: number }[], padBottom?: number) => void;
+  /** 여러 지점을 한 화면에 담는다. padBottom = 바텀시트가 가리는 높이(px).
+   *  id를 주면 줌인해도 안 흩어지는 무리(같은 건물)를 부채꼴로 펼친다. */
+  fitBounds: (points: { lat: number; lng: number; id?: string }[], padBottom?: number) => void;
 }
 
 /**
