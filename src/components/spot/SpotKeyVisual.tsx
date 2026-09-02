@@ -19,36 +19,10 @@ import { Colors, Typography, Spacing, Radius } from '../../constants/tokens';
 import { Icon } from '../common/Icon';
 import { CategoryThumb } from './SpotCard';
 
-/**
- * 스크림은 **사진이 있을 때만** 어둡게 깐다.
- *
- * 어두운 스크림의 목적은 '어떤 밝기의 사진이 와도 흰 글씨가 읽히게' 하는 보험이다.
- * 그런데 사진이 없는 카드는 배경이 우리가 정한 연한 피치(brand.subtle)라
- * 밝기를 이미 알고 있다 — 보험이 필요 없는데 브랜드 주황만 탁하게 만들었다.
- * (출시 초기엔 대부분의 카드가 사진 없는 상태라 첫인상이 계속 어두웠다.)
- *
- * 사진 없음 → 옅은 피치 페이드 + 어두운 글씨. 브랜드 색이 살고 카드가 가벼워진다.
- */
-const PHOTO_SCRIM: readonly [string, string, string] =
+/** 두 화면이 같은 농도를 쓰도록 스크림을 한 곳에 고정한다. */
+const SCRIM_COLORS: readonly [string, string, string] =
   ['transparent', 'rgba(18,12,6,0.20)', 'rgba(18,12,6,0.78)'];
-/** 아이콘 위 — 글자가 아이콘과 겹치는 구간만 살짝 눌러 대비를 확보한다. */
-const ICON_SCRIM: readonly [string, string, string] =
-  ['transparent', 'rgba(255,240,230,0.60)', 'rgba(255,226,208,0.96)'];
 const SCRIM_LOCATIONS: readonly [number, number, number] = [0, 0.45, 1];
-
-/** 사진 위에서는 흰 글씨, 아이콘 위에서는 짙은 갈색 계열을 쓴다. */
-const ON_PHOTO = {
-  name:  '#FFFFFF',
-  meta:  'rgba(255,255,255,0.92)',
-  metaIcon: 'rgba(255,255,255,0.85)',
-  save:  '#FFFFFF',
-} as const;
-const ON_ICON = {
-  name:  '#3A1F0E',
-  meta:  '#8A5A3C',
-  metaIcon: '#8A5A3C',
-  save:  Colors.brand.accent,
-} as const;
 
 interface SpotKeyVisualProps {
   height: number;
@@ -72,9 +46,6 @@ export function SpotKeyVisual({
   height, name, categoryLabel, subcategory, coverImageUrl, metaText,
   savedCount, saved, onSave, topLeft, topRight,
 }: SpotKeyVisualProps) {
-  const hasPhoto = !!coverImageUrl;
-  const ink = hasPhoto ? ON_PHOTO : ON_ICON;
-
   return (
     <View style={[s.root, { height }]}>
       <CategoryThumb
@@ -87,7 +58,7 @@ export function SpotKeyVisual({
       />
 
       <LinearGradient
-        colors={hasPhoto ? PHOTO_SCRIM : ICON_SCRIM}
+        colors={SCRIM_COLORS}
         locations={SCRIM_LOCATIONS}
         style={s.scrim}
         pointerEvents="none"
@@ -108,14 +79,11 @@ export function SpotKeyVisual({
               <Text style={s.badgeText}>{categoryLabel}</Text>
             </View>
           </View>
-          <Text
-            style={[s.name, { color: ink.name }, !hasPhoto && s.nameNoShadow]}
-            numberOfLines={2}
-          >{name}</Text>
+          <Text style={s.name} numberOfLines={2}>{name}</Text>
           {!!metaText && (
             <View style={s.metaRow}>
-              <Icon name="location" size={12} color={ink.metaIcon} />
-              <Text style={[s.meta, { color: ink.meta }]} numberOfLines={1}>{metaText}</Text>
+              <Icon name="location" size={12} color="rgba(255,255,255,0.85)" />
+              <Text style={s.meta} numberOfLines={1}>{metaText}</Text>
             </View>
           )}
         </View>
@@ -129,10 +97,9 @@ export function SpotKeyVisual({
           accessibilityLabel={saved ? '저장 해제' : '저장하기'}
           accessibilityState={{ selected: saved }}
         >
-          {/* 사진 위에서는 주황이 안 보여 흰색을 쓴다. 아이콘 위에서는 반대로
-              흰색이 묻히므로 짙은 주황(대비 4.5:1 확보분)을 쓴다. */}
-          <Icon name={saved ? 'bookmark-filled' : 'bookmark'} size={26} color={ink.save} />
-          <Text style={[s.saveCount, { color: ink.save }, !hasPhoto && s.nameNoShadow]}>{savedCount}</Text>
+          {/* 사진 위라 주황은 잘 안 보인다. 흰색으로 두고 채움 여부로 상태를 말한다. */}
+          <Icon name={saved ? 'bookmark-filled' : 'bookmark'} size={26} color="#FFFFFF" />
+          <Text style={s.saveCount}>{savedCount}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -185,8 +152,6 @@ const s = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
-  /** 밝은 배경 위에서는 텍스트 그림자가 때처럼 보인다 — 끈다. */
-  nameNoShadow: { textShadowColor: 'transparent', textShadowRadius: 0 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing[4], marginTop: 2 },
   meta: {
     ...Typography.label.s,
