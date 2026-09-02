@@ -83,10 +83,19 @@ function FeaturedCard({
         saved={isSaved}
         onSave={onSave}
         topLeft={
-          <View style={s.featuredBadge}>
-            <Icon name="leaf-filled" size={10} color={Colors.brand.primary} />
-            <Text style={s.featuredBadgeText}>오늘의 추천</Text>
-          </View>
+          /* 사진이 없으면 배경이 연한 피치라 흰 칩이 묻힌다 — 주황을 채워 띄운다.
+             사진 위에서는 반대로 흰 칩이 가장 잘 읽힌다. */
+          card.cover_image_url ? (
+            <View style={s.featuredBadge}>
+              <Icon name="leaf-filled" size={10} color={Colors.brand.primary} />
+              <Text style={s.featuredBadgeText}>오늘의 추천</Text>
+            </View>
+          ) : (
+            <View style={[s.featuredBadge, s.featuredBadgeSolid]}>
+              <Icon name="leaf-filled" size={10} color="#FFFFFF" />
+              <Text style={[s.featuredBadgeText, s.featuredBadgeTextOnSolid]}>오늘의 추천</Text>
+            </View>
+          )
         }
       />
     </TouchableOpacity>
@@ -667,6 +676,9 @@ const s = StyleSheet.create({
     color: Colors.text.primary,
     fontWeight: '700',
   },
+  /** 사진 없는 카드용 — 짙은 주황 채움 */
+  featuredBadgeSolid:      { backgroundColor: Colors.brand.accent },
+  featuredBadgeTextOnSolid:{ color: '#FFFFFF' },
 
   // ── 수평 레일 ──
   rail: {
