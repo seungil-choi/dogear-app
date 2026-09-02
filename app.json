@@ -116,9 +116,7 @@
     },
     "owner": "seungil-choi",
     "updates": {
-      "url": "https://u.expo.dev/d51c4ee9-4c9d-4933-bec4-0588a9c8ee43",
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 8000
+      "url": "https://u.expo.dev/d51c4ee9-4c9d-4933-bec4-0588a9c8ee43"
     },
     "runtimeVersion": {
       "policy": "fingerprint"
