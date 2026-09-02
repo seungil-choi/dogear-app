@@ -158,6 +158,26 @@ export function track(name: EventName, props: TrackProps = {}): void {
   }
 
   // 실 환경 — fire-and-forget INSERT
+  //
+  // ⚠️ user_id는 **삽입 직전에 세션에서 다시 읽는다.** 주입된 컨텍스트를 믿으면
+  //    앱 부팅 직후 경합에 걸린다 — 세션은 이미 복원돼 auth.uid()가 살아 있는데
+  //    setUserContext()는 프로필 로드 후에야 불리므로, 그 사이 이벤트는
+  //    user_id=null로 나가고 RLS(auth.uid() = user_id)에 조용히 거부된다.
+  //    (실제로 앱 실행마다 몇 건씩 버려지고 있었다 — 2026-09-02 확인)
+  //    RLS가 보는 것과 우리가 넣는 것이 같은 출처여야 어긋나지 않는다.
+  void (async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      const authUid = data.session?.user?.id ?? null;
+      if (authUid !== payload.user_id) payload.user_id = authUid;
+    } catch {
+      /* 세션 조회 실패 시 주입값을 그대로 쓴다 — 계측이 사용자 흐름을 막지 않는다 */
+    }
+    insertEvent(name, payload);
+  })();
+}
+
+function insertEvent(name: EventName, payload: Record<string, any>): void {
   supabase.from('events').insert(payload).then(({ error }) => {
     if (error) {
       // 분석 실패는 사용자 흐름에 영향 안 가게 silent 처리하되,

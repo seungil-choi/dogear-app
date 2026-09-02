@@ -23,18 +23,20 @@ import { corsHeaders, handleCors } from '../_shared/cors.ts';
 
 // ─── 발도장 근접성 정책 (클라이언트 src/config/checkin.ts와 미러) ───
 const CATEGORY_RADIUS_M: Record<string, number> = {
-  park:       30,
-  trail:      50,
-  riverside: 100,
-  beach:      50,
-  rest_spot:  10,
-  // 시설은 전부 점포 단위 — 건물 하나다.
-  pet_cafe:     10,
-  vet:          10,
-  pet_grooming: 10,
-  pet_boarding: 10,
+  park:       60,
+  trail:     100,
+  riverside: 150,
+  beach:     100,
+  rest_spot:  20,
+  // 시설은 점포 단위지만 10m는 과했다 — 도심 GPS 오차가 20~40m라
+  // "병원 앞에 서 있는데 안 찍힘"이 잦았다. 목적은 '그 건물에 있었다'를
+  // 확인하는 것이지 '그 문 앞에 섰다'를 증명하는 게 아니다. (2026-09-02)
+  pet_cafe:     20,
+  vet:          20,
+  pet_grooming: 20,
+  pet_boarding: 20,
 };
-const DEFAULT_RADIUS_M = 10;
+const DEFAULT_RADIUS_M = 20;
 
 /**
  * 발도장 1회당 사진 상한.
