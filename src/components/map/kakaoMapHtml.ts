@@ -189,7 +189,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
                '</div>';
       }
 
-      // 오버레이 1개 생성 (lat/lng를 넘기면 그 위치에 — spiderfy 펼침용)
+      // 오버레이 1개 생성 (lat/lng를 넘기면 그 위치에)
       function createOverlay(item, lat, lng) {
         var overlay = new kakao.maps.CustomOverlay({
           position: new kakao.maps.LatLng(
@@ -230,6 +230,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       var allItems = [];        // RN이 내려준 전체 마커
       var clusterById = {};     // key -> { overlay, count, active }
       var activeClusterKey = null;   // 목록을 펼쳐둔 클러스터(강조 표시용)
+      var openClusterKey   = null;   // 탭해서 개별 핀으로 푼 클러스터
 
       // 격자 규칙은 clusterGrid.ts에 한 벌만 두고 여기에 그대로 주입한다.
       //   → 같은 코드를 유닛 테스트(clusterGrid.test.ts)가 평가해
@@ -267,8 +268,10 @@ ${CLUSTER_GRID_JS}
         var wantClusters = {};  // key -> {count, lat, lng, active}
         Object.keys(groups).forEach(function(k) {
           var list = groups[k];
-          if (list.length === 1) {
-            wantPins[list[0].id] = { item: list[0] };
+          // 탭해서 연 묶음은 개별 핀으로 푼다. 숫자핀을 눌렀는데 숫자핀이 그대로면
+          // "눌렀는데 아무 일도 안 났다"가 된다.
+          if (list.length === 1 || k === openClusterKey) {
+            list.forEach(function(it) { wantPins[it.id] = { item: it }; });
             return;
           }
           var sLa = 0, sLn = 0, hasSelected = false;
@@ -337,7 +340,7 @@ ${CLUSTER_GRID_JS}
       /** RN이 마커 목록을 내려줄 때 */
       function setMarkers(items) {
         allItems = items || [];
-        if (!allItems.length) activeClusterKey = null;
+        if (!allItems.length) { activeClusterKey = null; openClusterKey = null; }
         renderMarkers();
       }
 
@@ -357,6 +360,7 @@ ${CLUSTER_GRID_JS}
           });
           if (!ids.length) return;
           activeClusterKey = key;
+          openClusterKey = key;      // 이 묶음을 개별 핀으로 편다
           renderMarkers();
           postMsg({ type: 'clusterClick', key: key, ids: ids });
           return;
@@ -367,7 +371,7 @@ ${CLUSTER_GRID_JS}
         var id = el.getAttribute('data-marker-id');
         if (!id) return;
         e.stopPropagation();
-        activeClusterKey = null;
+        activeClusterKey = null; openClusterKey = null;
         postMsg({ type: 'markerClick', id: id });
       }, true);
 
@@ -401,57 +405,6 @@ ${CLUSTER_GRID_JS}
        * padBottom: 바텀시트가 지도 하단을 가리므로 그만큼 비워 둔다.
        *            (안 그러면 핀이 시트 뒤에 숨어 "눌렀는데 안 보인다"가 된다)
        */
-      /** 두 지점의 대략 거리(m). spiderfy 판정에만 쓰므로 근사로 충분하다. */
-      function roughMeters(a, b) {
-        var dy = (a.lat - b.lat) * 111320;
-        var dx = (a.lng - b.lng) * 111320 * Math.cos(a.lat * Math.PI / 180);
-        return Math.sqrt(dx*dx + dy*dy);
-      }
-
-      /**
-       * 겹친 마커를 부채꼴로 펼친다 (Leaflet.markercluster의 spiderfy와 같은 발상).
-       *
-       * 왜 필요한가: 같은 건물에 병원·미용실이 여러 곳 있으면 **아무리 줌인해도
-       * 안 흩어진다.** 그때 화면만 확대되고 숫자 핀은 그대로라 "눌렀는데 안 풀렸다"가
-       * 된다. 펼쳐서 하나씩 고를 수 있게 해야 클릭이 답을 준다.
-       */
-      var spiderLegs = [], spiderOverlays = [];
-      function unspiderfy() {
-        spiderLegs.forEach(function(l) { l.setMap(null); });
-        spiderOverlays.forEach(function(o) { o.setMap(null); });
-        spiderLegs = []; spiderOverlays = [];
-      }
-
-      function spiderfy(items) {
-        unspiderfy();
-        if (!map || !items || items.length < 2) return;
-        var cLa = 0, cLn = 0;
-        items.forEach(function(it) { cLa += it.latitude; cLn += it.longitude; });
-        var center = new kakao.maps.LatLng(cLa / items.length, cLn / items.length);
-
-        // 화면 픽셀 기준으로 벌린다 — 배율이 달라도 벌어진 정도가 같아 보인다.
-        var proj = map.getProjection();
-        var cPt = proj.pointFromCoords(center);
-        var R = 26 + items.length * 5;   // 개수가 많을수록 원을 키운다
-
-        items.forEach(function(it, i) {
-          var a = (2 * Math.PI * i) / items.length - Math.PI / 2;
-          var pt = new kakao.maps.Point(cPt.x + R * Math.cos(a), cPt.y + R * Math.sin(a));
-          var pos = proj.coordsFromPoint(pt);
-
-          // 다리 — 원래 자리에서 나왔다는 걸 선으로 잇는다. 없으면 그냥 흩어진 핀이다.
-          var leg = new kakao.maps.Polyline({
-            path: [center, pos], strokeWeight: 1.5,
-            strokeColor: '#FF7A30', strokeOpacity: 0.55, strokeStyle: 'solid',
-          });
-          leg.setMap(map);
-          spiderLegs.push(leg);
-
-          // 일반 핀과 같은 함수로 만든다 — 클릭은 document 위임이라 그대로 동작한다.
-          spiderOverlays.push(createOverlay(it, pos.getLat(), pos.getLng()));
-        });
-      }
-
       /**
        * 여러 지점을 한 화면에 담는다 — 클러스터(숫자 핀)를 눌렀을 때 쓴다.
        *
@@ -460,17 +413,12 @@ ${CLUSTER_GRID_JS}
        */
       function fitBounds(pts, padBottom) {
         if (!map || !pts || !pts.length) return;
-        unspiderfy();
         var pb = padBottom != null ? padBottom : 40;
 
         var cLa = 0, cLn = 0;
         pts.forEach(function(p) { cLa += p.lat; cLn += p.lng; });
         var center = new kakao.maps.LatLng(cLa / pts.length, cLn / pts.length);
 
-        // 무리가 실질적으로 한 점이면 줌인해봐야 안 풀린다 — 바로 펼친다.
-        var maxSpread = 0;
-        var c0 = { lat: cLa / pts.length, lng: cLn / pts.length };
-        pts.forEach(function(p) { maxSpread = Math.max(maxSpread, roughMeters(c0, p)); });
 
         var target;
         if (pts.length === 1) {
@@ -489,15 +437,6 @@ ${CLUSTER_GRID_JS}
         map.panTo(center);
         map.setLevel(target, { animate: { duration: 350 } });
 
-        // 애니메이션이 끝난 뒤에도 안 흩어졌으면(같은 건물) 펼친다.
-        setTimeout(function() {
-          if (maxSpread < 25 && pts.length > 1) {
-            var ids = {};
-            pts.forEach(function(p) { if (p.id) ids[p.id] = true; });
-            var items = allItems.filter(function(it) { return ids[it.id]; });
-            if (items.length > 1) spiderfy(items);
-          }
-        }, 420);
       }
 
       // 사용자 위치 표시 — 외곽 링 + 내부 점 (브랜드 컬러)
@@ -528,7 +467,7 @@ ${CLUSTER_GRID_JS}
           try { data = JSON.parse(data); } catch(e) { return; }
         }
         if (!data || !data.type) return;
-        if (data.type === 'setCenter') { unspiderfy(); setCenter(data.latitude, data.longitude, data.level); }
+        if (data.type === 'setCenter') { setCenter(data.latitude, data.longitude, data.level); }
         else if (data.type === 'fitBounds') fitBounds(data.points, data.padBottom);
         else if (data.type === 'setMarkers') setMarkers(data.markers || []);
         else if (data.type === 'setUserLocation') setUserLocation(data.latitude, data.longitude);
@@ -548,13 +487,13 @@ ${CLUSTER_GRID_JS}
 
         // 클릭(빈 영역) — 핀 닫기 신호 + 클러스터 강조 해제
         kakao.maps.event.addListener(map, 'click', function() {
-          if (activeClusterKey) { activeClusterKey = null; renderMarkers(); }
+          if (activeClusterKey || openClusterKey) { activeClusterKey = null; openClusterKey = null; renderMarkers(); }
           postMsg({ type: 'mapClick' });
         });
 
         // 영역 변경 — 알림. 지도를 옮기면 펼쳐둔 클러스터 목록은 맥락을 잃으므로 해제.
         kakao.maps.event.addListener(map, 'dragend', function() {
-          if (activeClusterKey) { activeClusterKey = null; renderMarkers(); }
+          if (activeClusterKey || openClusterKey) { activeClusterKey = null; openClusterKey = null; renderMarkers(); }
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
         });
@@ -564,7 +503,7 @@ ${CLUSTER_GRID_JS}
         //   그 결과 넓은 반경 재조회가 트리거되지 않아 "줌아웃하면 핀이 안 늘어나는" 문제가 있었다.
         //   확대하면 격자가 좁아져 묶음이 자연스럽게 풀린다 — 클러스터가 풀리는 유일한 경로.
         kakao.maps.event.addListener(map, 'zoom_changed', function() {
-          activeClusterKey = null;
+          activeClusterKey = null; openClusterKey = null;
           renderMarkers();
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
