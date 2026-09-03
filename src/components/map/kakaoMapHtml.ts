@@ -230,7 +230,6 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       var allItems = [];        // RN이 내려준 전체 마커
       var clusterById = {};     // key -> { overlay, count, active }
       var activeClusterKey = null;   // 목록을 펼쳐둔 클러스터(강조 표시용)
-      var openClusterKey   = null;   // 탭해서 개별 핀으로 푼 클러스터
 
       // 격자 규칙은 clusterGrid.ts에 한 벌만 두고 여기에 그대로 주입한다.
       //   → 같은 코드를 유닛 테스트(clusterGrid.test.ts)가 평가해
@@ -268,10 +267,12 @@ ${CLUSTER_GRID_JS}
         var wantClusters = {};  // key -> {count, lat, lng, active}
         Object.keys(groups).forEach(function(k) {
           var list = groups[k];
-          // 탭해서 연 묶음은 개별 핀으로 푼다. 숫자핀을 눌렀는데 숫자핀이 그대로면
-          // "눌렀는데 아무 일도 안 났다"가 된다.
-          if (list.length === 1 || k === openClusterKey) {
-            list.forEach(function(it) { wantPins[it.id] = { item: it }; });
+          // 묶인 것을 탭으로 풀지 않는다. **푸는 건 줌이다.**
+          //   예전엔 탭 시점에 강제로 펼쳤는데, 뒤이은 zoom_changed가 그걸 즉시
+          //   되돌려 한 번 더 눌러야 했고 그 사이 오버레이가 두 번 갈려 깜박였다.
+          //   줌인하면 격자가 갈리며 알아서 개별 핀이 된다.
+          if (list.length === 1) {
+            wantPins[list[0].id] = { item: list[0] };
             return;
           }
           var sLa = 0, sLn = 0, hasSelected = false;
@@ -323,7 +324,7 @@ ${CLUSTER_GRID_JS}
               xAnchor: 0.5, yAnchor: 0.5, clickable: true,
             });
             ov.setMap(map);
-            clusterById[k] = { overlay: ov, count: c.count, active: c.active };
+            clusterById[k] = { overlay: ov, count: c.count, active: c.active, lat: c.lat, lng: c.lng };
             return;
           }
           if (entry.count !== c.count || entry.active !== c.active) {
@@ -331,7 +332,12 @@ ${CLUSTER_GRID_JS}
             entry.count = c.count;
             entry.active = c.active;
           }
-          entry.overlay.setPosition(new kakao.maps.LatLng(c.lat, c.lng));
+          // 좌표가 그대로면 건드리지 않는다. 예전엔 매 렌더마다 무조건 호출해
+          // 클러스터 수만큼 DOM을 흔들었고, 그게 '깜박임'으로 보였다.
+          if (entry.lat !== c.lat || entry.lng !== c.lng) {
+            entry.overlay.setPosition(new kakao.maps.LatLng(c.lat, c.lng));
+            entry.lat = c.lat; entry.lng = c.lng;
+          }
         });
 
         markers = Object.keys(markerById).map(function(id) { return markerById[id].overlay; });
@@ -340,7 +346,7 @@ ${CLUSTER_GRID_JS}
       /** RN이 마커 목록을 내려줄 때 */
       function setMarkers(items) {
         allItems = items || [];
-        if (!allItems.length) { activeClusterKey = null; openClusterKey = null; }
+        if (!allItems.length) activeClusterKey = null;
         renderMarkers();
       }
 
@@ -360,7 +366,6 @@ ${CLUSTER_GRID_JS}
           });
           if (!ids.length) return;
           activeClusterKey = key;
-          openClusterKey = key;      // 이 묶음을 개별 핀으로 편다
           renderMarkers();
           postMsg({ type: 'clusterClick', key: key, ids: ids });
           return;
@@ -371,7 +376,7 @@ ${CLUSTER_GRID_JS}
         var id = el.getAttribute('data-marker-id');
         if (!id) return;
         e.stopPropagation();
-        activeClusterKey = null; openClusterKey = null;
+        activeClusterKey = null;
         postMsg({ type: 'markerClick', id: id });
       }, true);
 
@@ -411,33 +416,50 @@ ${CLUSTER_GRID_JS}
        * setBounds는 **즉시 점프**해서 어디로 들어왔는지 눈으로 못 따라간다.
        * 단계적으로 배율을 낮추며 애니메이션으로 들어간다.
        */
+      /** 두 지점의 대략 거리(m). 겹침 판정에만 쓰므로 근사로 충분하다. */
+      function roughMeters(a, b) {
+        var dy = (a.lat - b.lat) * 111320;
+        var dx = (a.lng - b.lng) * 111320 * Math.cos(a.lat * Math.PI / 180);
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      /**
+       * 클러스터를 눌렀을 때 지도를 그 무리에 맞춘다.
+       *
+       * ⚠️ **겹친 무리(같은 건물 등)는 지도를 건드리지 않는다.**
+       *   줌인해도 격자가 안 갈려 숫자핀이 그대로다. 화면만 확대되고 아무것도
+       *   해결되지 않아 "눌렀는데 오류난 것 같다"가 된다. 그 경우 답은 하단 목록이고,
+       *   목록은 이미 그 N곳으로 필터링돼 있다. 한 단계를 더 만들지 않는다.
+       *
+       * 흩어진 무리만 부드럽게 줌인한다. 격자가 갈리며 개별 핀이 된다.
+       */
       function fitBounds(pts, padBottom) {
-        if (!map || !pts || !pts.length) return;
+        if (!map || !pts || pts.length < 2) return;
         var pb = padBottom != null ? padBottom : 40;
 
         var cLa = 0, cLn = 0;
         pts.forEach(function(p) { cLa += p.lat; cLn += p.lng; });
-        var center = new kakao.maps.LatLng(cLa / pts.length, cLn / pts.length);
+        var c0 = { lat: cLa / pts.length, lng: cLn / pts.length };
 
+        var spread = 0;
+        pts.forEach(function(p) { spread = Math.max(spread, roughMeters(c0, p)); });
 
-        var target;
-        if (pts.length === 1) {
-          target = CLUSTER_MIN_LEVEL - 1;
-        } else {
-          var b = new kakao.maps.LatLngBounds();
-          pts.forEach(function(p) { b.extend(new kakao.maps.LatLng(p.lat, p.lng)); });
-          var before = map.getLevel();
-          map.setBounds(b, 48, 48, pb, 48);      // 목표 배율만 계산
-          target = map.getLevel();
-          if (target >= CLUSTER_MIN_LEVEL) target = CLUSTER_MIN_LEVEL - 1;
-          if (target < 1) target = 1;
-          map.setLevel(before);                   // 되돌린 뒤 애니메이션으로 다시 간다
-        }
+        // 25m 안이면 줌인해도 안 갈린다 — 지도를 그대로 두고 목록에 맡긴다.
+        if (spread < 25) return;
 
-        map.panTo(center);
+        var b = new kakao.maps.LatLngBounds();
+        pts.forEach(function(p) { b.extend(new kakao.maps.LatLng(p.lat, p.lng)); });
+        var before = map.getLevel();
+        map.setBounds(b, 48, 48, pb, 48);      // 목표 배율만 계산
+        var target = map.getLevel();
+        if (target >= CLUSTER_MIN_LEVEL) target = CLUSTER_MIN_LEVEL - 1;
+        if (target < 1) target = 1;
+        map.setLevel(before);                   // 되돌린 뒤 애니메이션으로 간다
+
+        map.panTo(new kakao.maps.LatLng(c0.lat, c0.lng));
         map.setLevel(target, { animate: { duration: 350 } });
-
       }
+
 
       // 사용자 위치 표시 — 외곽 링 + 내부 점 (브랜드 컬러)
       function setUserLocation(lat, lng) {
@@ -487,13 +509,13 @@ ${CLUSTER_GRID_JS}
 
         // 클릭(빈 영역) — 핀 닫기 신호 + 클러스터 강조 해제
         kakao.maps.event.addListener(map, 'click', function() {
-          if (activeClusterKey || openClusterKey) { activeClusterKey = null; openClusterKey = null; renderMarkers(); }
+          if (activeClusterKey) { activeClusterKey = null; renderMarkers(); }
           postMsg({ type: 'mapClick' });
         });
 
         // 영역 변경 — 알림. 지도를 옮기면 펼쳐둔 클러스터 목록은 맥락을 잃으므로 해제.
         kakao.maps.event.addListener(map, 'dragend', function() {
-          if (activeClusterKey || openClusterKey) { activeClusterKey = null; openClusterKey = null; renderMarkers(); }
+          if (activeClusterKey) { activeClusterKey = null; renderMarkers(); }
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
         });
@@ -503,7 +525,7 @@ ${CLUSTER_GRID_JS}
         //   그 결과 넓은 반경 재조회가 트리거되지 않아 "줌아웃하면 핀이 안 늘어나는" 문제가 있었다.
         //   확대하면 격자가 좁아져 묶음이 자연스럽게 풀린다 — 클러스터가 풀리는 유일한 경로.
         kakao.maps.event.addListener(map, 'zoom_changed', function() {
-          activeClusterKey = null; openClusterKey = null;
+          activeClusterKey = null;
           renderMarkers();
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
