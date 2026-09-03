@@ -552,7 +552,6 @@ export default function ExploreScreen() {
   }, []);
 
   const handleClusterPress = useCallback((ids: string[]) => {
-    setClusterIds(ids);
     setVisibleCount(LIST_PAGE);
     cardListRef.current?.scrollTo({ y: 0, animated: true });
 
@@ -571,9 +570,10 @@ export default function ExploreScreen() {
 
     if (spread < 25) {
       // ── 겹친 무리(같은 건물 등) ──
-      // 줌인해도 안 갈리므로 **단일 핀을 누른 것과 똑같이** 다룬다.
-      //   지도는 그 자리로 이동하고, 목록에서는 첫 장소를 활성 카드로 띄운다.
-      //   아무것도 선택하지 않으면 "눌렀는데 뭐가 열린 건지" 알 수 없다.
+      // 줌인해도 안 갈리므로 **단일 핀을 누른 것과 완전히 같은 경로**로 보낸다.
+      //   ⚠️ 클러스터 모드로 들어가면 안 된다 — isClusterMode가 hero 카드를 가려서
+      //      "장소 카드가 안 뜬다". 나머지 장소는 같은 좌표라 목록 맨 위에 바로 붙는다.
+      setClusterIds(null);
       const first = spotsInCluster[0];
       setSelectedId(first.spot_id);
       selectSpot(first.spot_id);
@@ -584,6 +584,7 @@ export default function ExploreScreen() {
 
     // ── 흩어진 무리 ── 경계에 맞춰 부드럽게 줌인하면 격자가 갈리며 개별 핀이 된다.
     // 이때는 특정 장소를 고르지 않는다 — 어느 것을 고를 근거가 없다.
+    setClusterIds(ids);
     setSelectedId(null);
     selectSpot(null);
     mapRef.current?.fitBounds(pts, Math.round(PANEL_HALF_H));
@@ -1164,9 +1165,7 @@ export default function ExploreScreen() {
                 )}
                 {/* 리스트 끝 안내 — 반경 내 장소가 적어 생기는 하단 공백을 안내로 전환 */}
                 <Text style={s.peekListFooter}>
-                  {isClusterMode
-                    ? '같은 자리에 겹쳐 있는 장소들이에요'
-                    : '지도를 옮기면 주변 장소가 더 표시돼요'}
+                  지도를 옮기면 주변 장소가 더 표시돼요
                 </Text>
                 <View style={{ height: insets.bottom + 16 }} />
               </ScrollView>
