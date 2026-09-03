@@ -544,27 +544,51 @@ export default function ExploreScreen() {
   // 클러스터 모드는 clusterCards가 비면 자동 해제되므로, 빈 화면 판정은 반경 내 결과만 보면 된다.
   const panelEmpty = sortedCards.length === 0;
 
+  /** 두 지점의 대략 거리(m). 겹침 판정용 — 지도 쪽 roughMeters와 같은 기준. */
+  const roughMeters = useCallback((a: {lat:number;lng:number}, b: {lat:number;lng:number}) => {
+    const dy = (a.lat - b.lat) * 111320;
+    const dx = (a.lng - b.lng) * 111320 * Math.cos((a.lat * Math.PI) / 180);
+    return Math.sqrt(dx * dx + dy * dy);
+  }, []);
+
   const handleClusterPress = useCallback((ids: string[]) => {
-    // 클러스터를 열면 개별 선택은 해제 — 지도의 강조(주황 링)와 목록이 1:1로 맞도록
-    setSelectedId(null);
-    selectSpot(null);
     setClusterIds(ids);
     setVisibleCount(LIST_PAGE);
-    // 시트를 함께 올리지 않는다 — 지도·시트·목록이 한꺼번에 움직이면
-    // 어디를 봐야 할지 모른다. 지도만 움직이고 목록은 제자리에서 조용히 바뀐다.
     cardListRef.current?.scrollTo({ y: 0, animated: true });
 
-    // 숫자 핀을 눌렀는데 지도가 그대로면 "열렸다"는 확인이 지도에서 안 된다.
-    // 고정 배율 줌인 대신 **그 무리의 경계에 맞춘다** — 흩어진 무리는 펼쳐지고,
-    // 한 건물에 몰린 무리는 최대에서 알아서 멈춘다(fitBounds가 캡을 건다).
     preClusterCamRef.current = { lat: mapCenter.lat, lng: mapCenter.lng, level: zoomLevel };
-    const pts = ids
+    const spotsInCluster = ids
       .map(id => spotsById.get(id))
-      .filter((sp): sp is NonNullable<typeof sp> => !!sp)
-      .map(sp => ({ lat: sp.latitude, lng: sp.longitude, id: sp.spot_id }));
-    // 시트가 지도 하단을 가리므로 그만큼 비워 둔다 — 안 그러면 핀이 시트 뒤로 숨는다.
-    if (pts.length > 0) mapRef.current?.fitBounds(pts, Math.round(PANEL_HALF_H));
-  }, [selectSpot, spotsById, mapCenter.lat, mapCenter.lng, zoomLevel, PANEL_HALF_H]);
+      .filter((sp): sp is NonNullable<typeof sp> => !!sp);
+    if (spotsInCluster.length === 0) return;
+
+    const pts = spotsInCluster.map(sp => ({ lat: sp.latitude, lng: sp.longitude, id: sp.spot_id }));
+    const c0 = {
+      lat: pts.reduce((a, p) => a + p.lat, 0) / pts.length,
+      lng: pts.reduce((a, p) => a + p.lng, 0) / pts.length,
+    };
+    const spread = Math.max(...pts.map(p => roughMeters(c0, p)));
+
+    if (spread < 25) {
+      // ── 겹친 무리(같은 건물 등) ──
+      // 줌인해도 안 갈리므로 **단일 핀을 누른 것과 똑같이** 다룬다.
+      //   지도는 그 자리로 이동하고, 목록에서는 첫 장소를 활성 카드로 띄운다.
+      //   아무것도 선택하지 않으면 "눌렀는데 뭐가 열린 건지" 알 수 없다.
+      const first = spotsInCluster[0];
+      setSelectedId(first.spot_id);
+      selectSpot(first.spot_id);
+      mapRef.current?.setCenter(first.latitude - 0.002, first.longitude, 4);
+      if (snapState === 'min' || snapState === 'peek') snapToHeight('half');
+      return;
+    }
+
+    // ── 흩어진 무리 ── 경계에 맞춰 부드럽게 줌인하면 격자가 갈리며 개별 핀이 된다.
+    // 이때는 특정 장소를 고르지 않는다 — 어느 것을 고를 근거가 없다.
+    setSelectedId(null);
+    selectSpot(null);
+    mapRef.current?.fitBounds(pts, Math.round(PANEL_HALF_H));
+  }, [selectSpot, spotsById, mapCenter.lat, mapCenter.lng, zoomLevel, PANEL_HALF_H,
+      roughMeters, snapState, snapToHeight]);
 
   // 클러스터 목록을 닫으면 원래 보던 곳으로 되돌린다.
   const closeCluster = useCallback(() => {
