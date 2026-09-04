@@ -20,6 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
+import { useInteractedSpots } from '../../src/hooks/useInteractedSpots';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
@@ -64,17 +65,33 @@ export default function MySpotsScreen() {
     () => getHomeCards(),
     [getHomeCards, spots, visitSummaries, savedSpots, dog, currentLocation],
   );
-  // 성능: 방문/저장 목록에서 spots.find(O(n))를 루프로 돌지 않도록 spot_id → Spot Map 1회 구성
-  const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);
+  // 내 기록이 가리키는 장소들. store.spots는 "지금 내 주변"만 담고 persist에서도 제외돼 있어,
+  // 멀리서 발도장/저장한 곳은 여기 없다. 그대로 조인하면 줄이 통째로 사라진다
+  // (dog-detail에서 이미 같은 버그를 겪고 useInteractedSpots를 만들었는데 이 화면만 빠져 있었다).
+  const myVisitSummaries = useMemo(
+    () => visitSummaries.filter(sv => sv.dog_id === dog?.dog_id),
+    [visitSummaries, dog],
+  );
+  const mySaved = useMemo(
+    () => savedSpots.filter(sv => sv.dog_id === dog?.dog_id),
+    [savedSpots, dog],
+  );
+  const interactedIds = useMemo(
+    () => Array.from(new Set([
+      ...myVisitSummaries.map(sv => sv.spot_id),
+      ...mySaved.map(sv => sv.spot_id),
+    ])),
+    [myVisitSummaries, mySaved],
+  );
+  const spotMap = useInteractedSpots(interactedIds);
 
   // ── 발도장 남긴 곳 ────────────────────────────────────────────
   const visitedSpots = useMemo(() => {
-    const base = visitSummaries
-      .filter(sv => sv.dog_id === dog?.dog_id)
+    const base = myVisitSummaries
       .map(sv => ({
         ...sv,
         regularStatus: computeRegularStatus(sv),
-        spot: spotsById.get(sv.spot_id),
+        spot: spotMap[sv.spot_id],
       }))
       .filter(sv => sv.spot);
 
@@ -90,19 +107,24 @@ export default function MySpotsScreen() {
       if (bReg !== aReg) return bReg - aReg;
       return b.visit_count - a.visit_count;
     });
-  }, [visitSummaries, spots, dog, sortKey]);
+  }, [myVisitSummaries, spotMap, sortKey]);
 
   // ── 저장한 곳 ────────────────────────────────────────────────
   const mySavedSpots = useMemo(() =>
-    savedSpots
-      .filter(sv => sv.dog_id === dog?.dog_id)
+    mySaved
       .map(saved => {
-        const spot = spotsById.get(saved.spot_id);
+        const spot = spotMap[saved.spot_id];
         const card = homeCards.find(c => c.spot_id === saved.spot_id);
         return spot ? { saved, spot, card } : null;
       })
       .filter(Boolean) as { saved: typeof savedSpots[0]; spot: typeof spots[0]; card: typeof homeCards[0] | undefined }[],
-  [savedSpots, spots, homeCards, dog]);
+  [mySaved, spotMap, homeCards]);
+
+  // 기록은 있는데 장소를 아직 못 받은 상태를 "기록 없음"과 구분한다.
+  // 구분하지 않으면 조회 중 화면이 "아직 발도장이 없어요"가 되어, 사용자가 자기 기록이
+  // 사라졌다고 읽는다. 실제로 이 화면이 그렇게 보였다.
+  const visitedPending = myVisitSummaries.length > 0 && visitedSpots.length === 0;
+  const savedPending   = mySaved.length > 0 && mySavedSpots.length === 0;
 
   const counts: Record<Tab, number> = {
     visited: visitedSpots.length,
@@ -174,7 +196,12 @@ export default function MySpotsScreen() {
       >
         {/* ── 발도장 남긴 곳 ── */}
         {activeTab === 'visited' && (
-          visitedSpots.length === 0 ? (
+          visitedPending ? (
+            <EmptyState
+              headline="기록을 불러오는 중이에요"
+              description="다녀온 곳 정보를 가져오고 있어요. 잠시만 기다려주세요."
+            />
+          ) : visitedSpots.length === 0 ? (
             <EmptyState
               headline="아직 발도장이 없어요"
               description="산책하고 발도장을 찍으면 여기에 하나씩 기록돼요."
@@ -207,7 +234,12 @@ export default function MySpotsScreen() {
 
         {/* ── 저장한 곳 ── */}
         {activeTab === 'saved' && (
-          mySavedSpots.length === 0 ? (
+          savedPending ? (
+            <EmptyState
+              headline="기록을 불러오는 중이에요"
+              description="저장한 곳 정보를 가져오고 있어요. 잠시만 기다려주세요."
+            />
+          ) : mySavedSpots.length === 0 ? (
             <EmptyState
               headline="저장한 곳이 없어요"
               description="마음에 드는 곳을 저장해두면 여기에 모여요."
