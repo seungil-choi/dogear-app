@@ -21,6 +21,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
+import { pawSubmitLabel } from '../src/utils/pawSubmitLabel';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { PERM, PHOTO } from '../src/constants/messages';
 import { uploadImage } from '../src/lib/uploadImage';
@@ -99,6 +100,16 @@ export default function PawCheckinModal() {
   const [isRefreshingLocation, setIsRefreshingLocation] = useState(false);
   const { submit: submitToServer, isSubmitting } = usePawCheckin();
   const submitLockRef = useRef(false);
+  /**
+   * 제출 진행 단계 — **버튼이 즉시 반응하게 하려고 state로 둔다.**
+   *
+   * 예전엔 submitLockRef(ref)만 세웠는데 ref는 렌더를 일으키지 않는다.
+   * 그래서 탭한 뒤 위치 확인·사진 업로드가 끝날 때까지 버튼이 평소 모습 그대로였고,
+   * "눌린 건가?" 싶어 한 번 더 누르게 됐다(락이 있어 이중 저장은 안 됐지만 답답했다).
+   * 무엇을 기다리는지도 함께 보여준다 — 멈춘 것처럼 보이는 게 진짜 문제다.
+   */
+  const [submitPhase, setSubmitPhase] = useState<null | 'checking' | 'locating' | 'uploading' | 'saving'>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
 
   // 발도장 가능 spot의 진짜 좌표/카테고리 (selectedSpot은 ViewModel이라 lat/lng 없음)
   const targetSpot = useMemo(() => {
@@ -254,6 +265,7 @@ export default function PawCheckinModal() {
     // isSubmitting은 submitToServer 내부에서만 켜져 업로드 구간을 못 덮으므로 별도 락 사용.
     if (submitLockRef.current) return;
     submitLockRef.current = true;
+    setSubmitPhase('checking');   // 탭한 그 프레임에 버튼이 바뀐다
     try {
     // ── UGC 텍스트 사전 필터 (Apple 1.2) ──────────────────────
     // 메모는 흔적(trace)으로 타인에게 노출되므로 부적절어 차단
@@ -297,6 +309,7 @@ export default function PawCheckinModal() {
           screen_name: 'paw_checkin',
           place_id: targetSpot.spot_id,
         });
+        setSubmitPhase('locating');
         await refreshLocation();   // 패널에 '설정 열기'·'위치 새로고침'이 이미 있다
         return;
       }
@@ -326,6 +339,10 @@ export default function PawCheckinModal() {
       //    한 장이라도 실패하면 전체를 멈춘다(일부만 올라간 채 발도장이 남는 상태를 만들지 않으려고).
       const pendingPhotos = pawFlow.photoUris ?? [];
       const uploadedPhotoUrls: string[] = [];
+      if (pendingPhotos.length > 0) {
+        setSubmitPhase('uploading');
+        setUploadProgress({ done: 0, total: pendingPhotos.length });
+      }
       for (const uri of pendingPhotos) {
         if (uri.startsWith('http')) {
           uploadedPhotoUrls.push(uri); // 이미 업로드된 URL
@@ -334,6 +351,7 @@ export default function PawCheckinModal() {
         try {
           const up = await uploadImage({ bucket: 'checkin-photos', uri });
           uploadedPhotoUrls.push(up.url);
+          setUploadProgress(p => (p ? { ...p, done: p.done + 1 } : p));
         } catch (e: any) {
           track(EVENT.photo_upload_failed, {
             screen_name: 'paw_checkin',
@@ -348,6 +366,7 @@ export default function PawCheckinModal() {
       if (uploadedPhotoUrls.length > 0) setPawPhotos(uploadedPhotoUrls);
 
       try {
+        setSubmitPhase('saving');
         const r = await submitToServer(uploadedPhotoUrls); // Edge Function → Supabase 저장
         serverResult = {
           checkinId: r.checkinId,
@@ -402,6 +421,8 @@ export default function PawCheckinModal() {
     setIsSuccess(true);
     } finally {
       submitLockRef.current = false;
+      setSubmitPhase(null);
+      setUploadProgress(null);
     }
   }, [submitPawCheckin, submitToServer, setPawPhoto, selectedSpot, selectedTags, pawFlow, targetSpot, proximity, refreshLocation, dog, resetPawFlow, router, cooldownRemainingMs, cooldownMinLeft]);
 
@@ -862,26 +883,16 @@ export default function PawCheckinModal() {
           />
         ) : (
           <Button
-            label={
-              isSubmitting
-                ? '저장 중...'
-                : cooldownRemainingMs > 0
-                  ? `${cooldownMinLeft}분 후 가능`
-                  : proximity && !proximity.ok
-                    ? (proximity.reason === 'too_far'
-                        ? '장소 근처로 이동해주세요'
-                        : proximity.reason === 'no_location'
-                          ? '위치 권한 필요'
-                          : proximity.reason === 'invalid_spot'
-                            ? '장소 정보 오류'
-                            : '위치 정확도 부족')
-                    : '발도장 찍기'
-            }
+            label={pawSubmitLabel({
+              submitPhase, isSubmitting, uploadProgress,
+              cooldownRemainingMs, cooldownMinLeft,
+              proximityBlockedReason: proximity && !proximity.ok ? proximity.reason : null,
+            })}
             onPress={handleSubmit}
             variant="primary"
             size="l"
             fullWidth
-            disabled={isSubmitting || cooldownRemainingMs > 0 || !!(proximity && !proximity.ok)}
+            disabled={!!submitPhase || isSubmitting || cooldownRemainingMs > 0 || !!(proximity && !proximity.ok)}
           />
         )}
       </View>
