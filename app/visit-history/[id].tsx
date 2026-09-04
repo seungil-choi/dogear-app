@@ -125,6 +125,8 @@ function CheckinCard({ checkin, isFirst, isLast, isLatest, onLongPress }: Checki
             style={styles.photo}
             resizeMode="cover"
             accessibilityLabel="발도장 사진"
+            // 사진은 선택 입력이다. 못 불러오면 큰 회색 박스를 남기지 말고 접는다.
+            hideOnError
           />
         )}
 

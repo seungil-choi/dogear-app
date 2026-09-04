@@ -19,12 +19,21 @@ interface AppImageProps {
   accessibilityLabel?: string;
   /** 정보 전달 없는 장식용 이미지 (스크린리더에서 건너뛰기) */
   decorative?: boolean;
+  /**
+   * 로드 실패 시 자리표시자 대신 **아무것도 그리지 않는다.**
+   *
+   * 격자·아바타처럼 칸이 정해진 자리에서는 자리표시자가 옳다(빈칸이 무너지면 더 이상하다).
+   * 반대로 발도장 사진처럼 **있어도 되고 없어도 되는 콘텐츠**는, 못 불러왔을 때
+   * 큰 회색 박스를 남기면 공간만 버린다. 그 경우 이 옵션을 켠다.
+   */
+  hideOnError?: boolean;
 }
 
 export function AppImage({
   source,
   style,
   resizeMode = 'cover',
+  hideOnError = false,
   accessibilityLabel,
   decorative,
 }: AppImageProps) {
@@ -34,6 +43,7 @@ export function AppImage({
   if (!source?.uri) return null;
 
   // 로드 실패 → 브랜드 플레이스홀더(깨진 이미지 방지)
+  if (errored && hideOnError) return null;
   if (errored) {
     return (
       <View

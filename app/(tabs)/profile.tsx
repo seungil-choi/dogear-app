@@ -421,15 +421,17 @@ const s = StyleSheet.create({
   // 카드에 gap:12가 이미 있어 위 여백은 그것으로 충분하다.
   // 여기에 marginTop을 더 주면 선 위(14)와 아래(10)가 어긋나 나뉜 느낌이 안 난다.
   // ── 사진 미리보기 (장소 상세의 「사진」 섹션과 같은 규격) ──
+  // 부모 section이 이미 marginHorizontal:16을 갖는다. 여기서 또 주면 32가 돼
+  // 아래 설정 카드보다 좁아진다(2026-09-02 수정). 제목 줄과 같은 4만 준다.
   sectionHead: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing[16],
+    paddingHorizontal: Spacing[4],
   },
   sectionMore: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   sectionMoreText: { ...Typography.label.s, color: Colors.text.tertiary },
   photoRow: {
     flexDirection: 'row', gap: PHOTO_GAP,
-    paddingHorizontal: Spacing[16], marginTop: Spacing[10],
+    marginTop: Spacing[10],
   },
   photoCell: {
     width: PHOTO_CELL, aspectRatio: 1,
@@ -437,7 +439,7 @@ const s = StyleSheet.create({
   },
   photoImg: { width: '100%', height: '100%' },
   photoEmpty: {
-    marginHorizontal: Spacing[16], marginTop: Spacing[10],
+    marginTop: Spacing[10],
     paddingVertical: Spacing[20], paddingHorizontal: Spacing[16],
     borderRadius: Radius.l, backgroundColor: Colors.bg.secondary,
     borderWidth: 1, borderColor: Colors.border.subtle,

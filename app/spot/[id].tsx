@@ -792,14 +792,20 @@ export default function SpotDetailScreen() {
                       onPress={() => handleVisitingDogPress(dog)}
                       activeOpacity={0.72}
                     >
-                      <View style={s.familiarAvatarWrap}>
-                        {dog.avatar_url ? (
-                          <AppImage source={{ uri: dog.avatar_url }} style={s.familiarAvatarImg} resizeMode="cover" />
-                        ) : (
-                          <View style={s.familiarAvatarPlaceholder}>
-                            <Text style={s.familiarAvatarInitial}>{dog.name[0]}</Text>
-                          </View>
-                        )}
+                      {/* ⚠️ 껍데기를 한 겹 더 두는 이유:
+                          아바타는 원형으로 잘라야 해서 overflow:'hidden'이 필요한데,
+                          '단골' 배지는 그 원 **밖으로** 걸쳐야 한다. 한 View가 둘을 같이 못 한다.
+                          예전엔 배지를 아바타 안에 넣어 원에 잘린 채 나왔다(2026-09-02 수정). */}
+                      <View style={s.familiarAvatarBox}>
+                        <View style={s.familiarAvatarWrap}>
+                          {dog.avatar_url ? (
+                            <AppImage source={{ uri: dog.avatar_url }} style={s.familiarAvatarImg} resizeMode="cover" />
+                          ) : (
+                            <View style={s.familiarAvatarPlaceholder}>
+                              <Text style={s.familiarAvatarInitial}>{dog.name[0]}</Text>
+                            </View>
+                          )}
+                        </View>
                         {/* 별도 섹션을 만들지 않고 배지로 흡수했다 */}
                         {dog.is_regular && (
                           <View style={s.dogBadge}><Text style={s.dogBadgeText}>단골</Text></View>
@@ -1287,6 +1293,8 @@ const s = StyleSheet.create({
     gap: Spacing[6],
     width: 72,
   },
+  /** 배지가 원 밖으로 걸칠 수 있도록 자르지 않는 껍데기 */
+  familiarAvatarBox: { width: 52, height: 52, position: 'relative' },
   familiarAvatarWrap: {
     width: 52, height: 52,
     borderRadius: 26,
