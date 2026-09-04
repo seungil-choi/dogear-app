@@ -43,6 +43,10 @@ const KEY_VISUAL_HEIGHT = 260;
 /** 다녀간 강아지 레일에 처음 보이는 수 */
 const DOG_RAIL_LIMIT = 8;
 
+/** 사진 미리보기 — 3열이므로 딱 한 줄. 마이 화면과 같은 기준이다.
+ *  서버는 12장을 그대로 내려준다(전체보기가 재요청 없이 열리도록). 자르는 건 화면에서만. */
+const PHOTO_PREVIEW = 3;
+
 /** 사진 그리드 3열 — section의 좌우 여백(16)과 칸 사이 간격(6)을 뺀 실측 폭 */
 const PHOTO_GAP = 6;
 const SCREEN_W = Dimensions.get('window').width;
@@ -856,6 +860,9 @@ export default function SpotDetailScreen() {
         {(() => {
           const photos = vm.photos?.items ?? [];
           const total = vm.photos?.total ?? photos.length;
+          // 뷰어는 미리보기가 아니라 받은 전량을 넘긴다 — 3장만 넘기면
+          // 세 번째에서 좌우로 더 넘길 수 없다
+          const preview = photos.slice(0, PHOTO_PREVIEW);
           return (
             <View style={s.section}>
               <View style={s.sectionHead}>
@@ -879,7 +886,7 @@ export default function SpotDetailScreen() {
               ) : (
                 <>
                   <View style={s.photoGrid}>
-                    {photos.map(photo => (
+                    {preview.map(photo => (
                       // 길게 누르면 — 내 사진은 '삭제', 남의 사진은 '신고'.
                       // 버튼을 늘어놓으면 사진보다 버튼이 먼저 보이므로 롱프레스에 숨긴다.
                       // (사진은 사전 검수 없이 올라오므로 신고가 사후 안전장치다)

@@ -130,7 +130,7 @@ export function PhotoViewer<T extends PhotoViewerItem>({
                 {sub ? <Text style={s.subtitle}>{sub}</Text> : null}
               </TouchableOpacity>
             ) : counter ? (
-              <Text style={s.subtitle}>{counter}</Text>
+              <Text style={s.counter}>{counter}</Text>
             ) : null}
           </View>
 
@@ -176,7 +176,11 @@ const s = StyleSheet.create({
   headerCenter: { flex: 1, alignItems: 'center', paddingHorizontal: Spacing[4] },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   title: { ...Typography.title.s, color: '#FFFFFF', maxWidth: W * 0.55 },
-  subtitle: { ...Typography.caption, color: 'rgba(255,255,255,0.72)', textAlign: 'center' },
+  // 제목 아래 보조줄. 제목이 있을 때만 쓰이므로 제목보다 한 단계 작다.
+  subtitle: { ...Typography.label.l, color: 'rgba(255,255,255,0.82)', textAlign: 'center' },
+  // 카운터('3 / 12')는 제목이 없는 화면에서 **그 자체가 헤더**다. 장소 상세가 그렇다.
+  // caption(12)으로 두니 어두운 배경에서 거의 안 읽혔다 — 제목과 같은 급으로 올린다.
+  counter: { ...Typography.title.s, color: 'rgba(255,255,255,0.95)', textAlign: 'center' },
 
   footer: {
     position: 'absolute', left: 0, right: 0, bottom: 0,

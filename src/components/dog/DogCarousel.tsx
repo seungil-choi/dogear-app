@@ -13,7 +13,7 @@
  * 홈은 도트가 카드를 파고들고 내정보는 안 파고들었다(도트의 음수 마진이 한쪽
  * 화면의 marginBottom에만 맞춰져 있었다). 화면이 정하는 것은 블록 바깥 여백뿐이다.
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View, ScrollView, StyleSheet, useWindowDimensions,
   type NativeSyntheticEvent, type NativeScrollEvent, type StyleProp, type ViewStyle,
@@ -47,6 +47,27 @@ export function DogCarousel({
   // 모듈 로드 시점의 Dimensions로 굳히면 그 뒤로 페이징이 어긋난다.
   const { width } = useWindowDimensions();
 
+  // 도트는 **스크롤 위치**를 따라간다. 활성 강아지(activeDogId)를 따라가게 두면
+  // 스토어 왕복이 끼어들어 손가락보다 늦는다 — 빠르게 넘기면 카드는 이미 다음 장인데
+  // 도트만 이전 장에 남아 있었다. 관성이 완전히 멈춘 뒤에야 갱신됐기 때문이다.
+  const activeIndex = Math.max(0, dogs.findIndex(d => d.dog_id === activeDogId));
+  const [page, setPage] = useState(activeIndex);
+
+  // 카드를 넘기지 않고 바깥에서 활성 강아지가 바뀐 경우(홈의 ▾ 모달 등) 도트를 맞춘다
+  useEffect(() => { setPage(activeIndex); }, [activeIndex]);
+
+  // 매 프레임 setState하지 않는다 — 페이지가 실제로 넘어간 순간에만 갱신한다
+  const onScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (width <= 0) return;
+      const idx = Math.round(e.nativeEvent.contentOffset.x / width);
+      setPage(prev => (idx !== prev && idx >= 0 && idx < dogs.length ? idx : prev));
+    },
+    [width, dogs.length],
+  );
+
+  // 활성 강아지 확정은 멈춘 뒤에. 넘기는 도중마다 바꾸면 홈의 추천·발도장 대상이
+  // 스와이프 한 번에 여러 번 흔들린다.
   const onScrollEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       const idx = Math.round(e.nativeEvent.contentOffset.x / width);
@@ -66,7 +87,9 @@ export function DogCarousel({
         // 한 마리면 넘길 것이 없다 — 스크롤 자체를 막아 살짝 밀리는 느낌을 없앤다
         scrollEnabled={dogs.length > 1}
         showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
         onMomentumScrollEnd={onScrollEnd}
+        // onScroll을 달지 않으면 이 값은 아무 일도 하지 않는다(예전 상태가 그랬다)
         scrollEventThrottle={16}
         // 소개·태그 길이가 달라 카드 높이가 제각각이면 넘길 때마다 아래가 덜컹인다.
         // 가장 높은 카드에 맞춰 늘린다.
@@ -87,8 +110,8 @@ export function DogCarousel({
 
       {dogs.length > 1 && (
         <View style={s.dots}>
-          {dogs.map(d => (
-            <View key={d.dog_id} style={[s.dot, d.dog_id === activeDogId && s.dotActive]} />
+          {dogs.map((d, i) => (
+            <View key={d.dog_id} style={[s.dot, i === page && s.dotActive]} />
           ))}
         </View>
       )}
