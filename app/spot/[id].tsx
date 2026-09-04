@@ -408,12 +408,16 @@ export default function SpotDetailScreen() {
     // 길찾기는 지도 카드의 '빠른 길찾기'로 일원화 — 여기선 뺀다(중복 진입점 제거)
     const idx = await actionSheet(vm?.name ?? '장소', [
       { label: '공유하기' },
+      { label: '대표 사진 제안하기' },
       { label: '정보 수정 제안' },
       { label: '이 장소 신고하기', destructive: true },
     ]);
     if (idx === 0) handleShare();
-    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id } });
-    else if (idx === 2) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
+    // 같은 화면으로 가되 항목을 미리 골라준다 — 사진을 제안하러 들어온 사람에게
+    // 어느 항목인지 다시 찾게 하지 않는다.
+    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id, field: 'photo' } });
+    else if (idx === 2) router.push({ pathname: '/info-correction', params: { spot_id: id } });
+    else if (idx === 3) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
   }, [vm, id, router, handleShare]);
 
   if (!vm) {

@@ -198,7 +198,7 @@ interface AppState {
   isUserBlocked: (user_id: string) => boolean;
 
   // 정보 수정 제안 (어드민 IA "신고 > 정보 수정 제안" 큐로 들어감)
-  suggestEdit: (input: { spot_id: string; field: string; proposed_value: string; reason?: string }) => Promise<void>;
+  suggestEdit: (input: { spot_id: string; field: string; proposed_value: string; reason?: string; proposed_image_url?: string }) => Promise<void>;
 
   // Supabase 연동 actions
   setUser: (user: User | null) => void;
@@ -633,6 +633,10 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         field: input.field,
         proposed_value: input.proposed_value,
         reason: input.reason ?? null,
+        // ⚠️ DB 제약(edit_suggestions_photo_shape): field='photo'면 반드시 있어야 하고,
+        //    아니면 반드시 null이어야 한다. undefined를 그대로 보내면 컬럼이 빠져
+        //    기본값 null이 되므로 사진 제안이 조용히 거부된다.
+        proposed_image_url: input.proposed_image_url ?? null,
         status: 'pending',
       });
       if (error) {
