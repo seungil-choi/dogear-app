@@ -18,7 +18,7 @@ import { PhotoViewer } from '../../src/components/common/PhotoViewer';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import {
   View, Text, ScrollView, TouchableOpacity, FlatList,
-  StyleSheet, Linking, Platform, Share, Modal, Pressable, Animated, Dimensions,
+  StyleSheet, Linking, Platform, Share, Modal, Pressable, Animated, Dimensions, Image,
 } from 'react-native';
 import { actionSheet, confirm } from '../../src/utils/dialog';
 import { toast } from '../../src/utils/toast';
@@ -120,6 +120,13 @@ export default function SpotDetailScreen() {
   const navTitleOpacity = scrollY.interpolate({
     inputRange: [KEY_VISUAL_HEIGHT - 100, KEY_VISUAL_HEIGHT - 40],
     outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+  // 장소명이 오기 전 가운데가 비어 어색했다. 그 자리를 로고가 지키다가 이름에 넘긴다.
+  // 정확히 반대로 움직여야 둘이 겹쳐 보이거나 동시에 사라지는 구간이 없다.
+  const navLogoOpacity = scrollY.interpolate({
+    inputRange: [KEY_VISUAL_HEIGHT - 100, KEY_VISUAL_HEIGHT - 40],
+    outputRange: [1, 0],
     extrapolate: 'clamp',
   });
 
@@ -448,13 +455,22 @@ export default function SpotDetailScreen() {
         >
           <Icon name="back" size={22} color={Colors.text.primary} />
         </TouchableOpacity>
-        {/* 스크롤로 키비주얼이 밀려 올라갔을 때만 보인다 */}
-        <Animated.Text
-          style={[s.topNavTitle, { opacity: navTitleOpacity }]}
-          numberOfLines={1}
-        >
-          {vm.name}
-        </Animated.Text>
+        {/* 가운데 한 자리를 로고와 장소명이 번갈아 쓴다.
+            겹쳐 두고 opacity만 반대로 준다 — 자리를 따로 잡으면 교대 순간에 폭이 튄다.
+            로고는 장식이라 스크린리더에서 숨기고, 이름 쪽만 읽히게 둔다. */}
+        <View style={s.topNavCenter} pointerEvents="none">
+          <Animated.View
+            style={[s.topNavLayer, { opacity: navLogoOpacity }]}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <Image source={require('../../assets/logo-mark.png')} style={s.topNavLogoMark} resizeMode="contain" />
+            <Image source={require('../../assets/logo-wordmark.png')} style={s.topNavLogoWord} resizeMode="contain" />
+          </Animated.View>
+          <Animated.View style={[s.topNavLayer, { opacity: navTitleOpacity }]}>
+            <Animated.Text style={s.topNavTitle} numberOfLines={1}>{vm.name}</Animated.Text>
+          </Animated.View>
+        </View>
         <View style={s.topNavRight}>
           <TouchableOpacity style={s.topNavBtn} onPress={handleMore} hitSlop={8} accessibilityLabel="더보기">
             <Icon name="more" size={20} color={Colors.text.secondary} />
@@ -1064,8 +1080,16 @@ const s = StyleSheet.create({
     borderRadius: 22,
   },
   // 좌(뒤로 44) · 우(더보기 44) 사이를 채워 가운데 정렬 — 폭이 같아 이름이 실제 중앙에 온다
+  topNavCenter: { flex: 1, justifyContent: 'center' },
+  // 두 층을 완전히 포개 둔다. 한쪽만 absolute로 두면 헤더 높이가 그 층에만 좌우된다.
+  topNavLayer: {
+    ...StyleSheet.absoluteFillObject,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: Spacing[6],
+  },
+  topNavLogoMark: { width: 18, height: 18 },
+  topNavLogoWord: { width: 58, height: 19 },   // 워드마크 비율 511:168
   topNavTitle: {
-    flex: 1,
     textAlign: 'center',
     ...Typography.label.l,
     fontWeight: '700',
