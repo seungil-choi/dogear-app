@@ -69,7 +69,7 @@ export default function DogDetailScreen() {
     ])),
     [pawSpotIds, savedSpots, visits],
   );
-  const spotMap = useInteractedSpots(allSpotIds);
+  const { spots: spotMap } = useInteractedSpots(allSpotIds);
   const spotOf = (spotId: string): Spot | undefined => spotMap[spotId];
 
   if (!dog) {

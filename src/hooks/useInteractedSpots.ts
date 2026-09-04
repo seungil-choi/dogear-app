@@ -10,7 +10,13 @@
  * 동작:
  *   - DEV_SEED: store.spots(mockSpots)로 충분 → 추가 조회 없음
  *   - 실모드: store.spots 에 없는 id만 supabase 에서 보충 fetch
- *   - 반환: spot_id → Spot 조회용 Map (store.spots + 보충분 병합)
+ *   - 반환: { spots: spot_id → Spot Map, pending: 아직 조회가 안 끝났는지 }
+ *
+ * ⚠️ pending이 왜 필요한가:
+ *   spots RLS는 status='active'만 읽게 한다(spots_read_authenticated). 어드민이
+ *   장소를 숨기거나 차단하면 그 장소는 **영원히 조회되지 않는다.**
+ *   호출부가 "아직 못 받았다"와 "받을 수 없다"를 구분하지 못하면 로딩이 끝나지
+ *   않는다. 조회를 시도했고 끝났다는 사실을 알려준다.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -19,9 +25,17 @@ import { IS_DEV_SEED } from '@/config/env';
 import type { Spot } from '@/types';
 import { authoredDescription } from '@/utils/spotDescription';
 
-export function useInteractedSpots(spotIds: string[]): Record<string, Spot> {
+export interface InteractedSpots {
+  spots: Record<string, Spot>;
+  /** 보충 조회가 아직 진행 중. false면 더 기다려도 늘지 않는다. */
+  pending: boolean;
+}
+
+export function useInteractedSpots(spotIds: string[]): InteractedSpots {
   const storeSpots = useAppStore(s => s.spots);
   const [fetched, setFetched] = useState<Record<string, Spot>>({});
+  // 조회를 끝낸 id들. 결과가 비어도(숨긴 장소) 여기 들어간다 — 그래야 무한 로딩이 안 된다.
+  const [settled, setSettled] = useState<Set<string>>(() => new Set());
 
   // store.spots 를 우선 조회용 맵으로
   const storeMap = useMemo(() => {
@@ -41,6 +55,7 @@ export function useInteractedSpots(spotIds: string[]): Record<string, Spot> {
   useEffect(() => {
     if (IS_DEV_SEED) return;        // 데모는 mockSpots로 충분
     if (missingIds.length === 0) return;
+    const attempted = missingIds;
 
     let cancelled = false;
     (async () => {
@@ -74,11 +89,22 @@ export function useInteractedSpots(spotIds: string[]): Record<string, Spot> {
         };
       }
       setFetched(prev => ({ ...prev, ...add }));
+      // 조회한 id는 결과 유무와 무관하게 '끝난 것'으로 표시한다.
+      // 숨겨진 장소는 아무리 다시 물어도 오지 않는다.
+      setSettled(prev => {
+        const next = new Set(prev);
+        for (const id of attempted) next.add(id);
+        return next;
+      });
     })();
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [missingKey]);
 
-  return useMemo(() => ({ ...fetched, ...storeMap }), [fetched, storeMap]);
+  return useMemo(() => ({
+    spots: { ...fetched, ...storeMap },
+    // 아직 물어보지도 않은 id가 남아 있을 때만 '대기 중'이다.
+    pending: !IS_DEV_SEED && missingIds.some(id => !settled.has(id)),
+  }), [fetched, storeMap, missingIds, settled]);
 }

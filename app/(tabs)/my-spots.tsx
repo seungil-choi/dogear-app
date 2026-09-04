@@ -83,7 +83,7 @@ export default function MySpotsScreen() {
     ])),
     [myVisitSummaries, mySaved],
   );
-  const spotMap = useInteractedSpots(interactedIds);
+  const { spots: spotMap, pending: spotsPending } = useInteractedSpots(interactedIds);
 
   // ── 발도장 남긴 곳 ────────────────────────────────────────────
   const visitedSpots = useMemo(() => {
@@ -123,8 +123,10 @@ export default function MySpotsScreen() {
   // 기록은 있는데 장소를 아직 못 받은 상태를 "기록 없음"과 구분한다.
   // 구분하지 않으면 조회 중 화면이 "아직 발도장이 없어요"가 되어, 사용자가 자기 기록이
   // 사라졌다고 읽는다. 실제로 이 화면이 그렇게 보였다.
-  const visitedPending = myVisitSummaries.length > 0 && visitedSpots.length === 0;
-  const savedPending   = mySaved.length > 0 && mySavedSpots.length === 0;
+  // ⚠️ spotsPending을 반드시 함께 본다. 어드민이 숨긴 장소는 RLS(active만 조회)에
+  //    걸려 영원히 안 온다 — 조회가 끝났는데도 로딩을 띄우면 화면이 영영 안 끝난다.
+  const visitedPending = spotsPending && myVisitSummaries.length > 0 && visitedSpots.length === 0;
+  const savedPending   = spotsPending && mySaved.length > 0 && mySavedSpots.length === 0;
 
   const counts: Record<Tab, number> = {
     visited: visitedSpots.length,

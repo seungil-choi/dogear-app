@@ -84,6 +84,11 @@ export function DogCarousel({
       <ScrollView
         horizontal
         pagingEnabled
+        // 활성 강아지가 2번인데 1번 카드가 열려 있던 문제.
+        // 도트가 activeDogId를 보던 때는 카드(1번)와 도트(2번)가 어긋나 보였고,
+        // 도트를 스크롤에 붙인 지금은 화면은 1번인데 홈 추천·발도장은 2번 기준으로
+        // 도는 상태가 된다. 시작 위치를 활성 강아지에 맞춘다.
+        contentOffset={{ x: activeIndex * width, y: 0 }}
         // 한 마리면 넘길 것이 없다 — 스크롤 자체를 막아 살짝 밀리는 느낌을 없앤다
         scrollEnabled={dogs.length > 1}
         showsHorizontalScrollIndicator={false}

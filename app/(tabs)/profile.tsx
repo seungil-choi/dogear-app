@@ -31,16 +31,15 @@ import { Icon, type IconName } from '../../src/components/common/Icon';
 import { AppImage } from '../../src/components/common/AppImage';
 import { visibilityLabel } from '../../src/utils/labels';
 import { DogCarousel } from '../../src/components/dog/DogCarousel';
+import { PHOTO_PREVIEW, PHOTO_COLUMNS, PHOTO_GAP } from '../../src/config/photoPreview';
 import { DogCardFooter } from '../../src/components/dog/DogProfileCard';
 import type { Dog, PrivacySetting } from '../../src/types';
 import { severSocialSessions } from '@/lib/socialSession';
 
 const MAX_DOGS = 5;
 
-/** 사진 미리보기 — 장소 상세와 같은 3열 한 줄 */
-const PHOTO_PREVIEW = 3;
-const PHOTO_GAP = 6;
-const PHOTO_CELL = (Dimensions.get('window').width - Spacing[16] * 2 - PHOTO_GAP * 2) / PHOTO_PREVIEW;
+
+const PHOTO_CELL = (Dimensions.get('window').width - Spacing[16] * 2 - PHOTO_GAP * (PHOTO_COLUMNS - 1)) / PHOTO_COLUMNS;
 
 /**
  * 최근 사진 3장 — 마이에서 바로 보여주는 미리보기.

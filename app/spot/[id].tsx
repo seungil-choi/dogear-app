@@ -14,6 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
+import { PHOTO_PREVIEW, PHOTO_COLUMNS, PHOTO_GAP } from '../../src/config/photoPreview';
 import { PhotoViewer } from '../../src/components/common/PhotoViewer';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import {
@@ -43,14 +44,12 @@ const KEY_VISUAL_HEIGHT = 260;
 /** 다녀간 강아지 레일에 처음 보이는 수 */
 const DOG_RAIL_LIMIT = 8;
 
-/** 사진 미리보기 — 3열이므로 딱 한 줄. 마이 화면과 같은 기준이다.
- *  서버는 12장을 그대로 내려준다(전체보기가 재요청 없이 열리도록). 자르는 건 화면에서만. */
-const PHOTO_PREVIEW = 3;
+
 
 /** 사진 그리드 3열 — section의 좌우 여백(16)과 칸 사이 간격(6)을 뺀 실측 폭 */
-const PHOTO_GAP = 6;
+
 const SCREEN_W = Dimensions.get('window').width;
-const PHOTO_CELL = (SCREEN_W - 16 * 2 - PHOTO_GAP * 2) / 3;
+const PHOTO_CELL = (SCREEN_W - 16 * 2 - PHOTO_GAP * (PHOTO_COLUMNS - 1)) / PHOTO_COLUMNS;
 
 export default function SpotDetailScreen() {
   // 레일에 처음 보일 강아지 수. 넘치면 '더보기'로 그리드로 펼친다.
