@@ -425,9 +425,7 @@ export default function SpotDetailScreen() {
       { label: '이 장소 신고하기', destructive: true },
     ]);
     if (idx === 0) handleShare();
-    // 같은 화면으로 가되 항목을 미리 골라준다 — 사진을 제안하러 들어온 사람에게
-    // 어느 항목인지 다시 찾게 하지 않는다.
-    else if (idx === 1) router.push({ pathname: '/info-correction', params: { spot_id: id, field: 'photo' } });
+    else if (idx === 1) router.push({ pathname: '/suggest-photo', params: { spot_id: id } });
     else if (idx === 2) router.push({ pathname: '/info-correction', params: { spot_id: id } });
     else if (idx === 3) router.push({ pathname: '/report', params: { target_type: 'spot', target_id: id } });
   }, [vm, id, router, handleShare]);
@@ -911,10 +909,34 @@ export default function SpotDetailScreen() {
                 )}
               </View>
               {photos.length === 0 ? (
-                <View style={s.galleryEmpty}>
-                  <Text style={s.galleryEmptyText}>아직 사진이 없어요</Text>
-                  <Text style={s.galleryEmptySub}>발도장을 남길 때 사진을 함께 올리면 여기에 모여요.</Text>
-                </View>
+                <>
+                  <View style={s.galleryEmpty}>
+                    <Text style={s.galleryEmptyText}>아직 사진이 없어요</Text>
+                    <Text style={s.galleryEmptySub}>발도장을 남길 때 사진을 함께 올리면 여기에 모여요.</Text>
+                  </View>
+                  {/* 사진 제안 입구 — ⋯ 메뉴에도 같은 항목이 있고, 둘 다 같은 화면으로 간다.
+                      「첫 사진을 남겨주세요」라고 쓰지 않는다. 목록·지도의 썸네일은 카테고리
+                      일러스트로 이미 차 있어 장소가 비어 보이지 않는다. 없는 걸 채우라는 게
+                      아니라 더 나은 걸 나눠달라는 쪽이 화면과 맞는다.
+                      ⚠️ 지금은 사진 있는 장소가 1곳뿐이라 사실상 모든 장소에서 뜬다.
+                         조르는 느낌이 나면 '발도장 남긴 장소에만'으로 조건을 좁힐 것. */}
+                  <TouchableOpacity
+                    style={s.photoInvite}
+                    onPress={() => router.push({ pathname: '/suggest-photo', params: { spot_id: id } })}
+                    activeOpacity={0.85}
+                    accessibilityRole="button"
+                    accessibilityLabel="이 장소의 대표 사진 제안하기"
+                  >
+                    <View style={s.photoInviteIcon}>
+                      <Icon name="camera" size={16} color={Colors.brand.primary} />
+                    </View>
+                    <View style={s.photoInviteText}>
+                      <Text style={s.photoInviteTitle}>이 장소의 대표 사진을 나눠주세요</Text>
+                      <Text style={s.photoInviteSub}>검토 후 이 장소의 첫 사진으로 올라갑니다</Text>
+                    </View>
+                    <Icon name="forward" size={14} color={Colors.brand.accent} />
+                  </TouchableOpacity>
+                </>
               ) : (
                 <>
                   <View style={s.photoGrid}>
@@ -1293,6 +1315,19 @@ const s = StyleSheet.create({
   galleryEmpty: { paddingVertical: Spacing[16], gap: Spacing[4] },
   galleryEmptyText: { ...Typography.body.m, color: Colors.text.secondary },
   galleryEmptySub: { ...Typography.caption, color: Colors.text.tertiary },
+  photoInvite: {
+    marginTop: Spacing[12], flexDirection: 'row', alignItems: 'center', gap: Spacing[10],
+    borderWidth: 1, borderStyle: 'dashed', borderColor: Colors.border.brand,
+    backgroundColor: Colors.brand.subtle, borderRadius: Radius.m,
+    paddingHorizontal: Spacing[12], paddingVertical: Spacing[12],
+  },
+  photoInviteIcon: {
+    width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.bg.primary,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  photoInviteText: { flex: 1 },
+  photoInviteTitle: { ...Typography.label.m, color: Colors.text.primary, fontWeight: '600' },
+  photoInviteSub: { ...Typography.caption, color: Colors.text.tertiary, marginTop: 2 },
 
   // ── 자주 찾는 강아지 — 가로 스크롤 레일 ───────────────────────────
 
