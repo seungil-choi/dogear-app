@@ -211,29 +211,18 @@ export interface FamiliarDogCardViewModel {
   dog_id: string;
   name: string;
   avatar_url?: string;
-  /** 견종 텍스트 — 바텀시트 '견종' 행에 단독 표시 (없으면 '') */
-  breed_text: string;
-  /** 크기 레이블 — 바텀시트 '몸집' 행에 표시 (예: '소형견') */
-  size_label: string;
-  /** 견종·나이 요약 — 목록 카드 서브 텍스트 (예: '말티즈 · 성견') */
-  breed_age_text: string;
-  temperament_preview: string[]; // 성향 1~2개 (완화된 표현)
-  /** 완화된 최근성 표현 — 목록 카드에 표시 (정확한 시간 절대 불가) */
-  recency_label: string;         // e.g., '최근 자주 찾고 있어요'
-  /** 이 장소와의 관계 한 줄 — **바텀시트에서는 쓰지 않는다**(2026-09-05).
-   *  「이 장소에 다녀갔어요」는 사용자가 방금 지나온 '다녀간 강아지' 목록을 되풀이하고,
-   *  「단골이에요」는 레일 아바타의 단골 배지와 겹쳤다. 목록 카드용으로만 남긴다. */
-  relation_text: string;
+  /** 성향 1~2개 — 본인이 고른 temperament_tags를 라벨로 바꾼 것 */
+  temperament_preview: string[];
 
   // ── 프로필 본문 ──
-  /** 생물학적 정보 한 줄. 예: '말티즈 · 3살 · 5.2kg · 소형견' */
+  /** 생물학적 정보 한 줄. 예: '말티즈 · 성견 · 5.2kg · 소형견' */
   facts_line: string;
   bio?: string;
-  /** 전체 누적 발도장 수 */
+  /** **전체 누적** 발도장 수 */
   total_paw_count: number;
-  /** 본인이 고른 산책 스타일. 없으면 walking_fallback을 쓴다 */
+  /** 본인이 고른 산책 스타일(1순위) */
   walking_preview: string[];
-  /** 기록에서 계산한 산책 성향 문장 (최대 2줄). 태그가 있으면 비어 있다 */
+  /** 서버가 기록에서 계산한 산책 성향 문장(2순위, 최대 2줄) */
   walking_fallback: string[];
   is_regular: boolean;
 }

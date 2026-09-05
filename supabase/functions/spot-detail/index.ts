@@ -391,6 +391,9 @@ Deno.serve(async (req: Request) => {
         .from('paw_checkins')
         .select('dog_id, feeling_tags, spots!inner(category)')
         .in('dog_id', needFallback)
+        // ⚠️ 정렬이 없으면 600건이 임의로 잘려 강아지마다 표본이 들쭉날쭉해지고,
+        //    같은 프로필을 다시 열 때 문장이 바뀐다. 최신순으로 고정한다.
+        .order('checked_in_at', { ascending: false })
         .limit(600);
       const catCount: Record<string, Record<string, number>> = {};
       const feelCount: Record<string, Record<string, number>> = {};
@@ -408,7 +411,10 @@ Deno.serve(async (req: Request) => {
       for (const id of needFallback) {
         const out: string[] = [];
         const topCat = Object.entries(catCount[id] ?? {}).sort((a, b) => b[1] - a[1])[0];
-        if (topCat && CATEGORY_KO[topCat[0]]) out.push(`${CATEGORY_KO[topCat[0]]}을 가장 많이 다녀요`);
+        if (topCat && CATEGORY_KO[topCat[0]]) {
+          const w = CATEGORY_KO[topCat[0]];
+          out.push(`${w}${objectParticle(w)} 가장 많이 다녀요`);
+        }
         // 'good'은 뜻이 넓어 성향이 아니고, 'noisy'는 그 아이가 아니라 장소에 대한
         // 불평이라 프로필에 올릴 말이 아니다 — 둘 다 문장으로 만들지 않는다.
         const topFeel = Object.entries(feelCount[id] ?? {})
@@ -558,6 +564,19 @@ Deno.serve(async (req: Request) => {
  * 예전엔 빈도를 세어놓고 이름만 남겨 버렸다. 화면에서 "조용해요"만 보이면
  * 한 명이 한 번 고른 것인지 스무 명이 고른 것인지 알 수 없다.
  */
+/**
+ * 목적격 조사 — 받침이 있으면 '을', 없으면 '를'.
+ * 「산책로을」·「쉼터을」·「애견카페을」이 실제로 나가고 있었다(10개 중 4개).
+ * 한글 음절은 0xAC00부터 28개 종성 단위로 배열돼 있어, 28로 나눈 나머지가
+ * 0이면 받침이 없다.
+ */
+function objectParticle(word: string): string {
+  const last = word[word.length - 1];
+  const code = last.charCodeAt(0);
+  if (code < 0xAC00 || code > 0xD7A3) return '를';   // 한글이 아니면 무난한 쪽
+  return (code - 0xAC00) % 28 === 0 ? '를' : '을';
+}
+
 function getTopTagCounts(tags: string[]): { tag: string; count: number }[] {
   const freq: Record<string, number> = {};
   for (const tag of tags) {
@@ -569,9 +588,6 @@ function getTopTagCounts(tags: string[]): { tag: string; count: number }[] {
     .map(([tag, count]) => ({ tag, count }));
 }
 
-function getTopTags(tags: string[]): string[] {
-  return getTopTagCounts(tags).map((t) => t.tag);
-}
 
 function deriveAtmosphereState(tags: string[]): string {
   if (tags.length === 0) return 'unknown';

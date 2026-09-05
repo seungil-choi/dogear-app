@@ -5,16 +5,14 @@
  *   1순위 — 본인이 직접 고른 태그가 있으면 그것을 쓴다.
  *   2순위 — 없으면 발도장 기록에서 계산한다.
  *
- * ⚠️ 폴백은 **산책 줄에만** 성립한다. 성격("낯가림 있어요")은 발도장 기록에서
- *    유추할 방법이 없다. 성격 태그가 없으면 그 줄은 그리지 않는다.
+ * ⚠️ 2순위(산책 성향 폴백)는 **서버(spot-detail)가 계산한다.** 여기 있지 않다.
+ *    카테고리·기분 분포는 그 강아지의 전체 발도장에 있고, 앱은 남의 발도장을
+ *    볼 수 없다. 앱에서 만들면 지금 보고 있는 장소 하나만 보고 단정하게 된다.
  *
- * ⚠️ 이 시트는 **남이 보는 화면**이다. "어떤 아이인가"만 계산하고
- *    "어디에 있었나"는 만들지 않는다 — 발도장은 위치 기록이라 장소·시각이 곧 동선이다.
+ * ⚠️ 폴백은 **산책 줄에만** 성립한다. 성격("낯가림 있어요")은 기록에서
+ *    유추할 방법이 없다. 성격 태그가 없으면 그 줄은 그리지 않는다.
  */
 import type { DogAgeGroup, DogSize } from '../types';
-
-/** 계산을 시작하는 최소 발도장 수. 한두 번 간 곳을 성향이라 부르지 않는다. */
-export const WALKING_FALLBACK_MIN_PAWS = 5;
 
 const AGE_LABEL: Record<DogAgeGroup, string> = {
   puppy: '어린 개', adult: '성견', senior: '노령견',
@@ -40,45 +38,4 @@ export function factsLine(d: {
   }
   if (d.size && SIZE_LABEL[d.size]) parts.push(SIZE_LABEL[d.size]);
   return parts.join(' · ');
-}
-
-/** 발도장 기록에서 뽑을 수 있는 재료 */
-export interface WalkingEvidence {
-  /** 카테고리 라벨 → 횟수 (예: { 공원: 8, 산책로: 2 }) */
-  categoryCounts: Record<string, number>;
-  /** 기분 태그 → 횟수 (feeling_tag enum) */
-  feelingCounts: Record<string, number>;
-  /** 전체 누적 발도장 수 */
-  totalPaws: number;
-}
-
-const FEELING_SENTENCE: Record<string, string> = {
-  quiet:              '조용한 곳을 좋아해요',
-  many_dogs:          '강아지가 많은 곳을 좋아해요',
-  good_for_short_rest:'잠깐 쉬어가기 좋은 곳을 자주 찾아요',
-  come_back_again:    '한 번 간 곳을 다시 찾는 편이에요',
-};
-
-/**
- * 산책 성향 폴백 — **최대 2줄**.
- * 더 늘리면 폴백이 본체(성격 태그)보다 커져 주객이 바뀐다.
- */
-export function walkingFallback(ev: WalkingEvidence): string[] {
-  if (ev.totalPaws < WALKING_FALLBACK_MIN_PAWS) return [];
-  const out: string[] = [];
-
-  const topCategory = Object.entries(ev.categoryCounts)
-    .sort((a, b) => b[1] - a[1])[0];
-  if (topCategory && topCategory[1] > 0) {
-    out.push(`${topCategory[0]}을(를) 가장 많이 다녀요`);
-  }
-
-  // 'good'·'noisy'는 문장으로 만들지 않는다. 'good'은 뜻이 넓어 성향이 아니고,
-  // 'noisy'는 그 아이가 아니라 장소에 대한 불평이라 프로필에 올릴 말이 아니다.
-  const topFeeling = Object.entries(ev.feelingCounts)
-    .filter(([k]) => FEELING_SENTENCE[k])
-    .sort((a, b) => b[1] - a[1])[0];
-  if (topFeeling && topFeeling[1] > 0) out.push(FEELING_SENTENCE[topFeeling[0]]);
-
-  return out.slice(0, 2);
 }

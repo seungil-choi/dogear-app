@@ -180,14 +180,9 @@ export default function SpotDetailScreen() {
       dog_id: dog.dog_id,
       name: dog.name,
       avatar_url: dog.avatar_url ?? undefined,
-      breed_text: dog.breed ?? '',
-      size_label: dog.size ? sizeLabel[dog.size] : '',
-      breed_age_text: '',
       temperament_preview: (dog.temperament_tags ?? [])
         .slice(0, 2).map(t => temperamentLabels[t] ?? t),
       // 목록 카드용으로만 남은 값 — 시트는 그리지 않는다
-      recency_label: softenedRecencyLabel(dog.visit_count, dog.last_visit_at),
-      relation_text: dog.is_regular ? '이 장소의 단골이에요' : '이 장소에 다녀갔어요',
 
       facts_line: factsLine(dog),
       bio: dog.bio || undefined,

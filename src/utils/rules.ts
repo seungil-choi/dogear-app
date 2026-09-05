@@ -143,6 +143,12 @@ export function buildHomeSpotCard(
 
 // ─── 자주 찾는 강아지 — 완화된 최근성 텍스트 ──────────────────
 // 정확한 시간·횟수·패턴 절대 노출 금지 (개인정보보호 + 비소셜 원칙)
+//
+// ⚠️ 2026-09-05 현재 **호출하는 곳이 없다.** 프로필 바텀시트에서 최근성 줄을
+//    뺐기 때문이다(사용자가 방금 지나온 목록을 되풀이해서).
+//    그런데도 지우지 않는다 — 이건 함수가 아니라 **규칙**이다. Phase 2에서
+//    친구 기능이 최근성을 다시 드러낼 때, 이 완화 규칙을 처음부터 다시
+//    도출하게 두면 안 된다. 지우려면 위 원칙을 어디에 남길지부터 정할 것.
 export function softenedRecencyLabel(checkinCount: number, lastSeenAt: string): string {
   const diffDays = (Date.now() - new Date(lastSeenAt).getTime()) / 86_400_000;
   if (checkinCount >= 3 && diffDays <= 7) return '최근 자주 찾고 있어요';
@@ -205,12 +211,7 @@ export function buildFamiliarDogCards(
       dog_id: s.visible_dog_id,
       name: dog?.name ?? '강아지',
       avatar_url: dog?.avatar_url,
-      breed_text: dog?.breed ?? '',
-      size_label: dog ? sizeLabel[dog.size] : '',
-      breed_age_text: breedAgeText,
       temperament_preview: (dog?.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),
-      recency_label: softenedRecencyLabel(s.recent_visible_checkin_count, s.recent_last_seen_at),
-      relation_text: spotRelationText(s.recent_visible_checkin_count),
       // ⚠️ 프로필 본문은 여기서 채우지 않는다. 이 경로는 로컬 시그널이라
       //    전체 누적·체중·소개를 알 수 없다. 바텀시트는 visiting_dogs 경로로
       //    열리므로(app/spot/[id].tsx) 실제 값은 거기서 만든다.
@@ -281,12 +282,7 @@ export function buildSpotDetailFromApi(
       dog_id: d.dog_id,
       name: d.name || '강아지',
       avatar_url: d.avatar_url ?? undefined,
-      breed_text: '',
-      size_label: sizeLbl,
-      breed_age_text: sizeLbl,
       temperament_preview: (d.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),
-      recency_label: softenedRecencyLabel(d.recent_checkin_count, d.last_seen_at),
-      relation_text: spotRelationText(d.recent_checkin_count),
       facts_line: sizeLbl,
       total_paw_count: 0,
       walking_preview: [],
