@@ -1118,8 +1118,11 @@ const s = StyleSheet.create({
     borderRadius: 22,
   },
   // 좌(뒤로 44) · 우(더보기 44) 사이를 채워 가운데 정렬 — 폭이 같아 이름이 실제 중앙에 온다
-  topNavCenter: { flex: 1, justifyContent: 'center' },
-  // 두 층을 완전히 포개 둔다. 한쪽만 absolute로 두면 헤더 높이가 그 층에만 좌우된다.
+  // ⚠️ 높이를 명시한다. 자식이 **둘 다 absolute**라 이 컨테이너는 잴 내용이 없어
+  //    높이 0으로 접힌다 — 그러면 로고도 장소명도 영영 안 보인다(2026-09-05 사고).
+  //    좌우 버튼(topNavBtn)과 같은 44로 맞춰 헤더 높이가 달라지지 않게 한다.
+  topNavCenter: { flex: 1, height: 44, justifyContent: 'center' },
+  // 두 층을 완전히 포개 둔다. 한쪽만 absolute로 두면 교대할 때 폭이 튄다.
   topNavLayer: {
     ...StyleSheet.absoluteFillObject,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
