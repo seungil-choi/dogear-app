@@ -287,39 +287,6 @@ export default function SpotDetailScreen() {
     else if (idx === 1) openDirections('kakao');
   }, [vm, openDirections]);
 
-  /**
-   * 외부 지도 앱에서 위치 보기 (길찾기와 다르다).
-   *   길찾기는 `link/to` — 출발지를 묻고 경로를 그린다. 갈 결심이 선 사람이 누른다.
-   *   여기는 `link/map` — 그냥 지도에 이 지점을 찍어 보여준다. 어디쯤인지 보려는 사람이 누른다.
-   */
-  const handleOpenMap = useCallback(async () => {
-    if (!vm) return;
-    track(EVENT.map_viewed, {
-      screen_name: 'spot_detail',
-      place_id: id,
-      place_category: vm.category_label,
-    });
-    const url =
-      `https://map.kakao.com/link/map/${encodeURIComponent(vm.name)},${vm.latitude},${vm.longitude}`;
-    try {
-      await Linking.openURL(url);
-    } catch (e) {
-      console.error('[spot] 지도 열기 실패:', e);
-      toast.error('지도 앱을 열지 못했어요. 주소를 복사해 사용해주세요');
-    }
-  }, [vm, id]);
-
-  /**
-   * 장소 공유.
-   *
-   * 예전에는 장소 **이름만** 보냈다("망원한강공원"). 받는 사람은 그게 어디인지 알 수 없다.
-   * 지금은 이름·카테고리·주소에 지도 링크까지 실어, 앱이 없어도 바로 열어볼 수 있게 한다.
-   *
-   * ⚠️ OG 미리보기(썸네일 카드)는 지금 구조에서 불가능하다.
-   *    장소마다 크롤러가 읽을 수 있는 공개 웹 페이지가 있어야 하는데 그런 페이지가 없다.
-   *    앱 스킴(dogear://)은 미리보기가 뜨지 않고 앱이 깔린 기기에서만 열린다.
-   *    제대로 하려면 장소별 SSR 랜딩 + Universal/App Links가 선행돼야 한다.
-   */
   const handleShare = useCallback(() => {
     if (!vm) return;
     const mapUrl = vm.address_text
@@ -682,6 +649,11 @@ export default function SpotDetailScreen() {
               />
             </View>
 
+            {/* 「지도에서 보기」를 뺐다(2026-09-05).
+                바로 위에 지도 카드가 이미 있어 '어디쯤인지'는 여기서 보인다. 외부 앱으로
+                넘길 이유가 약했다. 게다가 그 버튼만 카카오맵 고정이라, 네이버를 쓰는
+                사람에게는 원치 않는 앱이 열렸다 — 옆의 길찾기는 고르게 하면서.
+                두 버튼이 나란히 있으면 "둘이 뭐가 다르지"를 매번 묻게 되기도 했다. */}
             <View style={s.mapActions}>
               <TouchableOpacity
                 style={s.mapAction}
@@ -692,19 +664,6 @@ export default function SpotDetailScreen() {
               >
                 <Icon name="navigate" size={16} color={Colors.text.secondary} />
                 <Text style={s.mapActionText}>빠른 길찾기</Text>
-              </TouchableOpacity>
-
-              <View style={s.mapActionDivider} />
-
-              <TouchableOpacity
-                style={s.mapAction}
-                onPress={handleOpenMap}
-                activeOpacity={0.7}
-                accessibilityRole="button"
-                accessibilityLabel={`${vm.name} 지도에서 보기`}
-              >
-                <Icon name="map" size={16} color={Colors.text.secondary} />
-                <Text style={s.mapActionText}>지도에서 보기</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1217,11 +1176,6 @@ const s = StyleSheet.create({
     height: 48,
   },
   // 구분선은 위아래를 띄운다 — 끝까지 닿으면 카드가 두 조각으로 쪼개져 보인다
-  mapActionDivider: {
-    width: StyleSheet.hairlineWidth,
-    marginVertical: Spacing[12],
-    backgroundColor: Colors.border.default,
-  },
   mapActionText: { ...Typography.label.l, color: Colors.text.secondary, fontWeight: '600' },
 
   // ── 관계 요약 카드 (아이콘 포함) ───────────────────────────────────
