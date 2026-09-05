@@ -181,16 +181,33 @@ Deno.serve(async (req: Request) => {
       ...(visitingResult.data ?? []).map((v: any) => v.dog_id),
     ].filter(Boolean)));
     const ownerByDog: Record<string, string> = {};
-    const dogBriefById: Record<string, { name: string; avatar_url: string | null }> = {};
+    const dogBriefById: Record<string, {
+      name: string; avatar_url: string | null;
+      bio: string | null; breed: string | null;
+      weight_kg: number | null; size: string | null; age_group: string | null;
+      temperament_tags: string[]; walking_style_tags: string[];
+    }> = {};
     if (candidateDogIds.length > 0) {
       // 갤러리에 강아지 이름을 함께 내보내야 해서 name·avatar_url까지 한 번에 가져온다.
+      // 프로필 바텀시트가 쓰는 값(소개·체중·나이·태그)도 여기서 같이 받는다 —
+      // 시트를 열 때 따로 조회하면 탭할 때마다 왕복이 생긴다.
       const { data: owners } = await svc
         .from('dogs')
-        .select('dog_id, user_id, name, avatar_url')
+        .select('dog_id, user_id, name, avatar_url, bio, breed, weight_kg, size, age_group, temperament_tags, walking_style_tags')
         .in('dog_id', candidateDogIds);
       for (const d of owners ?? []) {
         ownerByDog[d.dog_id] = d.user_id;
-        dogBriefById[d.dog_id] = { name: d.name, avatar_url: d.avatar_url ?? null };
+        dogBriefById[d.dog_id] = {
+          name: d.name,
+          avatar_url: d.avatar_url ?? null,
+          bio: d.bio ?? null,
+          breed: d.breed ?? null,
+          weight_kg: d.weight_kg ?? null,
+          size: d.size ?? null,
+          age_group: d.age_group ?? null,
+          temperament_tags: d.temperament_tags ?? [],
+          walking_style_tags: d.walking_style_tags ?? [],
+        };
       }
     }
     const isBlockedDog = (dId: string) => blockedUserIds.has(ownerByDog[dId]);
@@ -330,6 +347,77 @@ Deno.serve(async (req: Request) => {
         if (r.regular_status && r.regular_status !== 'none') regularSet.add(r.dog_id);
       }
     }
+    // 프로필 시트의 '발도장 N' — **이 장소가 아니라 전체 누적**이다.
+    //   "이 아이가 얼마나 자주 산책을 나가는가"에 답하는 숫자라, 장소별로 세면
+    //   질문이 달라진다(그건 동선에 가깝다).
+    //   spot_visit_summaries(dog_id, spot_id, visit_count)를 합산한다 —
+    //   paw_checkins를 세면 강아지마다 전량 스캔이라 비싸다.
+    const totalPawByDog: Record<string, number> = {};
+    if (visitingIds.length > 0) {
+      const { data: allSummaries } = await svc
+        .from('spot_visit_summaries')
+        .select('dog_id, visit_count')
+        .in('dog_id', visitingIds);
+      for (const r of allSummaries ?? []) {
+        totalPawByDog[r.dog_id] = (totalPawByDog[r.dog_id] ?? 0) + (r.visit_count ?? 0);
+      }
+    }
+
+    // ── 산책 성향 폴백 ──
+    //   본인이 walking_style_tags를 안 골랐을 때만 쓴다(1순위는 언제나 본인 값).
+    //   여기서 계산하는 이유: 카테고리·기분 태그 분포는 그 강아지의 **전체 발도장**에
+    //   있고, 클라이언트는 남의 발도장을 볼 수 없다. 앱에서 만들면 지금 보고 있는
+    //   장소 하나만 보고 단정하게 된다.
+    //   ⚠️ 문장만 내보낸다. 어느 장소를 언제 갔는지는 절대 담지 않는다 — 동선이 된다.
+    const WALK_MIN = 5;
+    const FEELING_SENTENCE: Record<string, string> = {
+      quiet: '조용한 곳을 좋아해요',
+      many_dogs: '강아지가 많은 곳을 좋아해요',
+      good_for_short_rest: '잠깐 쉬어가기 좋은 곳을 자주 찾아요',
+      come_back_again: '한 번 간 곳을 다시 찾는 편이에요',
+    };
+    const CATEGORY_KO: Record<string, string> = {
+      park: '공원', trail: '산책로', riverside: '하천·강변', rest_spot: '쉼터',
+      beach: '해변', pet_cafe: '애견카페', vet: '동물병원',
+      pet_grooming: '애견미용', pet_boarding: '애견호텔', other: '그 밖의 장소',
+    };
+    const walkingFallbackByDog: Record<string, string[]> = {};
+    const needFallback = visitingIds.filter(
+      (id) => (dogBriefById[id]?.walking_style_tags ?? []).length === 0
+        && (totalPawByDog[id] ?? 0) >= WALK_MIN,
+    );
+    if (needFallback.length > 0) {
+      const { data: fbRows } = await svc
+        .from('paw_checkins')
+        .select('dog_id, feeling_tags, spots!inner(category)')
+        .in('dog_id', needFallback)
+        .limit(600);
+      const catCount: Record<string, Record<string, number>> = {};
+      const feelCount: Record<string, Record<string, number>> = {};
+      for (const r of (fbRows ?? []) as any[]) {
+        const cat = Array.isArray(r.spots) ? r.spots[0]?.category : r.spots?.category;
+        if (cat) {
+          catCount[r.dog_id] ??= {};
+          catCount[r.dog_id][cat] = (catCount[r.dog_id][cat] ?? 0) + 1;
+        }
+        for (const t of (r.feeling_tags ?? [])) {
+          feelCount[r.dog_id] ??= {};
+          feelCount[r.dog_id][t] = (feelCount[r.dog_id][t] ?? 0) + 1;
+        }
+      }
+      for (const id of needFallback) {
+        const out: string[] = [];
+        const topCat = Object.entries(catCount[id] ?? {}).sort((a, b) => b[1] - a[1])[0];
+        if (topCat && CATEGORY_KO[topCat[0]]) out.push(`${CATEGORY_KO[topCat[0]]}을 가장 많이 다녀요`);
+        // 'good'은 뜻이 넓어 성향이 아니고, 'noisy'는 그 아이가 아니라 장소에 대한
+        // 불평이라 프로필에 올릴 말이 아니다 — 둘 다 문장으로 만들지 않는다.
+        const topFeel = Object.entries(feelCount[id] ?? {})
+          .filter(([k]) => FEELING_SENTENCE[k]).sort((a, b) => b[1] - a[1])[0];
+        if (topFeel) out.push(FEELING_SENTENCE[topFeel[0]]);
+        if (out.length > 0) walkingFallbackByDog[id] = out.slice(0, 2);   // 최대 2줄
+      }
+    }
+
     const visitingDogs = visitingIds
       .filter((id) => dogBriefById[id])
       .sort((a, b) => (visitAgg[b].last > visitAgg[a].last ? 1 : -1))
@@ -344,6 +432,20 @@ Deno.serve(async (req: Request) => {
         // '나와 자주 마주친' 관계 — 별도 섹션 대신 배지로 흡수한다
         is_familiar: familiarIdSet.has(id),
         is_mine: !!dogId && id === dogId,
+        // ── 프로필 바텀시트용 ──
+        //   ⚠️ 여기 담기는 값은 **남에게 보인다.** 신원 노출 게이트(exposedIds)를
+        //      통과한 강아지만 이 배열에 남으므로 게이트는 이미 지나 있다.
+        //      다만 "어디에 있었나"에 해당하는 값은 절대 넣지 않는다 — 발도장은
+        //      위치 기록이라 장소·시각이 곧 동선이다.
+        bio: dogBriefById[id].bio,
+        breed: dogBriefById[id].breed,
+        weight_kg: dogBriefById[id].weight_kg,
+        size: dogBriefById[id].size,
+        age_group: dogBriefById[id].age_group,
+        temperament_tags: dogBriefById[id].temperament_tags,
+        walking_style_tags: dogBriefById[id].walking_style_tags,
+        total_paw_count: totalPawByDog[id] ?? 0,
+        walking_fallback: walkingFallbackByDog[id] ?? [],
       }));
 
     // ── 히어로 이미지 우선순위 (기획 14번 D4) ────────────────────

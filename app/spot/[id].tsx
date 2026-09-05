@@ -14,6 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Clipboard from 'expo-clipboard';
 import { AppImage } from '../../src/components/common/AppImage';
+import { factsLine } from '../../src/utils/dogProfile';
 import { PHOTO_PREVIEW, PHOTO_COLUMNS, PHOTO_GAP } from '../../src/config/photoPreview';
 import { PhotoViewer } from '../../src/components/common/PhotoViewer';
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
@@ -33,7 +34,7 @@ import { useSpotDetail } from '../../src/hooks/useSpotDetail';
 import { buildSpotDetailFromApi, displaySavedCount, softenedRecencyLabel } from '../../src/utils/rules';
 import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
-import { categoryLabel as catLabel, feelingTagLabel } from '../../src/utils/labels';
+import { categoryLabel as catLabel, feelingTagLabel, sizeLabel, temperamentLabels, walkingStyleLabels } from '../../src/utils/labels';
 import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
 import type { SpotVisitingDog, FamiliarDogCardViewModel, SpotGalleryPhoto, FeelingTag } from '../../src/types';
@@ -167,18 +168,35 @@ export default function SpotDetailScreen() {
 
   const handleVisitingDogPress = useCallback((dog: SpotVisitingDog) => {
     if (dog.is_mine) { router.push('/dog-detail' as any); return; }
-    const rich = vm?.familiar_dogs?.find(f => f.dog_id === dog.dog_id);
-    setSelectedDog(rich ?? {
+
+    // 시트는 **visiting_dogs 하나만** 본다. 예전엔 familiar_dogs에서 풍부한 값을
+    // 찾아 덮어썼는데, 두 경로가 서로 다른 값을 담고 있어 같은 강아지가 어디서
+    // 열리느냐에 따라 다르게 보였다. spot-detail이 프로필 값을 visiting_dogs에
+    // 함께 실어주므로 합칠 이유가 없어졌다.
+    const declaredWalking = (dog.walking_style_tags ?? [])
+      .slice(0, 2).map(t => walkingStyleLabels[t] ?? t);
+
+    setSelectedDog({
       dog_id: dog.dog_id,
       name: dog.name,
       avatar_url: dog.avatar_url ?? undefined,
-      breed_text: '',
-      size_label: '',
+      breed_text: dog.breed ?? '',
+      size_label: dog.size ? sizeLabel[dog.size] : '',
       breed_age_text: '',
-      temperament_preview: [],
-      // 폴백에서도 횟수를 그대로 쓰지 않는다 — familiar_dogs 경로와 같은 규칙을 탄다
+      temperament_preview: (dog.temperament_tags ?? [])
+        .slice(0, 2).map(t => temperamentLabels[t] ?? t),
+      // 목록 카드용으로만 남은 값 — 시트는 그리지 않는다
       recency_label: softenedRecencyLabel(dog.visit_count, dog.last_visit_at),
       relation_text: dog.is_regular ? '이 장소의 단골이에요' : '이 장소에 다녀갔어요',
+
+      facts_line: factsLine(dog),
+      bio: dog.bio || undefined,
+      total_paw_count: dog.total_paw_count ?? 0,
+      walking_preview: declaredWalking,
+      // 1순위(본인이 고른 값)가 있으면 폴백을 쓰지 않는다.
+      // 폴백 자체는 서버가 계산해서 보낸다 — 남의 전체 발도장 분포는 앱이 볼 수 없다.
+      walking_fallback: declaredWalking.length > 0 ? [] : (dog.walking_fallback ?? []),
+      is_regular: dog.is_regular,
     });
   }, [vm, router]);
 
@@ -959,80 +977,102 @@ export default function SpotDetailScreen() {
             {/* 핸들 */}
             <View style={s.sheetHandle} />
 
-            {selectedDog && (() => {
-              const infoRows: { key: string; val: string }[] = [];
-              if (selectedDog.breed_text)  infoRows.push({ key: '견종', val: selectedDog.breed_text });
-              if (selectedDog.size_label)  infoRows.push({ key: '몸집', val: selectedDog.size_label });
-
-              return (
-                <>
-                  {/* ── 아바타 + 이름 (중앙 정렬) ── */}
-                  <View style={s.sheetHero}>
-                    <View style={s.sheetAvatarWrap}>
-                      {selectedDog.avatar_url ? (
-                        <AppImage source={{ uri: selectedDog.avatar_url }} style={s.sheetAvatarImg} resizeMode="cover" />
-                      ) : (
-                        <View style={s.sheetAvatarPlaceholder}>
-                          <Text style={s.sheetAvatarInitial}>{selectedDog.name[0]}</Text>
-                        </View>
-                      )}
-                    </View>
+            {selectedDog && (
+              <>
+                {/* ── 아바타 + 이름 ── */}
+                <View style={s.sheetHero}>
+                  <View style={s.sheetAvatarWrap}>
+                    {selectedDog.avatar_url ? (
+                      <AppImage source={{ uri: selectedDog.avatar_url }} style={s.sheetAvatarImg} resizeMode="cover" />
+                    ) : (
+                      <View style={s.sheetAvatarPlaceholder}>
+                        <Text style={s.sheetAvatarInitial}>{selectedDog.name[0]}</Text>
+                      </View>
+                    )}
+                  </View>
+                  {/* 단골 배지는 레일 아바타에도 붙어 있다. 그걸 보고 눌러 들어왔는데
+                      시트에서 사라지면 어색하므로 이름 옆으로 옮겨 붙인다. */}
+                  <View style={s.sheetNameRow}>
                     <Text style={s.sheetName}>{selectedDog.name}</Text>
-                    {/* 견종 · 몸집 한 줄 서브텍스트 */}
-                    {selectedDog.breed_age_text ? (
-                      <Text style={s.sheetSubLine}>{selectedDog.breed_age_text}</Text>
-                    ) : null}
+                    {selectedDog.is_regular && (
+                      <View style={s.sheetRegularBadge}>
+                        <Text style={s.sheetRegularText}>단골</Text>
+                      </View>
+                    )}
                   </View>
+                  {/* 생물학적 정보 한 줄 — 견종·나이·체중·몸집. 있는 값만 이어 붙인다.
+                      예전엔 여기 서브라인과 아래 '견종/몸집' 표가 따로 있어 견종이 두 번 나왔다. */}
+                  {selectedDog.facts_line ? (
+                    <Text style={s.sheetSubLine}>{selectedDog.facts_line}</Text>
+                  ) : null}
+                  {selectedDog.bio ? (
+                    <Text style={s.sheetBio}>{selectedDog.bio}</Text>
+                  ) : null}
+                </View>
 
-                  {/* ── 성향 칩 ── */}
-                  {selectedDog.temperament_preview.length > 0 && (
-                    <View style={s.sheetChipRow}>
-                      {selectedDog.temperament_preview.map(t => (
-                        <View key={t} style={s.sheetChip}>
-                          <Text style={s.sheetChipText}>{t}</Text>
+                {/* ── 발도장 — 이 장소가 아니라 전체 누적이다 ── */}
+                <View style={s.sheetPaw}>
+                  <Text style={s.sheetPawNum}>{selectedDog.total_paw_count}</Text>
+                  <Text style={s.sheetPawLabel}>발도장</Text>
+                </View>
+
+                {/* ── 성격 / 산책 ──
+                    1순위: 본인이 고른 태그. 2순위: 기록에서 계산한 문장(산책만).
+                    성격은 계산으로 만들 수 없다 — 없으면 줄째 그리지 않는다.
+                    남이 보는 화면이라 '알려주기' 같은 입력 유도는 넣지 않는다. */}
+                {(selectedDog.temperament_preview.length > 0 ||
+                  selectedDog.walking_preview.length > 0 ||
+                  selectedDog.walking_fallback.length > 0) && (
+                  <View style={s.sheetTraits}>
+                    {selectedDog.temperament_preview.length > 0 && (
+                      <View style={s.sheetTraitRow}>
+                        <Text style={s.sheetTraitKey}>성격</Text>
+                        <View style={s.sheetTraitVal}>
+                          {selectedDog.temperament_preview.map(t => (
+                            <View key={t} style={s.sheetChip}><Text style={s.sheetChipText}>{t}</Text></View>
+                          ))}
                         </View>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* ── 프로필 정보 테이블 ── */}
-                  {infoRows.length > 0 && (
-                    <View style={s.sheetInfoTable}>
-                      {infoRows.map((row, i) => (
-                        <React.Fragment key={row.key}>
-                          {i > 0 && <View style={s.sheetInfoSep} />}
-                          <View style={s.sheetInfoRow}>
-                            <Text style={s.sheetInfoKey}>{row.key}</Text>
-                            <Text style={s.sheetInfoVal}>{row.val}</Text>
-                          </View>
-                        </React.Fragment>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* ── 구분선 ── */}
-                  <View style={s.sheetDivider} />
-
-                  {/* ── 장소 관계 + 최근성 ── */}
-                  <View style={s.sheetFooter}>
-                    <Text style={s.sheetRelation}>{selectedDog.relation_text}</Text>
-                    <Text style={s.sheetRecency}>{selectedDog.recency_label}</Text>
+                      </View>
+                    )}
+                    {(selectedDog.walking_preview.length > 0 || selectedDog.walking_fallback.length > 0) && (
+                      <View style={s.sheetTraitRow}>
+                        <Text style={s.sheetTraitKey}>산책</Text>
+                        <View style={s.sheetTraitVal}>
+                          {selectedDog.walking_preview.length > 0
+                            ? selectedDog.walking_preview.map(t => (
+                                <View key={t} style={s.sheetChip}><Text style={s.sheetChipText}>{t}</Text></View>
+                              ))
+                            : (
+                              // 계산값은 알약이 아니라 문장이다. 같은 모양이면
+                              // 본인이 고른 값처럼 보인다.
+                              <View>
+                                {selectedDog.walking_fallback.map(line => (
+                                  <Text key={line} style={s.sheetTraitSentence}>{line}</Text>
+                                ))}
+                              </View>
+                            )}
+                        </View>
+                      </View>
+                    )}
                   </View>
+                )}
 
-                  {/* ── 신고/차단 (Apple UGC 1.2) ── */}
-                  <TouchableOpacity
-                    style={s.sheetReportBtn}
-                    onPress={() => handleReportDog(selectedDog)}
-                    activeOpacity={0.7}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${selectedDog.name} 신고 또는 차단`}
-                  >
-                    <Icon name="flag" size={15} color={Colors.text.tertiary} />
-                    <Text style={s.sheetReportText}>신고·차단</Text>
-                  </TouchableOpacity>
-                </>
-              );
-            })()}
+                {/* ── 신고·차단 (Apple UGC 1.2) ──
+                    이름·아바타·한 줄 소개가 모두 남이 쓴 것이라 신고 경로가 필요하다.
+                    차단은 나에게만 안 보이게 하고, 신고는 운영자가 모두에게서 내린다.
+                    우측 하단에 작게 — 프로필을 보러 온 사람의 눈이 먼저 닿을 자리가 아니다. */}
+                <TouchableOpacity
+                  style={s.sheetReportBtn}
+                  onPress={() => handleReportDog(selectedDog)}
+                  activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${selectedDog.name} 신고 또는 차단`}
+                >
+                  <Icon name="flag" size={13} color={Colors.text.tertiary} />
+                  <Text style={s.sheetReportText}>신고·차단</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </Pressable>
         </Pressable>
       </Modal>
@@ -1433,14 +1473,57 @@ const s = StyleSheet.create({
     color: Colors.text.tertiary,
     textAlign: 'center',
   },
-
-  // 성향 칩 행
-  sheetChipRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: Spacing[8],
+  // 이름 + 단골 배지 한 줄
+  sheetNameRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: Spacing[6],
   },
+  sheetRegularBadge: {
+    backgroundColor: Colors.brand.primary,
+    paddingHorizontal: Spacing[6], paddingVertical: 2,
+    borderRadius: Radius.round,
+  },
+  sheetRegularText: {
+    ...Typography.label.s, color: Colors.brand.onPrimary, fontWeight: '700',
+  },
+  sheetBio: {
+    ...Typography.body.s, color: Colors.text.secondary,
+    textAlign: 'center', marginTop: Spacing[8], lineHeight: 20,
+    paddingHorizontal: Spacing[12],
+  },
+
+  // 전체 누적 발도장
+  sheetPaw: {
+    marginTop: Spacing[16], paddingVertical: Spacing[14],
+    borderRadius: Radius.card, backgroundColor: Colors.bg.secondary,
+    alignItems: 'center',
+  },
+  sheetPawNum: {
+    ...Typography.title.l, color: Colors.brand.primary, fontWeight: '800',
+  },
+  sheetPawLabel: {
+    ...Typography.caption, color: Colors.text.tertiary, marginTop: 2,
+  },
+
+  // 성격 / 산책
+  sheetTraits: { marginTop: Spacing[16] },
+  sheetTraitRow: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: Spacing[10],
+    paddingVertical: Spacing[10],
+    borderTopWidth: 1, borderTopColor: Colors.border.subtle,
+  },
+  sheetTraitKey: {
+    ...Typography.label.m, color: Colors.text.tertiary,
+    width: 34, paddingTop: 3,
+  },
+  sheetTraitVal: {
+    flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: Spacing[6],
+  },
+  // 계산값은 알약이 아니라 문장이다 — 본인이 고른 값과 생김새가 달라야 정직하다
+  sheetTraitSentence: {
+    ...Typography.body.s, color: Colors.text.secondary, lineHeight: 21,
+  },
+
   sheetChip: {
     backgroundColor: Colors.brand.subtle,
     paddingHorizontal: Spacing[12],
@@ -1455,69 +1538,22 @@ const s = StyleSheet.create({
     fontWeight: '600',
   },
 
-  // 정보 테이블
-  sheetInfoTable: {
-    borderRadius: Radius.card,
-    borderWidth: 1,
-    borderColor: Colors.border.default,
-    overflow: 'hidden',
-    backgroundColor: Colors.bg.secondary,
-  },
-  sheetInfoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: Spacing[12],
-    paddingHorizontal: Spacing[16],
-    gap: Spacing[12],
-  },
-  sheetInfoSep: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.border.default,
-    marginHorizontal: Spacing[16],
-  },
-  sheetInfoKey: {
-    ...Typography.label.s,
-    color: Colors.text.tertiary,
-    width: 36,
-    fontWeight: '500',
-  },
-  sheetInfoVal: {
-    flex: 1,
-    ...Typography.label.m,
-    color: Colors.text.primary,
-    fontWeight: '600',
-  },
 
   // 구분선
-  sheetDivider: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: Colors.border.subtle,
-  },
 
   // 장소 관계 + 최근성
-  sheetFooter: {
-    gap: Spacing[4],
-    paddingBottom: Spacing[4],
-  },
-  sheetRelation: {
-    ...Typography.body.s,
-    color: Colors.text.secondary,
-    lineHeight: 20,
-  },
-  sheetRecency: {
-    ...Typography.caption,
-    color: Colors.text.tertiary,
-  },
+  // 우측 하단에 작게 — 프로필을 보러 온 사람의 눈이 먼저 닿을 자리가 아니다.
+  // 다만 없앨 수는 없다(App Store 심사 1.2: 신고·차단 수단 필수).
   sheetReportBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing[6],
-    marginTop: Spacing[16],
-    paddingVertical: Spacing[10],
+    alignSelf: 'flex-end',
+    gap: Spacing[4],
+    marginTop: Spacing[12],
+    paddingVertical: Spacing[6],
   },
   sheetReportText: {
-    ...Typography.label.m,
+    ...Typography.caption,
     color: Colors.text.tertiary,
   },
 

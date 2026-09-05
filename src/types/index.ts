@@ -220,8 +220,22 @@ export interface FamiliarDogCardViewModel {
   temperament_preview: string[]; // 성향 1~2개 (완화된 표현)
   /** 완화된 최근성 표현 — 목록 카드에 표시 (정확한 시간 절대 불가) */
   recency_label: string;         // e.g., '최근 자주 찾고 있어요'
-  /** 이 장소와의 관계 한 줄 — 바텀시트 상세에만 표시 */
-  relation_text: string;         // e.g., '이 장소에 익숙한 강아지예요'
+  /** 이 장소와의 관계 한 줄 — **바텀시트에서는 쓰지 않는다**(2026-09-05).
+   *  「이 장소에 다녀갔어요」는 사용자가 방금 지나온 '다녀간 강아지' 목록을 되풀이하고,
+   *  「단골이에요」는 레일 아바타의 단골 배지와 겹쳤다. 목록 카드용으로만 남긴다. */
+  relation_text: string;
+
+  // ── 프로필 본문 ──
+  /** 생물학적 정보 한 줄. 예: '말티즈 · 3살 · 5.2kg · 소형견' */
+  facts_line: string;
+  bio?: string;
+  /** 전체 누적 발도장 수 */
+  total_paw_count: number;
+  /** 본인이 고른 산책 스타일. 없으면 walking_fallback을 쓴다 */
+  walking_preview: string[];
+  /** 기록에서 계산한 산책 성향 문장 (최대 2줄). 태그가 있으면 비어 있다 */
+  walking_fallback: string[];
+  is_regular: boolean;
 }
 
 export interface TraceListItemViewModel {
@@ -332,6 +346,22 @@ export interface SpotVisitingDog {
   /** 나와 자주 마주친 강아지 — 별도 섹션 대신 배지로 보여준다 */
   is_familiar: boolean;
   is_mine: boolean;
+
+  // ── 프로필 바텀시트용 (spot-detail이 함께 내려준다) ──
+  //   ⚠️ "어떤 아이인가"만 담는다. "어디에 있었나"는 담지 않는다 —
+  //      발도장은 위치 기록이라 장소·시각이 곧 동선이다.
+  /** 한 줄 소개 (최대 80자) */
+  bio?: string | null;
+  breed?: string | null;
+  weight_kg?: number | null;
+  size?: DogSize | null;
+  age_group?: DogAgeGroup | null;
+  temperament_tags?: string[];
+  walking_style_tags?: string[];
+  /** **전체 누적** 발도장 수. 이 장소가 아니라 이 아이가 그동안 남긴 전부. */
+  total_paw_count?: number;
+  /** 서버가 계산한 산책 성향 문장(최대 2줄). walking_style_tags가 있으면 빈 배열. */
+  walking_fallback?: string[];
 }
 
 /**

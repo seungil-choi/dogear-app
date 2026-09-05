@@ -211,6 +211,14 @@ export function buildFamiliarDogCards(
       temperament_preview: (dog?.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),
       recency_label: softenedRecencyLabel(s.recent_visible_checkin_count, s.recent_last_seen_at),
       relation_text: spotRelationText(s.recent_visible_checkin_count),
+      // ⚠️ 프로필 본문은 여기서 채우지 않는다. 이 경로는 로컬 시그널이라
+      //    전체 누적·체중·소개를 알 수 없다. 바텀시트는 visiting_dogs 경로로
+      //    열리므로(app/spot/[id].tsx) 실제 값은 거기서 만든다.
+      facts_line: breedAgeText,
+      total_paw_count: 0,
+      walking_preview: [],
+      walking_fallback: [],
+      is_regular: false,
     };
   });
 }
@@ -279,6 +287,11 @@ export function buildSpotDetailFromApi(
       temperament_preview: (d.temperament_tags ?? []).slice(0, 2).map(t => temperamentLabels[t] ?? t),
       recency_label: softenedRecencyLabel(d.recent_checkin_count, d.last_seen_at),
       relation_text: spotRelationText(d.recent_checkin_count),
+      facts_line: sizeLbl,
+      total_paw_count: 0,
+      walking_preview: [],
+      walking_fallback: [],
+      is_regular: false,
     };
   });
 
