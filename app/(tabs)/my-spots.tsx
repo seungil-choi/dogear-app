@@ -20,7 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
-import { useInteractedSpots } from '../../src/hooks/useInteractedSpots';
+import { useMyInteractedSpots } from '../../src/hooks/useInteractedSpots';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
@@ -76,14 +76,7 @@ export default function MySpotsScreen() {
     () => savedSpots.filter(sv => sv.dog_id === dog?.dog_id),
     [savedSpots, dog],
   );
-  const interactedIds = useMemo(
-    () => Array.from(new Set([
-      ...myVisitSummaries.map(sv => sv.spot_id),
-      ...mySaved.map(sv => sv.spot_id),
-    ])),
-    [myVisitSummaries, mySaved],
-  );
-  const { spots: spotMap, pending: spotsPending } = useInteractedSpots(interactedIds);
+  const { spots: spotMap, pending: spotsPending } = useMyInteractedSpots();
 
   // ── 발도장 남긴 곳 ────────────────────────────────────────────
   const visitedSpots = useMemo(() => {

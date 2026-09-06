@@ -108,3 +108,23 @@ export function useInteractedSpots(spotIds: string[]): InteractedSpots {
     pending: !IS_DEV_SEED && missingIds.some(id => !settled.has(id)),
   }), [fetched, storeMap, missingIds, settled]);
 }
+
+/**
+ * 내 강아지의 기록이 가리키는 장소를 한 번에 확보한다.
+ *
+ * useInteractedSpots를 쓰려면 매번 "발도장 + 저장에서 내 강아지 것만 골라 spot_id를
+ * 모으는" 같은 코드를 쓰게 된다. 실제로 홈과 내 장소 탭에 그대로 복제돼 있었다.
+ * **이 계산을 빠뜨리는 것이 곧 버그**였다(세 화면에서 목록이 비었다) — 한 곳에 둔다.
+ */
+export function useMyInteractedSpots(): InteractedSpots {
+  const dogId = useAppStore(s => s.dog?.dog_id);
+  const visitSummaries = useAppStore(s => s.visitSummaries);
+  const savedSpots = useAppStore(s => s.savedSpots);
+
+  const ids = useMemo(() => Array.from(new Set([
+    ...visitSummaries.filter(v => v.dog_id === dogId).map(v => v.spot_id),
+    ...savedSpots.filter(sv => sv.dog_id === dogId).map(sv => sv.spot_id),
+  ])), [visitSummaries, savedSpots, dogId]);
+
+  return useInteractedSpots(ids);
+}

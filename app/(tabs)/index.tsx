@@ -14,7 +14,7 @@ import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { track, EVENT } from '../../src/utils/analytics';
 import { confirm } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
-import { useInteractedSpots } from '../../src/hooks/useInteractedSpots';
+import { useMyInteractedSpots } from '../../src/hooks/useInteractedSpots';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, RefreshControl, Dimensions, NativeScrollEvent, NativeSyntheticEvent, Image,
 } from 'react-native';
@@ -116,11 +116,7 @@ export default function HomeScreen() {
   // 내 기록이 가리키는 장소를 주변 여부와 무관하게 확보한다.
   // store.spots는 "지금 내 주변"만 담고 persist에서도 빠져 있어, 어제 멀리서 남긴
   // 발도장은 여기 없다 — 보충하지 않으면 '최근 간 장소'가 통째로 빈다.
-  const interactedIds = useMemo(() => Array.from(new Set([
-    ...visitSummaries.filter(vs => vs.dog_id === dog?.dog_id).map(vs => vs.spot_id),
-    ...savedSpots.filter(sv => sv.dog_id === dog?.dog_id).map(sv => sv.spot_id),
-  ])), [visitSummaries, savedSpots, dog]);
-  const { spots: interactedSpots } = useInteractedSpots(interactedIds);
+  const { spots: interactedSpots } = useMyInteractedSpots();
   const extraSpots = useMemo(() => Object.values(interactedSpots), [interactedSpots]);
 
   // ⚠️ getHomeCards는 안정적인 zustand 액션 참조라 [getHomeCards]로 memo하면 마운트 시 1회만
