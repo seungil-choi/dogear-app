@@ -14,6 +14,7 @@ import React, { useMemo, useCallback, useState, useEffect } from 'react';
 import { track, EVENT } from '../../src/utils/analytics';
 import { confirm } from '../../src/utils/dialog';
 import { AppImage } from '../../src/components/common/AppImage';
+import { useInteractedSpots } from '../../src/hooks/useInteractedSpots';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, RefreshControl, Dimensions, NativeScrollEvent, NativeSyntheticEvent, Image,
 } from 'react-native';
@@ -112,6 +113,16 @@ export default function HomeScreen() {
   const blockedUsers    = useAppStore(s => s.blockedUsers);
   const { refreshing, onRefresh } = usePullToRefresh();
 
+  // 내 기록이 가리키는 장소를 주변 여부와 무관하게 확보한다.
+  // store.spots는 "지금 내 주변"만 담고 persist에서도 빠져 있어, 어제 멀리서 남긴
+  // 발도장은 여기 없다 — 보충하지 않으면 '최근 간 장소'가 통째로 빈다.
+  const interactedIds = useMemo(() => Array.from(new Set([
+    ...visitSummaries.filter(vs => vs.dog_id === dog?.dog_id).map(vs => vs.spot_id),
+    ...savedSpots.filter(sv => sv.dog_id === dog?.dog_id).map(sv => sv.spot_id),
+  ])), [visitSummaries, savedSpots, dog]);
+  const { spots: interactedSpots } = useInteractedSpots(interactedIds);
+  const extraSpots = useMemo(() => Object.values(interactedSpots), [interactedSpots]);
+
   // ⚠️ getHomeCards는 안정적인 zustand 액션 참조라 [getHomeCards]로 memo하면 마운트 시 1회만
   //    계산되고 spots가 비동기 로드돼도 갱신되지 않음 → 실제 데이터 의존값을 dep에 넣어 재계산.
   // ⚠️ dep는 getHomeCards가 실제로 읽는 상태와 정확히 같아야 한다.
@@ -121,8 +132,8 @@ export default function HomeScreen() {
   //    있던 것: savedSpots·isSpotsLoading — getHomeCards가 읽지 않는다.
   //             저장 토글·로딩 토글마다 150장을 통째로 다시 만들고 있었다.
   const cards    = useMemo(
-    () => getHomeCards(),
-    [getHomeCards, spots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers],
+    () => getHomeCards({ extraSpots }),
+    [getHomeCards, spots, extraSpots, spotAggregates, checkins, visitSummaries, dog, currentLocation, blockedUsers],
   );
   // 성능: featuredCards 등에서 spots.find(O(n))를 루프로 돌지 않도록 spot_id → Spot Map 1회 구성
   const spotsById = useMemo(() => new Map(spots.map(s => [s.spot_id, s])), [spots]);

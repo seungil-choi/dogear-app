@@ -257,7 +257,13 @@ interface AppState {
    *   홈 추천에는 넣지 않는다 — 아직 검증 안 된 곳을 앱이 먼저 권하는 꼴이 된다.
    *   지도 목록은 "주변에 뭐가 있나"를 보여주는 자리라 포함한다.
    */
-  getHomeCards: (opts?: { includePending?: boolean }) => HomeSpotCardViewModel[];
+  /**
+   * 홈 카드 목록.
+   * @param opts.extraSpots store.spots에 없는 장소를 덧붙인다. store.spots는
+   *   useNearbySpots가 채우는 "지금 내 주변"만 담고 persist에서도 제외돼 있어,
+   *   멀리서 발도장을 남긴 곳은 여기 없다 — 그대로 두면 '최근 간 장소'가 빈다.
+   */
+  getHomeCards: (opts?: { includePending?: boolean; extraSpots?: Spot[] }) => HomeSpotCardViewModel[];
   getDogMapSpots: () => DogMapSpotViewModel[];
   isSaved: (spotId: string) => boolean;
 }
@@ -894,7 +900,20 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       if (vs.dog_id === dog.dog_id) summaryBySpot.set(vs.spot_id, vs);
     }
 
-    return spots
+    // ⚠️ store.spots만 돌면 "지금 내 주변" 장소만 카드가 된다. 어제 멀리서 발도장을
+    //    남긴 곳은 목록에 없어 '최근 간 장소'·'자주 가는 장소'가 통째로 빈다.
+    //    (내 장소 탭에서 같은 원인으로 목록이 사라졌던 것과 같은 문제다.)
+    //    호출부가 보충해 준 장소를 합쳐서 돈다. 중복은 spot_id로 걸러낸다.
+    const extra = opts?.extraSpots ?? [];
+    const allSpots = extra.length === 0
+      ? spots
+      : (() => {
+          const byId = new Map(spots.map(sp => [sp.spot_id, sp]));
+          for (const sp of extra) if (!byId.has(sp.spot_id)) byId.set(sp.spot_id, sp);
+          return Array.from(byId.values());
+        })();
+
+    return allSpots
       .filter(s => s.status === 'active' || (includePending && s.status === 'pending'))
       .map(spot => {
         // 서버 집계(전체 강아지)가 있으면 우선 사용, 없으면(데모/오프라인) 로컬 checkins로 폴백

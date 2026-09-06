@@ -41,6 +41,28 @@ function cleanText(v: unknown): string {
   return String(v).replace(/[\x00-\x1f\x7f]/g, '').replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * 장소명 정리.
+ *
+ * ⚠️ cleanText만 쓰면 안 된다. 공공데이터에는 이름 중간에 **공백 두 칸**이 들어온
+ *    행이 있다(2026-09-05 실측 129건, 서초구에 몰려 있음). cleanText는 연속 공백을
+ *    한 칸으로 줄이므로 「가  꿀어린이공원」이 「가 꿀어린이공원」이 되어 여전히 틀린다.
+ *
+ *    같은 이름이 다른 구에는 공백 없이 정상으로 들어와 있어서(강서 「새말어린이공원」
+ *    vs 서초 「새  말어린이공원」) 붙이는 것이 원래 이름임을 확인했다.
+ *
+ * 규칙: 연속 공백(2칸 이상)은 **붙인다**. 한 칸 공백은 그대로 둔다 —
+ *       「서울 어린이대공원」처럼 정상적으로 띄어 쓰는 이름이 있다.
+ */
+function cleanName(v: unknown): string {
+  if (v == null) return '';
+  return String(v)
+    .replace(/[\x00-\x1f\x7f]/g, '')
+    .replace(/[ \t]{2,}/g, '')   // 연속 공백은 붙인다
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function parseCoord(v: unknown): number | null {
   if (v === null || v === undefined || v === '') return null;
   const n = Number(v);
@@ -140,7 +162,7 @@ serve(async (req) => {
     const batch: Record<string, unknown>[] = [];
 
     for (const r of raw as Record<string, unknown>[]) {
-      const name = cleanText(r['parkNm'] ?? r['park_nm'] ?? r['공원명']);
+      const name = cleanName(r['parkNm'] ?? r['park_nm'] ?? r['공원명']);
       const lat = parseCoord(r['latitude'] ?? r['위도']);
       const lng = parseCoord(r['longitude'] ?? r['경도']);
       const extId = cleanText(r['mgcNo'] ?? r['mngNo'] ?? r['관리번호']);
