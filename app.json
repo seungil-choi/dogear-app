@@ -45,7 +45,7 @@
         "WRITE_EXTERNAL_STORAGE",
         "READ_EXTERNAL_STORAGE"
       ],
-      "versionCode": 5
+      "versionCode": 7
     },
     "web": {
       "bundler": "metro",
