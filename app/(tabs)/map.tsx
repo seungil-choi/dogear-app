@@ -1107,6 +1107,8 @@ export default function ExploreScreen() {
                           onPress={() => {
                             // selectedHeroCard를 직접 사용 — 반경 밖 폴백 핀은 sortedCards에 없어
                             // find가 undefined가 되면서 무반응이던 버그 수정.
+                            // 이전 흐름을 지우고 시작 — 지난번 단계·태그가 남으면 안 된다
+                            useAppStore.getState().resetPawFlow();
                             useAppStore.getState().setPawSpot(selectedHeroCard as any);
                             router.push('/paw-checkin');
                           }}

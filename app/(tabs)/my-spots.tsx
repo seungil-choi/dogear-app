@@ -201,7 +201,11 @@ export default function MySpotsScreen() {
               headline="아직 발도장이 없어요"
               description="산책하고 발도장을 찍으면 여기에 하나씩 기록돼요."
               ctaLabel="첫 발도장 찍으러 가기"
-              onCta={() => router.push('/paw-checkin')}
+              onCta={() => {
+                // 빈 상태에서 처음 시작하는 길 — 남은 흐름을 지우고 들어간다
+                useAppStore.getState().resetPawFlow();
+                router.push('/paw-checkin');
+              }}
             />
           ) : (
             <>

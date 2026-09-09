@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tabs, useRouter } from 'expo-router';
+import { useAppStore } from '../../src/store/useAppStore';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, Shadow } from '../../src/constants/tokens';
@@ -105,7 +106,16 @@ export default function TabLayout() {
         options={{
           title: '발도장',
           tabBarButton: (props) => (
-            <PawTabButton {...props} onPress={() => router.push('/paw-checkin')} />
+            // 탭으로 여는 것은 "처음부터 새로" 라는 뜻이다. 남은 흐름을 지우고 시작한다.
+            //   지우지 않으면 이전에 중간 이탈한 화면(단계·장소·태그)이 그대로 다시 뜬다
+            //   — 실제로 근접 실패로 이탈했다가 다시 들어가니 그 장소·느낌이 남아 있었다(2026-09-09).
+            <PawTabButton
+              {...props}
+              onPress={() => {
+                useAppStore.getState().resetPawFlow();
+                router.push('/paw-checkin');
+              }}
+            />
           ),
         }}
       />

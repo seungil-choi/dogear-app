@@ -66,6 +66,7 @@ export default function SpotDetailScreen() {
   const getSpotDetail  = useAppStore(s => s.getSpotDetail);
   const toggleSaveSpot = useAppStore(s => s.toggleSaveSpot);
   const setPawSpot     = useAppStore(s => s.setPawSpot);
+  const resetPawFlow   = useAppStore(s => s.resetPawFlow);
   const getHomeCards   = useAppStore(s => s.getHomeCards);
   const spots          = useAppStore(s => s.spots);
   const currentLocation = useAppStore(s => s.currentLocation);
@@ -234,11 +235,14 @@ export default function SpotDetailScreen() {
   }, []);
 
   const handlePawCheckin = useCallback(() => {
+    // 이전 흐름을 먼저 지운다. 안 지우면 다른 장소로 들어와도 지난번 단계·느낌 태그가
+    // 그대로 남는다(선택한 장소만 바뀐 채 태그가 미리 체크돼 보인다).
+    resetPawFlow();
     const cards = getHomeCards();
     const card  = cards.find(c => c.spot_id === id);
     if (card) setPawSpot(card);
     router.push('/paw-checkin');
-  }, [id, getHomeCards, setPawSpot, router]);
+  }, [id, getHomeCards, setPawSpot, resetPawFlow, router]);
 
   /**
    * 선택한 지도 서비스로 길찾기.
