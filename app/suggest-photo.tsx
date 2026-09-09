@@ -111,8 +111,12 @@ export default function SuggestPhotoScreen() {
     }
   };
 
+  // ⚠️ edges에 'bottom'이 반드시 있어야 한다. 빠지면 아래 「사진 제안하기」 버튼이
+  //    기기 내비게이션 바에 깔려 눌리지 않는다(2026-09-09 실제 사고).
+  //    형제 화면(info-correction·report)과 같은 설정이며, 회귀는
+  //    src/utils/__tests__/safeAreaBottom.test.ts 가 막는다.
   return (
-    <SafeAreaView style={s.safe} edges={['top']}>
+    <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
       <View style={s.header}>
         <TouchableOpacity style={s.backBtn} onPress={() => router.back()} hitSlop={8}>
           <Icon name="back" size={22} color={Colors.text.primary} />
