@@ -10,6 +10,8 @@ import * as Location from 'expo-location';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 import type { VisibilityLevel } from '@/types';
+import { withTimeout } from '../utils/withTimeout';
+import { LOCATION_TIMEOUT_MS } from '../config/locationTimeout';
 
 interface PawCheckinResult {
   checkinId: string;
@@ -61,7 +63,11 @@ export function usePawCheckin(): UsePawCheckinReturn {
       //    제출 시점에 새로 읽고, 실패하면 스토어 값으로 폴백하되 나이를 함께 보낸다.
       let fix: { latitude: number; longitude: number; accuracy?: number; capturedAt: number } | null = null;
       try {
-        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        // 타임아웃이 없으면 여기서 제출이 통째로 멈춘다 — 폴백 경로가 있으니 끊고 넘어간다
+        const loc = await withTimeout(
+          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }),
+          LOCATION_TIMEOUT_MS.CRITICAL,
+        );
         fix = {
           latitude: loc.coords.latitude,
           longitude: loc.coords.longitude,

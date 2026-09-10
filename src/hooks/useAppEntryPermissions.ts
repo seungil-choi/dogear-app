@@ -11,6 +11,8 @@ import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { useAppStore } from '@/store/useAppStore';
+import { withTimeout } from '../utils/withTimeout';
+import { LOCATION_TIMEOUT_MS } from '../config/locationTimeout';
 
 export function useAppEntryPermissions() {
   const setCurrentLocation = useAppStore(s => s.setCurrentLocation);
@@ -29,9 +31,11 @@ export function useAppEntryPermissions() {
           status = (await Location.requestForegroundPermissionsAsync()).status;
         }
         if (status === 'granted') {
-          const pos = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.Balanced,
-          });
+          // 앱 진입 취득도 매달리면 안 된다 — 실패해도 홈은 서버 폴백으로 채워진다
+          const pos = await withTimeout(
+            Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+            LOCATION_TIMEOUT_MS.BACKGROUND,
+          );
           setCurrentLocation({
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,

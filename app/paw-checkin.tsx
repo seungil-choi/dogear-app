@@ -46,6 +46,8 @@ import {
 import * as Location from 'expo-location';
 
 import { IS_REAL_AUTH } from '../src/config/env';
+import { withTimeout, isTimeout } from '../src/utils/withTimeout';
+import { LOCATION_TIMEOUT_MS } from '../src/config/locationTimeout';
 
 
 
@@ -152,16 +154,24 @@ export default function PawCheckinModal() {
           return;
         }
       }
-      const loc = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,  // 발도장은 정확도 우선
-      });
+      // 타임아웃 필수 — 없으면 실내에서 영영 안 돌아오고 「위치 새로고침」이 잠긴다
+      const loc = await withTimeout(
+        Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,  // 발도장은 정확도 우선
+        }),
+        LOCATION_TIMEOUT_MS.USER_ACTION,
+      );
       setCurrentLocation({
         latitude: loc.coords.latitude,
         longitude: loc.coords.longitude,
         accuracy: loc.coords.accuracy ?? undefined,
       });
-    } catch {
-      toast.error('현재 위치를 찾지 못했어요. 잠시 후 다시 시도해주세요');
+    } catch (e) {
+      toast.error(
+        isTimeout(e)
+          ? '위치를 잡지 못했어요. 실내라면 창가나 바깥에서 다시 시도해주세요'
+          : '현재 위치를 찾지 못했어요. 잠시 후 다시 시도해주세요',
+      );
     } finally {
       setIsRefreshingLocation(false);
     }

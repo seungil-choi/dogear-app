@@ -7,6 +7,8 @@
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 import { useAppStore } from '@/store/useAppStore';
+import { withTimeout } from '../utils/withTimeout';
+import { LOCATION_TIMEOUT_MS } from '../config/locationTimeout';
 
 type PermissionStatus = 'granted' | 'denied' | 'undetermined';
 
@@ -65,9 +67,11 @@ export function useLocation(): UseLocationReturn {
       } catch { /* 마지막 위치 없음 — 아래 정밀 조회로 진행 */ }
 
       // 2) 정밀 위치로 갱신. 50m 미만 이동이면 useNearbySpots가 재페치를 생략한다.
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
-      });
+      //    1)에서 마지막 위치로 이미 채웠을 수 있다. 정밀 조회가 안 돌아와도 매달리지 않는다.
+      const location = await withTimeout(
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+        LOCATION_TIMEOUT_MS.USER_ACTION,
+      );
 
       setCurrentLocation({
         latitude: location.coords.latitude,

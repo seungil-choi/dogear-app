@@ -33,12 +33,10 @@ import { IS_REAL_AUTH } from '../../src/config/env';
 import { haversineDistance as haversineMeters } from '../../src/utils/geo';
 import { authoredDescription } from '../../src/utils/spotDescription';
 import { withTimeout, isTimeout } from '../../src/utils/withTimeout';
+import { LOCATION_TIMEOUT_MS } from '../../src/config/locationTimeout';
 
 
 // ─── 초기 중심 (서울 마포구) ─────────────────────────────────
-/** 정밀 위치를 기다리는 한계. 넘으면 마지막 알려진 위치로 물러난다. */
-const LOCATE_TIMEOUT_MS = 8000;
-
 /** 프로그래매틱 이동 직후 이 시간 안의 지도 이벤트는 우리가 낸 것으로 본다. */
 const PROGRAMMATIC_MOVE_GRACE_MS = 1500;
 
@@ -728,7 +726,7 @@ export default function ExploreScreen() {
       //       그동안 버튼은 disabled로 잠겨 "눌러도 아무 일이 없는" 상태가 된다(2026-09-10 신고).
       const result = await withTimeout(
         Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
-        LOCATE_TIMEOUT_MS,
+        LOCATION_TIMEOUT_MS.USER_ACTION,
       );
       const fresh = {
         latitude: result.coords.latitude,
