@@ -32,9 +32,16 @@ import { IS_REAL_AUTH } from '../../src/config/env';
 // 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
 import { haversineDistance as haversineMeters } from '../../src/utils/geo';
 import { authoredDescription } from '../../src/utils/spotDescription';
+import { withTimeout, isTimeout } from '../../src/utils/withTimeout';
 
 
 // ─── 초기 중심 (서울 마포구) ─────────────────────────────────
+/** 정밀 위치를 기다리는 한계. 넘으면 마지막 알려진 위치로 물러난다. */
+const LOCATE_TIMEOUT_MS = 8000;
+
+/** 프로그래매틱 이동 직후 이 시간 안의 지도 이벤트는 우리가 낸 것으로 본다. */
+const PROGRAMMATIC_MOVE_GRACE_MS = 1500;
+
 const INITIAL_CENTER = { latitude: 37.5563, longitude: 126.9237, level: 4 };
 
 // ─── 필터 ────────────────────────────────────────────────────
@@ -98,7 +105,19 @@ export default function ExploreScreen() {
   const [selectedId,    setSelectedId]    = useState<string | null>(null);
   const [isTracking,    setIsTracking]    = useState(false);
   // 현위치 버튼의 프로그래매틱 이동을 사용자 팬과 구분 — 팬이면 추적 자동 해제
-  const programmaticMoveRef = useRef(false);
+  /**
+   * 프로그래매틱 지도 이동 표시 — **시각(ms)** 으로 둔다.
+   *
+   * 불리언이면 새는 자리가 있었다. setCenter는 `setLevel` + `panTo`를 부르는데,
+   * 이미 같은 배율이면 `zoom_changed`가 **아예 안 뜬다**. 그러면 켜둔 플래그를
+   * 아무도 안 가져가고 남아, 다음에 사용자가 진짜로 지도를 끌었을 때 그것을
+   * 프로그래매틱 이동으로 오해해 현위치 추적이 해제되지 않았다.
+   * 이벤트가 0개든 2개든 상관없도록 "방금 옮겼다"를 시간으로 판정한다.
+   */
+  const programmaticMoveUntilRef = useRef(0);
+  const markProgrammaticMove = useCallback(() => {
+    programmaticMoveUntilRef.current = Date.now() + PROGRAMMATIC_MOVE_GRACE_MS;
+  }, []);
   // 지도 중심 좌표 — 사용자가 지도를 드래그하면 갱신되어 카드 목록 정렬에 사용됨
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
     lat: INITIAL_CENTER.latitude,
@@ -291,7 +310,7 @@ export default function ExploreScreen() {
     if (!mapFollowsLocationRef.current) return;
     mapFollowsLocationRef.current = false;
     setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
-    programmaticMoveRef.current = true;
+    markProgrammaticMove();
     mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, INITIAL_CENTER.level);
   }, [currentLocation]);
 
@@ -696,7 +715,7 @@ export default function ExploreScreen() {
         if (last) {
           const c = { latitude: last.coords.latitude, longitude: last.coords.longitude, accuracy: last.coords.accuracy ?? undefined };
           setCurrentLocation(c);
-          programmaticMoveRef.current = true;
+          markProgrammaticMove();
           // mapCenter(목록 계산 기준)도 함께 옮긴다 — GPS가 자동으로 화면을 따라오지
           // 않게 바꾼 뒤로는 여기서 명시적으로 맞춰줘야 지도와 목록이 어긋나지 않는다.
           setMapCenter({ lat: c.latitude, lng: c.longitude });
@@ -705,7 +724,12 @@ export default function ExploreScreen() {
       } catch { /* 무시 */ }
 
       // 2) 정밀 위치로 갱신 (Balanced — High는 실내/최초 fix에서 자주 타임아웃)
-      const result = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      //    ⚠️ expo-location에는 타임아웃 옵션이 없다. 안 걸면 실내에서 영영 안 돌아오고,
+      //       그동안 버튼은 disabled로 잠겨 "눌러도 아무 일이 없는" 상태가 된다(2026-09-10 신고).
+      const result = await withTimeout(
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+        LOCATE_TIMEOUT_MS,
+      );
       const fresh = {
         latitude: result.coords.latitude,
         longitude: result.coords.longitude,
@@ -713,18 +737,25 @@ export default function ExploreScreen() {
       };
       setCurrentLocation(fresh);
       setIsTracking(true);
-      programmaticMoveRef.current = true;
+      markProgrammaticMove();
       setMapCenter({ lat: fresh.latitude, lng: fresh.longitude });
       mapRef.current?.setCenter(fresh.latitude, fresh.longitude, 4);
     } catch (e) {
-      // fallback: 캐시된 위치라도 사용
+      // fallback: 캐시된 위치라도 사용 — 1)에서 이미 옮겼다면 그 자리를 지킨다
       if (currentLocation) {
         setIsTracking(true);
-        programmaticMoveRef.current = true;
+        markProgrammaticMove();
         setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
         mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
+        if (isTimeout(e)) {
+          toast.info('정확한 위치를 잡지 못해 마지막 위치로 표시했어요');
+        }
       } else {
-        toast.error('현재 위치를 찾지 못했어요. 잠시 후 다시 시도해주세요');
+        toast.error(
+          isTimeout(e)
+            ? '현재 위치를 잡지 못했어요. 실내라면 창가나 바깥에서 다시 시도해주세요'
+            : '현재 위치를 찾지 못했어요. 잠시 후 다시 시도해주세요',
+        );
       }
     } finally {
       setIsLocating(false);
@@ -917,8 +948,8 @@ export default function ExploreScreen() {
               setMapCenter({ lat, lng });
               if (lv != null) setZoomLevel(lv);
               // 사용자가 직접 지도를 움직이면 현위치 추적 해제 (현위치 버튼 이동은 예외)
-              if (programmaticMoveRef.current) {
-                programmaticMoveRef.current = false;
+              if (Date.now() < programmaticMoveUntilRef.current) {
+                // 우리가 옮긴 것 — 추적을 유지한다
               } else {
                 // 사용자가 직접 옮겼다 → 이후 GPS가 잡혀도 화면을 되돌리지 않는다
                 mapFollowsLocationRef.current = false;
@@ -1048,7 +1079,7 @@ export default function ExploreScreen() {
                     <TouchableOpacity
                       style={s.emptyActionBtn}
                       onPress={() => {
-                        programmaticMoveRef.current = true;
+                        markProgrammaticMove();
                         mapRef.current?.setCenter(mapCenter.lat, mapCenter.lng, Math.min(14, zoomLevel + 2));
                       }}
                       activeOpacity={0.85}
@@ -1060,7 +1091,7 @@ export default function ExploreScreen() {
                     <TouchableOpacity
                       style={s.emptyActionBtn}
                       onPress={() => {
-                        programmaticMoveRef.current = true;
+                        markProgrammaticMove();
                         setMapCenter({ lat: INITIAL_CENTER.latitude, lng: INITIAL_CENTER.longitude });
                         mapRef.current?.setCenter(INITIAL_CENTER.latitude, INITIAL_CENTER.longitude, INITIAL_CENTER.level);
                       }}
