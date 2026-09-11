@@ -15,7 +15,8 @@ import {
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import * as Location from 'expo-location';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
+import { isTabSwitchAway } from '../../src/utils/tabFocus';
 import { Colors, Typography, Spacing, Shadow, Radius } from '../../src/constants/tokens';
 import { useAppStore, type SpotServerAggregate } from '../../src/store/useAppStore';
 import { ListSpotCard } from '../../src/components/spot/SpotCard';
@@ -652,6 +653,30 @@ export default function ExploreScreen() {
       cardListRef.current.scrollTo({ y: 0, animated: true });
     }
   }, [selectSpot, snapState, snapToHeight]);
+
+  // ── 다른 탭으로 떠날 때: 진행 중이던 선택만 지운다 (2026-09-11 결정 「성격별로 나눔」) ──
+  //   초기화: 현위치 추적(파란 점) · 선택한 장소 카드 · 클러스터 목록 · 하단 패널 높이 · 목록 페이지
+  //   유지:   지도 위치·배율 · 필터 · 검색어 · 지도/목록 보기 — 보던 자리는 지킨다(탭의 관례)
+  //   추적을 끄는 이유: 연속 GPS가 아니라 '그때 잡은 점'이라, 돌아왔을 때 옛 자리를
+  //   현재 위치인 척 보여주게 된다.
+  //   ⚠️ 장소 상세·발도장 모달처럼 위에 화면이 쌓여도 blur가 온다. 그때 지우면
+  //      핀 → 상세 보기 → 뒤로에서 고른 카드가 사라진다. 활성 탭이 바뀐 경우에만 지운다.
+  const navigation = useNavigation();
+  const resetTransientRef = useRef<() => void>(() => {});
+  resetTransientRef.current = () => {
+    setIsTracking(false);
+    setClusterIds(null);
+    setSelectedId(null);
+    selectSpot(null);
+    setVisibleCount(LIST_PAGE);
+    snapToHeight('peek');
+    cardListRef.current?.scrollTo({ y: 0, animated: false });
+  };
+  useEffect(() => {
+    return navigation.addListener('blur', () => {
+      if (isTabSwitchAway(navigation.getState(), 'map')) resetTransientRef.current();
+    });
+  }, [navigation]);
 
   // ── 카카오 마커 데이터 ──
   // 항상 목록(sortedCards)과 동일한 소스를 쓴다.
