@@ -51,3 +51,19 @@ describe('탐색 화면 연결', () => {
     expect(body).not.toMatch(/setMapCenter|setZoomLevel|setActiveFilter|setSearchQuery|setCenter/);
   });
 });
+
+describe('탐색에 머무는 동안 현위치 유지 (2026-09-12 결정)', () => {
+  const src = fs.readFileSync(path.resolve(__dirname, '../../../app/(tabs)/map.tsx'), 'utf8');
+
+  it('지도를 움직여도 현위치를 끄지 않는다', () => {
+    const handler = src.match(/onRegionChange=\{\(lat, lng, lv\) => \{([\s\S]*?)\n {12}\}\}/)?.[1] ?? '';
+    expect(handler.length).toBeGreaterThan(0);          // 못 찾으면 검사 자체가 무의미
+    expect(handler).not.toMatch(/setIsTracking\(false\)/);
+  });
+
+  it('현위치 버튼은 토글로 끄지 않고 매번 내 위치로 돌아온다', () => {
+    const body = src.match(/const handleMyLocation = useCallback\(async \(\) => \{([\s\S]*?)\n  \}, \[/)?.[1] ?? '';
+    expect(body.length).toBeGreaterThan(0);
+    expect(body).not.toMatch(/setIsTracking\(false\)/);
+  });
+});

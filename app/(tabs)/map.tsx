@@ -711,12 +711,10 @@ export default function ExploreScreen() {
    *    - 권한 거부 시 안내 알림
    */
   const handleMyLocation = useCallback(async () => {
-    // 토글 OFF: 추적 중일 때 다시 탭하면 해제 (버튼 색으로 상태 확인 가능)
-    if (isTracking) {
-      setIsTracking(false);
-      return;
-    }
-    // 토글 ON: 내 위치로 이동 + 추적 시작
+    // 누를 때마다 내 위치로 돌아온다 — 토글로 끄지 않는다(2026-09-12 결정).
+    //   지도를 끌어도 현위치는 켜진 채 유지되므로(아래 onRegionChange), 멀리 옮긴 뒤
+    //   다시 누르는 건 "내 위치로 돌아가기"다. 여기서 꺼버리면 누른 뜻과 반대가 된다.
+    //   현위치를 끄는 길은 탐색 탭을 떠나는 것뿐이다(5d8e84f).
     setIsLocating(true);
     try {
       // 탐색에서는 권한을 직접 요청하지 않음 — 상태만 확인, 미허용 시 시스템 설정으로 안내
@@ -783,7 +781,7 @@ export default function ExploreScreen() {
     } finally {
       setIsLocating(false);
     }
-  }, [isTracking, currentLocation, setCurrentLocation]);
+  }, [currentLocation, setCurrentLocation]);
 
   return (
     <SafeAreaView style={s.safe} edges={['top']}>
@@ -970,13 +968,11 @@ export default function ExploreScreen() {
               setClusterIds(null);
               setMapCenter({ lat, lng });
               if (lv != null) setZoomLevel(lv);
-              // 사용자가 직접 지도를 움직이면 현위치 추적 해제 (현위치 버튼 이동은 예외)
-              if (Date.now() < programmaticMoveUntilRef.current) {
-                // 우리가 옮긴 것 — 추적을 유지한다
-              } else {
-                // 사용자가 직접 옮겼다 → 이후 GPS가 잡혀도 화면을 되돌리지 않는다
+              // 사용자가 직접 옮겼다 → 이후 GPS가 잡혀도 화면을 되돌리지 않는다.
+              //   ⚠️ 현위치 표시는 끄지 않는다(2026-09-12 결정) — 탐색에 머무는 동안 켜 둔
+              //      현위치는 지도를 움직여도 유지된다. 끄는 건 탭을 떠날 때뿐이다.
+              if (Date.now() >= programmaticMoveUntilRef.current) {
                 mapFollowsLocationRef.current = false;
-                if (isTracking) setIsTracking(false);
               }
             }}
           />
