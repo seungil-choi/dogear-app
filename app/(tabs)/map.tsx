@@ -102,6 +102,13 @@ export default function ExploreScreen() {
   const [activeFilter,  setActiveFilter]  = useState<FilterKey>('all');
   const [searchQuery,   setSearchQuery]   = useState('');
   const [selectedId,    setSelectedId]    = useState<string | null>(null);
+  /**
+   * 파란 점(현위치 표시)을 켤지. **진입 시에는 꺼져 있다**(2026-09-12 재조정).
+   *   위치 자체는 진입부터 쓴다 — 주변 장소 조회와 카드 거리 계산은 좌표 기반이다.
+   *   다만 "지금 내 위치를 보고 있다"는 표시는 사용자가 버튼을 눌렀을 때만 켠다.
+   *   켜진 뒤에는 지도를 움직여도 유지되고, 끄는 길은 탭을 떠나는 것뿐이다.
+   */
+  const [isTracking, setIsTracking] = useState(false);
   // 현위치 버튼의 프로그래매틱 이동을 사용자 팬과 구분 — 팬이면 추적 자동 해제
   /**
    * 프로그래매틱 지도 이동 표시 — **시각(ms)** 으로 둔다.
@@ -663,6 +670,7 @@ export default function ExploreScreen() {
   const navigation = useNavigation();
   const resetTransientRef = useRef<() => void>(() => {});
   resetTransientRef.current = () => {
+    setIsTracking(false);   // 탭을 떠나면 현위치 표시는 꺼진다
     setClusterIds(null);
     setSelectedId(null);
     selectSpot(null);
@@ -786,12 +794,14 @@ export default function ExploreScreen() {
         accuracy: result.coords.accuracy ?? undefined,
       };
       setCurrentLocation(fresh);
+      setIsTracking(true);
       markProgrammaticMove();
       setMapCenter({ lat: fresh.latitude, lng: fresh.longitude });
       mapRef.current?.setCenter(fresh.latitude, fresh.longitude, 4);
     } catch (e) {
       // fallback: 캐시된 위치라도 사용 — 1)에서 이미 옮겼다면 그 자리를 지킨다
       if (currentLocation) {
+        setIsTracking(true);
         markProgrammaticMove();
         setMapCenter({ lat: currentLocation.latitude, lng: currentLocation.longitude });
         mapRef.current?.setCenter(currentLocation.latitude, currentLocation.longitude, 4);
@@ -982,7 +992,7 @@ export default function ExploreScreen() {
             initialLatitude={INITIAL_CENTER.latitude}
             initialLongitude={INITIAL_CENTER.longitude}
             initialLevel={INITIAL_CENTER.level}
-            userLocation={currentLocation}   /* 권한이 있으면 항상 표시 — 켜고 끄는 대상이 아니다 */
+            userLocation={isTracking ? currentLocation : null}
             selectedId={selectedId}
             markers={kakaoMarkers}
             onMarkerClick={handlePinPress}
@@ -1009,7 +1019,7 @@ export default function ExploreScreen() {
           {(snapState === 'min' || snapState === 'peek') && (
             <View style={s.myLocFloating} pointerEvents="box-none">
               <TouchableOpacity
-                style={[s.myLocBtn, Shadow.m]}
+                style={[s.myLocBtn, Shadow.m, isTracking && s.myLocBtnActive]}
                 onPress={handleMyLocation}
                 activeOpacity={0.8}
                 accessibilityLabel="현재 위치"
@@ -1017,9 +1027,9 @@ export default function ExploreScreen() {
                 disabled={isLocating}
               >
                 <Icon
-                  name="location-filled"
+                  name={isTracking ? 'location-filled' : 'location'}
                   size={20}
-                  color={Colors.text.primary}
+                  color={isTracking ? Colors.brand.onPrimary : Colors.text.primary}
                 />
               </TouchableOpacity>
               <TouchableOpacity

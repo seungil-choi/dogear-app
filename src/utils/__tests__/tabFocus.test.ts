@@ -51,19 +51,37 @@ describe('탐색 화면 연결', () => {
   });
 });
 
-describe('현위치는 켜고 끄는 대상이 아니다 (2026-09-12 결정)', () => {
+describe('현위치 표시 규칙 (2026-09-12 재조정)', () => {
   const src = fs.readFileSync(path.resolve(__dirname, '../../../app/(tabs)/map.tsx'), 'utf8');
 
-  it('isTracking 상태 자체가 없다 — 파란 점은 권한이 있으면 항상 표시', () => {
-    expect(src).not.toMatch(/isTracking/);
-    expect(src).toMatch(/userLocation=\{currentLocation\}/);
+  it('진입 시에는 꺼져 있다 — 기본값 false', () => {
+    expect(src).toMatch(/const \[isTracking, setIsTracking\] = useState\(false\)/);
+    expect(src).toMatch(/userLocation=\{isTracking \? currentLocation : null\}/);
   });
 
-  it('탐색에 들어올 때 낡은 좌표를 조용히 갱신한다 (지도는 움직이지 않는다)', () => {
+  it('버튼을 누르면 켜진다', () => {
+    const body = src.match(/const handleMyLocation = useCallback\(async \(\) => \{([\s\S]*?)\n  \}, \[/)?.[1] ?? '';
+    expect(body.length).toBeGreaterThan(0);
+    expect(body).toMatch(/setIsTracking\(true\)/);
+    expect(body).not.toMatch(/setIsTracking\(false\)/);   // 토글로 끄지 않는다
+  });
+
+  it('지도를 움직여도 꺼지지 않는다', () => {
+    const handler = src.match(/onRegionChange=\{\(lat, lng, lv\) => \{([\s\S]*?)\n {12}\}\}/)?.[1] ?? '';
+    expect(handler.length).toBeGreaterThan(0);
+    expect(handler).not.toMatch(/setIsTracking/);
+  });
+
+  it('끄는 길은 탭 이탈뿐이다', () => {
+    const body = src.match(/resetTransientRef\.current = \(\) => \{([\s\S]*?)\n  \};/)?.[1] ?? '';
+    expect(body).toMatch(/setIsTracking\(false\)/);
+  });
+
+  it('진입 시 낡은 좌표는 조용히 갱신한다 (지도는 움직이지 않는다)', () => {
     expect(src).toMatch(/addListener\(\s*'focus'/);
     expect(src).toMatch(/LOCATION_STALE_MS/);
     const body = src.match(/const refreshLocationQuietly = useCallback\(async \(\) => \{([\s\S]*?)\n  \}, \[/)?.[1] ?? '';
     expect(body.length).toBeGreaterThan(0);
-    expect(body).not.toMatch(/setCenter|setMapCenter/);   // 좌표만 갱신, 카메라는 그대로
+    expect(body).not.toMatch(/setCenter|setMapCenter|setIsTracking/);   // 좌표만 갱신
   });
 });
