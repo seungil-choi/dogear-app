@@ -44,7 +44,6 @@ describe('탐색 화면 연결', () => {
 
   it('초기화 대상은 진행 중이던 선택뿐이다 — 지도 위치·필터·검색어는 건드리지 않는다', () => {
     const body = src.match(/resetTransientRef\.current = \(\) => \{([\s\S]*?)\n  \};/)?.[1] ?? '';
-    expect(body).toMatch(/setIsTracking\(false\)/);
     expect(body).toMatch(/setSelectedId\(null\)/);
     expect(body).toMatch(/setClusterIds\(null\)/);
     expect(body).toMatch(/snapToHeight\('peek'\)/);
@@ -52,18 +51,19 @@ describe('탐색 화면 연결', () => {
   });
 });
 
-describe('탐색에 머무는 동안 현위치 유지 (2026-09-12 결정)', () => {
+describe('현위치는 켜고 끄는 대상이 아니다 (2026-09-12 결정)', () => {
   const src = fs.readFileSync(path.resolve(__dirname, '../../../app/(tabs)/map.tsx'), 'utf8');
 
-  it('지도를 움직여도 현위치를 끄지 않는다', () => {
-    const handler = src.match(/onRegionChange=\{\(lat, lng, lv\) => \{([\s\S]*?)\n {12}\}\}/)?.[1] ?? '';
-    expect(handler.length).toBeGreaterThan(0);          // 못 찾으면 검사 자체가 무의미
-    expect(handler).not.toMatch(/setIsTracking\(false\)/);
+  it('isTracking 상태 자체가 없다 — 파란 점은 권한이 있으면 항상 표시', () => {
+    expect(src).not.toMatch(/isTracking/);
+    expect(src).toMatch(/userLocation=\{currentLocation\}/);
   });
 
-  it('현위치 버튼은 토글로 끄지 않고 매번 내 위치로 돌아온다', () => {
-    const body = src.match(/const handleMyLocation = useCallback\(async \(\) => \{([\s\S]*?)\n  \}, \[/)?.[1] ?? '';
+  it('탐색에 들어올 때 낡은 좌표를 조용히 갱신한다 (지도는 움직이지 않는다)', () => {
+    expect(src).toMatch(/addListener\(\s*'focus'/);
+    expect(src).toMatch(/LOCATION_STALE_MS/);
+    const body = src.match(/const refreshLocationQuietly = useCallback\(async \(\) => \{([\s\S]*?)\n  \}, \[/)?.[1] ?? '';
     expect(body.length).toBeGreaterThan(0);
-    expect(body).not.toMatch(/setIsTracking\(false\)/);
+    expect(body).not.toMatch(/setCenter|setMapCenter/);   // 좌표만 갱신, 카메라는 그대로
   });
 });

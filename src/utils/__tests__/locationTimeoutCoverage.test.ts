@@ -90,6 +90,8 @@ describe('위치 취득 타임아웃 적용', () => {
       (n, f) => n + [...stripComments(fs.readFileSync(f, 'utf8')).matchAll(CALL)].length,
       0,
     );
-    expect(total).toBe(5);
+    // 6곳: 앱진입 2(useAppEntryPermissions·useLocation) · 탐색 2(현위치 버튼·진입 시 조용한 갱신)
+    //      · 발도장 2(위치 새로고침·제출 직전)
+    expect(total).toBe(6);
   });
 });
