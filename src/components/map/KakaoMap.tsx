@@ -40,6 +40,14 @@ export interface KakaoMapProps {
   onClusterClick?: (ids: string[]) => void;
   onMapClick?: () => void;
   onRegionChange?: (lat: number, lng: number, level: number) => void;
+  /** 이동·확대가 끝나 지도가 멈춘 뒤의 중심. '지도 중심 = 핀' 화면은 이걸 쓴다. */
+  onCenterSettle?: (lat: number, lng: number, level: number) => void;
+  /**
+   * 세로 스크롤 안에 지도를 넣을 때 켠다(안드로이드).
+   * 끄면 손가락이 조금만 세로로 움직여도 부모 ScrollView가 제스처를 가로채
+   * 지도 드래그가 취소된다 — 장소 등록 화면의 핀이 '거의 안 움직이던' 원인이었다.
+   */
+  nestedScrollEnabled?: boolean;
   onReady?: () => void;
   style?: any;
 }
@@ -155,6 +163,8 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
         props.onMapClick?.();
       } else if (data.type === 'regionChange') {
         props.onRegionChange?.(data.latitude, data.longitude, data.level);
+      } else if (data.type === 'centerSettled') {
+        props.onCenterSettle?.(data.latitude, data.longitude, data.level);
       }
     } catch (e) {
       console.warn('KakaoMap message parse error:', e);
@@ -197,6 +207,9 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
         setSupportMultipleWindows={false}
         bounces={false}
         scrollEnabled={false}
+        // 켜면 지도에 손가락이 닿는 순간 부모에게 '가로채지 마'를 요청한다
+        // (RNCWebView.onTouchEvent → requestDisallowInterceptTouchEvent). 기본값은 false.
+        nestedScrollEnabled={props.nestedScrollEnabled}
         // 안드로이드: 하드웨어 가속 + Mixed content (kakao SDK는 http 호출 가능)
         mixedContentMode={Platform.OS === 'android' ? 'always' : undefined}
         allowsInlineMediaPlayback

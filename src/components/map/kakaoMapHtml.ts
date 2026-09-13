@@ -18,6 +18,7 @@
  *     { type: 'clusterClick', key, ids }   // 묶인 장소들을 목록으로 펼쳐 보여달라는 신호
  *     { type: 'mapClick' }
  *     { type: 'regionChange', latitude, longitude, level }
+ *     { type: 'centerSettled', latitude, longitude, level }   // 이동·확대가 끝나 멈춘 뒤(idle)
  */
 
 import { CLUSTER_GRID_JS } from './clusterGrid';
@@ -518,6 +519,16 @@ ${CLUSTER_GRID_JS}
           if (activeClusterKey) { activeClusterKey = null; renderMarkers(); }
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
+        });
+
+        // 지도가 완전히 멈춘 뒤의 중심 — '지도 중심 = 핀'인 화면(장소 등록)이 쓴다.
+        //   dragend는 **손을 뗀 순간**에 온다. 그 뒤로 지도가 더 미끄러지거나 드래그가
+        //   중간에 끊기면(부모 스크롤이 제스처를 가로챌 때) 그 시점의 중심은 화면에 보이는
+        //   핀 위치가 아니다. idle은 이동·확대가 끝난 뒤 한 번 오므로 보이는 곳과 맞는다.
+        //   탐색 탭은 regionChange를 그대로 쓴다(프로그램 이동 유예 로직이 거기에 맞춰져 있다).
+        kakao.maps.event.addListener(map, 'idle', function() {
+          var c = map.getCenter();
+          postMsg({ type: 'centerSettled', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
         });
 
         // 줌 변경 — 클러스터를 다시 계산하고 RN에도 알린다.

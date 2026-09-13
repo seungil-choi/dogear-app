@@ -95,6 +95,50 @@ async function lookupAddress(
   }
 }
 
+/**
+ * '지도 중심 = 핀' 지도.
+ *
+ * 세 가지를 지킨다 (2026-09-13 "핀 설정이 거의 안 된다" 신고):
+ *
+ * 1. **시작점은 마운트 순간의 핀으로 고정한다.**
+ *    KakaoMap은 시작 좌표로 HTML을 만든다. 시작 좌표 prop이 바뀌면 WebView가 새로 로드되어
+ *    옮겨 둔 지도가 튀어 돌아간다. 예전엔 `currentLocation`을 그대로 넘겨서, 늦게 도착한
+ *    위치 갱신이 지도를 되돌리면서 저장될 핀(state)과 화면이 어긋날 수 있었다.
+ *    또 폼은 step==='form'일 때만 그려지므로 중복 확인 등을 오가면 지도가 다시 마운트된다.
+ *    그때 '화면 진입 시점'이 아니라 **지금 핀**에서 열어야 옮겨 둔 핀이 살아남는다.
+ *
+ * 2. **제스처는 지도가 가져간다(nestedScrollEnabled).**
+ *    폼 ScrollView 안에 있어서, 안드로이드에서는 손가락이 조금만 세로로 움직여도
+ *    ScrollView가 가로채 지도 드래그가 취소됐다. 핀이 '거의 안 움직이던' 주원인이다.
+ *
+ * 3. **핀은 지도가 멈춘 뒤의 중심이다(idle).**
+ *    dragend는 손을 뗀 순간에 온다. 드래그가 끊기거나 지도가 더 미끄러지면 그 시점의 중심은
+ *    화면의 핀이 아니다.
+ */
+function PinPickerMap({
+  start,
+  userLocation,
+  onSettle,
+}: {
+  start: { latitude: number; longitude: number };
+  userLocation: { latitude: number; longitude: number } | null;
+  onSettle: (lat: number, lng: number) => void;
+}) {
+  const [origin] = useState(start);   // 마운트 순간 고정 — 이후 start가 바뀌어도 다시 로드하지 않는다
+  return (
+    <KakaoMap
+      style={s.mapView}
+      initialLatitude={origin.latitude}
+      initialLongitude={origin.longitude}
+      initialLevel={3}
+      userLocation={userLocation}
+      markers={[]}
+      nestedScrollEnabled
+      onCenterSettle={onSettle}
+    />
+  );
+}
+
 export default function SuggestSpotScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ from?: string }>();
@@ -126,7 +170,7 @@ export default function SuggestSpotScreen() {
   const [description, setDescription] = useState('');
   const [category,    setCategory]    = useState<SpotCategory>('park');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [pinLocation, setPinLocation] = useState({ latitude: location.latitude, longitude: location.longitude });
+  const [pinLocation, setPinLocation] = useState(() => ({ latitude: location.latitude, longitude: location.longitude }));
   const [photoUri,    setPhotoUri]    = useState<string | null>(null);
   /** 핀 위치의 주소. 아직 못 읽었으면 null → 화면에는 좌표를 대신 보여준다. */
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
@@ -501,15 +545,14 @@ export default function SuggestSpotScreen() {
 
               <View style={s.mapWrap}>
                 {/* 전 플랫폼 KakaoMap — 지도 중심 = 핀 위치 (탐색 탭과 동일 스택) */}
-                <KakaoMap
-                  style={s.mapView}
-                  initialLatitude={location.latitude}
-                  initialLongitude={location.longitude}
-                  initialLevel={3}
+                <PinPickerMap
+                  start={pinLocation}
                   userLocation={currentLocation}
-                  markers={[]}
-                  onRegionChange={(lat, lng) =>
-                    setPinLocation({ latitude: lat, longitude: lng })
+                  onSettle={(lat, lng) =>
+                    setPinLocation(prev =>
+                      prev.latitude === lat && prev.longitude === lng
+                        ? prev                               // 같은 값이면 리렌더·주소 재조회 안 함
+                        : { latitude: lat, longitude: lng })
                   }
                 />
 

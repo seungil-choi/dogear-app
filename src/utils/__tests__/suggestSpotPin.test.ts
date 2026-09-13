@@ -38,8 +38,10 @@ function styleBlock(name: string): string {
 }
 
 describe('저장되는 좌표는 지도의 정중앙이다', () => {
-  it('onRegionChange가 준 중심을 그대로 핀 좌표로 쓴다', () => {
-    expect(SRC).toMatch(/onRegionChange=\{\(lat, lng\) =>\s*\n?\s*setPinLocation\(\{ latitude: lat, longitude: lng \}\)/);
+  it('지도가 멈춘 뒤의 중심(onCenterSettle)을 핀 좌표로 쓴다 — dragend(onRegionChange)가 아니다', () => {
+    expect(SRC).toMatch(/onCenterSettle=\{onSettle\}/);
+    expect(SRC).toMatch(/onSettle=\{\(lat, lng\) =>\s*\n\s*setPinLocation\(/);
+    expect(SRC).not.toMatch(/onRegionChange=/);
   });
 
   it('제출 payload는 pinLocation을 쓴다 — 현재 위치가 아니다', () => {
@@ -93,5 +95,40 @@ describe('중앙 고정 핀은 그 정중앙에 그려진다', () => {
     expect(jsx.length).toBeGreaterThan(0);
     // 기준점 자신 + 그림 래퍼. 그 이상이면 형제가 붙은 것이다.
     expect((jsx.match(/<View /g) ?? []).length).toBe(2);
+  });
+});
+
+/**
+ * 핀이 '거의 안 움직이던' 문제 (2026-09-13)
+ *
+ *   ① 폼 ScrollView가 세로 드래그를 가로채 지도 드래그가 취소됐다(안드로이드).
+ *   ② 시작 좌표 prop이 바뀌면 WebView가 새로 로드돼 옮겨 둔 지도가 튀어 돌아갔다.
+ *   ③ 단계를 오가 지도가 다시 마운트되면 진입 시점 좌표로 열려 핀이 사라질 수 있었다.
+ */
+describe('핀 지도는 스크롤 안에서도 제스처를 갖고, 옮긴 위치를 잃지 않는다', () => {
+  const picker = SRC.match(/function PinPickerMap\([\s\S]*?\n\}\n/)?.[0] ?? '';
+
+  it('PinPickerMap이 있고 등록 화면이 그것을 쓴다', () => {
+    expect(picker.length).toBeGreaterThan(0);
+    expect(SRC).toMatch(/<PinPickerMap\s*\n\s*start=\{pinLocation\}/);
+    // 화면 본문에서 KakaoMap을 직접 쓰지 않는다 — 규칙이 한 곳에 모이도록
+    const body = SRC.slice(SRC.indexOf('export default function SuggestSpotScreen'));
+    expect(body).not.toMatch(/<KakaoMap/);
+  });
+
+  it('① 스크롤 안에서 제스처를 지도가 가져간다', () => {
+    expect(picker).toMatch(/nestedScrollEnabled/);
+  });
+
+  it('② 시작점은 마운트 순간 한 번만 정한다 — 이후 prop이 바뀌어도 다시 로드하지 않는다', () => {
+    expect(picker).toMatch(/const \[origin\] = useState\(start\)/);
+    expect(picker).toMatch(/initialLatitude=\{origin\.latitude\}/);
+    expect(picker).toMatch(/initialLongitude=\{origin\.longitude\}/);
+    // currentLocation을 시작 좌표로 넘기면 늦은 위치 갱신이 지도를 되돌린다
+    expect(SRC).not.toMatch(/initialLatitude=\{location\.latitude\}/);
+  });
+
+  it('③ 다시 마운트되면 진입 시점이 아니라 지금 핀에서 연다', () => {
+    expect(SRC).toMatch(/start=\{pinLocation\}/);
   });
 });

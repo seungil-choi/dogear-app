@@ -91,3 +91,32 @@ describe('컨테이너 크기가 바뀌면 relayout', () => {
     expect(html).toMatch(/if \(w === lastW && h === lastH\) return;/);
   });
 });
+
+describe('지도가 멈춘 뒤의 중심을 알린다 (idle → centerSettled)', () => {
+  const html = buildKakaoMapHtml({ appKey: 'k' });
+
+  it('idle 이벤트에서 centerSettled를 보낸다', () => {
+    const block = html.match(/addListener\(map, 'idle', function\(\) \{([\s\S]*?)\n {8}\}\);/)?.[1] ?? '';
+    expect(block.length).toBeGreaterThan(0);
+    expect(block).toMatch(/getCenter\(\)/);
+    expect(block).toMatch(/type: 'centerSettled'/);
+  });
+
+  it('탐색 탭이 쓰는 regionChange(dragend)는 그대로 둔다', () => {
+    expect(html).toMatch(/addListener\(map, 'dragend'[\s\S]*?type: 'regionChange'/);
+  });
+});
+
+describe('KakaoMap 연결', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const src = fs.readFileSync(path.resolve(__dirname, '../KakaoMap.tsx'), 'utf8');
+
+  it('centerSettled를 onCenterSettle로 넘긴다', () => {
+    expect(src).toMatch(/data\.type === 'centerSettled'[\s\S]{0,80}props\.onCenterSettle\?\.\(/);
+  });
+
+  it('nestedScrollEnabled를 WebView에 전달한다', () => {
+    expect(src).toMatch(/nestedScrollEnabled=\{props\.nestedScrollEnabled\}/);
+  });
+});
