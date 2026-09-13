@@ -67,6 +67,10 @@ type Step = 'checking' | 'duplicate_check' | 'form' | 'done';
 // 서울 중심 기본 좌표 (currentLocation이 없을 때 fallback)
 const DEFAULT_LOCATION = { latitude: 37.5665, longitude: 126.9780 };
 
+/** 중앙 고정 핀 — 점이 기준점이고 그림은 그 위에 매달린다. */
+const PIN_DOT_SIZE = 8;
+const PIN_ICON_SIZE = 40;
+
 /** 핀을 끄는 동안 매 프레임 역지오코딩하지 않도록 기다리는 시간 */
 const ADDRESS_LOOKUP_DEBOUNCE_MS = 700;
 
@@ -509,10 +513,20 @@ export default function SuggestSpotScreen() {
                   }
                 />
 
-                {/* 지도 중앙 고정 핀 — 모든 플랫폼 공통 */}
+                {/* 지도 중앙 고정 핀 — 모든 플랫폼 공통.
+                    ⚠️ 저장되는 좌표는 **지도의 정중앙**이다(onRegionChange가 map.getCenter()를 준다).
+                    그러니 이 그림이 가리키는 점도 정확히 정중앙이어야 한다. 아래 점(mapPinDot)이
+                    그 기준점이고, 핀 그림은 점 위에 매달아 놓는다.
+
+                    예전엔 오버레이에 paddingBottom:20을 주고 [핀 + 점]을 통째로 가운데 정렬했다.
+                    그래서 점이 지도 중심보다 8px 아래에 그려졌다 — 사용자는 점을 집에 맞췄는데
+                    저장된 좌표는 그보다 북쪽이었다(줌에 따라 수 m~십수 m). */}
                 <View style={s.mapPinOverlay} pointerEvents="none">
-                  <Icon name="location-filled" size={40} color={Colors.brand.primary} />
-                  <View style={s.mapPinDot} />
+                  <View style={s.mapPinDot}>
+                    <View style={s.mapPinIcon}>
+                      <Icon name="location-filled" size={PIN_ICON_SIZE} color={Colors.brand.primary} />
+                    </View>
+                  </View>
                 </View>
               </View>
 
@@ -918,19 +932,26 @@ const s = StyleSheet.create({
     position: 'relative',
   },
   mapView: { flex: 1 },
+  // 오버레이는 지도와 정확히 같은 상자를 덮고, 자식을 가운데 정렬만 한다.
+  // ⚠️ padding·margin·offset을 주지 말 것 — 그만큼 저장 좌표가 어긋난다.
   mapPinOverlay: {
     position: 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 20,
   },
+  // 이 점의 중심 = 지도 중심 = 저장되는 좌표.
   mapPinDot: {
-    width: 8, height: 8,
-    borderRadius: 4,
+    width: PIN_DOT_SIZE, height: PIN_DOT_SIZE,
+    borderRadius: PIN_DOT_SIZE / 2,
     backgroundColor: Colors.brand.primary,
     opacity: 0.5,
-    marginTop: -4,
+  },
+  // 핀 그림은 점 위에 매단다. 그림의 크기·모양이 바뀌어도 기준점(점)은 흔들리지 않는다.
+  mapPinIcon: {
+    position: 'absolute',
+    bottom: PIN_DOT_SIZE / 2,            // 아이콘 바닥 = 점의 중심
+    left: (PIN_DOT_SIZE - PIN_ICON_SIZE) / 2,
   },
   coordRow: {
     flexDirection: 'row',
