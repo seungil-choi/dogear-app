@@ -119,6 +119,15 @@ export const SUGGEST = {
   rateLimitNearby: '이 근처에 최근 등록한 장소가 많아요. 조금 뒤에 다시 시도해주세요',
   rateLimitDaily:  '오늘 등록할 수 있는 장소를 다 채웠어요. 내일 다시 시도해주세요',
   pendingNotice:   '등록됐어요. 바로 보이고, 운영팀 확인 뒤 정식 장소가 돼요',
+
+  // 주소 직접 수정 (2026-09-13) — 핀 우선: 좌표는 핀이 정하고 주소는 이름표다.
+  // 자동 주소는 기기 역지오코딩이라 필지가 큰 곳에서 옆 번지를 집는다(실제 사례: 166-1 → 167-2).
+  addressEdit:        '주소 수정',
+  addressEditDone:    '완료',
+  addressEditHint:    '핀 위치는 그대로 두고 주소만 고쳐요',
+  addressPlaceholder: '예) 서울특별시 마포구 마포나루길 467',
+  addressManualTag:   '직접 입력',
+  addressResetByPin:  '핀을 옮겨서 주소를 다시 불러왔어요',
 } as const;
 
 /** 서버 트리거의 레이트 리밋 오류를 사람이 읽을 문구로 바꾼다. 해당 없으면 null */

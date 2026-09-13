@@ -18,13 +18,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
-import { PERM, PHOTO, rateLimitMessage } from '../src/constants/messages';
+import { PERM, PHOTO, SUGGEST, rateLimitMessage } from '../src/constants/messages';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import * as ImagePicker from 'expo-image-picker';
 import { stripExif } from '../src/lib/stripExif';
 import * as Location from 'expo-location';
 import { formatKoreanAddress, extractNeighborhood } from '../src/utils/address';
+import { haversineDistance } from '../src/utils/geo';
 import { AppImage } from '../src/components/common/AppImage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../src/constants/tokens';
@@ -70,6 +71,13 @@ const DEFAULT_LOCATION = { latitude: 37.5665, longitude: 126.9780 };
 /** 중앙 고정 핀 — 점이 기준점이고 그림은 그 위에 매달린다. */
 const PIN_DOT_SIZE = 8;
 const PIN_ICON_SIZE = 40;
+
+/**
+ * 직접 고친 주소를 버리는 핀 이동 거리.
+ * 0으로 두면 안 된다 — 단계를 오가 지도가 다시 열릴 때 getCenter()가 부동소수점만큼
+ * 달라지는데, 그걸 '핀을 옮겼다'로 보면 사용자가 고친 주소가 말없이 사라진다.
+ */
+const MANUAL_ADDRESS_KEEP_M = 3;
 
 /** 핀을 끄는 동안 매 프레임 역지오코딩하지 않도록 기다리는 시간 */
 const ADDRESS_LOOKUP_DEBOUNCE_MS = 700;
@@ -160,7 +168,7 @@ export default function SuggestSpotScreen() {
   const [duplicates, setDuplicates] = useState<NearbyDuplicate[]>([]);
   const [hasHardBlock, setHasHardBlock] = useState(false);
   /** 부적절 표현 차단 — 어느 칸이 문제인지 나눠서 알려준다 */
-  const [blocked, setBlocked] = useState<{ name?: boolean; description?: boolean }>({});
+  const [blocked, setBlocked] = useState<{ name?: boolean; description?: boolean; address?: boolean }>({});
   const [createdSpotId, setCreatedSpotId] = useState<string | null>(null);
   /** 중복 후보 중 사용자가 고른 것. 후보가 하나면 자동 선택한다(고를 게 없으므로). */
   const [selectedDupId, setSelectedDupId] = useState<string | null>(null);
@@ -174,6 +182,15 @@ export default function SuggestSpotScreen() {
   const [photoUri,    setPhotoUri]    = useState<string | null>(null);
   /** 핀 위치의 주소. 아직 못 읽었으면 null → 화면에는 좌표를 대신 보여준다. */
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
+  /**
+   * 사용자가 직접 고친 주소. null이면 자동 주소를 쓴다.
+   * `at`은 고칠 때의 핀 — 핀이 거기서 벗어나면 이 주소는 새 핀의 이름표가 아니므로 버린다(핀 우선).
+   */
+  const [manualAddress, setManualAddress] = useState<{ text: string; at: { latitude: number; longitude: number } } | null>(null);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [addressDraft, setAddressDraft] = useState('');
+  /** 핀 이동으로 직접 고친 주소를 버렸을 때 한 번 알려준다 */
+  const [addressResetNotice, setAddressResetNotice] = useState(false);
 
   // ── 핀 위치 → 주소 ────────────────────────────────────────
   //   예전에는 좌표만 저장해서 사용자가 제안한 장소는 `address_text`가 항상 비었다.
@@ -182,6 +199,7 @@ export default function SuggestSpotScreen() {
   useEffect(() => {
     // 핀이 움직인 순간 이전 주소는 틀린 값이 된다. 옛 주소를 남겨두느니 좌표를 보여준다.
     setResolvedAddress(null);
+
     const seq = ++addressSeqRef.current;
     const timer = setTimeout(async () => {
       const found = await lookupAddress(pinLocation.latitude, pinLocation.longitude);
@@ -191,6 +209,22 @@ export default function SuggestSpotScreen() {
     }, ADDRESS_LOOKUP_DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [pinLocation.latitude, pinLocation.longitude]);
+
+  // ── 핀 우선: 핀이 벗어나면 직접 고친 주소를 버린다 ─────────────────
+  //   직접 고친 주소는 그때의 핀(at)에 붙은 이름표다. 핀이 거기서 벗어났으면 새 핀의
+  //   이름표가 아니므로 버리고 자동 주소로 돌아간다.
+  //   반대 방향 — '주소에 맞춰 핀을 옮기는' 일은 하지 않는다. 좌표는 사용자가 눈으로 맞춘 핀이 정한다.
+  useEffect(() => {
+    if (!manualAddress) return;
+    const moved = haversineDistance(
+      manualAddress.at.latitude, manualAddress.at.longitude,
+      pinLocation.latitude, pinLocation.longitude,
+    );
+    if (moved <= MANUAL_ADDRESS_KEEP_M) return;
+    setManualAddress(null);
+    setIsEditingAddress(false);
+    setAddressResetNotice(true);
+  }, [pinLocation.latitude, pinLocation.longitude, manualAddress]);
 
   // ── 초기 중복 검사 ────────────────────────────────────────
   useEffect(() => {
@@ -204,6 +238,20 @@ export default function SuggestSpotScreen() {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── 주소 직접 수정 (핀 우선) ─────────────────────────────────
+  const startAddressEdit = useCallback(() => {
+    setAddressDraft(manualAddress?.text ?? resolvedAddress ?? '');
+    setAddressResetNotice(false);
+    setIsEditingAddress(true);
+  }, [manualAddress, resolvedAddress]);
+
+  const commitAddressEdit = useCallback(() => {
+    const text = addressDraft.trim();
+    // 비우거나 자동 주소와 같게 두면 '직접 입력'이 아니다 — 자동 주소로 돌아간다
+    setManualAddress(text && text !== resolvedAddress ? { text, at: pinLocation } : null);
+    setIsEditingAddress(false);
+  }, [addressDraft, resolvedAddress, pinLocation]);
 
   // ── 폼 유효성 ─────────────────────────────────────────────
   // 설명은 선택 — 산책 중 한 손으로 등록하는 상황이 기본이라, 필수로 두면 등록 자체를 포기한다.
@@ -269,9 +317,14 @@ export default function SuggestSpotScreen() {
     try {
     // UGC 텍스트 사전 필터 (Apple 1.2) — 제안한 장소명/설명은 전체에게 노출됨
     // 입력 문제는 해당 칸 아래에서 알린다(§2.1-1) — 입력 화면으로 되돌려 보여준다
-    const nextBlocked = { name: isObjectionable(name), description: isObjectionable(description) };
+    const nextBlocked = {
+      name: isObjectionable(name),
+      description: isObjectionable(description),
+      // 직접 고친 주소도 장소 상세에 그대로 노출된다
+      address: !!manualAddress && isObjectionable(manualAddress.text),
+    };
     setBlocked(nextBlocked);
-    if (nextBlocked.name || nextBlocked.description) {
+    if (nextBlocked.name || nextBlocked.description || nextBlocked.address) {
       setStep('form');
       return;
     }
@@ -302,9 +355,13 @@ export default function SuggestSpotScreen() {
 
     // 화면에서 이미 읽어둔 주소를 쓰고, 아직 없으면 여기서 한 번 더 시도한다.
     //   (핀을 옮기자마자 제출하면 디바운스가 끝나기 전이라 비어 있을 수 있다)
-    const geo = resolvedAddress
-      ? { addressText: resolvedAddress, neighborhood: extractNeighborhood(resolvedAddress) }
-      : await lookupAddress(pinLocation.latitude, pinLocation.longitude);
+    //   사용자가 직접 고친 주소가 있으면 그게 우선이다 — 자동 주소가 옆 번지를 집는 경우가 있다.
+    const manualText = manualAddress?.text.trim();
+    const geo = manualText
+      ? { addressText: manualText, neighborhood: extractNeighborhood(manualText) }
+      : resolvedAddress
+        ? { addressText: resolvedAddress, neighborhood: extractNeighborhood(resolvedAddress) }
+        : await lookupAddress(pinLocation.latitude, pinLocation.longitude);
 
     const payload = {
       name: name.trim(),
@@ -396,7 +453,7 @@ export default function SuggestSpotScreen() {
     } finally {
       submittingRef.current = false;
     }
-  }, [name, description, category, selectedTags, pinLocation, suggestSpot, user, hasHardBlock, photoUri, resolvedAddress]);
+  }, [name, description, category, selectedTags, pinLocation, suggestSpot, user, hasHardBlock, photoUri, resolvedAddress, manualAddress]);
 
   // ── 기존 장소 사용 ────────────────────────────────────────
   const handleUseExistingSpot = useCallback((spotId: string) => {
@@ -573,14 +630,56 @@ export default function SuggestSpotScreen() {
                 </View>
               </View>
 
-              {/* 핀 위치 — 주소를 읽었으면 주소를, 아직이면 좌표를 보여준다 */}
-              <View style={s.coordRow}>
-                <Icon name="location" size={12} color={Colors.text.tertiary} />
-                <Text style={s.coordText} numberOfLines={2}>
-                  {resolvedAddress ??
-                    `${pinLocation.latitude.toFixed(5)}, ${pinLocation.longitude.toFixed(5)}`}
-                </Text>
-              </View>
+              {/* 핀 위치 — 직접 고친 주소 > 자동 주소 > 좌표 순으로 보여준다.
+                  자동 주소는 기기 역지오코딩이라 필지가 큰 곳에서 옆 번지를 집는다.
+                  그 자리에서 고칠 수 있어야 틀린 줄 알면서 제출하는 일이 없다. */}
+              {isEditingAddress ? (
+                <View style={s.addressEdit}>
+                  <TextInput
+                    style={s.addressInput}
+                    value={addressDraft}
+                    onChangeText={(t) => { setAddressDraft(t); if (blocked.address) setBlocked(b => ({ ...b, address: false })); }}
+                    placeholder={SUGGEST.addressPlaceholder}
+                    placeholderTextColor={Colors.text.tertiary}
+                    maxLength={80}
+                    autoFocus
+                    returnKeyType="done"
+                    onSubmitEditing={commitAddressEdit}
+                    accessibilityLabel="주소"
+                  />
+                  <TouchableOpacity
+                    style={s.addressEditDone}
+                    onPress={commitAddressEdit}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    accessibilityRole="button"
+                    accessibilityLabel="주소 수정 완료"
+                  >
+                    <Text style={s.addressEditDoneText}>{SUGGEST.addressEditDone}</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={s.coordRow}>
+                  <Icon name="location" size={12} color={Colors.text.tertiary} />
+                  <Text style={s.coordText} numberOfLines={2}>
+                    {manualAddress?.text ?? resolvedAddress ??
+                      `${pinLocation.latitude.toFixed(5)}, ${pinLocation.longitude.toFixed(5)}`}
+                  </Text>
+                  {manualAddress && <Text style={s.addressTag}>{SUGGEST.addressManualTag}</Text>}
+                  <TouchableOpacity
+                    onPress={startAddressEdit}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityRole="button"
+                    accessibilityLabel="주소 수정"
+                  >
+                    <Text style={s.addressEditLink}>{SUGGEST.addressEdit}</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {isEditingAddress && <Text style={s.addressHint}>{SUGGEST.addressEditHint}</Text>}
+              {!isEditingAddress && addressResetNotice && (
+                <Text style={s.addressHint}>{SUGGEST.addressResetByPin}</Text>
+              )}
+              {blocked.address && <Text style={s.fieldError}>{MODERATION_BLOCK_MESSAGE}</Text>}
             </View>
 
             <View style={s.formSection}>
@@ -1004,6 +1103,28 @@ const s = StyleSheet.create({
   },
   // flex:1 — 주소가 한 줄을 넘으면 행 밖으로 밀려나가지 않고 접혀야 한다(좌표는 항상 한 줄)
   coordText: { ...Typography.caption, color: Colors.text.tertiary, flex: 1 },
+  addressTag: { ...Typography.caption, color: Colors.brand.primary },
+  addressEditLink: { ...Typography.caption, color: Colors.text.secondary, textDecorationLine: 'underline' },
+  addressEdit: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing[8],
+    marginTop: Spacing[8],
+  },
+  addressInput: {
+    flex: 1,
+    paddingHorizontal: Spacing[12],
+    paddingVertical: Spacing[10],
+    backgroundColor: Colors.surface.default,
+    borderRadius: Radius.m,
+    borderWidth: 1,
+    borderColor: Colors.border.brand,
+    ...Typography.body.m,
+    color: Colors.text.primary,
+  },
+  addressEditDone: { paddingHorizontal: Spacing[8], minHeight: 44, justifyContent: 'center' },
+  addressEditDoneText: { ...Typography.label.m, color: Colors.brand.primary },
+  addressHint: { ...Typography.caption, color: Colors.text.tertiary, marginTop: Spacing[4] },
 
   // ── Done ──
   doneCenter: { alignItems: 'center', gap: Spacing[12], paddingTop: Spacing[8] },
