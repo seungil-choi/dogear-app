@@ -132,3 +132,42 @@ describe('핀 지도는 스크롤 안에서도 제스처를 갖고, 옮긴 위�
     expect(SRC).toMatch(/start=\{pinLocation\}/);
   });
 });
+
+/**
+ * 현재 위치로 핀 옮기기 (2026-09-13)
+ *   "지도든 어디든 현재 좌표 기준으로 지정하는 기능이 필요하다"는 요청.
+ *
+ * 규칙: 버튼은 **핀이 아니라 지도를 옮긴다.** 지도가 멈추면 idle → onSettle로 핀이 정해진다.
+ *       핀을 정하는 길이 둘이 되면 화면의 핀과 저장될 좌표가 다시 어긋날 수 있다.
+ */
+describe('현재 위치로 핀 옮기기', () => {
+  const picker = SRC.match(/function PinPickerMap\([\s\S]*?\n\}\n/)?.[0] ?? '';
+  const locate = picker.match(/const locate = useCallback\(async \(\) => \{([\s\S]*?)\n  \}, \[/)?.[1] ?? '';
+
+  it('버튼이 지도 위에 있고 문구는 messages에서 온다', () => {
+    expect(locate.length).toBeGreaterThan(0);
+    expect(picker).toMatch(/onPress=\{locate\}/);
+    expect(picker).toMatch(/accessibilityLabel=\{SUGGEST\.locateLabel\}/);
+  });
+
+  it('핀을 직접 바꾸지 않고 지도를 옮긴다', () => {
+    expect(locate).toMatch(/mapRef\.current\?\.setCenter\(/);
+    expect(locate).not.toMatch(/setPinLocation|onSettle\(/);
+  });
+
+  it('위치 취득은 타임아웃과 함께 — 없으면 실내에서 버튼이 영영 잠긴다', () => {
+    expect(locate).toMatch(/withTimeout\(\s*\n?\s*Location\.getCurrentPositionAsync/);
+    expect(locate).toMatch(/LOCATION_TIMEOUT_MS\.USER_ACTION/);
+  });
+
+  it('권한은 요청하지 않고 설정으로 안내한다 — 탐색 탭과 같다', () => {
+    expect(locate).toMatch(/getForegroundPermissionsAsync/);
+    expect(locate).not.toMatch(/requestForegroundPermissionsAsync/);
+    expect(locate).toMatch(/Linking\.openSettings\(\)/);
+  });
+
+  it('누르는 동안 다시 누를 수 없고, 끝나면 반드시 풀린다', () => {
+    expect(locate).toMatch(/if \(isLocating\) return;/);
+    expect(locate).toMatch(/finally \{\s*\n\s*setIsLocating\(false\);/);
+  });
+});

@@ -13,10 +13,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet, ActivityIndicator, Platform, KeyboardAvoidingView,
+  View, Text, TouchableOpacity, ScrollView, TextInput, StyleSheet, ActivityIndicator, Platform, KeyboardAvoidingView, Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { notify } from '../src/utils/dialog';
+import { notify, confirm } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
 import { PERM, PHOTO, SUGGEST, rateLimitMessage } from '../src/constants/messages';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
@@ -34,7 +34,9 @@ import { supabase } from '../src/lib/supabase';
 import { uploadImage } from '../src/lib/uploadImage';
 import { Button } from '../src/components/common/Button';
 import { Icon } from '../src/components/common/Icon';
-import KakaoMap from '../src/components/map/KakaoMap';
+import KakaoMap, { type KakaoMapRef } from '../src/components/map/KakaoMap';
+import { withTimeout, isTimeout } from '../src/utils/withTimeout';
+import { LOCATION_TIMEOUT_MS } from '../src/config/locationTimeout';
 import type { SpotCategory, NearbyDuplicate } from '../src/types';
 
 import { IS_REAL_AUTH } from '../src/config/env';
@@ -127,23 +129,93 @@ function PinPickerMap({
   start,
   userLocation,
   onSettle,
+  onLocated,
 }: {
   start: { latitude: number; longitude: number };
   userLocation: { latitude: number; longitude: number } | null;
   onSettle: (lat: number, lng: number) => void;
+  /** 버튼으로 새 위치를 잡았을 때 — 앱의 현재 위치도 갱신한다 */
+  onLocated: (loc: { latitude: number; longitude: number; accuracy?: number }) => void;
 }) {
   const [origin] = useState(start);   // 마운트 순간 고정 — 이후 start가 바뀌어도 다시 로드하지 않는다
+  const mapRef = useRef<KakaoMapRef>(null);
+  const [isLocating, setIsLocating] = useState(false);
+
+  /**
+   * 현재 위치로 핀 옮기기.
+   *
+   * 핀을 직접 바꾸지 않고 **지도를 옮긴다.** 지도가 멈추면 idle → onSettle로 핀이 정해진다.
+   * 핀을 정하는 길을 하나(지도 중심)로 유지해야 화면의 핀과 저장될 좌표가 어긋나지 않는다.
+   *
+   * 권한은 여기서 요청하지 않는다 — 탐색 탭과 같게 설정으로 안내한다.
+   * ⚠️ getCurrentPositionAsync에는 타임아웃이 없다. 반드시 withTimeout으로 감싼다(2026-09-10 사고).
+   */
+  const locate = useCallback(async () => {
+    if (isLocating) return;
+    setIsLocating(true);
+    try {
+      const perm = await Location.getForegroundPermissionsAsync();
+      if (perm.status !== 'granted') {
+        if (await confirm(SUGGEST.locatePermBody, {
+          title: SUGGEST.locatePermTitle, cancelText: '닫기', confirmText: '설정 열기',
+        })) {
+          Linking.openSettings();
+        }
+        return;
+      }
+      try {
+        const pos = await withTimeout(
+          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+          LOCATION_TIMEOUT_MS.USER_ACTION,
+        );
+        const fresh = {
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? undefined,
+        };
+        onLocated(fresh);
+        mapRef.current?.setCenter(fresh.latitude, fresh.longitude, 3);
+      } catch (e) {
+        // 정밀 위치를 못 잡았으면 기기가 마지막으로 알던 위치라도 쓴다
+        const last = await Location.getLastKnownPositionAsync().catch(() => null);
+        if (last) {
+          mapRef.current?.setCenter(last.coords.latitude, last.coords.longitude, 3);
+          toast.info(SUGGEST.locateFallback);
+        } else {
+          toast.error(isTimeout(e) ? SUGGEST.locateTimeout : SUGGEST.locateFailed);
+        }
+      }
+    } finally {
+      setIsLocating(false);
+    }
+  }, [isLocating, onLocated]);
+
   return (
-    <KakaoMap
-      style={s.mapView}
-      initialLatitude={origin.latitude}
-      initialLongitude={origin.longitude}
-      initialLevel={3}
-      userLocation={userLocation}
-      markers={[]}
-      nestedScrollEnabled
-      onCenterSettle={onSettle}
-    />
+    <>
+      <KakaoMap
+        ref={mapRef}
+        style={s.mapView}
+        initialLatitude={origin.latitude}
+        initialLongitude={origin.longitude}
+        initialLevel={3}
+        userLocation={userLocation}
+        markers={[]}
+        nestedScrollEnabled
+        onCenterSettle={onSettle}
+      />
+      <TouchableOpacity
+        style={[s.locateBtn, Shadow.m]}
+        onPress={locate}
+        activeOpacity={0.8}
+        disabled={isLocating}
+        accessibilityRole="button"
+        accessibilityLabel={SUGGEST.locateLabel}
+      >
+        {isLocating
+          ? <ActivityIndicator size="small" color={Colors.brand.primary} />
+          : <Icon name="location" size={20} color={Colors.text.primary} />}
+      </TouchableOpacity>
+    </>
   );
 }
 
@@ -153,6 +225,7 @@ export default function SuggestSpotScreen() {
   const from   = params.from ?? 'map'; // 'paw' | 'map'
 
   const currentLocation    = useAppStore(s => s.currentLocation);
+  const setCurrentLocation = useAppStore(s => s.setCurrentLocation);
   const getNearbyDuplicates = useAppStore(s => s.getNearbyDuplicates);
   const suggestSpot         = useAppStore(s => s.suggestSpot);
   const user                = useAppStore(s => s.activeDog);
@@ -598,13 +671,14 @@ export default function SuggestSpotScreen() {
               <View style={s.formSectionTitleRow}>
                 <Text style={s.formSectionTitle}>위치 확인 <Text style={s.required}>*</Text></Text>
               </View>
-              <Text style={s.mapHint}>지도를 움직여 핀을 정확한 위치에 맞춰주세요</Text>
+              <Text style={s.mapHint}>지도를 움직여 핀을 맞춰주세요. 오른쪽 위 버튼을 누르면 지금 있는 곳으로 옮겨요</Text>
 
               <View style={s.mapWrap}>
                 {/* 전 플랫폼 KakaoMap — 지도 중심 = 핀 위치 (탐색 탭과 동일 스택) */}
                 <PinPickerMap
                   start={pinLocation}
                   userLocation={currentLocation}
+                  onLocated={setCurrentLocation}
                   onSettle={(lat, lng) =>
                     setPinLocation(prev =>
                       prev.latitude === lat && prev.longitude === lng
@@ -1074,6 +1148,18 @@ const s = StyleSheet.create({
     position: 'relative',
   },
   mapView: { flex: 1 },
+  // 탐색 탭 현위치 버튼과 같은 모양·크기(44pt 터치 영역). 가운데 핀과 겹치지 않게 오른쪽 위.
+  // 안드로이드에서 WebView 위 버튼이 터치를 못 받는 일이 없도록 zIndex·elevation을 준다.
+  locateBtn: {
+    position: 'absolute',
+    top: Spacing[8],
+    right: Spacing[8],
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: Colors.surface.default,
+    alignItems: 'center', justifyContent: 'center',
+    zIndex: 11,
+    elevation: 4,
+  },
   // 오버레이는 지도와 정확히 같은 상자를 덮고, 자식을 가운데 정렬만 한다.
   // ⚠️ padding·margin·offset을 주지 말 것 — 그만큼 저장 좌표가 어긋난다.
   mapPinOverlay: {

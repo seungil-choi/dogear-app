@@ -128,6 +128,14 @@ export const SUGGEST = {
   addressPlaceholder: '예) 서울특별시 마포구 마포나루길 467',
   addressManualTag:   '직접 입력',
   addressResetByPin:  '핀을 옮겨서 주소를 다시 불러왔어요',
+
+  // 현재 위치로 핀 옮기기 (2026-09-13) — 지도를 끌지 않고 지금 서 있는 곳을 바로 고른다
+  locateLabel:        '현재 위치로 핀 옮기기',
+  locatePermTitle:    '위치 권한이 필요해요',
+  locatePermBody:     '현재 위치로 핀을 옮기려면 설정에서 위치 권한을 허용해 주세요.',
+  locateFallback:     '정확한 위치를 잡지 못해 마지막 위치로 옮겼어요',
+  locateTimeout:      '현재 위치를 잡지 못했어요. 실내라면 창가나 바깥에서 다시 시도해주세요',
+  locateFailed:       '현재 위치를 찾지 못했어요. 잠시 후 다시 시도해주세요',
 } as const;
 
 /** 서버 트리거의 레이트 리밋 오류를 사람이 읽을 문구로 바꾼다. 해당 없으면 null */
