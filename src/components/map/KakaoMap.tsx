@@ -10,7 +10,7 @@
 import React, {
   useImperativeHandle, useRef, forwardRef, useCallback, useEffect,
 } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform, type LayoutChangeEvent } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { Colors } from '@/constants/tokens';
 import { buildKakaoMapHtml } from './kakaoMapHtml';
@@ -48,6 +48,8 @@ export interface KakaoMapProps {
    * 지도 드래그가 취소된다 — 장소 등록 화면의 핀이 '거의 안 움직이던' 원인이었다.
    */
   nestedScrollEnabled?: boolean;
+  /** 움직이지 않는 그림 지도(장소 상세). 크기를 다시 잴 때 처음 좌표로 되돌린다. */
+  staticMap?: boolean;
   onReady?: () => void;
   style?: any;
 }
@@ -57,6 +59,8 @@ export interface KakaoMapRef {
   /** 여러 지점을 한 화면에 담는다. padBottom = 바텀시트가 가리는 높이(px).
    *  id를 주면 줌인해도 안 흩어지는 무리(같은 건물)를 부채꼴로 펼친다. */
   fitBounds: (points: { lat: number; lng: number; id?: string }[], padBottom?: number) => void;
+  /** 지도 칸 크기를 다시 재고 중심을 맞추라고 알린다(화면에 들어온 뒤 등) */
+  relayout: () => void;
 }
 
 /**
@@ -107,6 +111,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
   useImperativeHandle(ref, () => ({
     setCenter: (lat, lng, level) => send({ type: 'setCenter', latitude: lat, longitude: lng, level }),
     fitBounds: (points, padBottom) => send({ type: 'fitBounds', points, padBottom }),
+    relayout: () => send({ type: 'relayout' }),
   }), [send]);
 
   // markers prop 변경 시 동기화
@@ -138,7 +143,22 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     initialLatitude: props.initialLatitude,
     initialLongitude: props.initialLongitude,
     initialLevel: props.initialLevel,
+    staticMap: props.staticMap,
   });
+
+  // 지도 칸의 실제 크기를 알면 지도에 다시 맞추라고 알린다.
+  //   안드로이드 WebView 안에서는 크기 변화 신호(ResizeObserver·resize)가 페이지에 오지 않은
+  //   실측 사례가 있다(장소 상세 핀이 왼쪽 위 모서리에 걸림). 네이티브 레이아웃은 확실하다.
+  //   ready 전이면 send가 큐에 쌓았다가 지도가 만들어진 직후 흘려보낸다.
+  const layoutSizeRef = useRef('');
+  const handleLayout = useCallback((e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    if (width <= 0 || height <= 0) return;
+    const sig = `${Math.round(width)}x${Math.round(height)}`;
+    if (sig === layoutSizeRef.current) return;
+    layoutSizeRef.current = sig;
+    send({ type: 'relayout' });
+  }, [send]);
 
   const handleMessage = useCallback((event: WebViewMessageEvent) => {
     try {
@@ -187,7 +207,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
   }
 
   return (
-    <View style={[styles.container, props.style]}>
+    <View style={[styles.container, props.style]} onLayout={handleLayout}>
       <WebView
         ref={webRef}
         // baseUrl 필수: 없으면 WebView origin이 about:blank → 카카오 JS SDK가

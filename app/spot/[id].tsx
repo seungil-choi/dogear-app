@@ -36,7 +36,7 @@ import { EmptyState } from '../../src/components/common/EmptyState';
 import { Icon } from '../../src/components/common/Icon';
 import { categoryLabel as catLabel, feelingTagLabel, sizeLabel, temperamentLabels, walkingStyleLabels } from '../../src/utils/labels';
 import { facilityChips } from '../../src/constants/facilityTags';
-import KakaoMap, { type KakaoMarker } from '../../src/components/map/KakaoMap';
+import KakaoMap, { type KakaoMarker, type KakaoMapRef } from '../../src/components/map/KakaoMap';
 import type { SpotVisitingDog, FamiliarDogCardViewModel, SpotGalleryPhoto, FeelingTag } from '../../src/types';
 import { supabase } from '../../src/lib/supabase';
 
@@ -87,6 +87,17 @@ export default function SpotDetailScreen() {
     }
     return localVm;
   }, [serverDetail.data, localVm, currentLocation, spots, id]);
+
+  /** 위치 카드의 지도 칸 크기가 잡혔는가 — 잡힌 뒤에 지도를 만든다 (크기 0 생성 방지) */
+  const [mapCanvasReady, setMapCanvasReady] = useState(false);
+  /**
+   * 스크롤이 멈추면 지도에 다시 맞추라고 알린다.
+   * 폰 실측 스크린샷은 아래로 스크롤한 뒤에 찍혔다 — 안드로이드 WebView가 화면에 보일 때에야
+   * 크기를 잡는다면, 진입 직후의 재조정은 전부 헛돈다. 위치를 계산하지 않고 멈출 때마다 부른다:
+   * 움직이지 않는 지도(staticMap)의 재조정은 처음 좌표로 되돌리는 것이라 여러 번 불러도 같다.
+   */
+  const detailMapRef = useRef<KakaoMapRef>(null);
+  const relayoutDetailMap = useCallback(() => detailMapRef.current?.relayout(), []);
 
   // 발도장을 마치고 이 화면으로 돌아왔을 때 서버 집계를 다시 읽는다.
   //   상단 세 숫자(다녀간 강아지 / 발도장 / 내 방문)는 전부 spot-detail 스냅샷이라
@@ -475,6 +486,8 @@ export default function SpotDetailScreen() {
           { useNativeDriver: true },   // opacity만 바꾸므로 네이티브 드라이버로 올린다
         )}
         scrollEventThrottle={16}
+        onScrollEndDrag={relayoutDetailMap}
+        onMomentumScrollEnd={relayoutDetailMap}
       >
         {/* ── 키비주얼 헤더 ──
             홈 '오늘의 추천' 카드와 같은 컴포넌트다. 스크림 농도·여백·저장 표시가
@@ -637,8 +650,17 @@ export default function SpotDetailScreen() {
               (부모의 pointerEvents='none'은 WebView 자식에 확실히 전파되지 않는다).
               실제 동작은 WebView와 겹치지 않는 아래 액션 행이 받는다. */}
           <View style={s.mapCard}>
-            <View style={s.mapCanvas} pointerEvents="none">
+            <View
+              style={s.mapCanvas}
+              pointerEvents="none"
+              // 칸의 크기가 잡힌 뒤에 지도를 만든다 — 크기 0에서 만들어진 지도는 핀이 왼쪽 위
+              // 모서리로 밀린다(2026-09-13 실측). 아래 staticMap이 한 번 더 막는다.
+              onLayout={(e) => { if (e.nativeEvent.layout.height > 0) setMapCanvasReady(true); }}
+            >
+              {mapCanvasReady && (
               <KakaoMap
+                ref={detailMapRef}
+                staticMap
                 initialLatitude={vm.latitude}
                 initialLongitude={vm.longitude}
                 initialLevel={4}
@@ -651,6 +673,7 @@ export default function SpotDetailScreen() {
                 }] as KakaoMarker[]}
                 style={{ flex: 1 }}
               />
+              )}
             </View>
 
             {/* 「지도에서 보기」를 뺐다(2026-09-05).

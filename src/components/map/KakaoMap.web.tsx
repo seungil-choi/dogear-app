@@ -331,6 +331,15 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
 
   // ref API
   useImperativeHandle(ref, () => ({
+    // 웹은 브라우저가 크기 변화를 제대로 알려주므로 네이티브만큼 필요하지 않지만,
+    // 같은 ref 계약을 지킨다. 지금 중심을 유지한 채 크기만 다시 잰다.
+    relayout: () => {
+      const map = mapRef.current;
+      if (!map) return;
+      const c = map.getCenter();
+      map.relayout();
+      map.setCenter(c);
+    },
     setCenter: (lat: number, lng: number, level?: number) => {
       if (!mapRef.current) return;
       const kakao = (window as any).kakao;

@@ -12,6 +12,7 @@
  *       variant = 나와의 관계. 유형은 핀으로 구분하지 않는다.
  *     { type: 'setUserLocation', latitude, longitude }
  *     { type: 'selectMarker', id }
+ *     { type: 'relayout' }   // RN이 지도 칸의 실제 크기를 알았을 때 — 크기를 다시 재고 중심을 맞춘다
  *   Map → App:
  *     { type: 'ready' }
  *     { type: 'markerClick', id }
@@ -32,12 +33,18 @@ export interface KakaoMapInitOpts {
   initialLongitude?: number;
   /** 초기 줌 레벨 (1 가장 가까움 ~ 14 가장 멀음, 기본 4) */
   initialLevel?: number;
+  /**
+   * 움직이지 않는 그림 지도(장소 상세). 켜면 크기를 다시 잴 때마다 **처음 좌표로** 되돌리고,
+   * 로드 직후 몇 번 강제로 다시 맞춘다. 사용자가 옮길 일이 없으므로 처음 좌표가 곧 정답이다.
+   */
+  staticMap?: boolean;
 }
 
 export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
   const lat = opts.initialLatitude ?? 37.5563;
   const lng = opts.initialLongitude ?? 126.9237;
   const level = opts.initialLevel ?? 4;
+  const staticMap = opts.staticMap === true;
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -394,6 +401,22 @@ ${CLUSTER_GRID_JS}
         if (id) repaint(id);
       }
 
+      var STATIC_MAP = ${staticMap ? 'true' : 'false'};
+
+      /**
+       * 지도 칸의 크기를 다시 재고 중심을 맞춘다.
+       * 카카오맵은 생성 시점의 크기를 들고 있어, 크기가 달라진 뒤 알려주지 않으면 '중앙'이
+       * 크기 차의 절반만큼 밀린다. relayout은 중심을 보존하지 않으므로 직접 되돌린다.
+       *   - 움직이는 지도: 지금 중심을 유지
+       *   - 움직이지 않는 지도: 처음 좌표로 — 사용자가 옮길 일이 없으니 그게 정답이다
+       */
+      function relayoutMap() {
+        if (!map) return;
+        var c = STATIC_MAP ? new kakao.maps.LatLng(${lat}, ${lng}) : map.getCenter();
+        map.relayout();
+        map.setCenter(c);
+      }
+
       function setCenter(lat, lng, lv) {
         if (!map) return;
         var pos = new kakao.maps.LatLng(lat, lng);
@@ -495,6 +518,12 @@ ${CLUSTER_GRID_JS}
         else if (data.type === 'setMarkers') setMarkers(data.markers || []);
         else if (data.type === 'setUserLocation') setUserLocation(data.latitude, data.longitude);
         else if (data.type === 'selectMarker') selectMarker(data.id);
+        else if (data.type === 'relayout') {
+          relayoutMap();
+          // WebView가 화면에 막 들어온 순간에는 페이지 쪽 크기가 아직 따라오지 못했을 수 있다.
+          // 움직이지 않는 지도는 처음 좌표로 되돌리는 것이라 몇 번 더 불러도 결과가 같다.
+          if (STATIC_MAP) { setTimeout(relayoutMap, 300); setTimeout(relayoutMap, 1000); }
+        }
       }
       window.addEventListener('message', handleMessage);
       document.addEventListener('message', handleMessage); // iOS WebView
@@ -557,12 +586,7 @@ ${CLUSTER_GRID_JS}
          * ResizeObserver로 컨테이너를 직접 본다. window resize 이벤트는
          * WebView 안에서 안 오는 경우가 있다.
          */
-        var relayout = function() {
-          if (!map) return;
-          var c = map.getCenter();
-          map.relayout();
-          map.setCenter(c);          // relayout은 중심을 보존하지 않는다
-        };
+        var relayout = relayoutMap;
         window.addEventListener('resize', relayout);
         if (window.ResizeObserver) {
           var lastW = 0, lastH = 0;
@@ -572,6 +596,28 @@ ${CLUSTER_GRID_JS}
             lastW = w; lastH = h;
             relayout();
           }).observe(container);
+        }
+
+        /**
+         * 크기 신호에 기대지 않는 재조정 (2026-09-13)
+         *
+         * 폰 실측: 장소 상세 지도의 핀이 **왼쪽 위 모서리**에 걸렸다(가로·세로 모두 지도의 절반만큼).
+         * 지도가 크기 0으로 만들어진 모양이다. 위의 ResizeObserver·resize 대책을 넣은 버전이
+         * 설치된 뒤에도 그대로였다. 데스크톱 크롬에서 같은 코드로 0×0·높이0·숨김·단계적 확대를
+         * 재현하면 전부 재조정이 실행돼 정중앙으로 돌아온다 — 즉 **로직은 맞고, 안드로이드
+         * WebView 안에서는 크기 변화 신호가 이 페이지에 오지 않았다.**
+         *
+         * 그래서 신호를 기다리지 않는다.
+         *   - RN이 지도 칸의 실제 크기를 알면(onLayout) 'relayout' 메시지를 보낸다.
+         *   - 움직이지 않는 지도(staticMap)는 로드 직후 시간을 두고 몇 번 강제로 다시 맞춘다.
+         *     재조정은 중심을 되돌리므로 여러 번 불러도 결과가 같다.
+         */
+        if (STATIC_MAP) {
+          var once = false;
+          kakao.maps.event.addListener(map, 'tilesloaded', function() {
+            if (once) return; once = true; relayoutMap();
+          });
+          [0, 300, 1000, 2500].forEach(function(ms) { setTimeout(relayoutMap, ms); });
         }
 
         postMsg({ type: 'ready' });

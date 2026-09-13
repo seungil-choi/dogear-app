@@ -76,10 +76,10 @@ describe('컨테이너 크기가 바뀌면 relayout', () => {
   });
 
   it('relayout 뒤 중심을 되돌린다 — relayout은 중심을 보존하지 않는다', () => {
-    const body = html.match(/var relayout = function\(\) \{([\s\S]*?)\n {8}\};/)?.[1] ?? '';
+    const body = html.match(/function relayoutMap\(\) \{([\s\S]*?)\n {6}\}/)?.[1] ?? '';
     expect(body.length).toBeGreaterThan(0);
     expect(body).toMatch(/getCenter\(\)/);
-    expect(body.indexOf('relayout()')).toBeLessThan(body.indexOf('setCenter'));
+    expect(body.indexOf('map.relayout()')).toBeLessThan(body.indexOf('map.setCenter'));
   });
 
   it('ResizeObserver로 컨테이너를 본다 — WebView에서 window resize는 안 올 수 있다', () => {
@@ -118,5 +118,71 @@ describe('KakaoMap 연결', () => {
 
   it('nestedScrollEnabled를 WebView에 전달한다', () => {
     expect(src).toMatch(/nestedScrollEnabled=\{props\.nestedScrollEnabled\}/);
+  });
+});
+
+/**
+ * 크기 신호에 기대지 않는 재조정 (2026-09-13)
+ *
+ * 폰 실측: 장소 상세 지도의 핀이 왼쪽 위 모서리에 걸렸다(지도가 크기 0으로 만들어진 모양).
+ * ResizeObserver 대책이 설치된 뒤에도 그대로였다. 데스크톱 크롬에서는 같은 코드가 모든 경우
+ * 정상 동작했다 — 안드로이드 WebView에서는 크기 변화 신호가 페이지에 오지 않은 것이다.
+ */
+describe('크기 신호 없이도 다시 맞춘다', () => {
+  const dynamicHtml = buildKakaoMapHtml({ appKey: 'k', initialLatitude: 37.1, initialLongitude: 127.2 });
+  const staticHtml = buildKakaoMapHtml({ appKey: 'k', initialLatitude: 37.1, initialLongitude: 127.2, staticMap: true });
+
+  it("RN이 보내는 'relayout' 메시지로 다시 맞춘다", () => {
+    expect(dynamicHtml).toMatch(/data\.type === 'relayout'\) \{\s*\n\s*relayoutMap\(\);/);
+    // 화면에 막 들어온 WebView는 크기가 늦게 따라올 수 있다 — 움직이지 않는 지도는 몇 번 더
+    expect(dynamicHtml).toMatch(/if \(STATIC_MAP\) \{ setTimeout\(relayoutMap, 300\); setTimeout\(relayoutMap, 1000\); \}/);
+  });
+
+  it('움직이지 않는 지도는 처음 좌표로 되돌린다 — 움직이는 지도는 지금 중심을 유지', () => {
+    const body = (h: string) => h.match(/function relayoutMap\(\) \{([\s\S]*?)\n {6}\}/)?.[1] ?? '';
+    expect(dynamicHtml).toMatch(/var STATIC_MAP = false;/);
+    expect(staticHtml).toMatch(/var STATIC_MAP = true;/);
+    expect(body(staticHtml)).toMatch(/STATIC_MAP \? new kakao\.maps\.LatLng\(37\.1, 127\.2\) : map\.getCenter\(\)/);
+  });
+
+  it('움직이지 않는 지도는 로드 직후 시간을 두고 여러 번 다시 맞춘다', () => {
+    const block = staticHtml.match(/if \(STATIC_MAP\) \{\n\s*var once = false;([\s\S]*?)\n {8}\}/)?.[1] ?? '';
+    expect(block.length).toBeGreaterThan(0);
+    expect(block).toMatch(/'tilesloaded'/);
+    expect(block).toMatch(/setTimeout\(relayoutMap, ms\)/);
+    // 마지막 시도가 너무 이르면 느린 기기에서 크기가 잡히기 전에 끝난다
+    const delays = (block.match(/\[([\d,\s]+)\]\.forEach/)?.[1] ?? '').split(',').map(Number);
+    expect(Math.max(...delays)).toBeGreaterThanOrEqual(2000);
+  });
+});
+
+describe('RN 쪽 연결', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const kakao = fs.readFileSync(path.resolve(__dirname, '../KakaoMap.tsx'), 'utf8');
+  const detail = fs.readFileSync(path.resolve(__dirname, '../../../../app/spot/[id].tsx'), 'utf8');
+
+  it('KakaoMap은 지도 칸 크기가 잡히면 relayout을 보낸다', () => {
+    expect(kakao).toMatch(/onLayout=\{handleLayout\}/);
+    const body = kakao.match(/const handleLayout = useCallback\(\(e: LayoutChangeEvent\) => \{([\s\S]*?)\n  \}, \[send\]\);/)?.[1] ?? '';
+    expect(body).toMatch(/if \(width <= 0 \|\| height <= 0\) return;/);
+    expect(body).toMatch(/send\(\{ type: 'relayout' \}\)/);
+  });
+
+  it('KakaoMap이 staticMap을 HTML에 넘긴다', () => {
+    expect(kakao).toMatch(/staticMap: props\.staticMap/);
+  });
+
+  it('장소 상세 지도는 staticMap이고, 칸 크기가 잡힌 뒤에 만든다', () => {
+    expect(detail).toMatch(/\{mapCanvasReady && \(\s*\n\s*<KakaoMap\s*\n\s*ref=\{detailMapRef\}\s*\n\s*staticMap/);
+    expect(detail).toMatch(/onLayout=\{\(e\) => \{ if \(e\.nativeEvent\.layout\.height > 0\) setMapCanvasReady\(true\); \}\}/);
+  });
+
+  it('장소 상세는 스크롤이 멈출 때마다 지도에 다시 맞추라고 알린다', () => {
+    expect(detail).toMatch(/onScrollEndDrag=\{relayoutDetailMap\}/);
+    expect(detail).toMatch(/onMomentumScrollEnd=\{relayoutDetailMap\}/);
+    expect(detail).toMatch(/detailMapRef\.current\?\.relayout\(\)/);
+    expect(detail).toMatch(/ref=\{detailMapRef\}\s*\n\s*staticMap/);
+    expect(kakao).toMatch(/relayout: \(\) => send\(\{ type: 'relayout' \}\)/);
   });
 });
