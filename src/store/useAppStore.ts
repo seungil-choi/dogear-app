@@ -23,6 +23,7 @@ import { categoryLabel, atmosphereLabel, regularStatusLabel, visitDateText, rela
 import type { SpotDetailViewModel, DogMapSpotViewModel } from '../types';
 import { mergeSpotList } from './spotMerge';
 import { MAX_CHECKIN_PHOTOS } from '../config/checkin';
+import { regionSummary as regionSummaryOf } from '../utils/address';
 import {
   mockUser, mockDog, mockDogs, mockSpots, mockCheckins, mockSavedSpots,
   mockVisitSummaries, mockFamiliarDogSignals, mockPrivacySetting,
@@ -971,15 +972,9 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     // 로컬 폴백일 때만 거리 표기가 달라지면 원인을 찾기 어렵다.
     const distanceText = distanceTextOr(distanceMeters, '거리 정보 없음');
 
-    // 시/도·구 수준 위치 요약 (주소에서 추출)
-    const addr = spot.address_text || '';
-    const addrParts = addr.split(' ');
-    const sidoRaw = addrParts[0] ?? '';
-    const sidoShort = sidoRaw === '서울특별시' ? '서울'
-      : sidoRaw === '경기도' ? '경기'
-      : sidoRaw.replace(/특별시|광역시|도$/, '');
-    const sigunguRaw = addrParts[1] ?? (spot.neighborhood ?? '');
-    const regionSummary = sigunguRaw ? `${sidoShort} ${sigunguRaw}` : sidoShort;
+    // 시/도·구 수준 위치 요약 — 규칙은 address.ts 한 곳에만 둔다.
+    const addrParts = (spot.address_text || '').split(' ');
+    const regionSummary = regionSummaryOf(addrParts[0], addrParts[1] ?? spot.neighborhood);
 
     return {
       spot_id: spotId,

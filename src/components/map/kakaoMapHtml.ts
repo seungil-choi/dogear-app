@@ -47,7 +47,7 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
   <style>
     html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#F5F3EF; }
     #map { width:100%; height:100%; }
-    /* tail-pin SVG: 꼬리 끝이 좌표(yAnchor:1) */
+    /* 원형 dot — 원의 중심이 좌표(yAnchor:0.5). 예전엔 꼬리 달린 핀이었다 */
     .pin { position: relative; cursor: pointer; pointer-events: auto; }
     .pin-svg { display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.28)); }
     .pin-svg-selected { filter: drop-shadow(0 4px 8px rgba(196,120,72,0.45)); }
@@ -530,6 +530,38 @@ ${CLUSTER_GRID_JS}
           var c = map.getCenter();
           postMsg({ type: 'regionChange', latitude: c.getLat(), longitude: c.getLng(), level: map.getLevel() });
         });
+
+        /**
+         * 컨테이너 크기가 바뀌면 지도에 알려준다.
+         *
+         * 카카오맵은 생성 시점의 컨테이너 크기를 안에 들고 있다. 그 뒤 크기가 바뀌어도
+         * 스스로 알아채지 못해서, 화면 중앙이라고 믿는 지점이 실제 중앙에서
+         * **크기 차이의 절반만큼** 밀린다. 핀이 중앙에 있어야 할 상세 지도에서
+         * 이게 "지도가 약간 어긋난다"로 보인다.
+         *
+         * WebView에서 크기가 바뀌는 경우:
+         *   - 안드로이드에서 최초 레이아웃이 0높이 → 실제 높이로 잡히는 순간
+         *   - 화면 회전, 키보드 오르내림, 접근성 글자 크기 변경
+         *
+         * ResizeObserver로 컨테이너를 직접 본다. window resize 이벤트는
+         * WebView 안에서 안 오는 경우가 있다.
+         */
+        var relayout = function() {
+          if (!map) return;
+          var c = map.getCenter();
+          map.relayout();
+          map.setCenter(c);          // relayout은 중심을 보존하지 않는다
+        };
+        window.addEventListener('resize', relayout);
+        if (window.ResizeObserver) {
+          var lastW = 0, lastH = 0;
+          new ResizeObserver(function() {
+            var w = container.clientWidth, h = container.clientHeight;
+            if (w === lastW && h === lastH) return;   // 같은 크기로 두 번 부르지 않는다
+            lastW = w; lastH = h;
+            relayout();
+          }).observe(container);
+        }
 
         postMsg({ type: 'ready' });
       });

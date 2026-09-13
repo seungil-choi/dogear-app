@@ -8,6 +8,7 @@ import type { FamiliarDogCardViewModel, TraceListItemViewModel, SpotAggregate } 
 import { FAMILIAR_LAYER_POLICY } from '../config/familiar-layer';
 import { haversineDistance } from './geo';
 import { authoredDescription } from './spotDescription';
+import { regionSummary as regionSummaryOf } from './address';
 
 const HOURS_72 = 72 * 60 * 60 * 1000;
 const DAYS_14 = 14 * 24 * 60 * 60 * 1000;
@@ -268,13 +269,10 @@ export function buildSpotDetailFromApi(
     : null;
   const distance_text = distanceTextOr(distanceMeters, '거리 정보 없음');
 
+  // 지역 표기는 address.ts 한 곳에서 만든다 — 시·도 축약 규칙을 여기서 또 쓰면
+  // 두 화면이 같은 장소를 다르게 부르게 된다(실제로 그랬다).
   const addrParts = (spot.address_text || '').split(' ');
-  const sidoRaw = addrParts[0] ?? '';
-  const sidoShort = sidoRaw === '서울특별시' ? '서울'
-    : sidoRaw === '경기도' ? '경기'
-    : sidoRaw.replace(/특별시|광역시|도$/, '');
-  const sigunguRaw = addrParts[1] ?? (spot.neighborhood ?? '');
-  const regionSummary = sigunguRaw ? `${sidoShort} ${sigunguRaw}` : sidoShort;
+  const regionSummary = regionSummaryOf(addrParts[0], addrParts[1] ?? spot.neighborhood);
 
   const familiar_dogs: FamiliarDogCardViewModel[] = api.familiar_dogs.map(d => {
     const sizeLbl = sizeLabel[d.size as DogSize] ?? '';

@@ -60,3 +60,34 @@ describe('buildKakaoMapHtml', () => {
     expect(label).toContain('width: max-content');
   });
 });
+
+/**
+ * 컨테이너 크기 변화 대응 (2026-09-13)
+ *
+ * 카카오맵은 생성 시점의 크기를 안에 들고 있다. 크기가 바뀐 뒤 relayout()을 부르지
+ * 않으면 '중앙'이 실제 중앙에서 크기 차의 절반만큼 밀린다 — 상세 화면처럼 핀이
+ * 정중앙에 있어야 하는 지도에서 눈에 띈다.
+ */
+describe('컨테이너 크기가 바뀌면 relayout', () => {
+  const html = buildKakaoMapHtml({ appKey: 'k' });
+
+  it('relayout을 부른다', () => {
+    expect(html).toMatch(/map\.relayout\(\)/);
+  });
+
+  it('relayout 뒤 중심을 되돌린다 — relayout은 중심을 보존하지 않는다', () => {
+    const body = html.match(/var relayout = function\(\) \{([\s\S]*?)\n {8}\};/)?.[1] ?? '';
+    expect(body.length).toBeGreaterThan(0);
+    expect(body).toMatch(/getCenter\(\)/);
+    expect(body.indexOf('relayout()')).toBeLessThan(body.indexOf('setCenter'));
+  });
+
+  it('ResizeObserver로 컨테이너를 본다 — WebView에서 window resize는 안 올 수 있다', () => {
+    expect(html).toMatch(/new ResizeObserver\(/);
+    expect(html).toMatch(/\.observe\(container\)/);
+  });
+
+  it('같은 크기로 두 번 부르지 않는다', () => {
+    expect(html).toMatch(/if \(w === lastW && h === lastH\) return;/);
+  });
+});
