@@ -45,10 +45,26 @@ import { AUTH, GREET, VALID } from '../../src/constants/messages';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * 구글 로그인에 필요한 클라이언트 ID.
+ *
+ * 안드로이드는 웹 클라이언트 ID 하나로 동작하지만, **iOS는 iOS용 클라이언트 ID가 따로 있어야 한다.**
+ * 없으면 로그인 시트가 뜨자마자 실패한다(사용자에겐 이유가 안 보인다).
+ * 그래서 iOS에서는 ID가 채워졌을 때만 구글 버튼을 내보낸다 — 데드엔드를 만들지 않는 쪽이 낫다.
+ *
+ * iOS ID를 받으면 할 일 두 가지(둘 다 해야 동작한다):
+ *   ① eas.json의 preview-real·production env에 EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID 추가
+ *   ② app.json 플러그인에 `["@react-native-google-signin/google-signin", { "iosUrlScheme": "com.googleusercontent.apps.<번호>" }]`
+ */
+const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+const GOOGLE_READY = !!GOOGLE_WEB_CLIENT_ID && (Platform.OS !== 'ios' || !!GOOGLE_IOS_CLIENT_ID);
+
 // Google Sign-In 초기 설정
 if (IS_REAL_AUTH && Platform.OS !== 'web') {
   GoogleSignin.configure({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    webClientId: GOOGLE_WEB_CLIENT_ID,
+    iosClientId: GOOGLE_IOS_CLIENT_ID,
     scopes: ['profile', 'email'],
     offlineAccess: false,
   });
@@ -299,9 +315,9 @@ export default function LoginScreen() {
               logo={<KakaoLogo size={22} />}
               ariaLabel="카카오로 시작하기"
             />
-            {/* 구글: 웹 클라이언트 ID가 설정된 경우에만 노출 — 미설정 시 100% 실패(DEVELOPER_ERROR)라
-                버튼을 숨겨 데드엔드 방지. ID를 eas.json/.env에 넣으면 자동으로 다시 나타남. */}
-            {!!process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID && (
+            {/* 구글: 필요한 클라이언트 ID가 모두 채워진 경우에만 노출 — 미설정 시 100% 실패(DEVELOPER_ERROR)라
+                버튼을 숨겨 데드엔드 방지. iOS는 iOS용 ID까지 있어야 한다(위 GOOGLE_READY 주석 참고). */}
+            {GOOGLE_READY && (
               <SnsBubble
                 onPress={handleGoogleLogin}
                 bgColor="#FFFFFF"

@@ -18,11 +18,10 @@
       "bundleIdentifier": "com.factorial9.dogear",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "주변 산책 장소를 찾고 발도장에 위치 정보를 기록하기 위해 위치 정보가 필요해요. 권한을 거부해도 앱의 다른 기능은 사용할 수 있어요.",
-        "NSCameraUsageDescription": "발도장 기록에 직접 촬영한 사진을 추가하려면 카메라 접근이 필요해요. 사진은 발도장 메모에만 사용되며 외부로 공유되지 않아요.",
-        "NSPhotoLibraryUsageDescription": "발도장 기록과 강아지 프로필에 사진을 추가하려면 사진 라이브러리 접근이 필요해요. 선택한 사진만 앱이 사용해요.",
-        "NSPhotoLibraryAddUsageDescription": "발도장 사진을 사진 라이브러리에 저장하려면 권한이 필요해요.",
-        "ITSAppUsesNonExemptEncryption": false
+        "NSLocationWhenInUseUsageDescription": "주변 산책 장소를 찾고, 고르신 장소 근처에 계신지 확인해 발도장을 남기는 데에만 사용해요. 이동 경로는 저장하지 않고 백그라운드에서는 수집하지 않아요. 권한을 거부하셔도 검색과 장소 조회 등 다른 기능은 사용하실 수 있어요.",
+        "NSCameraUsageDescription": "발도장과 강아지 프로필에 직접 촬영한 사진을 올릴 때 카메라를 사용해요. 장소에 올린 사진은 그 장소를 보는 다른 이용자에게도 보여요.",
+        "NSPhotoLibraryUsageDescription": "발도장과 강아지 프로필에 사진을 올릴 때 사용해요. 고르신 사진만 앱이 읽고, 장소에 올린 사진은 그 장소를 보는 다른 이용자에게도 보여요.",
+            "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -58,14 +57,14 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "주변 산책 장소를 찾고 발도장에 위치 정보를 기록하기 위해 위치 정보가 필요해요."
+          "locationWhenInUsePermission": "주변 산책 장소를 찾고, 고르신 장소 근처에 계신지 확인해 발도장을 남기는 데에만 사용해요. 이동 경로는 저장하지 않고 백그라운드에서는 수집하지 않아요."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "발도장 기록과 강아지 프로필에 사진을 추가하려면 사진 라이브러리 접근이 필요해요.",
-          "cameraPermission": "발도장 기록에 직접 촬영한 사진을 추가하려면 카메라 접근이 필요해요."
+          "photosPermission": "발도장과 강아지 프로필에 사진을 올릴 때 사용해요. 고르신 사진만 앱이 읽고, 장소에 올린 사진은 그 장소를 보는 다른 이용자에게도 보여요.",
+          "cameraPermission": "발도장과 강아지 프로필에 직접 촬영한 사진을 올릴 때 카메라를 사용해요. 장소에 올린 사진은 그 장소를 보는 다른 이용자에게도 보여요."
         }
       ],
       "expo-apple-authentication",
