@@ -135,7 +135,7 @@ export default function SignupScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={s.lead}>Dogear에서 사용할{'\n'}이메일과 비밀번호를 입력해주세요</Text>
+          <Text style={s.lead}>DogEar에서 사용할{'\n'}이메일과 비밀번호를 입력해주세요</Text>
 
           {/* 이메일 */}
           <View style={s.field}>
