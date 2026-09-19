@@ -1,11 +1,18 @@
 /**
- * 스플래시 화면 — 앱 진입 시 브랜드 노출 (1.5s)
+ * 스플래시 화면 — 앱 진입 시 브랜드 노출
+ *
+ * 네이티브 스플래시(같은 로고)가 이미 보인 뒤에 뜨는 화면이라 여기서 오래 붙잡을 이유가 없다.
+ * 예전엔 세션 복원이 끝나도 최소 1.5초를 더 기다렸다(로고를 두 번, 합쳐 3초 넘게 보여줌).
+ * 지금은 페이드가 끝나는 0.5초만 보장하고 세션 복원이 끝나는 즉시 넘어간다.
  */
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
+
+/** 세션 복원이 더 빨리 끝나도 이만큼은 보여준다 — 로고가 깜빡하고 사라지는 것 방지 */
+const SPLASH_MIN_MS = 500;
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -16,7 +23,7 @@ export default function SplashScreen() {
   const scale = React.useRef(new Animated.Value(0.85)).current;
   const opacity = React.useRef(new Animated.Value(0)).current;
 
-  // 애니메이션 완료 여부 (1.5s)
+  // 애니메이션 완료 여부 — 페이드(400ms)가 끝날 만큼만 기다린다
   const [animDone, setAnimDone] = React.useState(false);
 
   // 1. 애니메이션 시작 + 1.5초 후 animDone=true
@@ -26,7 +33,7 @@ export default function SplashScreen() {
       Animated.timing(opacity, { toValue: 1, duration: 400, useNativeDriver: true }),
     ]).start();
 
-    const timer = setTimeout(() => setAnimDone(true), 1500);
+    const timer = setTimeout(() => setAnimDone(true), SPLASH_MIN_MS);
     return () => clearTimeout(timer);
   }, []);
 

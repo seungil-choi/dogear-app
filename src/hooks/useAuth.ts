@@ -60,12 +60,32 @@ export function useAuth() {
   }, []);
 
   async function loadUserProfile(authId: string) {
-    // users 테이블 조회
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('auth_id', authId)
-      .single();
+    // users + 강아지 목록을 한 번에 가져온다(dogs.user_id → users.user_id FK 하나뿐이라 임베드가 모호하지 않다).
+    // 예전엔 users 조회 → dogs 조회를 순서대로 두 번 왕복했다 — 콜드 스타트의 스플래시 대기 시간에 그대로 얹힌다.
+    // 임베드 조회가 실패하면(스키마·정책 변경 등) 예전 2단계 경로로 조용히 내려간다.
+    let userData: any = null;
+    let userError: any = null;
+    let dogsData: any[] | null = null;
+    {
+      const res = await supabase
+        .from('users')
+        .select('*, dogs(*)')
+        .eq('auth_id', authId)
+        .eq('dogs.is_active', true)
+        .is('dogs.deleted_at', null)
+        .order('created_at', { referencedTable: 'dogs', ascending: true })
+        .single();
+      if (!res.error && res.data) {
+        const { dogs: embedded, ...rest } = res.data as any;
+        userData = rest;
+        dogsData = Array.isArray(embedded) ? embedded : [];
+      } else {
+        console.warn('users+dogs embed failed, falling back:', res.error?.message);
+        const fallback = await supabase.from('users').select('*').eq('auth_id', authId).single();
+        userData = fallback.data;
+        userError = fallback.error;
+      }
+    }
 
     if (userError || !userData) {
       console.warn('User record not found for auth_id:', authId);
@@ -82,15 +102,19 @@ export function useAuth() {
     };
     setUser(user);
 
-    // 강아지 목록 조회 → 첫 번째 활성 강아지를 active로 설정
+    // 강아지 목록 → 첫 번째 활성 강아지를 active로 설정
     //   soft-deleted 강아지(deleted_at NOT NULL)는 제외 — 30일 grace 동안 숨김
-    const { data: dogsData } = await supabase
-      .from('dogs')
-      .select('*')
-      .eq('user_id', userData.user_id)
-      .eq('is_active', true)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: true });
+    //   (임베드가 실패해 폴백한 경우에만 여기서 따로 조회)
+    if (dogsData === null) {
+      const res = await supabase
+        .from('dogs')
+        .select('*')
+        .eq('user_id', userData.user_id)
+        .eq('is_active', true)
+        .is('deleted_at', null)
+        .order('created_at', { ascending: true });
+      dogsData = res.data;
+    }
 
     if (dogsData && dogsData.length > 0) {
       completeOnboarding(); // 강아지가 있으면 온보딩 이미 완료한 것
