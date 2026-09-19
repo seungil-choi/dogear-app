@@ -38,13 +38,34 @@ export interface KakaoMapInitOpts {
    * 로드 직후 몇 번 강제로 다시 맞춘다. 사용자가 옮길 일이 없으므로 처음 좌표가 곧 정답이다.
    */
   staticMap?: boolean;
+  /**
+   * 진단 오버레이. 켜면 페이지 안에 검은 로그 상자를 띄워 SDK 로드·지도 생성·타일 로드·오류를 순서대로 찍는다.
+   * iOS 시뮬레이터처럼 WebView 콘솔을 볼 수 없는 곳에서 "지도가 왜 비었나"를 화면으로 답하게 한다.
+   * 운영 빌드에서는 항상 false(EXPO_PUBLIC_MAP_DEBUG 미설정) — Metro가 문자열째 제거한다.
+   */
+  debug?: boolean;
 }
+
+/** 진단 오버레이 — debug일 때만 <head>에 들어간다. 이 문자열 안에서는 백틱·${ 를 쓰지 않는다. */
+const DEBUG_HEAD_JS = `<script>
+(function(){
+  var box=document.createElement('pre');
+  box.style.cssText='position:fixed;left:0;top:0;right:0;max-height:70%;overflow:auto;z-index:99999;background:rgba(0,0,0,.82);color:#0f0;font:11px/1.4 Menlo,monospace;padding:6px;margin:0;white-space:pre-wrap;pointer-events:none;';
+  document.addEventListener('DOMContentLoaded',function(){document.body.appendChild(box);});
+  window.__log=function(m){ box.textContent+=(new Date().toISOString().slice(11,23))+' '+m+String.fromCharCode(10); };
+  window.onerror=function(msg,src,line,col){ __log('ERROR '+msg+' @'+(src||'').split('/').pop()+':'+line+':'+col); };
+  window.addEventListener('unhandledrejection',function(e){ __log('REJECT '+(e.reason&&e.reason.message||e.reason)); });
+  __log('origin '+location.origin+' ref='+document.referrer);
+  __log('UA '+navigator.userAgent.slice(0,70));
+})();
+</script>`;
 
 export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
   const lat = opts.initialLatitude ?? 37.5563;
   const lng = opts.initialLongitude ?? 126.9237;
   const level = opts.initialLevel ?? 4;
   const staticMap = opts.staticMap === true;
+  const debug = opts.debug === true;
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -133,12 +154,15 @@ export function buildKakaoMapHtml(opts: KakaoMapInitOpts): string {
       transform: translate(-50%, -50%);
     }
   </style>
+${debug ? DEBUG_HEAD_JS : ''}
 </head>
 <body>
   <div id="map"></div>
-  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${opts.appKey}&autoload=false"></script>
+  <script onerror="window.__log&&__log('sdk.js LOAD FAILED')" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${opts.appKey}&autoload=false"></script>
+${debug ? "<script>__log('after sdk tag: typeof kakao='+typeof kakao+' readyState='+(window.kakao&&kakao.maps&&kakao.maps.readyState));</script>" : ''}
   <script>
     (function() {
+      var __log = window.__log || function(){};
       var markers = [];
       var markerById = {};
       var userMarker = null;
@@ -508,6 +532,7 @@ ${CLUSTER_GRID_JS}
 
       // 메시지 수신 (RN/iframe 양쪽 대응)
       function handleMessage(event) {
+        __log('msg '+String(event.data).slice(0,40));
         var data = event.data;
         if (typeof data === 'string') {
           try { data = JSON.parse(data); } catch(e) { return; }
@@ -529,13 +554,18 @@ ${CLUSTER_GRID_JS}
       document.addEventListener('message', handleMessage); // iOS WebView
 
       // 카카오맵 초기화
+      __log('calling kakao.maps.load');
       kakao.maps.load(function() {
+        __log('load callback entered');
         var container = document.getElementById('map');
         var options = {
           center: new kakao.maps.LatLng(${lat}, ${lng}),
           level: ${level},
         };
+        __log('container '+container.clientWidth+'x'+container.clientHeight);
         map = new kakao.maps.Map(container, options);
+        __log('Map created');
+        kakao.maps.event.addListener(map, 'tilesloaded', function() { __log('tilesloaded imgs='+document.querySelectorAll('#map img').length); });
 
         // 클릭(빈 영역) — 핀 닫기 신호 + 클러스터 강조 해제
         kakao.maps.event.addListener(map, 'click', function() {
@@ -620,6 +650,7 @@ ${CLUSTER_GRID_JS}
           [0, 300, 1000, 2500].forEach(function(ms) { setTimeout(relayoutMap, ms); });
         }
 
+        __log('ready posted');
         postMsg({ type: 'ready' });
       });
     })();

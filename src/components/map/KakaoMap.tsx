@@ -17,6 +17,9 @@ import { buildKakaoMapHtml } from './kakaoMapHtml';
 
 import { KAKAO_JS_KEY } from '@/config/env';
 
+/** 지도 진단 오버레이 + Safari 웹 인스펙터 허용. 시뮬레이터 빌드(eas.json ios-sim)에서만 켠다. */
+const MAP_DEBUG = process.env.EXPO_PUBLIC_MAP_DEBUG === 'true';
+
 /** 이 장소와 나의 관계 — 핀 색을 정한다 */
 export type KakaoPinVariant = 'default' | 'visited' | 'regular';
 
@@ -144,6 +147,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
     initialLongitude: props.initialLongitude,
     initialLevel: props.initialLevel,
     staticMap: props.staticMap,
+    debug: MAP_DEBUG,
   });
 
   // 지도 칸의 실제 크기를 알면 지도에 다시 맞추라고 알린다.
@@ -233,6 +237,7 @@ const KakaoMap = forwardRef<KakaoMapRef, KakaoMapProps>(function KakaoMap(props,
         // 안드로이드: 하드웨어 가속 + Mixed content (kakao SDK는 http 호출 가능)
         mixedContentMode={Platform.OS === 'android' ? 'always' : undefined}
         allowsInlineMediaPlayback
+        webviewDebuggingEnabled={MAP_DEBUG}
       />
     </View>
   );
