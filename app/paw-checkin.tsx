@@ -377,7 +377,8 @@ export default function PawCheckinModal() {
 
       try {
         setSubmitPhase('saving');
-        const r = await submitToServer(uploadedPhotoUrls); // Edge Function → Supabase 저장
+        // 장소 상세의 버튼으로 들어왔으면 spot_detail, 탭 가운데 발도장 버튼이면 global_cta
+        const r = await submitToServer(uploadedPhotoUrls, isPresetSpot ? 'spot_detail' : 'global_cta'); // Edge Function → Supabase 저장
         serverResult = {
           checkinId: r.checkinId,
           visitCount: r.visitSummary?.visitCount,

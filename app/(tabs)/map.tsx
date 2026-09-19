@@ -182,6 +182,11 @@ export default function ExploreScreen() {
   }, [setCurrentLocation]);
 
   const mapRef = useRef<KakaoMapRef>(null);
+  // 목록 보기로 갔다 오면 <KakaoMap>이 통째로 다시 만들어진다. 그때 앱 기본 좌표(합정)로
+  // 열리면 목록은 내 주변인데 지도는 엉뚱한 동네가 된다(위치 따라가기는 최초 1회라 다시 안 옮김).
+  // 목록으로 나가는 순간의 중심·확대를 기억해 두고 거기서 다시 연다.
+  // ref인 이유: 지도가 떠 있는 동안 initial* prop이 바뀌면 WebView HTML이 새로 만들어져 지도가 재로드된다.
+  const mapInitialRef = useRef(INITIAL_CENTER);
   const cardListRef = useRef<ScrollView>(null);
   const cardOffsetsRef = useRef<Record<string, number>>({});
   // 실데이터 dep으로 memo화 — 지도 팬 중 매 프레임 카드 전량 재빌드 + WebView 마커 재주입 방지.
@@ -925,6 +930,7 @@ export default function ExploreScreen() {
               style={[s.toggleBtn, viewMode === 'list' && s.toggleBtnActive]}
               onPress={() => {
                 if (viewMode !== 'list') {
+                  mapInitialRef.current = { latitude: mapCenter.lat, longitude: mapCenter.lng, level: zoomLevel };
                   setViewMode('list');
                   track(EVENT.list_viewed, { screen_name: 'explore', source_screen: 'map' });
                 }
@@ -989,9 +995,9 @@ export default function ExploreScreen() {
           <KakaoMap
             ref={mapRef}
             style={s.mapFull}
-            initialLatitude={INITIAL_CENTER.latitude}
-            initialLongitude={INITIAL_CENTER.longitude}
-            initialLevel={INITIAL_CENTER.level}
+            initialLatitude={mapInitialRef.current.latitude}
+            initialLongitude={mapInitialRef.current.longitude}
+            initialLevel={mapInitialRef.current.level}
             userLocation={isTracking ? currentLocation : null}
             selectedId={selectedId}
             markers={kakaoMarkers}

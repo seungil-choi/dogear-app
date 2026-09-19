@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
 import { Icon } from '../src/components/common/Icon';
 import type { IconName } from '../src/components/common/Icon';
@@ -95,7 +96,8 @@ export default function SettingsScreen() {
         </View>
 
         {/* 앱 버전 */}
-        <Text style={s.version}>버전 1.0.0 (MVP)</Text>
+        {/* 버전은 app.json에서 읽는다 — 손으로 적어 두면 업데이트 때 빠뜨린다 */}
+        <Text style={s.version}>버전 {Constants.expoConfig?.version ?? '1.0.0'}</Text>
       </ScrollView>
     </SafeAreaView>
   );

@@ -24,10 +24,13 @@ interface PawCheckinResult {
   } | null;
 }
 
+/** 발도장 진입 경로 — 서버 paw_checkins.source_type 과 같은 값 집합 */
+export type PawSourceType = 'home' | 'spot_detail' | 'global_cta' | 'spot_search';
+
 interface UsePawCheckinReturn {
   /** @param photoUrls 업로드 완료된 사진 public URL 목록 (최대 3장).
    *  스토어 pawFlow.photoUris는 로컬 URI일 수 있어 업로드 결과를 명시 전달한다. */
-  submit: (photoUrls?: string[]) => Promise<PawCheckinResult>;
+  submit: (photoUrls?: string[], sourceType?: PawSourceType) => Promise<PawCheckinResult>;
   isSubmitting: boolean;
   error: string | null;
 }
@@ -45,7 +48,11 @@ export function usePawCheckin(): UsePawCheckinReturn {
   const note = pawFlow.note;
   const visibilityLevel = pawFlow.visibility;
 
-  const submit = useCallback(async (photoUrls?: string[]): Promise<PawCheckinResult> => {
+  const submit = useCallback(async (
+    photoUrls?: string[],
+    // 예전엔 어디서 들어와도 'global_cta'로 고정돼 진입 경로 통계가 전부 한 값이었다
+    sourceType: PawSourceType = 'global_cta',
+  ): Promise<PawCheckinResult> => {
     if (!activeDog?.dog_id) {
       throw new Error('강아지 정보가 없어요');
     }
@@ -95,7 +102,7 @@ export function usePawCheckin(): UsePawCheckinReturn {
           note: note || undefined,
           photoUrls: photoUrls?.length ? photoUrls : undefined,
           visibilityLevel: visibilityLevel as VisibilityLevel,
-          sourceType: 'global_cta',
+          sourceType,
           // 서버 측 근접성 재검증을 위한 좌표/정확도/측정시각
           userLat: fix?.latitude,
           userLng: fix?.longitude,
