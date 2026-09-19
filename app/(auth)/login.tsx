@@ -42,8 +42,7 @@ import { supabase } from '../../src/lib/supabase';
 import { IS_REAL_AUTH } from '../../src/config/env';
 import { TextField } from '../../src/components/common/TextField';
 import { AUTH, GREET, VALID } from '../../src/constants/messages';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { isValidEmail } from '../../src/utils/email';
 
 /**
  * 구글 로그인에 필요한 클라이언트 ID.
@@ -152,7 +151,7 @@ export default function LoginScreen() {
   const handleEmailLogin = async () => {
     const trimmed = email.trim();
     // 입력 문제는 필드 옆에서 알린다(§2.1-1) — 두 칸을 한 번에 검사해야 왕복이 없다
-    const nextEmailError = !trimmed ? VALID.required('이메일') : !EMAIL_RE.test(trimmed) ? VALID.email : '';
+    const nextEmailError = !trimmed ? VALID.required('이메일') : !isValidEmail(trimmed) ? VALID.email : '';
     const nextPwError = !password ? VALID.password : '';
     setEmailError(nextEmailError);
     setPwError(nextPwError);
@@ -353,7 +352,7 @@ export default function LoginScreen() {
               value={email}
               onChangeText={(t) => { setEmail(t); if (emailError) setEmailError(''); }}
               error={emailError}
-              valid={EMAIL_RE.test(email.trim())}
+              valid={isValidEmail(email)}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}

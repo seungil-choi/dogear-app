@@ -24,6 +24,7 @@ import { supabase } from '../../src/lib/supabase';
 import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 import { VALID } from '../../src/constants/messages';
+import { isValidEmail } from '../../src/utils/email';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
 
@@ -63,7 +64,7 @@ export default function SignupScreen() {
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const emailValid = isValidEmail(email);
   const pwValidation = validatePassword(password);
   const matchOk = password.length > 0 && password === confirm;
   const canSubmit = emailValid && pwValidation.ok && matchOk && !busy;

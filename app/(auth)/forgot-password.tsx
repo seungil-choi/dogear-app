@@ -17,6 +17,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants
 import { Icon } from '../../src/components/common/Icon';
 import { supabase } from '../../src/lib/supabase';
 import { toast } from '../../src/utils/toast';
+import { isValidEmail } from '../../src/utils/email';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
 
@@ -26,7 +27,7 @@ export default function ForgotPasswordScreen() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  const emailValid = isValidEmail(email);
 
   const handleSend = async () => {
     if (!emailValid || busy) return;

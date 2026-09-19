@@ -87,7 +87,7 @@ function AuthProvider() {
 
 // 위치 권한 + 주변 스팟 자동 로드 + 사용자 데이터 로드 (IS_REAL_AUTH=true일 때만 마운트)
 function DataProvider() {
-  useAppEntryPermissions(); // 앱 실행 즉시 OS 위치·알림 권한 자동 요청(미결정 시 1회)
+  useAppEntryPermissions(); // 로그인 완료·홈 진입 시 OS 위치·알림 권한 자동 요청(미결정 시 1회)
   useLocation();       // 위치 권한 상태 확인 + currentLocation 설정
   useNearbySpots();    // 위치 기반 spots 페치 → setSpots
   useUserData();       // 로그인 후 checkins/savedSpots/visitSummaries/familiarSignals 로드
