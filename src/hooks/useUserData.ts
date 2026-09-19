@@ -33,6 +33,14 @@ export function useUserData() {
   // 최신 강아지의 데이터를 덮어쓸 수 있다(setCheckins 등은 전역 스토어라 영향이 크다).
   const reqIdRef = useRef(0);
 
+  // 로그아웃하면 "이미 로드됨" 기억을 지운다. 이 훅은 루트 레이아웃에 붙어 있어
+  // 로그아웃·재로그인 사이에도 살아 있는데, 같은 계정으로 다시 들어오면 dog_id가 같아
+  // 위 가드에 걸려 아무것도 안 불렀다 → 발도장·저장 장소가 전부 빈 화면(앱 재시작 전까지).
+  // iOS 시뮬레이터 로그아웃→재로그인 실측(2026-09-19).
+  useEffect(() => {
+    if (!isAuthenticated) loadedDogRef.current = null;
+  }, [isAuthenticated]);
+
   useEffect(() => {
     if (isAuthLoading || !isAuthenticated || !activeDog?.dog_id) return;
     if (loadedDogRef.current === activeDog.dog_id) return; // 이미 로드됨
