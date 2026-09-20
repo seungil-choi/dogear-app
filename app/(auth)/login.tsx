@@ -52,9 +52,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * 없으면 로그인 시트가 뜨자마자 실패한다(사용자에겐 이유가 안 보인다).
  * 그래서 iOS에서는 ID가 채워졌을 때만 구글 버튼을 내보낸다 — 데드엔드를 만들지 않는 쪽이 낫다.
  *
- * iOS ID를 받으면 할 일 두 가지(둘 다 해야 동작한다):
- *   ① eas.json의 preview-real·production env에 EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID 추가
- *   ② app.json 플러그인에 `["@react-native-google-signin/google-signin", { "iosUrlScheme": "com.googleusercontent.apps.<번호>" }]`
+ * iOS 설정은 2026-09-20에 끝났다(둘 다 있어야 동작한다):
+ *   ① eas.json의 preview-real·ios-sim·production env에 EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+ *   ② app.json 플러그인의 iosUrlScheme = 역순 클라이언트 ID(com.googleusercontent.apps.…)
+ * 구글 클라우드 프로젝트 DogEar(dogear-502211) > 사용자 인증 정보 > "DogEar iOS" 클라이언트.
+ * 아래 가드는 그대로 둔다 — 키가 빠진 빌드에서 버튼이 데드엔드가 되는 걸 막는다.
  */
 const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
