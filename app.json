@@ -2,7 +2,7 @@
   "expo": {
     "name": "DogEar",
     "slug": "dogear-app",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scheme": "dogear",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
