@@ -17,6 +17,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/to
 import { Icon } from '../src/components/common/Icon';
 import { useAppStore } from '../src/store/useAppStore';
 import { supabase } from '../src/lib/supabase';
+import { removeThisDevicePushToken } from '../src/hooks/usePushToken';
 import { notify, confirm as dialogConfirm } from '../src/utils/dialog';
 
 import { IS_REAL_AUTH } from '../src/config/env';
@@ -54,6 +55,8 @@ export default function AccountManageScreen() {
     if (!ok) return;
     setSubmitting(true);
     try {
+      // 탈퇴 전에 이 기기 토큰부터 지운다(탈퇴 처리 실패 시에도 이 기기로는 더 안 오게)
+      await removeThisDevicePushToken();
       await deleteAccount(reason.trim() || undefined);
       // 실 환경: Supabase 세션도 만료 + 소셜 연결 자체를 해제(unlink)
       //   해제하지 않으면 탈퇴 후에도 SDK 세션이 남아 곧바로 재가입/재로그인이 되어

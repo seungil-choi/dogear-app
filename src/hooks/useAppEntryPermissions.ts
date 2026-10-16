@@ -16,6 +16,7 @@ import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { useAppStore } from '@/store/useAppStore';
+import { registerPushTokenNow } from './usePushToken';
 import { withTimeout } from '../utils/withTimeout';
 import { LOCATION_TIMEOUT_MS } from '../config/locationTimeout';
 
@@ -52,6 +53,7 @@ export function useAppEntryPermissions() {
             latitude: pos.coords.latitude,
             longitude: pos.coords.longitude,
             accuracy: pos.coords.accuracy ?? undefined,
+            capturedAt: pos.timestamp,
           });
         }
       } catch {
@@ -62,7 +64,13 @@ export function useAppEntryPermissions() {
       try {
         const { status } = await Notifications.getPermissionsAsync();
         if (status === 'undetermined') {
-          await Notifications.requestPermissionsAsync();
+          const res = await Notifications.requestPermissionsAsync();
+          // 허용 직후 바로 토큰을 등록한다. 예전엔 로그인 직후 한 번만 시도했는데 그때는 아직
+          // 권한이 '미결정'이라 그냥 끝났고, 다음 콜드 스타트까지 토큰이 없었다(2026-10-16 감사).
+          const uid = useAppStore.getState().user?.user_id;
+          if (res.status === 'granted' && uid && useAppStore.getState().pushEnabled) {
+            await registerPushTokenNow(uid);
+          }
         }
       } catch {
         // 알림 실패 무시

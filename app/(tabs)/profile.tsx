@@ -26,6 +26,7 @@ import { SUPPORT_EMAIL } from '../../src/constants/messages';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
+import { removeThisDevicePushToken } from '../../src/hooks/usePushToken';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
 import { AppImage } from '../../src/components/common/AppImage';
@@ -149,6 +150,8 @@ export default function ProfileScreen() {
   // 로그아웃: 확인 다이얼로그 + store 비우기 + 인증화면 이동
   const handleLogout = useCallback(async () => {
     if (await confirm('기록은 그대로 남아요. 다시 로그인하면 이어서 볼 수 있어요.', { title: '로그아웃할까요?', confirmText: '로그아웃', destructive: true })) {
+      // 이 기기 푸시 토큰부터 지운다 — 세션을 끊은 뒤엔 RLS로 못 지운다(로그아웃 후에도 알림이 오던 문제)
+      await removeThisDevicePushToken();
       // 서버 세션까지 종료해야 함 — store만 비우면 useAuth가 잔존 세션을 복원해 자동 재로그인됨
       try { await supabase.auth.signOut(); } catch { /* 세션 없음 등은 무시 */ }
       // 카카오/구글 SDK 세션도 함께 끊는다.

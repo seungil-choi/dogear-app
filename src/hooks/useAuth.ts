@@ -8,6 +8,7 @@
 
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { reportError } from '../utils/errorReporter';
 import { useAppStore } from '@/store/useAppStore';
 import type { User, Dog } from '@/types';
 
@@ -36,20 +37,27 @@ export function useAuth() {
         }
       })
       .catch((e) => {
-        console.warn('restore session failed:', e);
+        reportError(new Error(`restore session failed: ${e?.message ?? e}`), 'handled');
       })
       .finally(() => {
         setAuthLoading(false);
       });
 
     // 인증 상태 변화 구독
+    // ⚠️ 콜백 안에서 Supabase를 await하지 않는다 — 공식 문서가 교착 위험을 경고하는 패턴이다.
+    //    다음 틱으로 넘기고 실패는 기록한다.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
-          await loadUserProfile(session.user.id);
+          const authId = session.user.id;
+          setTimeout(() => {
+            loadUserProfile(authId).catch((e: any) =>
+              reportError(new Error(`loadUserProfile failed: ${e?.message ?? e}`), 'handled'));
+          }, 0);
         } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setActiveDog(null);
+          // 세션 만료·원격 revoke로 끊긴 경우도 여기로 온다. 예전엔 user만 비워
+          // 이전 사용자의 발도장·저장 장소·차단 목록이 남았다(다른 계정으로 로그인하면 보였다).
+          useAppStore.getState().logout();
         }
       }
     );

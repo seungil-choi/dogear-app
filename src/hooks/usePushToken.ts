@@ -47,13 +47,36 @@ export function usePushToken() {
   }, [isAuthenticated, user?.user_id, pushEnabled]);
 }
 
-/** 서버에서 이 사용자의 푸시 토큰 제거 — 알림 끄기 시 호출 (실제 발송 차단) */
-export async function unregisterPushTokens(userId: string) {
+/** 이 기기에서 마지막으로 등록한 토큰 — 로그아웃·알림 끄기 때 '이 기기만' 지우는 데 쓴다 */
+let thisDeviceToken: string | null = null;
+
+/**
+ * 이 기기의 푸시 토큰만 서버에서 지운다 — 로그아웃·탈퇴·알림 끄기에서 부른다.
+ * ⚠️ 예전엔 알림 끄기가 user_id 기준으로 **모든 기기**의 토큰을 지웠고, 로그아웃은 아예 지우지 않아
+ *    로그아웃한 기기로 이전 계정 알림이 계속 왔다(2026-10-16 감사). 세션을 끊기 **전에** 불러야 RLS가 통과한다.
+ * 토큰을 모르면(앱 재시작 직후 등) 지금 기기 토큰을 다시 읽는다. 실패는 기록한다.
+ */
+export async function removeThisDevicePushToken(): Promise<void> {
+  if (!IS_REAL_AUTH || Platform.OS === 'web' || !Device.isDevice) return;
   try {
-    await supabase.from('push_tokens').delete().eq('user_id', userId);
-  } catch (err) {
-    console.warn('push token unregister failed:', err);
+    let token = thisDeviceToken;
+    if (!token) {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== 'granted') return;   // 권한이 없으면 등록된 토큰도 없다
+      const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? (Constants as any).easConfig?.projectId;
+      token = (await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)).data;
+    }
+    const { error } = await supabase.from('push_tokens').delete().eq('expo_token', token);
+    if (error) throw error;
+    thisDeviceToken = null;
+  } catch (err: any) {
+    reportError(new Error(`push token remove failed: ${err?.message ?? err}`), 'handled');
   }
+}
+
+/** 알림 끄기 — 이 기기만 끈다(다른 기기의 알림은 그대로) */
+export async function unregisterPushTokens(_userId: string) {
+  await removeThisDevicePushToken();
 }
 
 /** 현재 기기에서 즉시 토큰 등록 — 알림 켜기 시 호출 (권한 이미 허용된 경우) */
@@ -88,6 +111,7 @@ async function registerToken(userId: string) {
     projectId ? { projectId } : undefined
   );
   const expoToken = tokenData.data;
+  thisDeviceToken = expoToken;
 
   // 4. Supabase에 upsert
   const { error } = await supabase
