@@ -15,6 +15,7 @@ import { useAppEntryPermissions } from '../src/hooks/useAppEntryPermissions';
 import { useNearbySpots } from '../src/hooks/useNearbySpots';
 import { useUserData } from '../src/hooks/useUserData';
 import { usePushToken } from '../src/hooks/usePushToken';
+import { useNotificationTap } from '../src/hooks/useNotificationTap';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 import { installErrorReporter } from '../src/utils/errorReporter';
 
@@ -92,6 +93,7 @@ function DataProvider() {
   useNearbySpots();    // 위치 기반 spots 페치 → setSpots
   useUserData();       // 로그인 후 checkins/savedSpots/visitSummaries/familiarSignals 로드
   usePushToken();      // 로그인 후 expo push token 등록
+  useNotificationTap(); // 푸시를 누르면 공지·조치·장소 화면으로 이동
   return null;
 }
 
@@ -244,6 +246,21 @@ function RootLayoutInner() {
         {/* 내 갤러리 — 내가 올린 사진을 모아 보고 관리한다(마이페이지에서 진입) */}
         <Stack.Screen
           name="my-gallery"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
+        {/* 공지사항 (planning/37) — 마이페이지·알림함·푸시에서 진입 */}
+        <Stack.Screen
+          name="notices/index"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="notices/[id]"
           options={{
             presentation: 'card',
             animation: 'slide_from_right',

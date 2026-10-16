@@ -41,6 +41,8 @@ import Copy from 'lucide-react-native/dist/esm/icons/copy.mjs';
 import RotateCw from 'lucide-react-native/dist/esm/icons/rotate-cw.mjs';
 // UI
 import Bell from 'lucide-react-native/dist/esm/icons/bell.mjs';
+import Megaphone from 'lucide-react-native/dist/esm/icons/megaphone.mjs';
+import Sparkles from 'lucide-react-native/dist/esm/icons/sparkles.mjs';
 import Mail from 'lucide-react-native/dist/esm/icons/mail.mjs';
 import MapPin from 'lucide-react-native/dist/esm/icons/map-pin.mjs';
 import Navigation from 'lucide-react-native/dist/esm/icons/navigation.mjs';
@@ -128,6 +130,8 @@ export const ICON_MAP = {
 
   // ─ UI 요소 ─
   bell:               { Component: Bell },
+  megaphone:          { Component: Megaphone },
+  sparkles:           { Component: Sparkles },
   mail:               { Component: Mail },
   'bell-filled':      { Component: Bell, filled: true },
   location:           { Component: MapPin },

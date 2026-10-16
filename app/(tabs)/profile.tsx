@@ -245,6 +245,7 @@ export default function ProfileScreen() {
               <Text style={s.sectionTitle}>약관 및 지원</Text>
             </View>
             <View style={s.settingsCard}>
+              <SettingsRow icon="megaphone" label="공지사항"     onPress={() => router.push('/notices' as any)} />
               <SettingsRow icon="document" label="약관 및 정책"  onPress={() => router.push('/settings')} />
               <SettingsRow icon="help"     label="고객센터 문의" onPress={openSupport} />
             </View>
@@ -380,6 +381,7 @@ export default function ProfileScreen() {
             <Text style={s.sectionTitle}>약관 및 지원</Text>
           </View>
           <View style={s.settingsCard}>
+            <SettingsRow icon="megaphone" label="공지사항"     onPress={() => router.push('/notices' as any)} />
             <SettingsRow icon="document" label="약관 및 정책"  onPress={() => router.push('/settings')} />
             <SettingsRow icon="help"     label="고객센터 문의" onPress={openSupport} />
           </View>

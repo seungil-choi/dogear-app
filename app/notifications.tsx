@@ -24,6 +24,8 @@ const ICON_BY_TYPE: Record<string, string> = {
   saved_spot_update: 'bookmark',
   // 운영 조치 통지(§8.1) — 누르면 사유·이의 경로가 있는 화면으로 간다
   moderation_notice: 'warning',
+  // 공지사항(planning/37) — 누르면 해당 공지 상세로 간다
+  notice: 'megaphone',
 };
 
 // created_at → 그룹(오늘/어제/이번 주)
@@ -35,11 +37,15 @@ function groupOf(iso: string): NotificationGroup {
   startYesterday.setDate(startYesterday.getDate() - 1);
   if (d >= startToday) return '오늘';
   if (d >= startYesterday) return '어제';
-  return '이번 주';
+  const startWeek = new Date(startToday);
+  startWeek.setDate(startWeek.getDate() - 6);
+  if (d >= startWeek) return '이번 주';
+  // 약관 개정 공지처럼 오래 남는 알림이 '이번 주'에 섞이지 않게
+  return '이전';
 }
 
 // ─── 타입 정의 ──────────────────────────────────────────────────
-type NotificationGroup = '오늘' | '어제' | '이번 주';
+type NotificationGroup = '오늘' | '어제' | '이번 주' | '이전';
 
 interface NotificationItem {
   id: string;
@@ -51,6 +57,7 @@ interface NotificationItem {
   read: boolean;
   spot_id?: string;  // 연결된 장소가 있으면 탭 시 장소 상세로 이동
   action_id?: string;  // 운영 조치 통지면 조치 id — 이의 화면으로 보낸다(§8.3)
+  notice_id?: string;  // 공지 알림이면 공지 id — 공지 상세로 보낸다
 }
 
 // ─── Mock 데이터 ────────────────────────────────────────────────
@@ -107,7 +114,7 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = [
 ];
 
 // ─── 그룹 순서 ───────────────────────────────────────────────────
-const GROUP_ORDER: NotificationGroup[] = ['오늘', '어제', '이번 주'];
+const GROUP_ORDER: NotificationGroup[] = ['오늘', '어제', '이번 주', '이전'];
 
 // ─── 메인 컴포넌트 ──────────────────────────────────────────────
 export default function NotificationsScreen() {
@@ -135,6 +142,7 @@ export default function NotificationsScreen() {
         read: !!n.read_at,
         spot_id: n.data?.spot_id,
         action_id: n.data?.action_id,
+        notice_id: n.data?.notice_id,
       })));
     })();
   }, []);
@@ -174,6 +182,10 @@ export default function NotificationsScreen() {
       router.push(`/moderation-notices?actionId=${item.action_id}` as any);
       return;
     }
+    if (item.notice_id) {
+      router.push(`/notices/${item.notice_id}` as any);
+      return;
+    }
     if (item.spot_id) {
       router.push(`/spot/${item.spot_id}`);
     }
@@ -185,7 +197,7 @@ export default function NotificationsScreen() {
       acc[group] = notifications.filter(n => n.group === group);
       return acc;
     },
-    { '오늘': [], '어제': [], '이번 주': [] }
+    { '오늘': [], '어제': [], '이번 주': [], '이전': [] }
   );
 
   const hasUnread = notifications.some(n => !n.read);
