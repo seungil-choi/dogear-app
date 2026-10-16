@@ -20,7 +20,12 @@ type SeverOptions = {
   unlink?: boolean;
 };
 
+import { ensureSocialSdks } from './socialInit';
+import { reportError } from '../utils/errorReporter';
+
 export async function severSocialSessions(options: SeverOptions = {}): Promise<void> {
+  // 로그인 화면을 거치지 않고(세션 복원) 들어온 경우에도 SDK가 초기화돼 있어야 logout/unlink가 동작한다
+  ensureSocialSdks();
   await Promise.allSettled([severKakao(options), severGoogle(options)]);
 }
 
@@ -33,8 +38,9 @@ async function severKakao({ unlink }: SeverOptions): Promise<void> {
       return;
     }
     if (typeof kakao.logout === 'function') await kakao.logout();
-  } catch {
-    // 세션이 이미 없으면 SDK가 에러를 던진다 — 무시
+  } catch (e: any) {
+    // 세션이 이미 없으면 SDK가 에러를 던진다 — 로그아웃은 무시하되, 탈퇴(unlink) 실패는 남긴다(카카오 정책 의무)
+    if (unlink) reportError(new Error(`kakao unlink failed: ${e?.message ?? e}`), 'handled');
   }
 }
 

@@ -28,7 +28,7 @@ import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter } from 'expo-router';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { initializeKakaoSDK } from '@react-native-kakao/core';
+import { ensureSocialSdks, GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '../../src/lib/socialInit';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import {
@@ -59,21 +59,10 @@ import { isValidEmail } from '../../src/utils/email';
  * 구글 클라우드 프로젝트 DogEar(dogear-502211) > 사용자 인증 정보 > "DogEar iOS" 클라이언트.
  * 아래 가드는 그대로 둔다 — 키가 빠진 빌드에서 버튼이 데드엔드가 되는 걸 막는다.
  */
-const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 const GOOGLE_READY = !!GOOGLE_WEB_CLIENT_ID && (Platform.OS !== 'ios' || !!GOOGLE_IOS_CLIENT_ID);
 
-// Google Sign-In 초기 설정
-if (IS_REAL_AUTH && Platform.OS !== 'web') {
-  GoogleSignin.configure({
-    webClientId: GOOGLE_WEB_CLIENT_ID,
-    iosClientId: GOOGLE_IOS_CLIENT_ID,
-    scopes: ['profile', 'email'],
-    offlineAccess: false,
-  });
-  // 카카오 네이티브 SDK 초기화 (New Architecture 정식 지원 라이브러리)
-  initializeKakaoSDK(process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY ?? '');
-}
+// 구글·카카오 SDK 초기화는 src/lib/socialInit 한 곳에서 한다(세션 정리 경로도 같은 함수를 쓴다)
+ensureSocialSdks();
 
 // ─── SNS 버튼 (정확한 로고) ────────────────────────────────
 function SnsBubble({
