@@ -15,6 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants/tokens';
 import { Icon } from '../../src/components/common/Icon';
+import * as Linking from 'expo-linking';
+import { reportError } from '../../src/utils/errorReporter';
 import { supabase } from '../../src/lib/supabase';
 import { toast } from '../../src/utils/toast';
 import { isValidEmail } from '../../src/utils/email';
@@ -38,14 +40,16 @@ export default function ForgotPasswordScreen() {
         setSent(true);
         return;
       }
+      // 네이티브엔 window.location이 없어 예전 redirectTo가 비었다 → 링크가 앱으로 돌아오지 않았다.
+      // 앱 스킴으로 받아 app/(auth)/reset-password에서 새 비밀번호를 받는다(Supabase Redirect URLs에 등록 필요).
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo:
-          typeof window !== 'undefined' && window.location
-            ? `${window.location.origin}/reset-password`
-            : undefined,
+        redirectTo: Platform.OS === 'web' && typeof window !== 'undefined' && window.location
+          ? `${window.location.origin}/reset-password`
+          : Linking.createURL('/reset-password'),
       });
       // 실패 원인이 무엇이든 사용자가 할 일은 같다(다시 시도) → 문구 하나로 통일
       if (error) {
+        reportError(new Error(`reset mail failed: ${error.message}`), 'handled');
         toast.error('메일을 보내지 못했어요. 잠시 후 다시 시도해주세요');
         return;
       }
