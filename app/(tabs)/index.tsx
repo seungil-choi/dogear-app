@@ -31,6 +31,7 @@ import { RecentSpotCard, RegularSpotCard } from '../../src/components/spot/SpotC
 import { SpotKeyVisual } from '../../src/components/spot/SpotKeyVisual';
 import { isRecommendableCategory } from '../../src/constants/spotCategories';
 import { Icon } from '../../src/components/common/Icon';
+import { useHasUnreadNotifications } from '../../src/hooks/useUnreadNotifications';
 import { relativeTime } from '../../src/utils/labels';
 import { usePullToRefresh } from '../../src/hooks/usePullToRefresh';
 import { HomeRailSkeleton } from '../../src/components/common/Skeleton';
@@ -96,6 +97,7 @@ function FeaturedCard({
 
 // ─── 메인 화면 ──────────────────────────────────────────────────────
 export default function HomeScreen() {
+  const hasUnreadNotif = useHasUnreadNotifications();
   const router         = useRouter();
   const dog            = useAppStore(s => s.dog);
   const dogs           = useAppStore(s => s.dogs);
@@ -281,8 +283,13 @@ export default function HomeScreen() {
               accessibilityLabel="DogEar"
             />
           </View>
-          <TouchableOpacity style={s.notifBtn} accessibilityLabel="알림" onPress={() => router.push('/notifications')}>
+          <TouchableOpacity
+            style={s.notifBtn}
+            accessibilityLabel={hasUnreadNotif ? '알림, 안 읽은 알림 있음' : '알림'}
+            onPress={() => router.push('/notifications')}
+          >
             <Icon name="bell" size={22} color={Colors.text.secondary} />
+            {hasUnreadNotif && <View style={s.notifDot} />}
           </TouchableOpacity>
         </View>
 
@@ -588,6 +595,10 @@ const s = StyleSheet.create({
     borderRadius: Radius.round,
     borderWidth: 1,
     borderColor: Colors.border.default,
+  },
+  notifDot: {
+    position: 'absolute', top: 9, right: 9, width: 8, height: 8, borderRadius: 4,
+    backgroundColor: Colors.brand.primary, borderWidth: 1.5, borderColor: Colors.bg.primary,
   },
 
   // ── 강아지 프로필 카드 ──
