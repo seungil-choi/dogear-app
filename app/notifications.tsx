@@ -26,7 +26,12 @@ const ICON_BY_TYPE: Record<string, string> = {
   moderation_notice: 'warning',
   // 공지사항(planning/37) — 누르면 해당 공지 상세로 간다
   notice: 'megaphone',
+  // 어드민에서 직접 보낸 앱 푸시 — data에 notice_id 또는 path(앱 안 경로)가 있으면 그리로 간다
+  admin_push: 'bell',
 };
+
+/** 앱 안 경로만 따라간다 — 외부 주소·스킴은 무시 */
+const isAppPath = (p?: string) => !!p && /^\/[A-Za-z0-9/_\-]*(\?[A-Za-z0-9_\-=&]*)?$/.test(p);
 
 // created_at → 그룹(오늘/어제/이번 주)
 function groupOf(iso: string): NotificationGroup {
@@ -58,6 +63,7 @@ interface NotificationItem {
   spot_id?: string;  // 연결된 장소가 있으면 탭 시 장소 상세로 이동
   action_id?: string;  // 운영 조치 통지면 조치 id — 이의 화면으로 보낸다(§8.3)
   notice_id?: string;  // 공지 알림이면 공지 id — 공지 상세로 보낸다
+  path?: string;       // 어드민 푸시가 지정한 앱 안 경로
 }
 
 // ─── Mock 데이터 ────────────────────────────────────────────────
@@ -143,6 +149,7 @@ export default function NotificationsScreen() {
         spot_id: n.data?.spot_id,
         action_id: n.data?.action_id,
         notice_id: n.data?.notice_id,
+        path: isAppPath(n.data?.path) ? n.data.path : undefined,
       })));
     })();
   }, []);
@@ -184,6 +191,10 @@ export default function NotificationsScreen() {
     }
     if (item.notice_id) {
       router.push(`/notices/${item.notice_id}` as any);
+      return;
+    }
+    if (item.path) {
+      router.push(item.path as any);
       return;
     }
     if (item.spot_id) {
