@@ -17,6 +17,7 @@
  */
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 import { IS_REAL_AUTH } from '../config/env';
 
@@ -62,19 +63,10 @@ export async function reportError(
     }
     if (seenRecently(`${kind}:${message}`)) return;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from('client_errors').insert({
-      source: 'app',
-      kind,
-      message,
-      stack,
-      screen: currentScreen,
-      app_version: Constants.expoConfig?.version ?? null,
-      platform: Platform.OS,
-      os_version: String(Platform.Version ?? ''),
-      is_fatal: isFatal,
-      user_id: user?.id ?? null,
-    });
+    const row = buildRow(kind, message, stack, isFatal);
+    // getUser()는 네트워크 왕복이라 치명 오류 때 앱이 죽기 전에 못 끝났다 — 저장된 세션만 본다
+    const { data: { session } } = await supabase.auth.getSession();
+    const { error } = await supabase.from('client_errors').insert({ ...row, user_id: session?.user?.id ?? null });
     // 수집기가 조용히 죽으면 "오류가 없는 것"처럼 보인다 — 가장 나쁜 실패다.
     if (error) {
       // eslint-disable-next-line no-console
@@ -86,6 +78,44 @@ export async function reportError(
   }
 }
 
+type ErrorRow = {
+  source: 'app'; kind: string; message: string; stack: string | null; screen: string | null;
+  app_version: string | null; platform: string; os_version: string; is_fatal: boolean;
+};
+function buildRow(kind: string, message: string, stack: string | null, isFatal: boolean): ErrorRow {
+  return {
+    source: 'app', kind, message, stack, screen: currentScreen,
+    app_version: Constants.expoConfig?.version ?? null,
+    platform: Platform.OS, os_version: String(Platform.Version ?? ''), is_fatal: isFatal,
+  };
+}
+
+/**
+ * 치명 오류는 앱이 곧 죽는다 — 전송이 끝나기 전에 프로세스가 사라져 거의 다 유실됐다(2026-10-16 감사).
+ * 먼저 기기에 적어 두고, 다음 실행 때 보낸다.
+ */
+const PENDING_KEY = 'dogear:pending-fatal-errors:v1';
+async function stashFatal(row: ErrorRow) {
+  try {
+    const cur = JSON.parse((await AsyncStorage.getItem(PENDING_KEY)) ?? '[]');
+    cur.push({ ...row, at: new Date().toISOString() });
+    await AsyncStorage.setItem(PENDING_KEY, JSON.stringify(cur.slice(-5)));
+  } catch { /* 저장 실패는 어쩔 수 없다 */ }
+}
+async function flushPendingFatal() {
+  try {
+    const raw = await AsyncStorage.getItem(PENDING_KEY);
+    if (!raw) return;
+    const rows = JSON.parse(raw) as (ErrorRow & { at?: string })[];
+    if (!rows.length) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    const { error } = await supabase.from('client_errors').insert(
+      rows.map(({ at, ...r }) => ({ ...r, message: `${r.message}${at ? ` (crashed ${at})` : ''}`.slice(0, MAX_MESSAGE), user_id: session?.user?.id ?? null })),
+    );
+    if (!error) await AsyncStorage.removeItem(PENDING_KEY);
+  } catch { /* 다음 실행에 다시 */ }
+}
+
 /**
  * 앱 시작 시 1회. 전역 핸들러를 가로채되 **원래 동작을 막지 않는다** —
  * 여기서 삼키면 개발 중 빨간 화면이 안 뜨고 릴리스에선 죽어야 할 게 안 죽는다.
@@ -95,22 +125,42 @@ export function installErrorReporter() {
   if (installed) return;
   installed = true;
 
+  // 지난 실행에서 죽기 직전에 적어 둔 치명 오류를 보낸다
+  if (IS_REAL_AUTH) void flushPendingFatal();
+
   // ① 잡히지 않은 JS 예외
   const g = (globalThis as any).ErrorUtils;
   if (g?.getGlobalHandler && g?.setGlobalHandler) {
     const prev = g.getGlobalHandler();
     g.setGlobalHandler((err: any, isFatal?: boolean) => {
+      if (isFatal && IS_REAL_AUTH) {
+        const e = err as Error | undefined;
+        const row = buildRow('global', String(e?.message ?? err ?? 'unknown').slice(0, MAX_MESSAGE),
+          e?.stack ? String(e.stack).slice(0, MAX_STACK) : null, true);
+        // 기기에 먼저 적고, 기록할 시간을 아주 조금 준 뒤 원래 동작(앱 종료)으로 넘긴다
+        void stashFatal(row);
+        setTimeout(() => prev?.(err, isFatal), 300);
+        return;
+      }
       void reportError(err, 'global', !!isFatal);
       prev?.(err, isFatal);
     });
   }
 
   // ② 처리되지 않은 Promise 거부
-  //    RN Hermes는 이 이벤트를 표준으로 주지 않아 폴리필이 있을 때만 붙는다.
-  const tracking = (globalThis as any).HermesInternal
-    ? (globalThis as any).__DEV__ === undefined
-    : true;
-  if (tracking && typeof (globalThis as any).addEventListener === 'function') {
+  //    Hermes는 unhandledrejection 이벤트를 주지 않는다. 예전 판정식(__DEV__ === undefined)은
+  //    운영에서 늘 거짓이라 아무것도 수집하지 않았다(2026-10-16 감사) → Hermes 전용 추적기를 켠다.
+  const hermes = (globalThis as any).HermesInternal;
+  //    개발 중에는 RN(LogBox)이 같은 추적기를 쓰므로 덮어쓰지 않는다.
+  if (!__DEV__ && hermes?.enablePromiseRejectionTracker) {
+    try {
+      hermes.enablePromiseRejectionTracker({
+        allRejections: true,
+        onUnhandled: (_id: number, rejection: unknown) => { void reportError(rejection, 'promise', false); },
+        onHandled: () => {},
+      });
+    } catch { /* 지원 안 하는 빌드 */ }
+  } else if (typeof (globalThis as any).addEventListener === 'function') {
     try {
       (globalThis as any).addEventListener('unhandledrejection', (ev: any) => {
         void reportError(ev?.reason ?? ev, 'promise', false);

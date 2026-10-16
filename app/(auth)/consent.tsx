@@ -15,6 +15,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants
 import { Icon } from '../../src/components/common/Icon';
 import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
+import { reportError } from '../../src/utils/errorReporter';
 
 interface ConsentItem {
   key: 'age' | 'terms' | 'privacy' | 'location' | 'marketing';
@@ -81,7 +82,7 @@ export default function ConsentScreen() {
       });
       if (upsertErr) throw upsertErr;
     } catch (e) {
-      console.error('consent save error:', e);
+      reportError(new Error(`consent save failed: ${(e as any)?.message ?? e}`), 'handled');
       setSubmitting(false);
       // 같은 화면에서 바로 다시 누를 수 있다 → 흐름을 끊지 않는다
       toast.error('동의를 저장하지 못했어요. 연결을 확인하고 다시 시도해주세요');

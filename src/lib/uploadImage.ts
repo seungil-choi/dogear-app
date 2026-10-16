@@ -7,6 +7,7 @@
 
 import { File as FsFile } from 'expo-file-system';
 import { supabase } from './supabase';
+import { reportError } from '../utils/errorReporter';
 
 import { IS_REAL_AUTH } from '../config/env';
 
@@ -82,7 +83,7 @@ export async function uploadImage(opts: UploadOptions): Promise<UploadResult> {
   try {
     bytes = await readBytes(uri);
   } catch (e: any) {
-    console.error('uploadImage: 파일 읽기 실패', uri, e?.message ?? e);
+    reportError(new Error(`uploadImage read failed: ${e?.message ?? e}`), 'handled');
     throw new Error('사진을 읽지 못했어요. 다른 사진으로 시도해주세요.');
   }
 
@@ -114,7 +115,7 @@ export async function uploadImage(opts: UploadOptions): Promise<UploadResult> {
     });
 
   if (error) {
-    console.error('uploadImage error:', error);
+    reportError(new Error(`uploadImage storage failed: ${(error as any)?.message ?? error}`), 'handled');
     throw new Error('사진 업로드에 실패했어요. 잠시 후 다시 시도해주세요.');
   }
 

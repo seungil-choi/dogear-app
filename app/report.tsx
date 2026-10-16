@@ -60,7 +60,7 @@ export default function ReportScreen() {
   const [alsoHide, setAlsoHide] = useState(true); // 기본 체크: 사용자가 신고할 정도면 보통 안 보고 싶음
   const submittedRef = useRef(false);
 
-  const submit = () => {
+  const submit = async () => {
     // 사유 미선택이면 버튼 자체가 비활성이다 — 이유는 버튼 위 안내문이 상시로 설명한다
     if (!reason) return;
     if (!targetId) {
@@ -69,7 +69,13 @@ export default function ReportScreen() {
     }
     if (submittedRef.current) return; // 더블탭 이중 신고·이중 back 방지
     submittedRef.current = true;
-    reportContent(targetType, targetId, reason, detail.trim() || undefined);
+    const ok = await reportContent(targetType, targetId, reason, detail.trim() || undefined);
+    if (!ok) {
+      // 서버에 안 들어갔으면 '접수했어요'를 띄우지 않고 화면에 머문다 — 다시 누를 수 있게
+      submittedRef.current = false;
+      toast.error('신고를 보내지 못했어요. 잠시 후 다시 시도해 주세요');
+      return;
+    }
     // 대상 유형에 따라 이벤트 분기 (place vs photo)
     track(targetType === 'spot' ? EVENT.report_place_submitted : EVENT.report_photo_submitted, {
       screen_name: 'report',

@@ -2,6 +2,7 @@ import { create, type StateCreator } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
+import { reportError } from '../utils/errorReporter';
 import { IS_REAL_AUTH, IS_DEV_SEED } from '../config/env';
 import type {
   User, Dog, Spot, PawCheckin, SavedSpot, SavedType, SpotVisitSummary,
@@ -192,7 +193,8 @@ interface AppState {
   deleteAccount: (reason?: string) => Promise<void>;
 
   // UGC 모더레이션 (App Store 1.2 필수)
-  reportContent: (target_type: ReportTargetType, target_id: string, reason: ReportReason, detail?: string) => void;
+  /** 서버 저장까지 기다린다. 실패하면 false — 화면이 '접수했어요'를 띄우지 않고 머문다 */
+  reportContent: (target_type: ReportTargetType, target_id: string, reason: ReportReason, detail?: string) => Promise<boolean>;
   blockUser: (blocked_user_id: string, blocked_dog_id?: string, meta?: { name?: string; avatar_url?: string }) => void;
   unblockUser: (block_id: string) => void;
   setBlockedUsers: (blockedUsers: BlockedUser[]) => void;
@@ -389,7 +391,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
           .eq('spot_id', spotId)
           .then(({ error }) => {
             if (error) {
-              console.error('saved_spots delete failed:', error);
+              reportError(new Error(`saved_spots delete failed: ${error.message}`), 'handled');
               const cur = get().savedSpots;
               if (!cur.some(s => s.saved_spot_id === existing.saved_spot_id)) {
                 set({ savedSpots: [...cur, existing] });
@@ -416,7 +418,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
           .insert({ dog_id: dog.dog_id, spot_id: spotId, saved_type: savedType })
           .then(({ error }) => {
             if (error) {
-              console.error('saved_spots insert failed:', error);
+              reportError(new Error(`saved_spots insert failed: ${error.message}`), 'handled');
               set({ savedSpots: get().savedSpots.filter(s => s.saved_spot_id !== newSaved.saved_spot_id) });
               toast.error(SAVE_SPOT_FAILED.save);
             }
@@ -564,7 +566,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
     if (error) {
       // 되돌린다 — 껐다고 믿게 두는 게 가장 나쁘다
-      console.error('[privacy] 저장 실패:', error.message);
+      reportError(new Error(`privacy save failed: ${error.message}`), 'handled');
       set({
         privacySettingsByDog: { ...privacySettingsByDog, [dogId]: prev },
         ...(isActive ? { privacySetting: prev } : {}),
@@ -590,7 +592,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         body: { reason: reason ?? '' },
       });
       if (error) {
-        console.error('deleteAccount Edge Function error:', error);
+        reportError(new Error(`deleteAccount failed: ${(error as any)?.message ?? error}`), 'handled');
         throw new Error('계정 삭제에 실패했어요');
       }
     }
@@ -599,7 +601,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   },
 
   // UGC 신고
-  reportContent: (target_type, target_id, reason, detail) => {
+  reportContent: async (target_type, target_id, reason, detail) => {
     const { reports, user } = get();
     const newReport: Report = {
       report_id: `rpt_${Date.now()}`,
@@ -613,21 +615,30 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     };
     set({ reports: [...reports, newReport] });
 
-    // 실 환경: Supabase reports 테이블 INSERT (fire-and-forget)
-    // 테이블 컬럼: reporter_dog_id, target_type, target_id, report_type, description, status
+    // 실 환경: Supabase reports 테이블 INSERT — 결과를 기다린다.
+    //   예전엔 fire-and-forget이었고, 강아지가 없는 사용자는 insert 자체를 건너뛰고도
+    //   화면이 "접수했어요"를 띄웠다(2026-10-16 감사). 신고는 UGC 심사 필수 기능이다.
+    //   강아지가 없으면 reporter_user_id로 넣는다(RLS가 둘 중 하나를 허용).
+    if (!IS_REAL_AUTH) return true;
     const { dog } = get();
-    if (IS_REAL_AUTH && dog) {
-      supabase.from('reports').insert({
-        reporter_dog_id: dog.dog_id,
-        target_type,
-        target_id,
-        report_type: reason,
-        description: detail ?? null,
-        status: 'pending',
-      }).then(({ error }) => {
-        if (error) console.error('report insert failed:', error);
-      });
+    if (!dog && !user) {
+      reportError(new Error('report insert skipped: no dog and no user'), 'handled');
+      return false;
     }
+    const { error } = await supabase.from('reports').insert({
+      reporter_dog_id: dog?.dog_id ?? null,
+      reporter_user_id: dog ? null : user!.user_id,
+      target_type,
+      target_id,
+      report_type: reason,
+      description: detail ?? null,
+      status: 'pending',
+    });
+    if (error) {
+      reportError(new Error(`report insert failed: ${error.message}`), 'handled');
+      return false;
+    }
+    return true;
   },
 
   // 정보 수정 제안 — 어드민 큐로 적재 (실 환경: edit_suggestions 테이블)
@@ -648,7 +659,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         status: 'pending',
       });
       if (error) {
-        console.error('edit_suggestions insert failed:', error);
+        reportError(new Error(`edit_suggestions insert failed: ${(error as any)?.message ?? error}`), 'handled');
         throw error;
       }
     }
@@ -690,7 +701,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
           // (useUserData가 blocks를 읽어 setBlockedUsers) 조용히 사라진다.
           // 게다가 서버에 없으면 spot-detail·familiar-dogs의 차단 필터도 적용되지 않아
           // "차단했다고 봤는데 계속 보이는" 상태가 된다 — 안전 기능에서 가장 나쁜 실패다.
-          console.error('[blockUser] 서버 저장 실패:', error?.message);
+          reportError(new Error(`blockUser failed: ${error?.message}`), 'handled');
           set(s => ({ blockedUsers: s.blockedUsers.filter(b => b.block_id !== tempId) }));
           toast.error('차단하지 못했어요. 연결을 확인하고 다시 시도해주세요');
           return;
@@ -711,7 +722,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
       supabase.from('blocks').delete().eq('block_id', block_id).then(({ error }) => {
         if (!error) return;
         // 서버에 남아 있으면 다음 진입 때 차단이 되살아난다. 화면을 사실에 맞춘다.
-        console.error('[unblockUser] 서버 삭제 실패:', error.message);
+        reportError(new Error(`unblockUser failed: ${error.message}`), 'handled');
         if (removed) {
           set(s => (s.blockedUsers.some(b => b.block_id === block_id)
             ? s
@@ -770,7 +781,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
         .update({ deleted_at: new Date().toISOString(), is_active: false })
         .eq('dog_id', dog_id);
       if (error) {
-        console.warn('[deleteDog] supabase update failed:', error.message);
+        reportError(new Error(`deleteDog failed: ${error.message}`), 'handled');
         return false;
       }
     }

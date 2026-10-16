@@ -21,6 +21,7 @@ import { Colors, Typography, Spacing, Radius, Layout } from '../../src/constants
 import { Icon } from '../../src/components/common/Icon';
 import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
+import { reportError } from '../../src/utils/errorReporter';
 import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 import { VALID } from '../../src/constants/messages';
@@ -107,7 +108,7 @@ export default function SignupScreen() {
       );
       router.replace('/(auth)/login');
     } catch (e: any) {
-      console.error('signup error:', e);
+      reportError(new Error(`signup failed: ${(e as any)?.message ?? e}`), 'handled');
       notify('가입하지 못했어요. 잠시 후 다시 시도해주세요.', '가입 실패');
     } finally {
       setBusy(false);

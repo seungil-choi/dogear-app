@@ -97,6 +97,16 @@ function SnsBubble({
 }
 
 // ─── 메인 컴포넌트 ────────────────────────────────────────
+/**
+ * 소셜 로그인 실패를 서버에 남긴다 — 10/15 스토어 설치본에서 구글·카카오 로그인이 전부 막혔는데
+ * (Play 앱 서명 SHA-1 미등록) 기록이 하나도 없어 사용자 제보로만 알았다. 공급자·단계·오류 코드만 담는다.
+ */
+function reportAuthFailure(provider: string, stage: string, e?: any) {
+  const code = e?.code ?? e?.status ?? '';
+  const msg = String(e?.message ?? e ?? '').slice(0, 200);
+  reportError(new Error(`login ${provider} ${stage} failed ${code} ${msg}`.trim()), 'handled');
+}
+
 export default function LoginScreen() {
   const router  = useRouter();
   const login   = useAppStore(s => s.login);
@@ -198,10 +208,11 @@ export default function LoginScreen() {
         provider: 'apple',
         token: credential.identityToken,
       });
-      if (error) { notify(AUTH.socialFailed('Apple')); return; }
+      if (error) { reportAuthFailure('apple', 'supabase', error); notify(AUTH.socialFailed('Apple')); return; }
       proceedAfterAuth();
     } catch (e: any) {
       if (e?.code === 'ERR_REQUEST_CANCELED') return;   // 사용자가 직접 취소 → 침묵
+      reportAuthFailure('apple', 'sdk', e);
       notify(AUTH.socialFailed('Apple'));
     }
   };
@@ -213,9 +224,9 @@ export default function LoginScreen() {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const userInfo = await GoogleSignin.signIn();
       const idToken = (userInfo as any).idToken ?? (userInfo as any).data?.idToken;
-      if (!idToken) { notify(AUTH.socialFailed('구글')); return; }
+      if (!idToken) { reportAuthFailure('google', 'no-idtoken'); notify(AUTH.socialFailed('구글')); return; }
       const { error } = await supabase.auth.signInWithIdToken({ provider: 'google', token: idToken });
-      if (error) { notify(AUTH.socialFailed('구글')); return; }
+      if (error) { reportAuthFailure('google', 'supabase', error); notify(AUTH.socialFailed('구글')); return; }
       proceedAfterAuth();
     } catch (e: any) {
       if (e?.code === statusCodes.SIGN_IN_CANCELLED) return;   // 사용자가 직접 취소 → 침묵
@@ -224,7 +235,7 @@ export default function LoginScreen() {
         notify(AUTH.playServices);
         return;
       }
-      console.error('Google Sign-In error:', e);
+      reportAuthFailure('google', 'sdk', e);
       notify(AUTH.socialFailed('구글'));
     }
   };
@@ -239,13 +250,13 @@ export default function LoginScreen() {
       const { login } = await import('@react-native-kakao/user');
       const result = await login();
       const idToken = (result as any).idToken;
-      if (!idToken) { notify(AUTH.socialFailed('카카오')); return; }
+      if (!idToken) { reportAuthFailure('kakao', 'no-idtoken'); notify(AUTH.socialFailed('카카오')); return; }
       const { error } = await supabase.auth.signInWithIdToken({ provider: 'kakao', token: idToken });
-      if (error) { notify(AUTH.socialFailed('카카오')); return; }
+      if (error) { reportAuthFailure('kakao', 'supabase', error); notify(AUTH.socialFailed('카카오')); return; }
       proceedAfterAuth();
     } catch (e: any) {
       if (e?.code === 'E_CANCELLED_OPERATION' || /cancel/i.test(e?.message ?? '')) return;   // 취소 → 침묵
-      console.error('Kakao login error:', e);
+      reportAuthFailure('kakao', 'sdk', e);
       notify(AUTH.socialFailed('카카오'));
     }
   };
