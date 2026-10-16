@@ -215,7 +215,8 @@ interface AppState {
    */
   deleteDog: (dog_id: string) => Promise<boolean>;
   setAuthLoading: (loading: boolean) => void;
-  setCurrentLocation: (loc: { latitude: number; longitude: number; accuracy?: number } | null) => void;
+  /** capturedAt을 주면 그대로 쓴다(마지막 위치처럼 과거 측정값). 없으면 지금 시각 */
+  setCurrentLocation: (loc: { latitude: number; longitude: number; accuracy?: number; capturedAt?: number } | null) => void;
   setPushEnabled: (enabled: boolean) => void;
 
   // 데이터 주입 (Supabase 페치 결과 반영용)

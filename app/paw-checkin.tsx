@@ -389,23 +389,18 @@ export default function PawCheckinModal() {
         //   예전엔 여기서 클라가 직접 insert했는데, 사진이 checkin_photos에 저장되는 시점과
         //   큐 적재가 갈라져 있으면 한쪽만 남는 상태가 생긴다. 같은 트랜잭션 경로에 둔다.
       } catch (err: any) {
-        // 쿨다운/일일제한 분기 — 메시지 패턴으로 구분
-        const msg = err?.message ?? '';
-        const eventName =
-          /cooldown|쿨다운|간격/i.test(msg)         ? EVENT.pawmark_blocked_cooldown :
-          /daily|일일|하루|limit/i.test(msg)        ? EVENT.pawmark_blocked_daily_limit :
-                                                      EVENT.pawmark_submit_failed;
-        track(eventName, {
+        // 분기는 문구가 아니라 code로(usePawCheckin의 PawCheckinError). 예전엔 409 문구가
+        // 쿨다운 정규식에 안 걸려 1시간 제한·위치 문제까지 전부 일반 실패로 보이고 집계도 틀렸다.
+        const code: string = err?.code ?? 'unknown';
+        const msg: string = err?.message ?? '';
+        track(code === 'cooldown' ? EVENT.pawmark_blocked_cooldown : EVENT.pawmark_submit_failed, {
           screen_name: 'paw_checkin',
           place_id: selectedSpot?.spot_id,
-          error_message: msg.slice(0, 100),
+          error_message: code,
         });
-        // 서버 원문을 그대로 띄우지 않는다 — 영문·코드가 섞여 나올 수 있다(§3.0 금지)
-        toast.error(
-          /cooldown|쿨다운|간격/i.test(msg)  ? '같은 장소는 1시간에 한 번 남길 수 있어요' :
-          /daily|일일|하루|limit/i.test(msg) ? '오늘 남길 수 있는 발도장을 다 썼어요. 내일 다시 만나요' :
-                                               '발도장을 저장하지 못했어요. 잠시 후 다시 시도해주세요',
-        );
+        // 위치·쿨다운·검토 중 등 이유가 분명한 실패는 서버가 만든 한국어 안내를 보여준다.
+        // 원인 불명(unknown)만 일반 문구 — 서버 원문(영문·코드)은 띄우지 않는다(§3.0)
+        toast.error(code === 'unknown' || !msg ? '발도장을 저장하지 못했어요. 잠시 후 다시 시도해주세요' : msg);
         return;
       }
     }

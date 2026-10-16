@@ -7,6 +7,7 @@
 
 import { useState, useCallback } from 'react';
 import * as Location from 'expo-location';
+import { reportError } from '../utils/errorReporter';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 import type { VisibilityLevel } from '@/types';
@@ -25,6 +26,17 @@ interface PawCheckinResult {
 }
 
 /** 발도장 진입 경로 — 서버 paw_checkins.source_type 과 같은 값 집합 */
+
+/** 발도장 실패 — 화면은 문구 정규식이 아니라 code로 분기한다(문구가 바뀌면 분기가 깨졌다) */
+export type PawCheckinErrorCode =
+  | 'cooldown' | 'too_far' | 'low_accuracy' | 'stale_location' | 'not_found' | 'invalid' | 'auth' | 'unknown';
+export class PawCheckinError extends Error {
+  constructor(public code: PawCheckinErrorCode, message: string, public status?: number) {
+    super(message);
+    this.name = 'PawCheckinError';
+  }
+}
+
 export type PawSourceType = 'home' | 'spot_detail' | 'global_cta' | 'spot_search';
 
 interface UsePawCheckinReturn {
@@ -112,39 +124,38 @@ export function usePawCheckin(): UsePawCheckinReturn {
       });
 
       if (fnError) {
-        // supabase-js는 non-2xx를 전부 "Edge Function returned a non-2xx status code"라는
-        // 한 문장으로 뭉갠다. 그대로 띄우면 사용자도 우리도 원인을 알 수 없으므로
-        // 상태 코드별로 실제 사유를 풀어준다.
-        const status = fnError.context?.status;
-        const serverMsg: string | undefined =
-          fnError.context?.body?.message ?? fnError.context?.body?.error;
+        // supabase-js는 non-2xx를 전부 "Edge Function returned a non-2xx status code"로 뭉갠다.
+        // ⚠️ context는 fetch Response다 — 예전엔 context.body.message를 읽어 늘 undefined였고,
+        //    서버가 보낸 거리·정확도·오래된 위치 안내가 전부 버려졌다(2026-10-16 감사). 본문을 파싱한다.
+        const status: number | undefined = fnError.context?.status;
+        const body: any = await fnError.context?.json?.().catch(() => null);
+        const serverCode: string | undefined = body?.error;
+        const serverMsg: string | undefined = body?.message;
 
-        // 중복 체크인
-        if (status === 409 || fnError.message?.includes('409')) {
-          throw new Error('최근 1시간 내에 이미 발도장을 남겼어요');
+        if (status === 409) {
+          throw new PawCheckinError('cooldown', '같은 장소는 1시간에 한 번 남길 수 있어요', status);
         }
-        // 위치 가드 — 서버가 보낸 거리 안내를 그대로 노출
         if (status === 403) {
-          throw new Error(serverMsg ?? '장소 근처에서만 발도장을 남길 수 있어요');
+          const code = serverCode === 'low_accuracy' || serverCode === 'stale_location' ? serverCode : 'too_far';
+          throw new PawCheckinError(code, serverMsg ?? '장소 근처에서만 발도장을 남길 수 있어요', status);
         }
-        // 대상이 서버에 없음 — 아직 승인되지 않은 제안 장소가 대표적이다
         if (status === 404) {
-          throw new Error(
-            serverMsg === 'Dog not found'
+          throw new PawCheckinError(
+            'not_found',
+            serverCode === 'Dog not found'
               ? '강아지 정보를 찾을 수 없어요. 앱을 다시 시작해주세요.'
               : '아직 등록 검토가 끝나지 않은 장소예요. 승인되면 발도장을 남길 수 있어요.',
+            status,
           );
         }
-        // 좌표 이상 등 서버가 사유를 명시한 경우
         if (status === 422 || status === 400) {
-          throw new Error(serverMsg ?? '입력값을 확인해주세요.');
+          throw new PawCheckinError('invalid', serverMsg ?? '입력값을 확인해주세요.', status);
         }
         if (status === 401) {
-          throw new Error('로그인이 만료됐어요. 다시 로그인해주세요.');
+          throw new PawCheckinError('auth', '로그인이 만료됐어요. 다시 로그인해주세요.', status);
         }
-        throw new Error(
-          serverMsg ?? `발도장을 저장하지 못했어요${status ? ` (오류 ${status})` : ''}. 잠시 후 다시 시도해주세요.`,
-        );
+        reportError(new Error(`paw-checkin failed: ${status ?? '-'} ${serverCode ?? fnError.message}`), 'handled');
+        throw new PawCheckinError('unknown', '발도장을 저장하지 못했어요. 잠시 후 다시 시도해주세요', status);
       }
 
       return {

@@ -14,6 +14,7 @@ import { uploadImage } from '../../src/lib/uploadImage';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../../src/utils/moderation';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
+import { reportError } from '../../src/utils/errorReporter';
 import { supabase } from '../../src/lib/supabase';
 import { Button } from '../../src/components/common/Button';
 import { Icon } from '../../src/components/common/Icon';
@@ -56,6 +57,7 @@ export default function DogSetupScreen() {
   const completeOnboarding = useAppStore(s => s.completeOnboarding);
   const registerDog        = useAppStore(s => s.registerDog);
   const user               = useAppStore(s => s.user);
+  const setUser            = useAppStore(s => s.setUser);
 
   // 온보딩 연속 흐름에서 왔는지. 그 경우에만 '건너뛰기'가 의미가 있다
   // (직접 들어온 사람에겐 건너뛸 다음 단계가 없고, 대신 '취소'로 되돌아가면 된다).
@@ -133,9 +135,8 @@ export default function DogSetupScreen() {
       try {
         const up = await uploadImage({ bucket: 'dog-avatars', uri: photoUri });
         avatarUrl = up.url;
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('[dog-setup] 사진 업로드 실패 — 사진 없이 등록을 이어갑니다:', e);
+      } catch (e: any) {
+        reportError(new Error(`dog-setup avatar upload failed: ${e?.message ?? e}`), 'handled');
         // 등록 자체는 계속된다 → 흐름을 끊지 않는다. 원문 오류는 콘솔에만 남긴다.
         toast.error('사진만 올리지 못했어요. 프로필 편집에서 다시 넣을 수 있어요');
       }
@@ -143,12 +144,30 @@ export default function DogSetupScreen() {
       avatarUrl = photoUri;   // 데모 모드는 로컬 URI 그대로
     }
 
-    if (IS_REAL_AUTH && user) {
+    // ⚠️ 실서비스에서 user가 비어 있으면(프로필 로드가 네트워크로 조용히 실패한 경우) 예전엔
+    //    목업 분기로 떨어져 로컬 가짜 강아지(dog_<시각>)를 만들고 성공을 띄웠다 — 이후 발도장·저장이
+    //    전부 실패하고 재시작하면 강아지가 사라졌다(2026-10-16 감사). 다시 읽고, 안 되면 멈춘다.
+    let owner = user;
+    if (IS_REAL_AUTH && !owner) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        const { data: row } = await supabase.from('users').select('*').eq('auth_id', session.user.id).maybeSingle();
+        if (row) { owner = row as any; setUser(row as any); }
+      }
+      if (!owner) {
+        reportError(new Error('dog-setup: user profile unavailable'), 'handled');
+        toast.error('계정 정보를 불러오지 못했어요. 앱을 다시 시작한 뒤 등록해 주세요');
+        setIsSaving(false);
+        return;
+      }
+    }
+
+    if (IS_REAL_AUTH && owner) {
       // 실 환경: Supabase dogs 테이블에 저장 → DB 생성 UUID 사용
       const { data, error } = await supabase
         .from('dogs')
         .insert({
-          user_id: user.user_id,
+          user_id: owner.user_id,
           name: name.trim(),
           avatar_url: avatarUrl ?? null,
           bio: bio.trim() || null,
@@ -164,6 +183,7 @@ export default function DogSetupScreen() {
         .single();
 
       if (error || !data) {
+        reportError(new Error(`dog insert failed: ${error?.message ?? 'no data'}`), 'handled');
         toast.error('등록하지 못했어요. 잠시 후 다시 시도해주세요');
         setIsSaving(false);
         return;
@@ -177,7 +197,7 @@ export default function DogSetupScreen() {
           .from('media_moderation_queue')
           .insert({ content_type: 'dog_avatar', dog_id: data.dog_id, image_url: avatarUrl })
           .then(({ error: qError }) => {
-            if (qError) console.error('moderation queue insert failed:', qError);
+            if (qError) reportError(new Error(`moderation queue insert failed: ${qError.message}`), 'handled');
           });
       }
 

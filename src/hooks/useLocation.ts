@@ -62,6 +62,9 @@ export function useLocation(): UseLocationReturn {
             latitude: last.coords.latitude,
             longitude: last.coords.longitude,
             accuracy: last.coords.accuracy ?? undefined,
+            // ⚠️ 마지막 위치는 몇 시간 전 것일 수 있다. 측정 시각을 넘기지 않으면 스토어가 '지금'을 찍어
+            //    발도장 근접 가드(서버 MAX_LOCATION_AGE_MS)를 통과시켰다(2026-10-16 감사).
+            capturedAt: last.timestamp,
           });
         }
       } catch { /* 마지막 위치 없음 — 아래 정밀 조회로 진행 */ }
@@ -77,6 +80,7 @@ export function useLocation(): UseLocationReturn {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
         accuracy: location.coords.accuracy ?? undefined,
+        capturedAt: location.timestamp,
       });
     } catch (err) {
       console.warn('위치 조회 실패:', err);
