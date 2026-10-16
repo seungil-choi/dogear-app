@@ -4,7 +4,8 @@
  * 앱 시작 시 위치 권한 요청 + 현재 위치 조회 → AppStore에 반영
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import * as Location from 'expo-location';
 import { useAppStore } from '@/store/useAppStore';
 import { withTimeout } from '../utils/withTimeout';
@@ -25,6 +26,23 @@ export function useLocation(): UseLocationReturn {
 
   useEffect(() => {
     checkAndRequestPermission();
+  }, []);
+
+  // 설정 앱에서 위치를 켜고 돌아오면 바로 반영한다 — 예전엔 재시작 전까지 지도 배너와
+  // 홈의 서울 폴백이 그대로 남았다(2026-10-16 감사). 이미 허용 상태면 5분 넘게 묵은 위치만 새로 잡는다.
+  const lastFetchAt = useRef(0);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', async (st) => {
+      if (st !== 'active') return;
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        setPermissionStatus(status as PermissionStatus);
+        if (status === 'granted' && Date.now() - lastFetchAt.current > 5 * 60_000) {
+          await fetchLocation();
+        }
+      } catch { /* 다음 복귀 때 다시 */ }
+    });
+    return () => sub.remove();
   }, []);
 
   async function checkAndRequestPermission() {
@@ -48,6 +66,7 @@ export function useLocation(): UseLocationReturn {
   }
 
   async function fetchLocation() {
+    lastFetchAt.current = Date.now();
     setIsLocating(true);
     try {
       // 1) 마지막으로 알려진 위치를 먼저 즉시 반영한다(캐시라 즉답).

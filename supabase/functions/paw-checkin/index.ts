@@ -259,6 +259,13 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // 위치정보 이용사실 확인자료(위치정보법 §16②, 처리방침 §6③의 '발도장 근접 확인' 목적).
+    // 예전엔 장소 탐색(spots-nearby)에서만 남기고 여기선 빠져 있었다(2026-10-16 감사).
+    // 좌표는 남기지 않는다(누가·언제·무슨 목적). 사용자 세션 클라이언트로 불러야 auth.uid()가 잡힌다.
+    // 기록 실패가 발도장을 막지 않게 오류는 삼키되 남긴다.
+    await supabase.rpc('log_location_access', { p_purpose: 'checkin_proximity' })
+      .then(({ error }) => { if (error) console.warn('location access log failed:', error.message); });
+
     const distance = haversineMeters(userLat, userLng, spot.latitude, spot.longitude);
     const radius = getRadiusForCategory(spot.category);
     const margin = typeof accuracy === 'number'

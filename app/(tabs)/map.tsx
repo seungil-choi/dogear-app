@@ -153,8 +153,20 @@ export default function ExploreScreen() {
   }, [currentLocation]);
 
   const requestLocationPerm = useCallback(async () => {
-    // 탐색에서는 권한을 직접 요청하지 않는다(온보딩이 전담) — 시스템 설정으로만 안내
-    if (Platform.OS !== 'web') { Linking.openSettings().catch(() => {}); return; }
+    // 다시 물어볼 수 있으면 시스템 권한 창을, 아니면(다시 묻지 않음) 설정 앱을 연다.
+    //   예전엔 무조건 설정 앱으로 보냈다 — 한 번 '이번만 거부'한 사용자도 설정을 뒤져야 했다.
+    if (Platform.OS !== 'web') {
+      try {
+        const cur = await Location.getForegroundPermissionsAsync();
+        if (cur.status !== 'granted' && cur.canAskAgain) {
+          const res = await Location.requestForegroundPermissionsAsync();
+          setLocationPermDenied(res.status !== 'granted');
+          return;
+        }
+      } catch { /* 아래 설정 앱으로 */ }
+      Linking.openSettings().catch(() => {});
+      return;
+    }
     try {
       if (Platform.OS === 'web') {
         if (typeof navigator === 'undefined' || !navigator.geolocation) return;
