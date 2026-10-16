@@ -10,6 +10,8 @@ import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
+import { serverConsentState } from '../../src/lib/consent';
+import { IS_REAL_AUTH } from '../../src/config/env';
 
 /** 세션 복원이 더 빨리 끝나도 이만큼은 보여준다 — 로고가 깜빡하고 사라지는 것 방지 */
 const SPLASH_MIN_MS = 500;
@@ -42,19 +44,28 @@ export default function SplashScreen() {
     if (!animDone) return;
     if (isAuthLoading) return; // Supabase 세션 복원 중이면 대기
 
-    if (isAuthenticated) {
-      // 인증됐지만 강아지 미등록(고아 상태)이면 dog-setup으로 직행
-      //   useAuth가 dogs=[] 감지 시 hasCompletedOnboarding=false로 복구
-      //   → 홈에서 빈 카드 거치지 않고 바로 등록 흐름 재개
-      if (!hasCompletedOnboarding) {
+    if (!isAuthenticated) {
+      // 온보딩(튜토리얼) 히든 처리 — 첫 진입도 바로 로그인으로 (온보딩 화면 스킵)
+      router.replace('/(auth)/login');
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      // 세션이 있어도 서버 동의 이력부터 본다 — 동의 화면에서 앱을 끄고 다시 켠 신규 가입자가
+      // 동의 없이 들어가던 구멍(2026-10-16 감사 P0). 게스트·DEV는 세션이 없어 'no-session'.
+      const consent = IS_REAL_AUTH ? await serverConsentState() : 'agreed';
+      if (cancelled) return;
+      if (consent === 'missing') {
+        router.replace('/(auth)/consent');
+      } else if (!hasCompletedOnboarding) {
+        // 인증됐지만 강아지 미등록(고아 상태)이면 dog-setup으로 직행
+        //   useAuth가 dogs=[] 감지 시 hasCompletedOnboarding=false로 복구
         router.replace('/(auth)/dog-setup?from=onboarding');
       } else {
         router.replace('/(tabs)');
       }
-    } else {
-      // 온보딩(튜토리얼) 히든 처리 — 첫 진입도 바로 로그인으로 (온보딩 화면 스킵)
-      router.replace('/(auth)/login');
-    }
+    })();
+    return () => { cancelled = true; };
   }, [animDone, isAuthLoading, isAuthenticated, hasCompletedOnboarding]);
 
   return (

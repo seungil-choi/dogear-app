@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { ensurePhotoLibraryAccess } from '../src/utils/photoLibraryAccess';
 import { stripExif } from '../src/lib/stripExif';
 
 import { Colors, Spacing, Radius, Typography, Layout } from '../src/constants/tokens';
@@ -125,9 +126,9 @@ export default function DogEditScreen() {
   async function pickImage(source: 'camera' | 'library') {
     const permFn = source === 'camera'
       ? ImagePicker.requestCameraPermissionsAsync
-      : ImagePicker.requestMediaLibraryPermissionsAsync;
-    const { status } = await permFn();
-    if (status !== 'granted') {
+      : null;
+    const granted = permFn ? (await permFn()).status === 'granted' : await ensurePhotoLibraryAccess();
+    if (!granted) {
       notify(source === 'camera' ? '사진 촬영에는 카메라 권한이 필요해요.' : PERM.photo, '권한 필요');
       return;
     }

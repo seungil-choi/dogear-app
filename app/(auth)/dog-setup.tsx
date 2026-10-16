@@ -7,6 +7,7 @@ import { notify } from '../../src/utils/dialog';
 import { track, EVENT } from '../../src/utils/analytics';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { ensurePhotoLibraryAccess } from '../../src/utils/photoLibraryAccess';
 import { stripExif } from '../../src/lib/stripExif';
 import { AppImage } from '../../src/components/common/AppImage';
 import { uploadImage } from '../../src/lib/uploadImage';
@@ -91,8 +92,7 @@ export default function DogSetupScreen() {
 
   const pickPhoto = async () => {
     try {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) {
+      if (!(await ensurePhotoLibraryAccess())) {
         notify(PERM.photo, '권한 필요');   // 설정으로 가야 풀리는 문제 → Alert 유지(§2.2)
         return;
       }

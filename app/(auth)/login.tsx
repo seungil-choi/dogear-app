@@ -38,6 +38,8 @@ import {
   AppleLogo, GoogleLogo, KakaoLogo,
 } from '../../src/components/common/SnsLogos';
 import { supabase } from '../../src/lib/supabase';
+import { serverConsentState } from '../../src/lib/consent';
+import { reportError } from '../../src/utils/errorReporter';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
 import { TextField } from '../../src/components/common/TextField';
@@ -127,22 +129,18 @@ export default function LoginScreen() {
       // 쓸 이름이 없으면 GREET이 이름 없이 인사한다.
       const name = meta.nickname || meta.name || meta.full_name || null;
 
-      const { data: consent } = await supabase
-        .from('consents')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (!consent) {
+      // 스플래시와 같은 기준(src/lib/consent) — 판별 로직을 한 곳에 둔다
+      const consent = await serverConsentState();
+      if (consent === 'missing') {
         toast(GREET.new(name));
         router.replace('/(auth)/consent');
         return;
       }
       toast(GREET.returning(name));
       router.replace('/(tabs)');
-    } catch (e) {
-      // 조회 실패로 로그인 자체를 막지는 않는다
-      console.error('post-auth routing error:', e);
+    } catch (e: any) {
+      // 조회 실패로 로그인 자체를 막지는 않는다 — 대신 서버에 남긴다
+      reportError(new Error(`post-auth routing error: ${e?.message ?? e}`), 'handled');
       router.replace('/(tabs)');
     }
   };

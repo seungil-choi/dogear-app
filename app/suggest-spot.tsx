@@ -22,6 +22,7 @@ import { PERM, PHOTO, SUGGEST, rateLimitMessage } from '../src/constants/message
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import * as ImagePicker from 'expo-image-picker';
+import { ensurePhotoLibraryAccess } from '../src/utils/photoLibraryAccess';
 import { stripExif } from '../src/lib/stripExif';
 import * as Location from 'expo-location';
 import { formatKoreanAddress, extractNeighborhood } from '../src/utils/address';
@@ -346,8 +347,7 @@ export default function SuggestSpotScreen() {
   // cover_image_url로 사용 (현재 단계는 URI만 보관, 업로드는 store/edge function에서)
   const handlePickPhoto = useCallback(async () => {
     try {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) {
+      if (!(await ensurePhotoLibraryAccess())) {
         notify(PERM.photo, '권한 필요');
         return;
       }

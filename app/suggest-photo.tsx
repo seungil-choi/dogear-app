@@ -27,6 +27,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { ensurePhotoLibraryAccess } from '../src/utils/photoLibraryAccess';
 import { Colors, Typography, Spacing, Radius } from '../src/constants/tokens';
 import { Icon } from '../src/components/common/Icon';
 import { AppImage } from '../src/components/common/AppImage';
@@ -58,8 +59,7 @@ export default function SuggestPhotoScreen() {
   // 제안 사진은 검토를 거쳐 장소 페이지에 공개될 수 있으므로 촬영 좌표를 지우고 들고 간다.
   const handlePickPhoto = async () => {
     try {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) { notify(PERM.photo, '권한 필요'); return; }
+      if (!(await ensurePhotoLibraryAccess())) { notify(PERM.photo, '권한 필요'); return; }
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.8,

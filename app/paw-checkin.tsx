@@ -38,6 +38,7 @@ import { EmptyState } from '../src/components/common/EmptyState';
 import type { FeelingTag, VisibilityLevel } from '../src/types';
 import { feelingTagLabel } from '../src/utils/labels';
 import * as ImagePicker from 'expo-image-picker';
+import { ensurePhotoLibraryAccess } from '../src/utils/photoLibraryAccess';
 import { checkPawmarkProximity, formatDistanceShort } from '../src/utils/geo';
 import { getPawmarkRadius, pawmarkCooldownRemainingMs, MAX_CHECKIN_PHOTOS } from '../src/config/checkin';
 import {
@@ -247,8 +248,7 @@ export default function PawCheckinModal() {
     const remaining = MAX_CHECKIN_PHOTOS - (pawFlow.photoUris?.length ?? 0);
     if (remaining <= 0) return;
     try {
-      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) {
+      if (!(await ensurePhotoLibraryAccess())) {
         notify(PERM.photo, '권한 필요');
         return;
       }
