@@ -46,7 +46,7 @@
         "READ_EXTERNAL_STORAGE",
         "android.permission.SYSTEM_ALERT_WINDOW"
       ],
-      "versionCode": 9
+      "versionCode": 10
     },
     "web": {
       "bundler": "metro",
