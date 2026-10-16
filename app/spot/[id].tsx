@@ -39,6 +39,7 @@ import { facilityChips } from '../../src/constants/facilityTags';
 import KakaoMap, { type KakaoMarker, type KakaoMapRef } from '../../src/components/map/KakaoMap';
 import type { SpotVisitingDog, FamiliarDogCardViewModel, SpotGalleryPhoto, FeelingTag } from '../../src/types';
 import { supabase } from '../../src/lib/supabase';
+import { TypeResultBadges } from '../../src/components/typeTest/TypeResultBadges';
 
 /** 키비주얼 높이. 상단 바가 장소명을 넘겨받는 스크롤 지점도 이 값에서 계산한다. */
 const KEY_VISUAL_HEIGHT = 260;
@@ -204,6 +205,7 @@ export default function SpotDetailScreen() {
       // 폴백 자체는 서버가 계산해서 보낸다 — 남의 전체 발도장 분포는 앱이 볼 수 없다.
       walking_fallback: declaredWalking.length > 0 ? [] : (dog.walking_fallback ?? []),
       is_regular: dog.is_regular,
+      type_results: dog.type_results ?? [],
     });
   }, [vm, router]);
 
@@ -1013,6 +1015,13 @@ export default function SpotDetailScreen() {
                   ) : null}
                 </View>
 
+                {/* ── 유형 테스트 결과 (planning/34) — 보호자가 고른 성격·산책 태그와 섞지 않는다 ── */}
+                {!!selectedDog.type_results?.length && (
+                  <View style={s.sheetTypeResults}>
+                    <TypeResultBadges items={selectedDog.type_results} />
+                  </View>
+                )}
+
                 {/* ── 발도장 — 이 장소가 아니라 전체 누적이다 ── */}
                 <View style={s.sheetPaw}>
                   <Text style={s.sheetPawNum}>{selectedDog.total_paw_count}</Text>
@@ -1107,6 +1116,7 @@ export default function SpotDetailScreen() {
 }
 
 const s = StyleSheet.create({
+  sheetTypeResults: { alignSelf: 'stretch', paddingHorizontal: Spacing[20], marginBottom: Spacing[12] },
   safe: { flex: 1, backgroundColor: Colors.bg.primary },
 
   // ── 상단 네비 바 (고정) ───────────────────────────────────────────

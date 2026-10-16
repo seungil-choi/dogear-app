@@ -22,6 +22,7 @@ import { ListSpotCard } from '../src/components/spot/SpotCard';
 import { categoryLabel } from '../src/utils/labels';
 import { sizeLabel } from '../src/utils/labels';
 import type { Spot } from '../src/types';
+import { TypeResultBadges, useMyDogTypeResults } from '../src/components/typeTest/TypeResultBadges';
 
 type TabKey = 'paw' | 'saved' | 'visit';
 
@@ -39,6 +40,7 @@ export default function DogDetailScreen() {
   const [showConditions, setShowConditions] = useState(false);
   // Modal은 SafeAreaView 밖이라 인셋이 자동으로 안 먹는다(안드로이드 하단 내비바 겹침)
   const insets = useSafeAreaInsets();
+  const typeResults = useMyDogTypeResults(dog?.dog_id);
 
   const isSaved = (spotId: string) => savedSpots.some(sv => sv.spot_id === spotId);
 
@@ -134,6 +136,13 @@ export default function DogDetailScreen() {
             {[dog.breed, sizeLabel[dog.size]].filter(Boolean).join(' · ')}
           </Text>
         </View>
+
+        {/* ── 유형 테스트 결과 (planning/34) ── 보호자가 고른 성향과 섞지 않는 별도 자리 */}
+        {typeResults.length > 0 && (
+          <View style={s.typeResults}>
+            <TypeResultBadges items={typeResults} title="유형 테스트 결과" />
+          </View>
+        )}
 
         {/* ── 공개 설정 ──
             공개 설정은 **강아지 단위**다. 마이페이지 카드에는 요약만 띄우고
@@ -303,6 +312,7 @@ const s = StyleSheet.create({
   content: { paddingBottom: Spacing[40] },
 
   profile: { alignItems: 'center', paddingVertical: Spacing[16] },
+  typeResults: { paddingHorizontal: Spacing[20], paddingBottom: Spacing[16] },
   avatar: {
     width: 72, height: 72, borderRadius: 36, overflow: 'hidden',
     backgroundColor: Colors.bg.secondary, marginBottom: Spacing[12],

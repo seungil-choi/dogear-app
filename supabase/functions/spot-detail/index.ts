@@ -424,6 +424,26 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // ── 유형 테스트 결과 (planning/34) ──
+    //   게이트(exposedIds)를 통과한 강아지만 visitingIds에 남아 있으므로 공개 설정이 꺼진 강아지의
+    //   결과는 여기서 읽히지 않는다. 테스트별 최신 1건만 내보낸다(이력은 보호자 본인만).
+    const typeResultsByDog: Record<string, { test_key: string; result_key: string }[]> = {};
+    if (visitingIds.length > 0) {
+      const { data: trs } = await svc
+        .from('dog_type_results')
+        .select('dog_id, test_key, result_key, created_at')
+        .in('dog_id', visitingIds)
+        .order('created_at', { ascending: false })
+        .limit(500);
+      const seen = new Set<string>();
+      for (const r of trs ?? []) {
+        const k = `${r.dog_id}:${r.test_key}`;
+        if (seen.has(k)) continue;
+        seen.add(k);
+        (typeResultsByDog[r.dog_id] ??= []).push({ test_key: r.test_key, result_key: r.result_key });
+      }
+    }
+
     const visitingDogs = visitingIds
       .filter((id) => dogBriefById[id])
       .sort((a, b) => (visitAgg[b].last > visitAgg[a].last ? 1 : -1))
@@ -452,6 +472,7 @@ Deno.serve(async (req: Request) => {
         walking_style_tags: dogBriefById[id].walking_style_tags,
         total_paw_count: totalPawByDog[id] ?? 0,
         walking_fallback: walkingFallbackByDog[id] ?? [],
+        type_results: typeResultsByDog[id] ?? [],
       }));
 
     // ── 히어로 이미지 우선순위 (기획 14번 D4) ────────────────────

@@ -44,7 +44,12 @@
         "ACCESS_BACKGROUND_LOCATION",
         "WRITE_EXTERNAL_STORAGE",
         "READ_EXTERNAL_STORAGE",
-        "android.permission.SYSTEM_ALERT_WINDOW"
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.ACCESS_MEDIA_LOCATION"
       ],
       "versionCode": 10
     },
@@ -119,6 +124,15 @@
               }
             ]
           }
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "발도장과 강아지 프로필에 사진을 올릴 때 사용해요. 고르신 사진만 앱이 읽고, 장소에 올린 사진은 그 장소를 보는 다른 이용자에게도 보여요.",
+          "savePhotosPermission": "유형 테스트 결과 이미지를 사진 앱에 저장할 때 사용해요. 저장만 하고 사진을 읽지는 않아요.",
+          "isAccessMediaLocationEnabled": false,
+          "granularPermissions": []
         }
       ]
     ],

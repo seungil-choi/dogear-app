@@ -266,6 +266,14 @@ function RootLayoutInner() {
             animation: 'slide_from_right',
           }}
         />
+        {/* 유형 테스트 웹뷰 (planning/34) — 마이페이지 유형 테스트 섹션에서 진입 */}
+        <Stack.Screen
+          name="type-test"
+          options={{
+            presentation: 'card',
+            animation: 'slide_from_bottom',
+          }}
+        />
         {/* 조치 내역·이의제기 (§8.3) — 알림함의 조치 통지에서 진입 */}
         <Stack.Screen
           name="moderation-notices"

@@ -31,6 +31,7 @@ import { Icon, type IconName } from '../../src/components/common/Icon';
 import { AppImage } from '../../src/components/common/AppImage';
 import { visibilityLabel } from '../../src/utils/labels';
 import { DogCarousel } from '../../src/components/dog/DogCarousel';
+import { TypeTestSection } from '../../src/components/typeTest/TypeTestSection';
 import { PHOTO_PREVIEW, PHOTO_COLUMNS, PHOTO_GAP } from '../../src/config/photoPreview';
 import { DogCardFooter } from '../../src/components/dog/DogProfileCard';
 import type { Dog, PrivacySetting } from '../../src/types';
@@ -224,6 +225,9 @@ export default function ProfileScreen() {
             />
           </View>
 
+          {/* 유형 테스트 — 강아지가 없어도 보인다. 누르면 등록부터 (planning/34) */}
+          <TypeTestSection dog={null} />
+
           {/* 설정 — 강아지 없이도 접근 가능 */}
           <View style={s.section}>
             <View style={s.sectionTitleRow}>
@@ -302,6 +306,9 @@ export default function ProfileScreen() {
             return setting ? <DogPrivacySummary setting={setting} /> : undefined;
           }}
         />
+
+        {/* 유형 테스트 (planning/34) — 캐러셀 바로 아래, 사진보다 위. 넘긴 강아지 기준 */}
+        <TypeTestSection dog={activeDog} />
 
         {/* ══════════════════════════════════════
             2) 사진 — 내가 올린 사진

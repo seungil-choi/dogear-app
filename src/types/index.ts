@@ -225,6 +225,8 @@ export interface FamiliarDogCardViewModel {
   /** 서버가 기록에서 계산한 산책 성향 문장(2순위, 최대 2줄) */
   walking_fallback: string[];
   is_regular: boolean;
+  /** 유형 테스트 결과 — 보호자가 고른 성향과 다른 자리에 그린다 */
+  type_results?: { test_key: string; result_key: string }[];
 }
 
 export interface TraceListItemViewModel {
@@ -351,6 +353,8 @@ export interface SpotVisitingDog {
   total_paw_count?: number;
   /** 서버가 계산한 산책 성향 문장(최대 2줄). walking_style_tags가 있으면 빈 배열. */
   walking_fallback?: string[];
+  /** 유형 테스트 테스트별 최신 결과 (planning/34) — 공개 설정 게이트를 통과한 강아지만 */
+  type_results?: { test_key: string; result_key: string }[];
 }
 
 /**
