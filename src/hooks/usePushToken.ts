@@ -11,6 +11,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import { reportError } from '../utils/errorReporter';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
 
@@ -39,7 +40,9 @@ export function usePushToken() {
     if (!pushEnabled) return;     // 사용자가 알림을 끈 상태면 토큰 등록 안 함
 
     registerToken(user.user_id).catch(err => {
-      console.warn('push token register failed:', err);
+      // ⚠️ console.warn만 남기던 자리. google-services.json이 빠져 출시 후 토큰이 한 건도
+      //    등록되지 않았는데(2026-10-16 발견) 아무도 몰랐다 — 실패는 서버 오류 기록으로 보낸다.
+      reportError(new Error(`push token register failed: ${err?.message ?? err}`), 'handled');
     });
   }, [isAuthenticated, user?.user_id, pushEnabled]);
 }
@@ -101,6 +104,6 @@ async function registerToken(userId: string) {
     );
 
   if (error) {
-    console.warn('push_tokens upsert error:', error);
+    reportError(new Error(`push_tokens upsert error: ${error.message}`), 'handled');
   }
 }

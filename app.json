@@ -2,7 +2,7 @@
   "expo": {
     "name": "DogEar",
     "slug": "dogear-app",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "scheme": "dogear",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -46,7 +46,8 @@
         "READ_EXTERNAL_STORAGE",
         "android.permission.SYSTEM_ALERT_WINDOW"
       ],
-      "versionCode": 10
+      "versionCode": 10,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

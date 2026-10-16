@@ -44,7 +44,9 @@ function seenRecently(key: string): boolean {
 
 export async function reportError(
   err: unknown,
-  kind: 'global' | 'promise' | 'boundary' = 'global',
+  // 'handled' = 잡아서 처리했지만 서버에 남겨야 하는 실패(푸시 등록·로그인 등).
+  //   콘솔은 운영 빌드에서 아무도 못 본다 — 조용한 실패가 몇 달씩 묻혔다(푸시 토큰 0건, 2026-10-16).
+  kind: 'global' | 'promise' | 'boundary' | 'handled' = 'global',
   isFatal = false,
 ) {
   try {
