@@ -23,7 +23,7 @@
         "NSPhotoLibraryUsageDescription": "발도장과 강아지 프로필에 사진을 올릴 때 사용해요. 고르신 사진만 앱이 읽고, 장소에 올린 사진은 그 장소를 보는 다른 이용자에게도 보여요.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "3"
+      "buildNumber": "4"
     },
     "android": {
       "adaptiveIcon": {
@@ -49,7 +49,7 @@
         "android.permission.ACCESS_ADSERVICES_AD_ID",
         "android.permission.ACCESS_ADSERVICES_ATTRIBUTION"
       ],
-      "versionCode": 11,
+      "versionCode": 12,
       "googleServicesFile": "./google-services.json"
     },
     "web": {
