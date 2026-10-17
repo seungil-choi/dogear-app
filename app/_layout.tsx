@@ -16,6 +16,7 @@ import { useNearbySpots } from '../src/hooks/useNearbySpots';
 import { useUserData } from '../src/hooks/useUserData';
 import { usePushToken } from '../src/hooks/usePushToken';
 import { useNotificationTap } from '../src/hooks/useNotificationTap';
+import { useAccountStatusRefresh } from '../src/hooks/useAccountStatusRefresh';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 import { installErrorReporter } from '../src/utils/errorReporter';
 
@@ -52,6 +53,13 @@ function AuthGate() {
       handledRef.current = `r:${user.user_id}`;
       // 새 라우트는 expo-router 타입이 dev 서버 기동 때 생성된다 — 기존 화면들과 같은 방식
       router.replace('/(auth)/account-restricted' as any);
+      return;
+    }
+
+    // ── 정지가 풀렸다(앱 복귀 때 상태 재확인으로 알게 됨) → 안내 화면에서 꺼내 준다 ──
+    if (handledRef.current === `r:${user.user_id}`) {
+      handledRef.current = null;
+      router.replace('/(auth)/splash');
       return;
     }
 
@@ -94,6 +102,7 @@ function DataProvider() {
   useUserData();       // 로그인 후 checkins/savedSpots/visitSummaries/familiarSignals 로드
   usePushToken();      // 로그인 후 expo push token 등록
   useNotificationTap(); // 푸시를 누르면 공지·조치·장소 화면으로 이동
+  useAccountStatusRefresh(); // 앱 복귀 때 정지·탈퇴 상태 재확인
   return null;
 }
 
