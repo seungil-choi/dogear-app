@@ -335,7 +335,8 @@ export default function PawCheckinModal() {
         track(EVENT.pawmark_blocked_too_far, {
           screen_name: 'paw_checkin',
           place_id: targetSpot.spot_id,
-          distance_m: Math.round(proximity.distance),
+          // 장소 ID·시각과 정확한 거리가 함께 남으면 그때 있던 곳을 좁힐 수 있다 → 구간만 남긴다(처리방침 1절)
+          distance_bucket: distanceBucket(proximity.distance),
           allowed_m: Math.round(proximity.allowed),
         });
         return;   // 패널이 거리와 허용 반경을 이미 보여준다
@@ -1192,3 +1193,11 @@ const sum = StyleSheet.create({
   label: { ...Typography.label.m, color: Colors.text.tertiary, width: 72 },
   value: { flex: 1, ...Typography.body.m, color: Colors.text.primary },
 });
+
+/** 이벤트 기록용 거리 구간 — 정확한 거리는 남기지 않는다 */
+function distanceBucket(m: number): string {
+  if (m < 100) return 'lt_100m';
+  if (m < 300) return '100_300m';
+  if (m < 1000) return '300m_1km';
+  return 'gte_1km';
+}

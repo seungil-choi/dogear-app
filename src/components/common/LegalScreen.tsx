@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Layout } from '../../constants/tokens';
@@ -15,15 +15,31 @@ export interface LegalSection {
   body: string;
 }
 
+/**
+ * 개정본을 시행일 전에 미리 싣는 경우의 안내.
+ * 시행일 전에는 "시행 예정" 띠를 보여주고 현행본(웹)으로 가는 길을 둔다.
+ * 시행일이 지나면 띠는 사라지고 맨 아래 "이전 버전 보기"만 남는다.
+ */
+export interface LegalRevision {
+  /** 시행 시각(ISO, KST 자정) */
+  effectiveAt: string;
+  /** 이전 버전의 시행일 표기 — 예: '2026.09.22' */
+  previousDate: string;
+  /** 이전 버전 전문(웹) */
+  previousUrl: string;
+}
+
 interface Props {
   title: string;
   effectiveDate: string;
   intro?: string;
   sections: LegalSection[];
+  revision?: LegalRevision;
 }
 
-export function LegalScreen({ title, effectiveDate, intro, sections }: Props) {
+export function LegalScreen({ title, effectiveDate, intro, sections, revision }: Props) {
   const router = useRouter();
+  const upcoming = revision ? Date.now() < Date.parse(revision.effectiveAt) : false;
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
@@ -46,6 +62,19 @@ export function LegalScreen({ title, effectiveDate, intro, sections }: Props) {
         showsVerticalScrollIndicator={false}
       >
         <Text style={s.effective}>시행일: {effectiveDate}</Text>
+        {revision && upcoming ? (
+          <TouchableOpacity
+            style={s.banner}
+            onPress={() => { void Linking.openURL(revision.previousUrl); }}
+            activeOpacity={0.85}
+            accessibilityRole="link"
+          >
+            <Text style={s.bannerText}>
+              개정된 내용으로 {effectiveDate}부터 시행됩니다. 그 전까지는 {revision.previousDate} 시행본이 적용됩니다.
+            </Text>
+            <Text style={s.bannerLink}>현행 전문 보기</Text>
+          </TouchableOpacity>
+        ) : null}
         {intro ? <Text style={s.intro}>{intro}</Text> : null}
 
         {sections.map((sec, idx) => (
@@ -54,6 +83,12 @@ export function LegalScreen({ title, effectiveDate, intro, sections }: Props) {
             <Text style={s.sectionBody}>{sec.body}</Text>
           </View>
         ))}
+
+        {revision && !upcoming ? (
+          <TouchableOpacity onPress={() => { void Linking.openURL(revision.previousUrl); }} accessibilityRole="link">
+            <Text style={s.bannerLink}>이전 버전({revision.previousDate} 시행) 보기</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -81,6 +116,12 @@ const s = StyleSheet.create({
 
   effective: { ...Typography.label.s, color: Colors.text.tertiary, marginBottom: Spacing[8] },
   intro: { ...Typography.body.m, color: Colors.text.secondary, marginBottom: Spacing[20] },
+  banner: {
+    backgroundColor: Colors.bg.secondary, borderRadius: 12,
+    padding: Spacing[12], marginBottom: Spacing[20], gap: Spacing[6],
+  },
+  bannerText: { ...Typography.body.s, color: Colors.text.primary },
+  bannerLink: { ...Typography.label.m, color: Colors.brand.primary },
 
   section: { marginBottom: Spacing[24] },
   sectionTitle: {

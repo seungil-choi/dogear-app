@@ -121,7 +121,9 @@ export default function AccountRestrictedScreen() {
 
         <Text style={s.title}>계정 이용이 제한됐어요</Text>
         <Text style={s.lead}>
-          커뮤니티 가이드라인 위반이 확인되어 계정 이용을 제한하고 있어요.
+          {/* 안내 화면이 가리키는 기준을 바로 열 수 있게 한다((legal)은 비보호 구역이라 제재 중에도 열린다) */}
+          <Text style={s.leadLink} onPress={() => router.push('/(legal)/community-guidelines' as any)} accessibilityRole="link">커뮤니티 가이드라인</Text>
+          {' 위반이 확인되어 계정 이용을 제한하고 있어요.'}
           {'\n'}아래에서 사유를 확인하고, 동의하기 어려우시면 이의를 제기하실 수 있어요.
         </Text>
 
@@ -231,6 +233,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.status.error.bg, marginTop: Spacing[24],
   },
   title: { ...Typography.title.l, color: Colors.text.primary, textAlign: 'center' },
+  leadLink: { color: Colors.brand.primary, textDecorationLine: 'underline' },
   lead: {
     ...Typography.body.m, color: Colors.text.secondary,
     textAlign: 'center', lineHeight: 22, marginBottom: Spacing[8],
