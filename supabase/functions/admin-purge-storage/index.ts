@@ -39,6 +39,9 @@ Deno.serve(async (req) => {
   });
   const { data: u } = await svc.from('users').select('auth_id').eq('user_id', user_id).maybeSingle();
   if (!u?.auth_id) return json({ error: 'user_not_found' }, 404);
+  // admin_delete_user와 같은 가드 — 어드민 계정이면 RPC가 삭제를 거부하는데, 그 전에 사진만 지워지면 안 된다
+  const { data: isAdmin } = await svc.from('admins').select('id').eq('id', u.auth_id).maybeSingle();
+  if (isAdmin) return json({ error: 'target_is_admin' }, 409);
 
   let removed = 0;
   const failures: string[] = [];
