@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Stack, useRouter, useRootNavigationState } from 'expo-router';
+import { Stack, useRouter, useRootNavigationState, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet, Platform, View } from 'react-native';
@@ -19,6 +19,7 @@ import { useNotificationTap } from '../src/hooks/useNotificationTap';
 import { useAccountStatusRefresh } from '../src/hooks/useAccountStatusRefresh';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 import { installErrorReporter } from '../src/utils/errorReporter';
+import { applyGa4Collection, ga4Screen, GA4_SUPPORTED } from '../src/utils/ga4';
 
 /** 운영자 제재로 앱 본체를 막아야 하는 상태인가 (정책 18번 §7·§8.1) */
 function isRestrictedUser(status?: string | null) {
@@ -94,6 +95,19 @@ function AuthProvider() {
   return null;
 }
 
+// GA4 — 수집 조건 적용(시행일·이용자 설정) + 화면 이동 기록. 안드로이드 실서비스에서만 동작
+function Ga4Tracker() {
+  const segments = useSegments();
+  const [ready, setReady] = React.useState(false);
+  useEffect(() => { void applyGa4Collection().finally(() => setReady(true)); }, []);
+  const key = segments.join('/');
+  useEffect(() => {
+    if (ready) ga4Screen(segments);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, ready]);
+  return null;
+}
+
 // 위치 권한 + 주변 스팟 자동 로드 + 사용자 데이터 로드 (IS_REAL_AUTH=true일 때만 마운트)
 function DataProvider() {
   useAppEntryPermissions(); // 로그인 완료·홈 진입 시 OS 위치·알림 권한 자동 요청(미결정 시 1회)
@@ -121,6 +135,7 @@ function RootLayoutInner() {
       <StatusBar style="dark" backgroundColor={Colors.bg.primary} />
       {IS_REAL_AUTH && <AuthProvider />}
       {IS_REAL_AUTH && <DataProvider />}
+      {GA4_SUPPORTED && <Ga4Tracker />}
       <AuthGate />
       <Stack screenOptions={{ headerShown: false }}>
         {/* 공개 구역 — (auth)가 첫 화면(앵커): 콜드 스타트·로그아웃 시 splash부터 시작 */}

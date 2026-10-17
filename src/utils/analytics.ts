@@ -25,6 +25,7 @@
 
 import { supabase } from '../lib/supabase';
 import { IS_REAL_AUTH as IS_REAL } from '../config/env';
+import { ga4Event } from './ga4';
 
 // ─── 이벤트 이름 화이트리스트 (오타·중복 명명 방지) ─────────────────
 export const EVENT = {
@@ -147,6 +148,9 @@ export function track(name: EventName, props: TrackProps = {}): void {
     region_sigungu: props.region_sigungu ?? null,
     properties:     extractExtras(props),  // 자유 속성은 jsonb 컬럼으로
   };
+
+  // GA4에는 이름과 화면 정도만 — 장소·위치 값은 ga4.ts의 허용 목록에서 걸러진다
+  ga4Event(name, { screen_name: payload.screen_name, source_screen: payload.source_screen, place_category: payload.place_category });
 
   if (!IS_REAL) {
     // DEV_SEED 모드: 콘솔에만 — 어드민 미연결 단계

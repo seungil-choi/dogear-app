@@ -6,9 +6,9 @@
  * (OS 권한은 별도 "앱 권한" 화면(app-permissions)으로 분리)
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, StyleSheet,
+  View, Text, TouchableOpacity, ScrollView, StyleSheet, Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -16,6 +16,7 @@ import Constants from 'expo-constants';
 import { Colors, Typography, Spacing, Radius, Layout } from '../src/constants/tokens';
 import { Icon } from '../src/components/common/Icon';
 import type { IconName } from '../src/components/common/Icon';
+import { GA4_SUPPORTED, getGa4OptOut, setGa4OptOut } from '../src/utils/ga4';
 
 // ─── 설정 행 ─────────────────────────────────────────────
 function SettingsRow({
@@ -59,6 +60,10 @@ function SectionTitle({ label }: { label: string }) {
 // ─── 메인 컴포넌트 ───────────────────────────────────────
 export default function SettingsScreen() {
   const router  = useRouter();
+  // 앱 이용 분석(GA4) — 안드로이드에서만 보내므로 스위치도 거기서만 보여준다
+  const [gaOn, setGaOn] = useState(true);
+  useEffect(() => { if (GA4_SUPPORTED) void getGa4OptOut().then(off => setGaOn(!off)); }, []);
+  const toggleGa = (on: boolean) => { setGaOn(on); void setGa4OptOut(!on); };
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
@@ -84,7 +89,32 @@ export default function SettingsScreen() {
           <SettingsRow icon="shield"   label="개인정보 처리방침"      onPress={() => router.push('/(legal)/privacy-policy')} />
           <View style={s.divider} />
           <SettingsRow icon="document" label="위치기반서비스 이용약관" onPress={() => router.push('/(legal)/location-terms')} />
+          <View style={s.divider} />
+          {/* as any — 새 라우트 타입은 dev 서버 기동 때 생성된다 */}
+          <SettingsRow icon="document" label="커뮤니티 가이드라인"    onPress={() => router.push('/(legal)/community-guidelines' as any)} />
         </View>
+
+        {GA4_SUPPORTED && (
+          <>
+            <SectionTitle label="개인정보" />
+            <View style={s.card}>
+              <SettingsRow
+                icon="shield"
+                label="앱 이용 분석 허용"
+                rightEl={
+                  <Switch
+                    value={gaOn}
+                    onValueChange={toggleGa}
+                    trackColor={{ false: Colors.border.strong, true: Colors.brand.primary }}
+                    thumbColor="#FFFFFF"
+                    accessibilityLabel="앱 이용 분석 허용"
+                  />
+                }
+              />
+            </View>
+            <Text style={s.helper}>어떤 화면과 기능을 많이 쓰는지 Google 애널리틱스로 살펴봐요. 장소·위치 정보는 보내지 않아요. 꺼도 앱 이용에는 영향이 없어요.</Text>
+          </>
+        )}
 
         {/* 도움말·계정 관리는 내 정보 화면으로 이동(중복 제거) */}
 
@@ -164,6 +194,11 @@ const s = StyleSheet.create({
   rowLabel:   { flex: 1, ...Typography.body.m, color: Colors.text.primary },
   rowDanger:  { color: Colors.status.error.text },
   rowValue:   { ...Typography.body.s, color: Colors.text.tertiary },
+
+  helper: {
+    ...Typography.caption, color: Colors.text.tertiary,
+    marginHorizontal: Spacing[16] + Spacing[4], marginTop: Spacing[8],
+  },
 
   // 버전
   version: {

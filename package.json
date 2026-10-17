@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-firebase/analytics": "^26.4.0",
+    "@react-native-firebase/app": "^26.4.0",
     "@react-native-google-signin/google-signin": "^16.1.2",
     "@react-native-kakao/core": "^2.4.6",
     "@react-native-kakao/user": "^2.4.6",
@@ -83,6 +85,16 @@
     "transform": {
       "^.+\\.[jt]sx?$": "babel-jest",
       "^.+\\.mjs$": "babel-jest"
+    }
+  },
+  "expo": {
+    "autolinking": {
+      "ios": {
+        "exclude": [
+          "@react-native-firebase/app",
+          "@react-native-firebase/analytics"
+        ]
+      }
     }
   }
 }
