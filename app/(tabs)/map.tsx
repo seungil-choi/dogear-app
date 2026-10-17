@@ -30,6 +30,7 @@ import { toast } from '../../src/utils/toast';
 import { track, EVENT } from '../../src/utils/analytics';
 import { supabase } from '../../src/lib/supabase';
 import { IS_REAL_AUTH } from '../../src/config/env';
+import { reportError } from '../../src/utils/errorReporter';
 // 거리 계산은 geo.ts 한 곳만 쓴다 — 같은 공식을 화면마다 다시 구현하지 않는다
 import { haversineDistance as haversineMeters } from '../../src/utils/geo';
 import { authoredDescription } from '../../src/utils/spotDescription';
@@ -339,6 +340,8 @@ export default function ExploreScreen() {
   // 이 지역에 등록된 장소가 아예 없는지 — 빈 화면의 원인을 사용자에게 설명하기 위함
   // (현재 데이터 커버리지: 경기 3,467 · 서울 1,847 · 인천 2곳)
   const [regionEmpty, setRegionEmpty] = useState(false);
+  // 지역 조회 자체가 실패했는지 — 실패를 '등록된 장소 없음'으로 보여주면 안 된다(2026-10-16 감사 P2-19)
+  const [regionError, setRegionError] = useState(false);
 
   // ── 지도 이동 시 해당 지역 스팟 로드 (내 위치 주변만 보이던 문제 해결) ──
   //   중심이 직전 페치 지점에서 충분히 멀어지면(반경의 40%+) 그 지역을 페치해 store에 병합.
@@ -368,10 +371,13 @@ export default function ExploreScreen() {
     }
     lastFetchRef.current = { lat: mapCenter.lat, lng: mapCenter.lng, radius };
     try {
-      const { data } = await supabase.functions.invoke('spots-nearby', {
+      const { data, error } = await supabase.functions.invoke('spots-nearby', {
         body: { latitude: mapCenter.lat, longitude: mapCenter.lng, radiusMeters: radius, dogId: dogIdForFetch },
       });
-      const raw: any[] = data?.spots ?? [];
+      // ⚠️ error를 안 보면 data가 undefined → 빈 배열 → '이 지역엔 장소가 없어요'로 오표시된다
+      if (error || !Array.isArray(data?.spots)) throw error ?? new Error('spots-nearby: invalid response');
+      const raw: any[] = data.spots;
+      setRegionError(false);
       // 반경 10km 안에 아무것도 없다 = 서비스 데이터 커버리지 밖
       setRegionEmpty(raw.length === 0);
       if (raw.length === 0) return;
@@ -409,10 +415,13 @@ export default function ExploreScreen() {
         };
       }
       useAppStore.getState().mergeSpots(merged, aggs);
-    } catch (e) {
+    } catch (e: any) {
       // 기존 핀은 유지하되, 실패를 조용히 삼키면 "지도가 안 뜬다"의 원인을 못 찾는다
-      // eslint-disable-next-line no-console
-      console.error('[map] 지역 스팟 로드 실패:', e);
+      // 이 지점을 다시 조회할 수 있게 페치 기록을 지운다(안 지우면 제자리 자동 재시도가 막힌다)
+      lastFetchRef.current = null;
+      setRegionEmpty(false);
+      setRegionError(true);
+      void reportError(new Error(`[map] region spots failed: ${e?.message ?? e}`), 'handled');
     }
   }, [mapCenter.lat, mapCenter.lng, zoomLevel, dogIdForFetch]);
 
@@ -1126,6 +1135,7 @@ export default function ExploreScreen() {
                     ? `'${searchQuery.trim()}' 결과가 없어요`
                     : (activeFilter === 'saved'   ? '저장한 곳이 없어요'
                      : activeFilter === 'visited' ? '발도장 남긴 곳이 없어요'
+                     : regionError                ? '장소를 불러오지 못했어요'
                      : nearestOutOfRange != null  ? '이 반경 안에는 없어요'
                      : regionEmpty                ? '이 지역엔 아직 등록된 장소가 없어요'
                      : '반경 내 장소가 없어요')}
@@ -1137,6 +1147,8 @@ export default function ExploreScreen() {
                        ? '마음에 드는 장소를 저장해보세요'
                        : activeFilter === 'visited'
                        ? '산책하면서 발도장을 남겨보세요'
+                       : regionError
+                       ? '연결 상태를 확인하고 다시 시도해주세요'
                        : nearestOutOfRange != null
                        // ⚠️ 여기만 지도 중심 기준이다(목록 카드는 내 위치 기준).
                        //    바로 아래 '조금 넓게 보기'가 지도 반경을 넓히는 동작이라,
@@ -1148,7 +1160,16 @@ export default function ExploreScreen() {
                 </Text>
                 {/* 빈 지도 앞에서 막다른 길이 되지 않도록 다음 행동을 준다 */}
                 {!isSearching && activeFilter !== 'saved' && activeFilter !== 'visited' && (
-                  nearestOutOfRange != null ? (
+                  regionError ? (
+                    <TouchableOpacity
+                      style={s.emptyActionBtn}
+                      onPress={() => { void handleRefreshRegion(); }}
+                      disabled={isRefreshingRegion}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={s.emptyActionText}>{isRefreshingRegion ? '불러오는 중…' : '다시 시도'}</Text>
+                    </TouchableOpacity>
+                  ) : nearestOutOfRange != null ? (
                     // 데이터는 있는데 반경 밖 → 한 단계 넓게 보기(줌아웃하면 반경도 함께 넓어짐)
                     <TouchableOpacity
                       style={s.emptyActionBtn}
