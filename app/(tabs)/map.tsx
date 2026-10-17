@@ -803,7 +803,8 @@ export default function ExploreScreen() {
         const last = await Location.getLastKnownPositionAsync();
         if (last) {
           const c = { latitude: last.coords.latitude, longitude: last.coords.longitude, accuracy: last.coords.accuracy ?? undefined };
-          setCurrentLocation(c);
+          // 측정 시각을 넘긴다 — 안 넘기면 어제 위치가 '방금'으로 저장돼 발도장 근접 확인을 통과한다(QA 10/17)
+          setCurrentLocation({ ...c, capturedAt: last.timestamp });
           markProgrammaticMove();
           // mapCenter(목록 계산 기준)도 함께 옮긴다 — GPS가 자동으로 화면을 따라오지
           // 않게 바꾼 뒤로는 여기서 명시적으로 맞춰줘야 지도와 목록이 어긋나지 않는다.

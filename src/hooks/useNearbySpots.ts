@@ -38,6 +38,8 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
 
   const currentLocation = useAppStore(s => s.currentLocation);
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
+  // 동의 확인 전에는 좌표를 서버로 보내지 않는다(위치정보법, 2026-10-17 QA)
+  const serverConsentOk = useAppStore(s => s.serverConsentOk);
   const activeDog = useAppStore(s => s.activeDog);
   const setStoreSpots = useAppStore(s => s.setSpots);
   const setSpotAggregates = useAppStore(s => s.setSpotAggregates);
@@ -54,7 +56,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
   const refresh = useCallback(async () => {
     // 로그인 전에는 fetch하지 않는다 — spots-nearby는 인증 필수라 401만 나고,
     // 그 빈 결과가 남아 로그인 직후 홈 추천이 비어 보이던 원인.
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !serverConsentOk) return;
     const myReq = ++reqIdRef.current;
     setIsLoading(true);
     setSpotsLoading(true);  // 화면 스켈레톤 노출용 (store)
@@ -174,7 +176,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
         setSpotsLoading(false);
       }
     }
-  }, [isAuthenticated, currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading, setSpotsTruncated]);
+  }, [isAuthenticated, serverConsentOk, currentLocation, activeDog, radiusMeters, setStoreSpots, setSpotAggregates, setSpotsLoading, setSpotsTruncated]);
 
   // 어느 강아지 기준으로 받아온 응답인지 — 강아지를 바꾸면 위치가 그대로여도 다시 받아야 한다
   const prevDogIdRef = useRef<string | null>(null);

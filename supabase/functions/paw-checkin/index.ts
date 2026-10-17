@@ -114,6 +114,15 @@ Deno.serve(async (req: Request) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
     }
 
+    // 정지·탈퇴 계정은 서버에서도 막는다 — 앱 화면만 막으면 API를 직접 부를 수 있다(2026-10-17 QA)
+    const { data: me } = await serviceClient.from('users').select('status').eq('auth_id', user.id).maybeSingle();
+    if (!me || me.status !== 'active') {
+      return Response.json(
+        { error: 'account_restricted', message: '계정 이용이 제한된 상태라 발도장을 남길 수 없어요.' },
+        { status: 403, headers: corsHeaders },
+      );
+    }
+
     const body = await req.json();
     const {
       dogId,
@@ -260,10 +269,12 @@ Deno.serve(async (req: Request) => {
     }
 
     // 위치정보 이용사실 확인자료(위치정보법 §16②, 처리방침 §6③의 '발도장 근접 확인' 목적).
-    // 예전엔 장소 탐색(spots-nearby)에서만 남기고 여기선 빠져 있었다(2026-10-16 감사).
+    // 성공한 발도장은 paw_checkins 트리거도 기록하지만, 거리·정확도 때문에 실패한 시도도 위치를
+    // 쓰므로 여기서 남긴다. 목적 이름을 트리거와 같게('proximity_checkin') 두고, 둘 다 10분 안의
+    // 같은 기록은 건너뛰어 성공 건이 두 번 남지 않는다(2026-10-17 QA).
     // 좌표는 남기지 않는다(누가·언제·무슨 목적). 사용자 세션 클라이언트로 불러야 auth.uid()가 잡힌다.
     // 기록 실패가 발도장을 막지 않게 오류는 삼키되 남긴다.
-    await supabase.rpc('log_location_access', { p_purpose: 'checkin_proximity' })
+    await supabase.rpc('log_location_access', { p_purpose: 'proximity_checkin' })
       .then(({ error }) => { if (error) console.warn('location access log failed:', error.message); });
 
     const distance = haversineMeters(userLat, userLng, spot.latitude, spot.longitude);

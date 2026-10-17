@@ -21,6 +21,7 @@ import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens'
 import { Icon } from '../../src/components/common/Icon';
 import { Button } from '../../src/components/common/Button';
 import { supabase } from '../../src/lib/supabase';
+import { signOutEverywhereOrLocal } from '../../src/lib/signOut';
 import { useAppStore } from '../../src/store/useAppStore';
 import { severSocialSessions } from '@/lib/socialSession';
 import { removeThisDevicePushToken } from '../../src/hooks/usePushToken';
@@ -109,7 +110,7 @@ export default function AccountRestrictedScreen() {
     }))) return;
     // 세션을 끊기 전에 이 기기 푸시 토큰부터 지운다(끊긴 뒤엔 RLS로 못 지운다)
     try { await removeThisDevicePushToken(); } catch { /* 토큰 없음은 무시 */ }
-    try { await supabase.auth.signOut(); } catch { /* 세션 없음은 무시 */ }
+    try { await signOutEverywhereOrLocal(); } catch { /* 세션 없음은 무시 */ }
     await severSocialSessions();
     logout();
     router.replace('/(auth)/login');

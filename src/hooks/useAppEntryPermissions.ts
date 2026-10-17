@@ -25,10 +25,12 @@ export function useAppEntryPermissions() {
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
   const isAuthLoading = useAppStore(s => s.isAuthLoading);
   const userStatus = useAppStore(s => s.user?.status);
+  const serverConsentOk = useAppStore(s => s.serverConsentOk);
   const ran = useRef(false);
 
-  // 세션 복원이 끝나고, 로그인돼 있고, 제재 계정이 아닐 때만 = 홈에 실제로 들어가는 시점
-  const canEnterApp = isAuthenticated && !isAuthLoading && userStatus !== 'blocked';
+  // 세션 복원이 끝나고, 로그인돼 있고, 제재 계정이 아니고, 약관 동의가 서버에서 확인됐을 때만
+  // = 홈에 실제로 들어가는 시점. 동의 전에 위치 권한을 묻거나 위치를 잡으면 위치정보법 위반이다.
+  const canEnterApp = isAuthenticated && !isAuthLoading && userStatus !== 'blocked' && serverConsentOk;
 
   useEffect(() => {
     if (!canEnterApp) return;

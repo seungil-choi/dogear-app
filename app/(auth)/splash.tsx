@@ -55,6 +55,8 @@ export default function SplashScreen() {
       // 동의 없이 들어가던 구멍(2026-10-16 감사 P0). 게스트·DEV는 세션이 없어 'no-session'.
       const consent = IS_REAL_AUTH ? await serverConsentState() : 'agreed';
       if (cancelled) return;
+      // 위치 사용은 동의가 서버에서 확인된 뒤에만('unknown'이면 다음 확인까지 위치를 쓰지 않는다)
+      useAppStore.getState().setServerConsentOk(consent === 'agreed');
       if (consent === 'missing') {
         router.replace('/(auth)/consent');
       } else if (!hasCompletedOnboarding) {

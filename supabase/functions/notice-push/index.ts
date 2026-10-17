@@ -66,13 +66,16 @@ Deno.serve(async (req: Request) => {
     const isAd = notice.category === 'event';
 
     // 대상: 활성 회원. 광고면 수신 동의(+야간 동의)로 거른다
-    const { data: users } = await svc.from('users').select('user_id').eq('status', 'active');
-    let targetIds = (users ?? []).map((u: { user_id: string }) => u.user_id);
-    if (isAd && targetIds.length) {
-      let q = svc.from('consents').select('user_id').in('user_id', targetIds).eq('marketing_push', true);
+    const { data: users } = await svc.from('users').select('user_id, auth_id').eq('status', 'active');
+    const targets = (users ?? []) as { user_id: string; auth_id: string }[];
+    let targetIds = targets.map((u) => u.user_id);
+    if (isAd && targets.length) {
+      // ⚠️ consents.user_id는 auth.uid()다(앱 users.user_id가 아님) — users.user_id로 찾으면 0명이 된다(2026-10-17 QA)
+      let q = svc.from('consents').select('user_id').in('user_id', targets.map((u) => u.auth_id)).eq('marketing_push', true);
       if (isKstNight()) q = q.eq('marketing_night', true);
       const { data: ok } = await q;
-      targetIds = (ok ?? []).map((c: { user_id: string }) => c.user_id);
+      const okAuth = new Set((ok ?? []).map((c: { user_id: string }) => c.user_id));
+      targetIds = targets.filter((u) => okAuth.has(u.auth_id)).map((u) => u.user_id);
     }
 
     // 실제 발송 전에 먼저 표시한다 — 중간에 실패해도 두 번째 버튼 클릭이 전원에게 다시 보내지 않게

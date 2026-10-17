@@ -135,6 +135,9 @@ export function usePawCheckin(): UsePawCheckinReturn {
         if (status === 409) {
           throw new PawCheckinError('cooldown', '같은 장소는 1시간에 한 번 남길 수 있어요', status);
         }
+        if (status === 403 && serverCode === 'account_restricted') {
+          throw new PawCheckinError('auth', serverMsg ?? '계정 이용이 제한된 상태예요.', status);
+        }
         if (status === 403) {
           const code = serverCode === 'low_accuracy' || serverCode === 'stale_location' ? serverCode : 'too_far';
           throw new PawCheckinError(code, serverMsg ?? '장소 근처에서만 발도장을 남길 수 있어요', status);

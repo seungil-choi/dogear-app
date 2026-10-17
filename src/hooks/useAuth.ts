@@ -26,9 +26,13 @@ export function useAuth() {
     //  ⚠️ loadUserProfile은 네트워크 호출(users/dogs) — 오프라인/실패 시 reject 가능.
     //  catch/finally가 없으면 setAuthLoading(false)에 도달하지 못해 스플래시가 영구 정지됨.
     supabase.auth.getSession()
-      .then(async ({ data: { session } }) => {
+      .then(async ({ data: { session }, error }) => {
         if (session?.user) {
           await loadUserProfile(session.user.id);
+        } else if (error) {
+          // 토큰 갱신이 네트워크 때문에 실패한 경우다 — 로그아웃시키지 않는다. 연결되면
+          // supabase가 다시 갱신해 SIGNED_IN/TOKEN_REFRESHED로 돌아온다(2026-10-17 QA)
+          reportError(new Error(`restore session error: ${error.message}`), 'handled');
         } else {
           // 세션이 없는데 persist로 로그인 상태가 남아있으면 고스트 세션(토큰 만료·revoke).
           // 그대로 두면 RLS로 전 화면이 빈 채 "로그인됨"으로 갇힘 → 정리해 로그인으로 유도.
@@ -48,7 +52,7 @@ export function useAuth() {
     //    다음 틱으로 넘기고 실패는 기록한다.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
+        if ((event === 'SIGNED_IN' || (event === 'TOKEN_REFRESHED' && !useAppStore.getState().user)) && session?.user) {
           const authId = session.user.id;
           setTimeout(() => {
             loadUserProfile(authId).catch((e: any) =>

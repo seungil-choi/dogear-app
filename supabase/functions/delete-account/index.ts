@@ -90,6 +90,9 @@ Deno.serve(async (req: Request) => {
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(authUser.id);
     if (deleteError) {
       console.error('auth.users delete failed:', deleteError);
+      // 실패하면 1단계의 'deleted' 표시를 되돌린다 — 그대로 두면 앱이 매번 "탈퇴한 계정"으로 내보내고
+      // 같은 수단으로 다시 가입해도 같은 계정이라 영영 못 들어온다(QA 10/17). 사진은 이미 지워졌을 수 있다.
+      await adminClient.from('users').update({ status: 'active' }).eq('auth_id', authUser.id).eq('status', 'deleted');
       return new Response(JSON.stringify({ error: 'Account deletion failed' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

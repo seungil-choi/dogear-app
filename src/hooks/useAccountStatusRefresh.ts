@@ -10,6 +10,7 @@ import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useAppStore } from '@/store/useAppStore';
+import { signOutEverywhereOrLocal } from '@/lib/signOut';
 
 /** 너무 잦은 조회를 막는 최소 간격 */
 const MIN_INTERVAL_MS = 60_000;
@@ -31,7 +32,14 @@ export function useAccountStatusRefresh() {
         .eq('user_id', user.user_id)
         .maybeSingle();
       // 오프라인 등으로 못 읽으면 지금 상태를 유지한다(잘못 내보내는 것보다 낫다)
-      if (error || !data) return;
+      if (error) return;
+      // 오류 없이 행이 없다 = 운영자가 계정을 영구 삭제했다 → 이 기기 세션을 끝낸다(QA 10/17).
+      // (토큰은 만료 전까지 유효해서, 그냥 두면 최대 1시간 앱을 계속 쓴다)
+      if (!data) {
+        await signOutEverywhereOrLocal().catch(() => {});
+        useAppStore.getState().logout();
+        return;
+      }
 
       const cur = useAppStore.getState().user;
       if (cur && cur.user_id === user.user_id && cur.status !== data.status) {

@@ -81,6 +81,7 @@ export default function ConsentScreen() {
         updated_at:  agreedAt,
       });
       if (upsertErr) throw upsertErr;
+      useAppStore.getState().setServerConsentOk(true);   // 이제부터 위치 사용 가능
     } catch (e) {
       reportError(new Error(`consent save failed: ${(e as any)?.message ?? e}`), 'handled');
       setSubmitting(false);

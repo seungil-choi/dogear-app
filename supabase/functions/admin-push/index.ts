@@ -74,21 +74,26 @@ Deno.serve(async (req: Request) => {
 
     // 받는 사람
     let targetIds: string[];
+    let targets: { user_id: string; auth_id: string }[] = [];
     if (target === 'test') {
-      const { data: me } = await svc.from('users').select('user_id').eq('auth_id', user.id).eq('status', 'active');
-      targetIds = (me ?? []).map((u: { user_id: string }) => u.user_id);
+      const { data: me } = await svc.from('users').select('user_id, auth_id').eq('auth_id', user.id).eq('status', 'active');
+      targets = (me ?? []) as { user_id: string; auth_id: string }[];
+      targetIds = targets.map((u) => u.user_id);
       if (!targetIds.length) {
         return bad('운영자 계정(같은 구글 계정)으로 앱에 로그인한 기록이 없어 테스트 발송을 할 수 없습니다', 404);
       }
     } else {
-      const { data: all } = await svc.from('users').select('user_id').eq('status', 'active');
-      targetIds = (all ?? []).map((u: { user_id: string }) => u.user_id);
+      const { data: all } = await svc.from('users').select('user_id, auth_id').eq('status', 'active');
+      targets = (all ?? []) as { user_id: string; auth_id: string }[];
+      targetIds = targets.map((u) => u.user_id);
     }
-    if (kind === 'ad' && targetIds.length) {
-      let q = svc.from('consents').select('user_id').in('user_id', targetIds).eq('marketing_push', true);
+    if (kind === 'ad' && targets.length) {
+      // ⚠️ consents.user_id는 auth.uid()다(앱 users.user_id가 아님) — users.user_id로 찾으면 0명이 된다(2026-10-17 QA)
+      let q = svc.from('consents').select('user_id').in('user_id', targets.map((u) => u.auth_id)).eq('marketing_push', true);
       if (isKstNight()) q = q.eq('marketing_night', true);
       const { data: ok } = await q;
-      targetIds = (ok ?? []).map((c: { user_id: string }) => c.user_id);
+      const okAuth = new Set((ok ?? []).map((c: { user_id: string }) => c.user_id));
+      targetIds = targets.filter((u) => okAuth.has(u.auth_id)).map((u) => u.user_id);
     }
 
     const finalTitle = kind === 'ad' ? `(광고) ${title}` : title;

@@ -23,10 +23,14 @@ export function useLocation(): UseLocationReturn {
   const [permissionStatus, setPermissionStatus] = useState<PermissionStatus>('undetermined');
   const [isLocating, setIsLocating] = useState(false);
   const setCurrentLocation = useAppStore(s => s.setCurrentLocation);
+  // 약관(위치약관) 동의가 서버에서 확인되기 전에는 위치를 잡지 않는다(위치정보법, 2026-10-17 QA)
+  const serverConsentOk = useAppStore(s => s.serverConsentOk);
 
   useEffect(() => {
+    if (!serverConsentOk) return;
     checkAndRequestPermission();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverConsentOk]);
 
   // 설정 앱에서 위치를 켜고 돌아오면 바로 반영한다 — 예전엔 재시작 전까지 지도 배너와
   // 홈의 서울 폴백이 그대로 남았다(2026-10-16 감사). 이미 허용 상태면 5분 넘게 묵은 위치만 새로 잡는다.
@@ -34,6 +38,7 @@ export function useLocation(): UseLocationReturn {
   useEffect(() => {
     const sub = AppState.addEventListener('change', async (st) => {
       if (st !== 'active') return;
+      if (!useAppStore.getState().serverConsentOk) return;
       try {
         const { status } = await Location.getForegroundPermissionsAsync();
         setPermissionStatus(status as PermissionStatus);

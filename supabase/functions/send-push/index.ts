@@ -94,17 +94,23 @@ serve(async (req) => {
       //   기대하지 않고 여기서 다시 거른다 — 한 곳만 잊어도 위반이 되기 때문이다.
       if (payload.marketing) {
         const night = isKoreanNight();
+        // ⚠️ consents.user_id는 auth.uid()다(앱 users.user_id가 아님) — users.user_id로 찾으면 0명이 된다(2026-10-17 QA)
+        const { data: idRows, error: uErr } = await supabase
+          .from('users').select('user_id, auth_id').in('user_id', targetIds);
+        if (uErr) throw uErr;
+        const authOf = new Map((idRows ?? []).map((r: any) => [r.user_id, r.auth_id]));
         const { data: consents, error: cErr } = await supabase
           .from('consents')
           .select('user_id, marketing_push, marketing_night')
-          .in('user_id', targetIds);
+          .in('user_id', [...authOf.values()]);
         if (cErr) throw cErr;
 
-        const allowed = new Set(
+        const okAuth = new Set(
           (consents ?? [])
             .filter((c: any) => c.marketing_push === true && (!night || c.marketing_night === true))
             .map((c: any) => c.user_id),
         );
+        const allowed = new Set(targetIds.filter((id) => okAuth.has(authOf.get(id))));
         const dropped = targetIds.length - allowed.size;
         targetIds = targetIds.filter((id) => allowed.has(id));
         if (dropped > 0) {

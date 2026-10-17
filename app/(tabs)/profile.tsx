@@ -26,6 +26,7 @@ import { SUPPORT_EMAIL } from '../../src/constants/messages';
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { supabase } from '../../src/lib/supabase';
+import { signOutEverywhereOrLocal } from '../../src/lib/signOut';
 import { removeThisDevicePushToken } from '../../src/hooks/usePushToken';
 import { Button } from '../../src/components/common/Button';
 import { Icon, type IconName } from '../../src/components/common/Icon';
@@ -153,7 +154,7 @@ export default function ProfileScreen() {
       // 이 기기 푸시 토큰부터 지운다 — 세션을 끊은 뒤엔 RLS로 못 지운다(로그아웃 후에도 알림이 오던 문제)
       await removeThisDevicePushToken();
       // 서버 세션까지 종료해야 함 — store만 비우면 useAuth가 잔존 세션을 복원해 자동 재로그인됨
-      try { await supabase.auth.signOut(); } catch { /* 세션 없음 등은 무시 */ }
+      try { await signOutEverywhereOrLocal(); } catch { /* 세션 없음 등은 무시 */ }
       // 카카오/구글 SDK 세션도 함께 끊는다.
       //   남겨두면 다음 로그인 때 계정 선택 없이 직전 계정으로 자동 재로그인되어
       //   계정 전환이 불가능하고, 기기를 넘겨받은 사람이 이전 계정에 들어갈 수 있다.

@@ -99,6 +99,13 @@ interface AppState {
   isAuthenticated: boolean;
   hasCompletedOnboarding: boolean;
   isAuthLoading: boolean;
+  /**
+   * 서버에 약관(위치약관 포함) 동의가 확인됐는가 — 이번 실행에서 확인한 값만(저장하지 않는다).
+   * 위치 권한 요청·위치 조회·주변 장소 조회는 이게 true일 때만 한다(위치정보법: 동의 전 수집 금지).
+   * 예전엔 로그인만 되면 동의 화면 뒤에서 위치를 잡아 서버로 보냈다(2026-10-17 QA).
+   */
+  serverConsentOk: boolean;
+  setServerConsentOk: (ok: boolean) => void;
   pushEnabled: boolean;   // 푸시 알림 수신 설정 (사용자 토글, 기본 on)
 
   // 약관 동의 (앱스토어/법규 대응)
@@ -284,6 +291,7 @@ const initialState = DEV_PREVIEW_SEED
       isAuthenticated: true,
       hasCompletedOnboarding: true,
       isAuthLoading: false,
+      serverConsentOk: true,
       pushEnabled: true,
       consent: null,
       currentLocation: { latitude: 37.5443, longitude: 127.0376, accuracy: 10 },
@@ -308,6 +316,7 @@ const initialState = DEV_PREVIEW_SEED
       isAuthenticated: false,
       hasCompletedOnboarding: false,
       isAuthLoading: true,
+      serverConsentOk: false,
       pushEnabled: true,
       consent: null,
       currentLocation: null,
@@ -358,6 +367,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
     hasCompletedOnboarding: get().hasCompletedOnboarding,   // 온보딩 완료 상태 유지
     isAuthenticated: false,                                 // 명시적으로 false
     isAuthLoading: false,
+    serverConsentOk: false,
     spots: [],
     spotAggregates: {},
     checkins: [],
@@ -796,6 +806,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
   },
 
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
+  setServerConsentOk: (serverConsentOk) => set({ serverConsentOk }),
   // 호출부가 빠뜨려도 나이를 알 수 있게 여기서 시각을 박는다.
   setCurrentLocation: (currentLocation) =>
     set({ currentLocation: currentLocation ? { capturedAt: Date.now(), ...currentLocation } : null }),

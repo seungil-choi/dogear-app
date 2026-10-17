@@ -47,6 +47,18 @@ const admin = () => createClient(SUPABASE_URL, Deno.env.get('SUPABASE_SERVICE_RO
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
+/** 서버 쪽 실패를 어드민 [오류] 화면에 남긴다(개인정보 없이 단계·코드만). 기록 실패는 무시 */
+async function logFailure(stage: string, detail?: string) {
+  console.error(`naver-auth ${stage}:`, detail ?? '');
+  try {
+    await admin().from('client_errors').insert({
+      source: 'admin', kind: 'naver_auth', is_fatal: false,
+      message: `naver-auth ${stage}${detail ? `: ${String(detail).slice(0, 200)}` : ''}`,
+      screen: 'naver-auth',
+    });
+  } catch { /* 무시 */ }
+}
+
 const toApp = (params: Record<string, string>) =>
   new Response(null, { status: 302, headers: { Location: `${APP_REDIRECT}?${new URLSearchParams(params)}` } });
 
@@ -106,7 +118,7 @@ async function callback(url: URL): Promise<Response> {
   const tokenRes = await fetch(`https://nid.naver.com/oauth2.0/token?${tq}`);
   const token = await tokenRes.json().catch(() => ({}));
   if (!tokenRes.ok || !token.access_token) {
-    console.error('naver token exchange failed:', token.error, token.error_description);
+    await logFailure('token_exchange', `${token.error ?? tokenRes.status} ${token.error_description ?? ''}`);
     return toApp({ error: 'naver_error' });
   }
 
@@ -116,7 +128,7 @@ async function callback(url: URL): Promise<Response> {
   const me = await meRes.json().catch(() => ({}));
   const naverId = me?.resultcode === '00' ? String(me.response?.id ?? '') : '';
   if (!naverId) {
-    console.error('naver profile failed:', me?.resultcode, me?.message);
+    await logFailure('profile', `${me?.resultcode ?? meRes.status} ${me?.message ?? ''}`);
     return toApp({ error: 'naver_error' });
   }
 
@@ -133,22 +145,22 @@ async function callback(url: URL): Promise<Response> {
   if (createError) {
     const exists = (createError as any).code === 'email_exists' || (createError as any).status === 422
       || /already|registered|exists/i.test(createError.message ?? '');
-    if (!exists) { console.error('createUser failed:', createError.message); return toApp({ error: 'server_error' }); }
+    if (!exists) { await logFailure('create_user', createError.message); return toApp({ error: 'server_error' }); }
   } else if (created?.user) {
     // 가입 트리거는 provider를 apple/google/email만 안다 → 네이버로 바로잡는다
     const { error: ltError } = await sb.from('users').update({ login_type: 'naver' }).eq('auth_id', created.user.id);
-    if (ltError) console.error('login_type update failed:', ltError.message);
+    if (ltError) await logFailure('login_type_update', ltError.message);
   }
 
   const { data: link, error: linkError } = await sb.auth.admin.generateLink({ type: 'magiclink', email });
   const tokenHash = (link as any)?.properties?.hashed_token;
-  if (linkError || !tokenHash) { console.error('generateLink failed:', linkError?.message); return toApp({ error: 'server_error' }); }
+  if (linkError || !tokenHash) { await logFailure('generate_link', linkError?.message); return toApp({ error: 'server_error' }); }
 
   // 이 이메일의 계정이 정말 네이버로 만든 계정인가 — 이메일 가입이 열려 있어서 누군가
   // naver_{id}@naver.local로 먼저 가입해 둘 수 있다. app_metadata는 서버(service_role)만 쓸 수 있으니
   // provider='naver'가 아니면 남의 계정이다 → 세션을 내주지 않는다(적대 검증 10/17).
   if ((link as any)?.user?.app_metadata?.provider !== 'naver') {
-    console.error('naver account conflict: existing account was not created by naver-auth');
+    await logFailure('account_conflict', 'existing account was not created by naver-auth');
     return toApp({ error: 'account_conflict' });
   }
 
@@ -156,7 +168,7 @@ async function callback(url: URL): Promise<Response> {
   const { error: insError } = await sb.from('oauth_exchanges').insert({
     code: exchangeCode, challenge, email, token_hash: tokenHash,
   });
-  if (insError) { console.error('exchange insert failed:', insError.message); return toApp({ error: 'server_error' }); }
+  if (insError) { await logFailure('exchange_insert', insError.message); return toApp({ error: 'server_error' }); }
 
   // 오래된 교환 기록 정리(하루 지난 것)
   await sb.from('oauth_exchanges').delete().lt('created_at', new Date(Date.now() - 86_400_000).toISOString());
@@ -179,7 +191,7 @@ async function exchange(req: Request): Promise<Response> {
     .eq('code', code).eq('challenge', challenge).is('used_at', null).gte('created_at', since)
     .select('email, token_hash')
     .maybeSingle();
-  if (error) { console.error('exchange failed:', error.message); return json({ error: 'server_error' }, 500); }
+  if (error) { await logFailure('exchange', error.message); return json({ error: 'server_error' }, 500); }
   if (!data) return json({ error: 'invalid_or_expired' }, 400);
   return json({ email: data.email, token_hash: data.token_hash });
 }
@@ -193,7 +205,7 @@ Deno.serve(async (req) => {
     if (req.method === 'POST' && route === 'exchange') return await exchange(req);
     return json({ error: 'not_found' }, 404);
   } catch (e) {
-    console.error('naver-auth error:', (e as Error)?.message ?? e);
+    await logFailure(`unhandled:${route}`, (e as Error)?.message ?? String(e));
     return route === 'exchange' ? json({ error: 'server_error' }, 500) : toApp({ error: 'server_error' });
   }
 });
