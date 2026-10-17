@@ -96,12 +96,6 @@
         }
       ],
       [
-        "@react-native-seoul/naver-login",
-        {
-          "urlScheme": "dogear"
-        }
-      ],
-      [
         "expo-build-properties",
         {
           "android": {
@@ -122,7 +116,8 @@
             ]
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

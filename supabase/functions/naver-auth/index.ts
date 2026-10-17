@@ -1,124 +1,183 @@
 /**
- * ⚠️ SEC-07 (2026-07-24): 이 함수는 현재 프로덕션에서 **410 스텁으로 중화(비활성)** 되어 있다.
- *    사유: 토큰 audience(앱 소속) 미검증 → 토큰 치환 계정 탈취 표면. 네이버 로그인은 MVP에서 히든.
- *    재개 시: (1) 이 파일을 그대로 재배포 + audience 검증 보강 (authorization code↔client_id/secret 교환)
- *             (2) login.tsx의 네이버 버튼 플래그 true (3) 네이버 콘솔 검수요청.
- *    ※ 로컬(이 파일)과 배포본(스텁)이 의도적으로 다름 — 재개용 원본 보존.
+ * Edge Function: naver-auth — 네이버 로그인 (서버 경유 웹 로그인, 2026-10-17)
  *
- * Edge Function: naver-auth
+ * 왜 이 방식인가 (SEC-07 해소)
+ *   예전 구현은 앱이 네이버 SDK로 받은 access token을 그대로 넘겼다. 그 토큰이 "우리 앱"에서
+ *   발급된 것인지 확인할 방법이 없어(audience 미검증) 다른 앱의 토큰으로 남의 계정을 가져갈 수
+ *   있었고, SDK는 client secret을 앱 번들에 요구했다. 그래서 410 스텁으로 막아 두었다.
+ *   이제는 **authorization code를 서버가 secret으로 교환**한다. 교환이 성공했다는 것 자체가
+ *   우리 client_id로 발급됐다는 증명이고, secret은 앱에 없다.
  *
- * 네이버 access token을 받아 사용자를 검증하고 Supabase 세션을 생성한다.
- * (kakao-auth와 동일한 패턴 — 외부 토큰 검증 후 magiclink OTP 발급)
+ * 흐름
+ *   1. 앱: verifier(무작위) → challenge = base64url(sha256(verifier))
+ *      브라우저로 GET /naver-auth/start?challenge=…
+ *   2. start: 네이버 동의 화면으로 302 (state = challenge)
+ *   3. 네이버 → GET /naver-auth/callback?code&state
+ *      code를 secret으로 교환 → /v1/nid/me로 고유 ID → Supabase 사용자 생성(없으면)
+ *      → magiclink token_hash 발급 → oauth_exchanges에 (일회용 code, challenge)로 보관
+ *      → dogear://naver-callback?code=… 로 302
+ *   4. 앱: POST /naver-auth/exchange { code, verifier } → sha256(verifier)==challenge면
+ *      { email, token_hash } → supabase.auth.verifyOtp({ token_hash, type: 'magiclink' })
+ *   dogear:// 링크를 다른 앱이 가로채도 verifier가 없으면 3의 code는 쓸모가 없다.
  *
- * 흐름:
- *  1. 클라이언트(앱)에서 네이버 SDK로 로그인 → access_token 획득
- *  2. 이 함수에 access_token 전달
- *  3. 네이버 API로 사용자 정보 조회 (id, email, nickname)
- *  4. Supabase auth.users에 등록(없으면 생성)
- *  5. magiclink OTP(otp, hashed_token) 반환 → 클라이언트가 verifyOtp
+ * 개인정보: 네이버에서 받는 것은 고유 식별자(id)뿐이다. 이메일·이름은 요청·저장하지 않는다.
+ *   계정 이메일은 `naver_{id}@naver.local`(합성)이라 다른 로그인 수단의 계정과 섞이지 않는다
+ *   — 네이버의 연락처 이메일은 본인 확인이 안 된 값일 수 있어 그걸로 기존 계정에 붙이면
+ *   계정 탈취 통로가 된다.
  *
- * 환경변수:
- *  - SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (Supabase가 자동 주입)
- *  - 네이버는 외부 토큰 검증만 하므로 별도 시크릿 불필요
+ * 배포: --no-verify-jwt (브라우저 리다이렉트·네이버 콜백에는 JWT가 없다)
+ * 시크릿: NAVER_CLIENT_ID, NAVER_CLIENT_SECRET (Supabase Secrets) + 자동 주입 SUPABASE_*
+ * 네이버 개발자센터 Callback URL: {SUPABASE_URL}/functions/v1/naver-auth/callback
  */
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const CLIENT_ID = Deno.env.get('NAVER_CLIENT_ID') ?? '';
+const CLIENT_SECRET = Deno.env.get('NAVER_CLIENT_SECRET') ?? '';
+const CALLBACK_URL = `${SUPABASE_URL}/functions/v1/naver-auth/callback`;
+const APP_REDIRECT = 'dogear://naver-callback';
+const EXCHANGE_TTL_MS = 5 * 60 * 1000;
+const CHALLENGE_RE = /^[A-Za-z0-9_-]{43}$/;
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+const admin = () => createClient(SUPABASE_URL, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
+  auth: { autoRefreshToken: false, persistSession: false },
+});
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+
+const toApp = (params: Record<string, string>) =>
+  new Response(null, { status: 302, headers: { Location: `${APP_REDIRECT}?${new URLSearchParams(params)}` } });
+
+function b64url(bytes: Uint8Array): string {
+  let s = '';
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function sha256b64url(text: string): Promise<string> {
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return b64url(new Uint8Array(d));
+}
+
+function randomCode(): string {
+  return b64url(crypto.getRandomValues(new Uint8Array(32)));
+}
+
+// ── 1. start ────────────────────────────────────────────────
+function start(url: URL): Response {
+  const challenge = url.searchParams.get('challenge') ?? '';
+  if (!CHALLENGE_RE.test(challenge)) return toApp({ error: 'bad_request' });
+  if (!CLIENT_ID || !CLIENT_SECRET) return toApp({ error: 'not_configured' });
+  const q = new URLSearchParams({
+    response_type: 'code',
+    client_id: CLIENT_ID,
+    redirect_uri: CALLBACK_URL,
+    state: challenge,
+  });
+  return new Response(null, { status: 302, headers: { Location: `https://nid.naver.com/oauth2.0/authorize?${q}` } });
+}
+
+// ── 2. callback ─────────────────────────────────────────────
+async function callback(url: URL): Promise<Response> {
+  const err = url.searchParams.get('error');
+  if (err) return toApp({ error: err === 'access_denied' ? 'cancelled' : 'naver_error' });
+
+  const code = url.searchParams.get('code') ?? '';
+  const challenge = url.searchParams.get('state') ?? '';
+  if (!code || !CHALLENGE_RE.test(challenge)) return toApp({ error: 'bad_request' });
+
+  // code → access token (secret은 여기서만 쓴다)
+  const tq = new URLSearchParams({
+    grant_type: 'authorization_code',
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    code,
+    state: challenge,
+  });
+  const tokenRes = await fetch(`https://nid.naver.com/oauth2.0/token?${tq}`);
+  const token = await tokenRes.json().catch(() => ({}));
+  if (!tokenRes.ok || !token.access_token) {
+    console.error('naver token exchange failed:', token.error, token.error_description);
+    return toApp({ error: 'naver_error' });
   }
 
+  const meRes = await fetch('https://openapi.naver.com/v1/nid/me', {
+    headers: { Authorization: `Bearer ${token.access_token}` },
+  });
+  const me = await meRes.json().catch(() => ({}));
+  const naverId = me?.resultcode === '00' ? String(me.response?.id ?? '') : '';
+  if (!naverId) {
+    console.error('naver profile failed:', me?.resultcode, me?.message);
+    return toApp({ error: 'naver_error' });
+  }
+
+  const sb = admin();
+  const email = `naver_${naverId}@naver.local`;
+
+  // 없으면 만든다. 이미 있으면(email_exists) 그대로 진행.
+  const { data: created, error: createError } = await sb.auth.admin.createUser({
+    email,
+    email_confirm: true,
+    user_metadata: { provider: 'naver' },
+    app_metadata: { provider: 'naver', providers: ['naver'] },
+  });
+  if (createError) {
+    const exists = (createError as any).code === 'email_exists' || (createError as any).status === 422
+      || /already|registered|exists/i.test(createError.message ?? '');
+    if (!exists) { console.error('createUser failed:', createError.message); return toApp({ error: 'server_error' }); }
+  } else if (created?.user) {
+    // 가입 트리거는 provider를 apple/google/email만 안다 → 네이버로 바로잡는다
+    await sb.from('users').update({ login_type: 'naver' }).eq('auth_id', created.user.id);
+  }
+
+  const { data: link, error: linkError } = await sb.auth.admin.generateLink({ type: 'magiclink', email });
+  const tokenHash = (link as any)?.properties?.hashed_token;
+  if (linkError || !tokenHash) { console.error('generateLink failed:', linkError?.message); return toApp({ error: 'server_error' }); }
+
+  const exchangeCode = randomCode();
+  const { error: insError } = await sb.from('oauth_exchanges').insert({
+    code: exchangeCode, challenge, email, token_hash: tokenHash,
+  });
+  if (insError) { console.error('exchange insert failed:', insError.message); return toApp({ error: 'server_error' }); }
+
+  // 오래된 교환 기록 정리(하루 지난 것)
+  await sb.from('oauth_exchanges').delete().lt('created_at', new Date(Date.now() - 86_400_000).toISOString());
+
+  return toApp({ code: exchangeCode });
+}
+
+// ── 3. exchange ─────────────────────────────────────────────
+async function exchange(req: Request): Promise<Response> {
+  const { code, verifier } = await req.json().catch(() => ({}));
+  if (typeof code !== 'string' || typeof verifier !== 'string' || verifier.length < 43 || verifier.length > 128) {
+    return json({ error: 'bad_request' }, 400);
+  }
+  const sb = admin();
+  const challenge = await sha256b64url(verifier);
+  const since = new Date(Date.now() - EXCHANGE_TTL_MS).toISOString();
+  // 한 번만 쓰이도록 조건부 갱신으로 집어 간다(동시 요청 경합 방지)
+  const { data, error } = await sb.from('oauth_exchanges')
+    .update({ used_at: new Date().toISOString() })
+    .eq('code', code).eq('challenge', challenge).is('used_at', null).gte('created_at', since)
+    .select('email, token_hash')
+    .maybeSingle();
+  if (error) { console.error('exchange failed:', error.message); return json({ error: 'server_error' }, 500); }
+  if (!data) return json({ error: 'invalid_or_expired' }, 400);
+  return json({ email: data.email, token_hash: data.token_hash });
+}
+
+Deno.serve(async (req) => {
+  const url = new URL(req.url);
+  const route = url.pathname.split('/').pop();
   try {
-    const { naverAccessToken } = await req.json();
-    if (!naverAccessToken) {
-      return new Response(JSON.stringify({ error: 'naverAccessToken required' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // 1. 네이버 사용자 정보 조회
-    const naverRes = await fetch('https://openapi.naver.com/v1/nid/me', {
-      headers: { Authorization: `Bearer ${naverAccessToken}` },
-    });
-    if (!naverRes.ok) {
-      return new Response(JSON.stringify({ error: 'invalid naver token' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    const naverBody = await naverRes.json();
-    // 네이버 응답: { resultcode: '00', message: 'success', response: { id, email, nickname, ... } }
-    if (naverBody.resultcode !== '00' || !naverBody.response) {
-      return new Response(JSON.stringify({ error: 'naver profile fetch failed' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    const naverUser = naverBody.response;
-    const naverId = String(naverUser.id);
-    const email = naverUser.email ?? `naver_${naverId}@naver.local`;
-    const nickname = naverUser.nickname ?? naverUser.name ?? '네이버사용자';
-
-    // 2. Supabase admin client
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
-
-    // 3. 기존 사용자 확인 또는 생성
-    const userMetadata = { provider: 'naver', naver_id: naverId, nickname };
-
-    // createUser를 먼저 시도하고 "이미 존재(email_exists)"는 정상 흐름으로 흡수한다.
-    //   ⚠️ 이전 방식(listUsers로 조회)은 1페이지 50명만 반환 → 사용자 50명 초과 시
-    //      기존 유저를 못 찾고 중복 생성 시도 → 500으로 모든 재로그인이 깨지는 버그.
-    //   generateLink는 기존 사용자에게도 정상 동작하므로 존재 조회 자체가 불필요.
-    const { error: createError } = await supabase.auth.admin.createUser({
-      email,
-      email_confirm: true,
-      user_metadata: userMetadata,
-    });
-    if (createError) {
-      const already =
-        (createError as any).code === 'email_exists' ||
-        (createError as any).status === 422 ||
-        /already|registered|exists/i.test(createError.message ?? '');
-      if (!already) throw createError;
-      // 기존 사용자 → 그대로 진행
-    }
-
-    // 4. magic link로 일회성 토큰 발급 → 클라이언트에서 verifyOtp
-    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email,
-    });
-    if (linkError) throw linkError;
-
-    return new Response(JSON.stringify({
-      email,
-      nickname,
-      otp: (linkData as any).properties?.email_otp,
-      hashed_token: (linkData as any).properties?.hashed_token,
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
-  } catch (err: any) {
-    console.error('naver-auth error:', err);
-    // 내부 에러 상세는 로그에만 — 응답 본문으로 유출하지 않음
-    return new Response(JSON.stringify({ error: 'internal error' }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    if (req.method === 'GET' && route === 'start') return start(url);
+    if (req.method === 'GET' && route === 'callback') return await callback(url);
+    if (req.method === 'POST' && route === 'exchange') return await exchange(req);
+    return json({ error: 'not_found' }, 404);
+  } catch (e) {
+    console.error('naver-auth error:', (e as Error)?.message ?? e);
+    return route === 'exchange' ? json({ error: 'server_error' }, 500) : toApp({ error: 'server_error' });
   }
 });

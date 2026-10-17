@@ -15,7 +15,7 @@
  *   - 약관 안내
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   Platform, ScrollView, KeyboardAvoidingView, Image,
@@ -32,11 +32,9 @@ import { ensureSocialSdks, GOOGLE_WEB_CLIENT_ID, GOOGLE_IOS_CLIENT_ID } from '..
 import { Colors, Typography, Spacing, Radius } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import {
-  // NaverLogo는 재개 시 다시 import (컴포넌트는 SnsLogos.tsx에 그대로 남겨둠)
-  // ⚠️ 네이버는 **폐기가 아니라 보류**다 — iOS 런칭 후 추가 예정(2026-08-23 확정).
-  //    app.json의 @react-native-seoul/naver-login 플러그인도 그때 쓰려고 남겨둔 것이니 지우지 말 것.
-  AppleLogo, GoogleLogo, KakaoLogo,
+  AppleLogo, GoogleLogo, KakaoLogo, NaverLogo,
 } from '../../src/components/common/SnsLogos';
+import { isNaverLoginEnabled, signInWithNaver } from '../../src/lib/naverLogin';
 import { supabase } from '../../src/lib/supabase';
 import { serverConsentState } from '../../src/lib/consent';
 import { reportError } from '../../src/utils/errorReporter';
@@ -105,6 +103,12 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState('');
   const [pwError, setPwError] = useState('');
   const [busy, setBusy] = useState(false);
+  // 네이버는 서버 스위치로 켠다(검수 통과 전엔 꺼 둠) — 못 읽으면 숨긴다
+  const [naverOn, setNaverOn] = useState(false);
+  useEffect(() => {
+    if (!IS_REAL_AUTH || Platform.OS === 'web') return;
+    isNaverLoginEnabled().then(setNaverOn).catch(() => setNaverOn(false));
+  }, []);
 
   // 인증 완료 후 라우팅
   //  - 동의 이력이 없으면(신규) → consent → dog-setup → tabs 온보딩
@@ -251,26 +255,23 @@ export default function LoginScreen() {
   };
 
   /*
-   * 네이버 로그인 — 코드째로 제거함 (2026-08-09). 되살리는 법은 아래에.
-   *
-   * 왜 플래그(`{false && …}`)로 두지 않고 지웠나:
-   *   `@react-native-seoul/naver-login`은 `initialize()`에 consumerSecret을 요구한다.
-   *   그 값을 `process.env.EXPO_PUBLIC_NAVER_CLIENT_SECRET`로 읽는 순간 Metro가
-   *   **빌드 시점에 문자열로 인라인**하므로, 버튼이 숨겨져 있어도 시크릿은 번들에 박힌다.
-   *   실측(2026-08-09): `expo export` 결과 Hermes 번들 문자열 테이블에서 1건 발견.
-   *   미니파이어의 죽은코드 제거로도 안 없어졌다(consumerSecret·NaverLogin·naver-auth
-   *   문자열이 그대로 남아 있었다).
-   *   쓰지도 않는 기능 때문에 시크릿을 배포본에 싣지 않기 위해 참조 자체를 없앤다.
-   *
-   * 되살릴 때:
-   *   1) 이 블록을 git에서 복원         → `git show 0d7d16e:app/(auth)/login.tsx`
-   *   2) `src/config/env.ts`의 NAVER_CLIENT_SECRET export 복원
-   *   3) 아래 SnsBubble 블록 복원
-   *   4) `naver-auth` 엣지 함수 재배포 + **토큰 audience 검증 보강**(SEC-07)
-   *   5) 네이버 개발자센터에 안드로이드 패키지명 + 서명 키 해시 등록
-   *      — 시크릿 추출은 막을 수 없으므로 이게 유일한 방어다
-   *   6) 검수요청
+   * 네이버 로그인 — 서버 경유 웹 로그인(2026-10-17). 앱은 client secret을 갖지 않는다.
+   * 예전 SDK 방식은 secret이 번들에 박히고 토큰 audience를 검증할 수 없어 보류했었다(SEC-07).
+   * 흐름·보안 근거: src/lib/naverLogin.ts, supabase/functions/naver-auth.
    */
+  const handleNaverLogin = async () => {
+    if (!IS_REAL_AUTH || Platform.OS === 'web') { proceedAfterAuth(); return; }
+    try {
+      const res = await signInWithNaver();
+      if (res.ok) { proceedAfterAuth('naver'); return; }
+      if (res.reason === 'cancelled') return;   // 취소 → 침묵
+      reportAuthFailure('naver', res.detail ?? 'failed');
+      notify(AUTH.socialFailed('네이버'));
+    } catch (e: any) {
+      reportAuthFailure('naver', 'exception', e);
+      notify(AUTH.socialFailed('네이버'));
+    }
+  };
 
   return (
     <SafeAreaView style={s.safe}>
@@ -324,7 +325,14 @@ export default function LoginScreen() {
                 ariaLabel="구글로 시작하기"
               />
             )}
-            {/* 네이버 버튼은 제거됨 — 복원 절차는 위 handleNaverLogin 자리의 주석 참고 */}
+            {naverOn && (
+              <SnsBubble
+                onPress={handleNaverLogin}
+                bgColor="#03C75A"
+                logo={<NaverLogo size={22} />}
+                ariaLabel="네이버로 시작하기"
+              />
+            )}
             {Platform.OS !== 'android' && (
               <SnsBubble
                 onPress={handleAppleLogin}
