@@ -17,6 +17,7 @@ import { useUserData } from '../src/hooks/useUserData';
 import { usePushToken } from '../src/hooks/usePushToken';
 import { useNotificationTap } from '../src/hooks/useNotificationTap';
 import { useAccountStatusRefresh } from '../src/hooks/useAccountStatusRefresh';
+import { removeThisDevicePushToken } from '../src/hooks/usePushToken';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 import { installErrorReporter } from '../src/utils/errorReporter';
 import { applyGa4Collection, ga4Screen, GA4_SUPPORTED } from '../src/utils/ga4';
@@ -42,7 +43,7 @@ function AuthGate() {
 
   useEffect(() => {
     if (!navReady) return;
-    if (!user) return;
+    if (!user) { handledRef.current = null; return; }   // 로그아웃 뒤 다시 로그인하면 처음부터 판단
 
     // ── 제재 계정: 세션을 끊지 않는다 ──────────────────────────────
     //   예전엔 Alert 한 번 띄우고 곧바로 로그아웃시켰다. 그러면 사유·기간을 알 수 없고
@@ -57,25 +58,27 @@ function AuthGate() {
       return;
     }
 
-    // ── 정지가 풀렸다(앱 복귀 때 상태 재확인으로 알게 됨) → 안내 화면에서 꺼내 준다 ──
-    if (handledRef.current === `r:${user.user_id}`) {
-      handledRef.current = null;
-      router.replace('/(auth)/splash');
-      return;
-    }
-
     // ── 탈퇴 계정: 되돌릴 것도 이의할 것도 없다 → 정리하고 내보낸다 ──
     if (user.status === 'deleted') {
       if (handledRef.current === `d:${user.user_id}`) return;
       handledRef.current = `d:${user.user_id}`;
       notify('탈퇴한 계정이에요. 다시 이용하시려면 새로 가입해주세요.', '계정 안내');
       // 서버 세션까지 종료 (store만 비우면 잔존 세션이 복원돼 그대로 다시 로그인됨)
-      supabase.auth.signOut().catch(() => {});
+      // 세션을 끊기 전에 이 기기 푸시 토큰부터 지운다(끊긴 뒤엔 RLS로 못 지운다)
+      removeThisDevicePushToken().catch(() => {}).finally(() => { supabase.auth.signOut().catch(() => {}); });
       // 소셜 SDK 세션도 끊는다 — 남겨두면 로그인 버튼을 누르는 즉시 같은 계정으로
       // 재인증되어 같은 안내가 반복되고, 다른 계정으로 갈아탈 수도 없다.
       severSocialSessions().catch(() => {});
       logout();
       router.replace('/(auth)/login');
+      return;
+    }
+
+    // ── 정지가 풀렸다(앱 복귀 때 상태 재확인으로 알게 됨) → 안내 화면에서 꺼내 준다 ──
+    //    탈퇴 판정보다 뒤에 둔다: 정지 중 탈퇴 처리되면 위에서 내보내야 한다(적대 검증 10/17)
+    if (handledRef.current === `r:${user.user_id}`) {
+      handledRef.current = null;
+      router.replace('/(auth)/splash');
     }
   }, [navReady, user, logout, router]);
 

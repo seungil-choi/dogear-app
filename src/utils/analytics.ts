@@ -150,7 +150,7 @@ export function track(name: EventName, props: TrackProps = {}): void {
   };
 
   // GA4에는 이름과 화면 정도만 — 장소·위치 값은 ga4.ts의 허용 목록에서 걸러진다
-  ga4Event(name, { screen_name: payload.screen_name, source_screen: payload.source_screen, place_category: payload.place_category });
+  ga4Event(name, { screen_name: payload.screen_name, source_screen: payload.source_screen });
 
   if (!IS_REAL) {
     // DEV_SEED 모드: 콘솔에만 — 어드민 미연결 단계

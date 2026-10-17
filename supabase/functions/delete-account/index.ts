@@ -63,16 +63,23 @@ Deno.serve(async (req: Request) => {
       .eq('auth_id', authUser.id);
 
     // 1-b. SEC-16: 사용자 업로드 사진(Storage) 삭제 — 방침의 "탈퇴 시 사진 삭제" 이행.
-    //   업로드 경로 컨벤션: {bucket}/{users.user_id}/{filename} (src/lib/uploadImage.ts)
+    //   업로드 경로: {bucket}/{auth.uid()}/{filename} (src/lib/uploadImage.ts — 스토리지 정책이 auth.uid() 폴더만 허용)
+    //   ⚠️ 예전엔 users.user_id 폴더만 지워서 실제 사진이 하나도 안 지워졌다(2026-10-17 적대 검증, 운영 17개 파일 전부
+    //      auth.uid() 폴더). 옛 경로가 있을 수 있어 user_id 폴더도 함께 지운다.
     //   best-effort: 실패해도 계정 삭제는 진행(삭제 불가로 막지 않음).
     const { data: appUser } = await adminClient
       .from('users').select('user_id').eq('auth_id', authUser.id).maybeSingle();
-    if (appUser?.user_id) {
-      for (const bucket of ['dog-avatars', 'checkin-photos', 'spot-suggestions']) {
+    const folders = [authUser.id, appUser?.user_id].filter((f): f is string => !!f);
+    for (const bucket of ['dog-avatars', 'checkin-photos', 'spot-suggestions']) {
+      for (const folder of folders) {
         try {
-          const { data: files } = await adminClient.storage.from(bucket).list(appUser.user_id, { limit: 1000 });
-          const paths = (files ?? []).map((f: any) => `${appUser.user_id}/${f.name}`);
-          if (paths.length > 0) await adminClient.storage.from(bucket).remove(paths);
+          // 1000개 단위로 비울 때까지 반복
+          for (let i = 0; i < 20; i++) {
+            const { data: files } = await adminClient.storage.from(bucket).list(folder, { limit: 1000 });
+            const paths = (files ?? []).filter((f: any) => f.name).map((f: any) => `${folder}/${f.name}`);
+            if (paths.length === 0) break;
+            await adminClient.storage.from(bucket).remove(paths);
+          }
         } catch (e) {
           console.error(`storage cleanup failed for ${bucket}:`, e);
         }

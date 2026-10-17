@@ -25,8 +25,8 @@ export const GA4_START = Date.parse('2026-10-25T00:00:00+09:00');
 
 const OPT_OUT_KEY = 'dogear:ga4-opt-out:v1';
 
-/** GA4로 보내도 되는 속성 — 장소·위치를 짐작할 수 있는 값은 넣지 않는다 */
-const PARAM_ALLOWLIST = ['screen_name', 'source_screen', 'place_category'] as const;
+/** GA4로 보내도 되는 속성 — 장소에 관한 값(분류 포함)은 넣지 않는다. 처리방침 11절① "조회한 장소… 보내지 않습니다"와 짝 */
+const PARAM_ALLOWLIST = ['screen_name', 'source_screen'] as const;
 
 /** 이 빌드에서 GA4를 쓸 수 있는가(시행일·이용자 설정과 무관한 조건) */
 export const GA4_SUPPORTED = Platform.OS === 'android' && IS_REAL_AUTH && !__DEV__;
@@ -116,7 +116,12 @@ export function ga4Event(name: string, props: Record<string, unknown> = {}): voi
     const v = props[k];
     if (typeof v === 'string' && v) params[k] = v.slice(0, 100);
   }
-  mod.logEvent(analytics, safeName(name), params).catch((e: unknown) => fail('logEvent', e));
+  // RNFB는 예약된 이름(error, session_start…)이면 동기로 던진다 — 호출한 화면까지 번지지 않게 막는다
+  try {
+    mod.logEvent(analytics, safeName(name), params).catch((e: unknown) => fail('logEvent', e));
+  } catch (e) {
+    fail('logEvent', e);
+  }
 }
 
 /**
@@ -126,6 +131,10 @@ export function ga4Event(name: string, props: Record<string, unknown> = {}): voi
 export function ga4Screen(segments: readonly string[]): void {
   if (!enabled || !analytics) return;
   const name = segments.filter(s => !(s.startsWith('(') && s.endsWith(')'))).join('/') || 'index';
-  mod.logEvent(analytics, 'screen_view', { screen_name: name.slice(0, 100), screen_class: name.slice(0, 100) })
-    .catch((e: unknown) => fail('screenView', e));
+  try {
+    mod.logEvent(analytics, 'screen_view', { screen_name: name.slice(0, 100), screen_class: name.slice(0, 100) })
+      .catch((e: unknown) => fail('screenView', e));
+  } catch (e) {
+    fail('screenView', e);
+  }
 }

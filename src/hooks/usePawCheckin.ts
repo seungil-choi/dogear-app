@@ -169,9 +169,11 @@ export function usePawCheckin(): UsePawCheckinReturn {
         } : null,
       };
     } catch (err: any) {
-      const message = err.message ?? '발도장 저장에 실패했어요';
+      const message = err?.message ?? '발도장 저장에 실패했어요';
       setError(message);
-      throw new Error(message);
+      // ⚠️ 새 Error로 감싸면 PawCheckinError.code가 사라져 화면이 모든 실패를 일반 문구로 보인다
+      //    (2026-10-17 적대 검증) — 받은 오류를 그대로 던진다.
+      throw err instanceof Error ? err : new Error(message);
     } finally {
       setIsSubmitting(false);
     }

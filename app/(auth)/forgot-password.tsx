@@ -45,7 +45,9 @@ export default function ForgotPasswordScreen() {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: Platform.OS === 'web' && typeof window !== 'undefined' && window.location
           ? `${window.location.origin}/reset-password`
-          : Linking.createURL('/reset-password'),
+          // createURL은 독립 빌드에서 dogear:///reset-password(슬래시 3개)를 만들어 Supabase 허용 목록
+          // (dogear://reset-password)과 어긋난다 → 고정 문자열을 쓴다(2026-10-17 적대 검증)
+          : 'dogear://reset-password',
       });
       // 실패 원인이 무엇이든 사용자가 할 일은 같다(다시 시도) → 문구 하나로 통일
       if (error) {

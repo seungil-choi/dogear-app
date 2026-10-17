@@ -49,6 +49,9 @@ FORBIDDEN_PERMISSIONS = [
     "android.permission.READ_EXTERNAL_STORAGE",
     "android.permission.WRITE_EXTERNAL_STORAGE",
     "com.google.android.gms.permission.AD_ID",   # 데이터 보안 답안: 광고 ID 사용 안 함
+    # Firebase Analytics(1.0.2~)가 끌어올 수 있는 광고 서비스 권한 — app.json blockedPermissions로 제거
+    "android.permission.ACCESS_ADSERVICES_AD_ID",
+    "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
 ]
 
 SECRETS = [  # (라벨, env 파일, 키)

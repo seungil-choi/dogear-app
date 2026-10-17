@@ -10,7 +10,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { useRootNavigationState, useRouter } from 'expo-router';
+import { useRootNavigationState, useRouter, useSegments } from 'expo-router';
 import { useAppStore } from '../store/useAppStore';
 
 type TapData = { notice_id?: string; action_id?: string; spot_id?: string; path?: string };
@@ -31,6 +31,8 @@ export function useNotificationTap() {
   const router = useRouter();
   const navReady = !!useRootNavigationState()?.key;
   const isAuthenticated = useAppStore(s => s.isAuthenticated);
+  // 콜드 스타트엔 스플래시가 아직 라우팅 중이다 — 그때 push하면 스플래시의 replace가 덮어쓴다
+  const inAuthGroup = useSegments()[0] === '(auth)';
   const [pending, setPending] = useState<string | null>(null);
   const handled = useRef<Set<string>>(new Set());
 
@@ -52,9 +54,9 @@ export function useNotificationTap() {
   }, []);
 
   useEffect(() => {
-    if (!pending || !navReady || !isAuthenticated) return;
+    if (!pending || !navReady || !isAuthenticated || inAuthGroup) return;
     const path = pending;
     setPending(null);
     router.push(path as any);
-  }, [pending, navReady, isAuthenticated, router]);
+  }, [pending, navReady, isAuthenticated, inAuthGroup, router]);
 }

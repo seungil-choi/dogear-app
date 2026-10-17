@@ -52,7 +52,7 @@ export default function CommunityGuidelinesScreen() {
     <LegalScreen
       title="커뮤니티 가이드라인"
       effectiveDate="2026.11.17"
-      intro="DogEar는 강아지와 보호자가 편하게 산책하는 곳입니다. 이 가이드라인은 이용약관 제5조(금지 행위)의 구체적인 기준입니다."
+      intro="DogEar는 강아지와 보호자가 편하게 산책하는 곳입니다. 이 가이드라인은 2026년 11월 17일 시행되는 개정 이용약관 제5조(금지 행위)의 구체적인 기준이며, 아래 조 번호는 개정 약관 기준입니다."
       sections={SECTIONS}
     />
   );

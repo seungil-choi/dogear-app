@@ -134,6 +134,11 @@ export default function LoginScreen() {
 
       // 스플래시와 같은 기준(src/lib/consent) — 판별 로직을 한 곳에 둔다
       const consent = await serverConsentState();
+      // 프로필(user·강아지)은 onAuthStateChange 다음 틱에 불러온다 — 그 전에 홈으로 가면
+      // '강아지 없음' 화면이 잠깐 보인다. 최대 4초까지 기다린다(적대 검증 10/17).
+      for (let i = 0; i < 40 && !useAppStore.getState().user; i++) {
+        await new Promise(r => setTimeout(r, 100));
+      }
       if (consent === 'missing') {
         toast(GREET.new(name));
         router.replace('/(auth)/consent');

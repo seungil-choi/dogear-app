@@ -347,6 +347,8 @@ export default function ExploreScreen() {
   //   중심이 직전 페치 지점에서 충분히 멀어지면(반경의 40%+) 그 지역을 페치해 store에 병합.
   //   700ms 디바운스로 팬 중 연타 방지. 결과는 spot_id 기준 병합이라 기존 핀 유지.
   const lastFetchRef = useRef<{ lat: number; lng: number; radius: number } | null>(null);
+  // 요청 순번 — 늦게 끝난 옛 요청이 최신 결과를 덮지 않게
+  const regionSeqRef = useRef(0);
   const regionFetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const dogIdForFetch = useAppStore(s => s.activeDog?.dog_id ?? null);
   /** 새로고침 버튼이 도는 중 — 자동 페치는 조용히 돌지만 이건 사용자가 누른 것이라 보여줘야 한다 */
@@ -370,6 +372,7 @@ export default function ExploreScreen() {
       if (moved < Math.min(radius, last.radius) * 0.4 && radius <= last.radius) return;
     }
     lastFetchRef.current = { lat: mapCenter.lat, lng: mapCenter.lng, radius };
+    const seq = ++regionSeqRef.current;
     try {
       const { data, error } = await supabase.functions.invoke('spots-nearby', {
         body: { latitude: mapCenter.lat, longitude: mapCenter.lng, radiusMeters: radius, dogId: dogIdForFetch },
@@ -377,6 +380,7 @@ export default function ExploreScreen() {
       // ⚠️ error를 안 보면 data가 undefined → 빈 배열 → '이 지역엔 장소가 없어요'로 오표시된다
       if (error || !Array.isArray(data?.spots)) throw error ?? new Error('spots-nearby: invalid response');
       const raw: any[] = data.spots;
+      if (seq !== regionSeqRef.current) return;   // 그사이 새 요청이 나갔다
       setRegionError(false);
       // 반경 10km 안에 아무것도 없다 = 서비스 데이터 커버리지 밖
       setRegionEmpty(raw.length === 0);
@@ -416,6 +420,7 @@ export default function ExploreScreen() {
       }
       useAppStore.getState().mergeSpots(merged, aggs);
     } catch (e: any) {
+      if (seq !== regionSeqRef.current) return;   // 옛 요청의 실패는 무시
       // 기존 핀은 유지하되, 실패를 조용히 삼키면 "지도가 안 뜬다"의 원인을 못 찾는다
       // 이 지점을 다시 조회할 수 있게 페치 기록을 지운다(안 지우면 제자리 자동 재시도가 막힌다)
       lastFetchRef.current = null;

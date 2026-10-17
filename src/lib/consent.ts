@@ -8,6 +8,7 @@
  * 'unknown'은 네트워크 등으로 확인하지 못한 경우다. 그때 앱을 막으면 기존 회원이 갇히므로
  * 들여보내되 서버 오류 기록을 남긴다.
  */
+import { withTimeout } from '../utils/withTimeout';
 import { supabase } from './supabase';
 import { reportError } from '../utils/errorReporter';
 
@@ -18,7 +19,11 @@ export async function serverConsentState(): Promise<ConsentState> {
     const { data: { session } } = await supabase.auth.getSession();
     const uid = session?.user?.id;
     if (!uid) return 'no-session';
-    const { data, error } = await supabase.from('consents').select('user_id').eq('user_id', uid).maybeSingle();
+    // 느린 망에서 스플래시가 끝없이 기다리지 않게 8초에서 끊는다(→ 'unknown', 기존 흐름 유지)
+    const { data, error } = await withTimeout(
+      Promise.resolve(supabase.from('consents').select('user_id').eq('user_id', uid).maybeSingle()),
+      8000,
+    );
     if (error) throw error;
     return data ? 'agreed' : 'missing';
   } catch (e: any) {

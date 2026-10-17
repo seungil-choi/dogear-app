@@ -23,6 +23,7 @@ import { Button } from '../../src/components/common/Button';
 import { supabase } from '../../src/lib/supabase';
 import { useAppStore } from '../../src/store/useAppStore';
 import { severSocialSessions } from '@/lib/socialSession';
+import { removeThisDevicePushToken } from '../../src/hooks/usePushToken';
 import { toast } from '../../src/utils/toast';
 import { confirm } from '../../src/utils/dialog';
 import { SUPPORT_EMAIL } from '../../src/constants/messages';
@@ -106,6 +107,8 @@ export default function AccountRestrictedScreen() {
     if (!(await confirm('다시 로그인하면 이 화면으로 돌아와요.', {
       title: '로그아웃할까요?', confirmText: '로그아웃',
     }))) return;
+    // 세션을 끊기 전에 이 기기 푸시 토큰부터 지운다(끊긴 뒤엔 RLS로 못 지운다)
+    try { await removeThisDevicePushToken(); } catch { /* 토큰 없음은 무시 */ }
     try { await supabase.auth.signOut(); } catch { /* 세션 없음은 무시 */ }
     await severSocialSessions();
     logout();

@@ -46,7 +46,7 @@ it('시행일 전에는 수집을 켜지 않고 아무것도 보내지 않는다
   expect(mockFb.logEvent).not.toHaveBeenCalled();
 });
 
-it('시행일 이후 켜지고, 허용 목록 밖의 값(장소 ID·지역·거리)은 빠진다', async () => {
+it('시행일 이후 켜지고, 허용 목록 밖의 값(장소 ID·분류·지역·거리)은 빠진다', async () => {
   jest.useFakeTimers().setSystemTime(new Date('2026-10-25T00:00:01+09:00'));
   const ga = loadGa4();
   await ga.applyGa4Collection();
@@ -56,7 +56,7 @@ it('시행일 이후 켜지고, 허용 목록 밖의 값(장소 ID·지역·거�
     screen_name: 'paw_checkin', place_category: 'park',
     place_id: 'spot-123', region_sigungu: '마포구', distance_bucket: '100_300m',
   });
-  expect(mockFb.logEvent).toHaveBeenCalledWith({}, 'pawmark_blocked_too_far', { screen_name: 'paw_checkin', place_category: 'park' });
+  expect(mockFb.logEvent).toHaveBeenCalledWith({}, 'pawmark_blocked_too_far', { screen_name: 'paw_checkin' });
 });
 
 it('이용자가 끄면 즉시 끄고 이후 이벤트를 보내지 않는다', async () => {

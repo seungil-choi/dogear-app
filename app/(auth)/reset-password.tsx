@@ -38,7 +38,9 @@ function readParams(url: string | null): Record<string, string> {
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
-  const url = Linking.useURL();
+  // useURL은 화면이 뜬 뒤의 링크만 받는다 — 앱이 켜진 채 메일 링크를 누르면 라우터가 먼저 받아
+  // 이 화면이 놓친다(무한 로딩). 마지막으로 앱을 연 링크를 읽는 useLinkingURL을 쓴다.
+  const url = Linking.useLinkingURL();
   const [phase, setPhase] = useState<Phase>('verifying');
   const [pw, setPw] = useState('');
   const [confirm, setConfirm] = useState('');
