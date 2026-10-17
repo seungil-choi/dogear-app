@@ -66,15 +66,22 @@ function randomCode(): string {
 }
 
 // ── 1. start ────────────────────────────────────────────────
-function start(url: URL): Response {
+async function start(url: URL): Promise<Response> {
   const challenge = url.searchParams.get('challenge') ?? '';
   if (!CHALLENGE_RE.test(challenge)) return toApp({ error: 'bad_request' });
   if (!CLIENT_ID || !CLIENT_SECRET) return toApp({ error: 'not_configured' });
+  // 실제 차단 스위치 — 버튼만 숨기면 서버 경로는 열려 있다(적대 검증 10/17)
+  const { data: flag } = await admin().from('app_flags').select('enabled').eq('key', 'naver_login').maybeSingle();
+  if (flag?.enabled !== true) return toApp({ error: 'disabled' });
   const q = new URLSearchParams({
     response_type: 'code',
     client_id: CLIENT_ID,
     redirect_uri: CALLBACK_URL,
     state: challenge,
+    // 매번 네이버 재로그인 — dogear:// 는 다른 앱도 등록할 수 있어서, 브라우저에 남은 네이버 로그인으로
+    // 다른 앱이 조용히 흐름을 끝까지 돌리는 것을 막고, 공용 폰에서 로그아웃 뒤 이전 사람 계정으로
+    // 바로 들어가는 것도 막는다(적대 검증 10/17).
+    auth_type: 'reauthenticate',
   });
   return new Response(null, { status: 302, headers: { Location: `https://nid.naver.com/oauth2.0/authorize?${q}` } });
 }
@@ -129,12 +136,21 @@ async function callback(url: URL): Promise<Response> {
     if (!exists) { console.error('createUser failed:', createError.message); return toApp({ error: 'server_error' }); }
   } else if (created?.user) {
     // 가입 트리거는 provider를 apple/google/email만 안다 → 네이버로 바로잡는다
-    await sb.from('users').update({ login_type: 'naver' }).eq('auth_id', created.user.id);
+    const { error: ltError } = await sb.from('users').update({ login_type: 'naver' }).eq('auth_id', created.user.id);
+    if (ltError) console.error('login_type update failed:', ltError.message);
   }
 
   const { data: link, error: linkError } = await sb.auth.admin.generateLink({ type: 'magiclink', email });
   const tokenHash = (link as any)?.properties?.hashed_token;
   if (linkError || !tokenHash) { console.error('generateLink failed:', linkError?.message); return toApp({ error: 'server_error' }); }
+
+  // 이 이메일의 계정이 정말 네이버로 만든 계정인가 — 이메일 가입이 열려 있어서 누군가
+  // naver_{id}@naver.local로 먼저 가입해 둘 수 있다. app_metadata는 서버(service_role)만 쓸 수 있으니
+  // provider='naver'가 아니면 남의 계정이다 → 세션을 내주지 않는다(적대 검증 10/17).
+  if ((link as any)?.user?.app_metadata?.provider !== 'naver') {
+    console.error('naver account conflict: existing account was not created by naver-auth');
+    return toApp({ error: 'account_conflict' });
+  }
 
   const exchangeCode = randomCode();
   const { error: insError } = await sb.from('oauth_exchanges').insert({
@@ -172,7 +188,7 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const route = url.pathname.split('/').pop();
   try {
-    if (req.method === 'GET' && route === 'start') return start(url);
+    if (req.method === 'GET' && route === 'start') return await start(url);
     if (req.method === 'GET' && route === 'callback') return await callback(url);
     if (req.method === 'POST' && route === 'exchange') return await exchange(req);
     return json({ error: 'not_found' }, 404);

@@ -37,7 +37,10 @@ export async function signInWithNaver(): Promise<NaverLoginResult> {
     Crypto.CryptoDigestAlgorithm.SHA256, verifier, { encoding: Crypto.CryptoEncoding.BASE64 },
   ));
 
-  const res = await WebBrowser.openAuthSessionAsync(`${FN}/start?challenge=${challenge}`, REDIRECT);
+  // iOS: 사파리 쿠키를 공유하지 않는 세션 — 남은 네이버 로그인으로 조용히 끝나지 않게 하고 'supabase.co로 로그인' 경고도 없앤다
+  const res = await WebBrowser.openAuthSessionAsync(`${FN}/start?challenge=${challenge}`, REDIRECT, {
+    preferEphemeralSession: true,
+  });
   if (res.type !== 'success' || !res.url) return { ok: false, reason: 'cancelled' };
 
   const q = new URL(res.url).searchParams;

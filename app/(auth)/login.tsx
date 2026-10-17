@@ -259,8 +259,11 @@ export default function LoginScreen() {
    * 예전 SDK 방식은 secret이 번들에 박히고 토큰 audience를 검증할 수 없어 보류했었다(SEC-07).
    * 흐름·보안 근거: src/lib/naverLogin.ts, supabase/functions/naver-auth.
    */
+  const naverBusy = React.useRef(false);
   const handleNaverLogin = async () => {
     if (!IS_REAL_AUTH || Platform.OS === 'web') { proceedAfterAuth(); return; }
+    if (naverBusy.current) return;   // 두 번 누르면 'WebBrowser is already open'으로 가짜 실패가 난다
+    naverBusy.current = true;
     try {
       const res = await signInWithNaver();
       if (res.ok) { proceedAfterAuth('naver'); return; }
@@ -270,6 +273,8 @@ export default function LoginScreen() {
     } catch (e: any) {
       reportAuthFailure('naver', 'exception', e);
       notify(AUTH.socialFailed('네이버'));
+    } finally {
+      naverBusy.current = false;
     }
   };
 
