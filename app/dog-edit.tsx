@@ -25,7 +25,7 @@ import { uploadImage, pathFromPublicUrl } from '../src/lib/uploadImage';
 import { notify, actionSheet, confirm } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
-import { PERM, PHOTO } from '../src/constants/messages';
+import { PERM, PHOTO, photoPickErrorMessage } from '../src/constants/messages';
 import { track, EVENT } from '../src/utils/analytics';
 
 import { IS_REAL_AUTH } from '../src/config/env';
@@ -138,7 +138,11 @@ export default function DogEditScreen() {
 
     if (!result.canceled && result.assets[0]) {
       // 아바타는 '익숙한 강아지' 등으로 남에게 보인다 — 촬영 좌표를 지우고 들고 간다.
-      setAvatarUri(await stripExif(result.assets[0].uri));
+      try {
+        setAvatarUri(await stripExif(result.assets[0].uri));
+      } catch (e) {
+        toast.error(photoPickErrorMessage(e));
+      }
     }
   }
 

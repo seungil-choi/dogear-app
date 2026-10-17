@@ -21,7 +21,7 @@ import { Icon } from '../../src/components/common/Icon';
 import type { DogSize, DogAgeGroup, Dog } from '../../src/types';
 import { sizeLabel, ageGroupLabel } from '../../src/utils/labels';
 import { toast } from '../../src/utils/toast';
-import { OK, PERM, PHOTO } from '../../src/constants/messages';
+import { OK, PERM, photoPickErrorMessage } from '../../src/constants/messages';
 
 import { IS_REAL_AUTH } from '../../src/config/env';
 
@@ -106,8 +106,8 @@ export default function DogSetupScreen() {
       });
       // 아바타는 '익숙한 강아지' 등으로 남에게 보인다 — 촬영 좌표를 지우고 들고 간다.
       if (!res.canceled && res.assets?.[0]) setPhotoUri(await stripExif(res.assets[0].uri));
-    } catch {
-      toast.error(PHOTO.loadFailed);
+    } catch (e) {
+      toast.error(photoPickErrorMessage(e));
     }
   };
 

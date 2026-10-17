@@ -18,7 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { notify, confirm } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
-import { PERM, PHOTO, SUGGEST, rateLimitMessage } from '../src/constants/messages';
+import { PERM, SUGGEST, rateLimitMessage, photoPickErrorMessage } from '../src/constants/messages';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
 import { track, EVENT } from '../src/utils/analytics';
 import * as ImagePicker from 'expo-image-picker';
@@ -361,8 +361,8 @@ export default function SuggestSpotScreen() {
         // 제안 사진은 검토를 거쳐 장소 페이지에 공개될 수 있다 — 촬영 좌표를 지우고 들고 간다.
         setPhotoUri(await stripExif(result.assets[0].uri));
       }
-    } catch {
-      toast.error(PHOTO.loadFailed);
+    } catch (e) {
+      toast.error(photoPickErrorMessage(e));
     }
   }, []);
   const handleRemovePhoto = useCallback(() => setPhotoUri(null), []);

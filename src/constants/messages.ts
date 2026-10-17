@@ -95,7 +95,12 @@ export const PHOTO = {
   deleteConfirm: '장소 갤러리에서 사라지고 되돌릴 수 없어요. 발도장 기록은 그대로 남아요.',
   uploadFailed: '사진을 올리지 못했어요. 다시 시도하거나 사진을 빼주세요.',
   loadFailed: '사진을 불러오지 못했어요. 잠시 후 다시 시도해주세요.',
+  processFailed: '이 사진은 넣을 수 없어요. 다른 사진을 골라주세요.',
 } as const;
+
+/** 사진 고르기 실패 문구 — 위치정보 제거 실패는 '다른 사진'으로 안내한다 */
+export const photoPickErrorMessage = (e: unknown) =>
+  (e as any)?.name === 'PhotoProcessError' ? PHOTO.processFailed : PHOTO.loadFailed;
 
 // ─── 4.9 발도장 ──────────────────────────────────────────
 // 성공은 토스트가 아니라 **전용 완료 화면**이 맡는다(paw-checkin의 isSuccess).

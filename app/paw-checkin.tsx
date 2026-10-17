@@ -23,7 +23,7 @@ import { notify } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
 import { pawSubmitLabel } from '../src/utils/pawSubmitLabel';
 import { isObjectionable, MODERATION_BLOCK_MESSAGE } from '../src/utils/moderation';
-import { PERM, PHOTO } from '../src/constants/messages';
+import { PERM, PHOTO, photoPickErrorMessage } from '../src/constants/messages';
 import { uploadImage } from '../src/lib/uploadImage';
 import { stripExifAll } from '../src/lib/stripExif';
 import { supabase } from '../src/lib/supabase';
@@ -261,8 +261,8 @@ export default function PawCheckinModal() {
       if (result.canceled) return;
       const picked = await stripExifAll(result.assets.map(a => a.uri));
       setPawPhotos([...(pawFlow.photoUris ?? []), ...picked].slice(0, MAX_CHECKIN_PHOTOS));
-    } catch {
-      toast.error(PHOTO.loadFailed);
+    } catch (e) {
+      toast.error(photoPickErrorMessage(e));
     }
   }, [pawFlow.photoUris, setPawPhotos]);
 

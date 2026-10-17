@@ -35,7 +35,7 @@ import { useAppStore } from '../src/store/useAppStore';
 import { uploadImage } from '../src/lib/uploadImage';
 import { stripExif } from '../src/lib/stripExif';
 import { IS_REAL_AUTH } from '../src/config/env';
-import { PERM, PHOTO } from '../src/constants/messages';
+import { PERM, photoPickErrorMessage } from '../src/constants/messages';
 import { notify } from '../src/utils/dialog';
 import { toast } from '../src/utils/toast';
 import { track, EVENT } from '../src/utils/analytics';
@@ -69,8 +69,8 @@ export default function SuggestPhotoScreen() {
       if (!result.canceled && result.assets[0]) {
         setPhotoUri(await stripExif(result.assets[0].uri));
       }
-    } catch {
-      toast.error(PHOTO.loadFailed);
+    } catch (e) {
+      toast.error(photoPickErrorMessage(e));
     }
   };
 

@@ -16,15 +16,25 @@
  */
 
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import { reportError } from '../utils/errorReporter';
 
 /** 재인코딩 품질 — 원본 대비 눈에 띄는 손실 없이 용량을 줄이는 선 */
 const RECOMPRESS_QUALITY = 0.8;
 
+/** EXIF를 지우지 못한 사진 — 호출부는 이 사진을 받지 말고 다른 사진을 고르게 한다 */
+export class PhotoProcessError extends Error {
+  constructor(cause: unknown) {
+    super(`stripExif failed: ${(cause as any)?.message ?? cause}`);
+    this.name = 'PhotoProcessError';
+  }
+}
+
 /**
  * 사진 한 장의 EXIF를 제거하고, 새로 저장된 파일의 URI를 돌려준다.
  *
- * 실패하면 원본 URI를 그대로 돌려준다 — 사진을 잃는 것보다는 낫다는 판단이지만,
- * 그 경우 EXIF가 남은 채 업로드되므로 실패를 조용히 넘기지 않고 로그를 남긴다.
+ * 실패하면 PhotoProcessError를 던진다. 예전엔 원본 URI를 그대로 돌려줬는데,
+ * 그러면 GPS가 박힌 원본이 공개 버킷에 올라간다(2026-10-16 감사 P2-18).
+ * 사진 한 장을 못 넣는 편이 위치가 새는 것보다 낫다.
  */
 export async function stripExif(uri: string): Promise<string> {
   try {
@@ -35,9 +45,10 @@ export async function stripExif(uri: string): Promise<string> {
       compress: RECOMPRESS_QUALITY,
     });
     return result.uri;
-  } catch (e: any) {
-    console.error('stripExif 실패 — EXIF가 남은 채 업로드될 수 있음:', uri, e?.message ?? e);
-    return uri;
+  } catch (e) {
+    const err = new PhotoProcessError(e);
+    void reportError(err, 'handled');   // URI는 남기지 않는다(기기 경로)
+    throw err;
   }
 }
 
