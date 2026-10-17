@@ -183,7 +183,9 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
 
   // 로그인 완료 시점 + 위치가 의미있게 변할 때 자동 fetch (위치 없어도 폴백 로드)
   useEffect(() => {
-    if (!isAuthenticated) {
+    // 동의 확인 전에도 기준점을 잡지 않는다 — 잡아 두면 동의가 확인된 뒤 재조회가 50m 가드에 막혀
+    // 위치가 없는 사용자는 홈이 영영 비었다(QA 2사이클 10/17)
+    if (!isAuthenticated || !serverConsentOk) {
       // 로그인 전 fetch 금지(401) — 로그인되면 이 effect가 재실행되어 즉시 로드.
       // 기준점도 초기화해 재로그인 시 50m 가드에 막히지 않게 함(로그아웃이 spots를 비우므로).
       prevLocationRef.current = null;
@@ -213,7 +215,7 @@ export function useNearbySpots(radiusMeters = 3000): UseNearbySpotsReturn {
     }
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLocation, isAuthenticated, activeDog?.dog_id]);
+  }, [currentLocation, isAuthenticated, serverConsentOk, activeDog?.dog_id]);
 
   // pull-to-refresh 버스에 등록 — 화면의 RefreshControl이 refreshAll()로 트리거
   useEffect(() => registerRefreshHandler(refresh), [refresh]);

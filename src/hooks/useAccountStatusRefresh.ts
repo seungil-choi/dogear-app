@@ -36,6 +36,10 @@ export function useAccountStatusRefresh() {
       // 오류 없이 행이 없다 = 운영자가 계정을 영구 삭제했다 → 이 기기 세션을 끝낸다(QA 10/17).
       // (토큰은 만료 전까지 유효해서, 그냥 두면 최대 1시간 앱을 계속 쓴다)
       if (!data) {
+        // 토큰 갱신이 일시적으로 실패하면 익명 키로 조회돼 RLS가 0행을 돌려준다 — 그때는 내보내지 않는다.
+        // 살아 있는 세션이 이 사용자의 것일 때만 '삭제됨'으로 본다(QA 2사이클 10/17)
+        const { data: s } = await supabase.auth.getSession();
+        if (!s.session || s.session.user.id !== user.auth_id) return;
         await signOutEverywhereOrLocal().catch(() => {});
         useAppStore.getState().logout();
         return;

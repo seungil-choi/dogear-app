@@ -17,6 +17,7 @@ import { useUserData } from '../src/hooks/useUserData';
 import { usePushToken } from '../src/hooks/usePushToken';
 import { useNotificationTap } from '../src/hooks/useNotificationTap';
 import { useAccountStatusRefresh } from '../src/hooks/useAccountStatusRefresh';
+import { useConsentRecheck } from '../src/hooks/useConsentRecheck';
 import { removeThisDevicePushToken } from '../src/hooks/usePushToken';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 import { installErrorReporter } from '../src/utils/errorReporter';
@@ -120,6 +121,7 @@ function DataProvider() {
   usePushToken();      // 로그인 후 expo push token 등록
   useNotificationTap(); // 푸시를 누르면 공지·조치·장소 화면으로 이동
   useAccountStatusRefresh(); // 앱 복귀 때 정지·탈퇴 상태 재확인
+  useConsentRecheck();       // 동의 확인이 실패한 채 들어왔으면 다시 확인(위치 사용 조건)
   return null;
 }
 
