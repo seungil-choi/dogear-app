@@ -103,11 +103,12 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState('');
   const [pwError, setPwError] = useState('');
   const [busy, setBusy] = useState(false);
-  // 네이버는 서버 스위치로 켠다(검수 통과 전엔 꺼 둠) — 못 읽으면 숨긴다
-  const [naverOn, setNaverOn] = useState(false);
+  // 네이버는 서버 스위치로 켠다(검수 통과 전엔 꺼 둠). 앱 시작 때 미리 읽어 둔 값으로 바로 그리고
+  // (버튼이 늦게 뜨지 않게), 화면이 열리면 뒤에서 한 번 더 확인한다. 읽기에 실패하면 마지막 값을 유지한다.
+  const naverOn = useAppStore(s => s.naverLoginEnabled) && IS_REAL_AUTH && Platform.OS !== 'web';
   useEffect(() => {
     if (!IS_REAL_AUTH || Platform.OS === 'web') return;
-    isNaverLoginEnabled().then(setNaverOn).catch(() => setNaverOn(false));
+    isNaverLoginEnabled().then(on => useAppStore.getState().setNaverLoginEnabled(on)).catch(() => {});
   }, []);
 
   // 인증 완료 후 라우팅

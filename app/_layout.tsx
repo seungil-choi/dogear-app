@@ -22,6 +22,7 @@ import { removeThisDevicePushToken } from '../src/hooks/usePushToken';
 import { ErrorBoundary } from '../src/components/common/ErrorBoundary';
 import { installErrorReporter } from '../src/utils/errorReporter';
 import { applyGa4Collection, ga4Screen, GA4_SUPPORTED } from '../src/utils/ga4';
+import { isNaverLoginEnabled } from '../src/lib/naverLogin';
 
 /** 운영자 제재로 앱 본체를 막아야 하는 상태인가 (정책 18번 §7·§8.1) */
 function isRestrictedUser(status?: string | null) {
@@ -41,6 +42,12 @@ function AuthGate() {
   // 전역 오류 수집 — 되도록 일찍, 1회만. ErrorBoundary가 못 잡는
   // 이벤트 핸들러·비동기 예외를 여기서 받는다.
   useEffect(() => { installErrorReporter(); }, []);
+
+  // 네이버 로그인 스위치를 스플래시 동안 미리 읽는다 — 로그인 화면에 버튼이 늦게 뜨지 않게
+  useEffect(() => {
+    if (!IS_REAL_AUTH || Platform.OS === 'web') return;
+    isNaverLoginEnabled().then(on => useAppStore.getState().setNaverLoginEnabled(on)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!navReady) return;

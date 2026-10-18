@@ -5,6 +5,7 @@
  * 여기서는 verifier/challenge를 만들고, 브라우저를 열고, 돌아온 일회용 code를
  * verifier와 함께 세션으로 바꾼다.
  *
+ * 두 플랫폼 모두 verifier를 저장해 두고 dogear://naver-callback 링크로 마무리한다(10/19 iOS도 같은 구조).
  * ⚠️ 안드로이드는 openAuthSessionAsync를 쓰지 않는다(2026-10-18 실기기).
  *   그 함수는 "우리 앱이 다시 앞으로 나오면 취소로 보고 브라우저를 닫는다". 네이버 계정에
  *   '새 기기 로그인 허락'·2단계 인증이 켜져 있으면 로그인 중에 네이버 앱으로 넘어갔다 돌아오는데,
@@ -101,17 +102,11 @@ export async function signInWithNaver(): Promise<NaverLoginResult> {
   const { verifier, challenge } = await makePair();
   const startUrl = `${FN}/start?challenge=${challenge}`;
 
-  if (Platform.OS !== 'android') {
-    // iOS: 사파리 쿠키를 공유하지 않는 세션 — 남은 네이버 로그인으로 조용히 끝나지 않게 하고 'supabase.co로 로그인' 경고도 없앤다.
-    // 네이버 앱으로 로그인 허락을 하고 돌아와도 인증 세션 시트는 그대로 남아 이어진다.
-    const res = await WebBrowser.openAuthSessionAsync(startUrl, REDIRECT, { preferEphemeralSession: true });
-    if (res.type !== 'success' || !res.url) return { ok: false, reason: 'cancelled' };
-    return finishWith(res.url, verifier);
-  }
-
-  // ── 안드로이드 ──
+  // 두 플랫폼 공통: verifier를 저장하고, 돌아오는 링크로 마무리한다.
+  // 로그인 중 앱이 종료됐다가 링크로 다시 열려도 naver-callback 화면이 이 값으로 마무리한다.
   await AsyncStorage.setItem(PENDING_KEY, JSON.stringify({ verifier, at: Date.now() }));
   waiting = true;
+
   return new Promise<NaverLoginResult>((resolve) => {
     let done = false;
     let cancelTimer: ReturnType<typeof setTimeout> | undefined;
@@ -120,23 +115,17 @@ export async function signInWithNaver(): Promise<NaverLoginResult> {
       done = true;
       waiting = false;
       linkSub.remove();
-      appSub.remove();
+      appSub?.remove();
       clearTimeout(cancelTimer);
       clearTimeout(hardTimeout);
       resolve(r);
     };
-
-    // 콜백 링크가 오면 마무리
-    const linkSub = Linking.addEventListener('url', ({ url }) => {
-      if (!url.startsWith(REDIRECT)) return;
+    const complete = (url: string) => {
       clearTimeout(cancelTimer);
       void completeNaverCallback(url).then(finish, (e) => finish({ ok: false, reason: 'failed', detail: String(e?.message ?? e) }));
-    });
-
-    // 브라우저를 닫고 돌아왔는데(우리 앱이 앞으로) 링크가 끝내 안 오면 취소로 본다.
-    // 링크로 돌아올 때도 앱이 앞으로 나오므로, 링크가 도착할 틈을 준다.
-    const appSub = AppState.addEventListener('change', (s) => {
-      if (s !== 'active') return;
+    };
+    /** 링크가 끝내 안 오면 취소로 본다 — 링크가 앱을 깨우는 경우를 위해 잠깐 기다린다 */
+    const cancelSoon = () => {
       clearTimeout(cancelTimer);
       cancelTimer = setTimeout(async () => {
         const still = await AsyncStorage.getItem(PENDING_KEY).catch(() => null);
@@ -145,6 +134,11 @@ export async function signInWithNaver(): Promise<NaverLoginResult> {
           finish({ ok: false, reason: 'cancelled' });
         }
       }, 2500);
+    };
+
+    // 콜백 링크가 앱으로 오면 마무리(안드로이드 주 경로, iOS 보조 경로)
+    const linkSub = Linking.addEventListener('url', ({ url }) => {
+      if (url.startsWith(REDIRECT)) complete(url);
     });
 
     const hardTimeout = setTimeout(() => {
@@ -152,10 +146,30 @@ export async function signInWithNaver(): Promise<NaverLoginResult> {
       finish({ ok: false, reason: 'failed', detail: 'timeout' });
     }, PENDING_TTL_MS);
 
-    // 우리 앱 작업 안에 연다 — 네이버 앱에서 돌아오면 이 브라우저가 다시 보인다
-    WebBrowser.openBrowserAsync(startUrl, { createTask: false }).catch((e) => {
-      void AsyncStorage.removeItem(PENDING_KEY).catch(() => {});
-      finish({ ok: false, reason: 'failed', detail: `open:${e?.message ?? e}` });
-    });
+    let appSub: { remove: () => void } | undefined;
+
+    if (Platform.OS === 'android') {
+      // 브라우저를 닫고 돌아왔는데(우리 앱이 앞으로) 링크가 안 오면 취소
+      appSub = AppState.addEventListener('change', (st) => { if (st === 'active') cancelSoon(); });
+      // 우리 앱 작업 안에 연다 — 네이버 앱에서 로그인 허락 후 돌아오면 이 브라우저가 다시 보인다
+      WebBrowser.openBrowserAsync(startUrl, { createTask: false }).catch((e) => {
+        void AsyncStorage.removeItem(PENDING_KEY).catch(() => {});
+        finish({ ok: false, reason: 'failed', detail: `open:${e?.message ?? e}` });
+      });
+      return;
+    }
+
+    // iOS: 시스템 인증 창(ASWebAuthenticationSession). 네이버 앱으로 로그인 허락을 하고 돌아와도 창이
+    // 그대로 남아 이어진다. 일반 브라우저 창은 dogear:// 로 돌아올 때 'DogEar에서 열까요?'를 한 번 더 묻는다.
+    // 비공개 세션: 남은 네이버 로그인으로 조용히 끝나지 않게, 'supabase.co로 로그인' 경고도 없앤다.
+    WebBrowser.openAuthSessionAsync(startUrl, REDIRECT, { preferEphemeralSession: true })
+      .then((res) => {
+        if (res.type === 'success' && res.url) complete(res.url);
+        else cancelSoon();   // 창이 닫혀도 링크가 따로 올 수 있어 잠깐 기다린다
+      })
+      .catch((e) => {
+        void AsyncStorage.removeItem(PENDING_KEY).catch(() => {});
+        finish({ ok: false, reason: 'failed', detail: `open:${e?.message ?? e}` });
+      });
   });
 }

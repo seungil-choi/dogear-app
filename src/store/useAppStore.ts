@@ -106,6 +106,13 @@ interface AppState {
    */
   serverConsentOk: boolean;
   setServerConsentOk: (ok: boolean) => void;
+  /**
+   * 네이버 로그인 버튼을 보일지(서버 app_flags.naver_login의 마지막 값). 저장해 둔다 —
+   * 로그인 화면이 열린 뒤 서버를 읽으면 버튼이 늦게 나타나 카카오·구글과 달라 보였다(10/18 실기기).
+   * 앱 시작 때 미리 읽고, 로그인 화면은 이 값으로 바로 그린 뒤 뒤에서 다시 확인한다.
+   */
+  naverLoginEnabled: boolean;
+  setNaverLoginEnabled: (on: boolean) => void;
   pushEnabled: boolean;   // 푸시 알림 수신 설정 (사용자 토글, 기본 on)
 
   // 약관 동의 (앱스토어/법규 대응)
@@ -292,6 +299,7 @@ const initialState = DEV_PREVIEW_SEED
       hasCompletedOnboarding: true,
       isAuthLoading: false,
       serverConsentOk: true,
+      naverLoginEnabled: false,
       pushEnabled: true,
       consent: null,
       currentLocation: { latitude: 37.5443, longitude: 127.0376, accuracy: 10 },
@@ -317,6 +325,7 @@ const initialState = DEV_PREVIEW_SEED
       hasCompletedOnboarding: false,
       isAuthLoading: true,
       serverConsentOk: false,
+      naverLoginEnabled: false,
       pushEnabled: true,
       consent: null,
       currentLocation: null,
@@ -807,6 +816,7 @@ const storeImpl: StateCreator<AppState> = (set, get) => ({
 
   setAuthLoading: (isAuthLoading) => set({ isAuthLoading }),
   setServerConsentOk: (serverConsentOk) => set({ serverConsentOk }),
+  setNaverLoginEnabled: (naverLoginEnabled) => set({ naverLoginEnabled }),
   // 호출부가 빠뜨려도 나이를 알 수 있게 여기서 시각을 박는다.
   setCurrentLocation: (currentLocation) =>
     set({ currentLocation: currentLocation ? { capturedAt: Date.now(), ...currentLocation } : null }),
@@ -1098,6 +1108,7 @@ export const useAppStore = DEV_PREVIEW_SEED
           isAuthenticated: state.isAuthenticated,
           hasCompletedOnboarding: state.hasCompletedOnboarding,
           pushEnabled: state.pushEnabled,
+          naverLoginEnabled: state.naverLoginEnabled,
           consent: state.consent,
           user: state.user,
           dog: state.dog,
