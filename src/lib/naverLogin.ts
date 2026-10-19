@@ -51,6 +51,24 @@ export async function isNaverLoginEnabled(): Promise<boolean> {
   return !error && data?.enabled === true;
 }
 
+/**
+ * 스위치 값을 서버에서 읽어 저장한다. 최대 timeoutMs까지만 기다리고, 못 읽으면 마지막 값을 유지한다.
+ * 스플래시가 로그인 화면으로 넘어가기 전에 부른다 — 카카오·구글·네이버가 처음부터 한 세트로 보여야 한다.
+ */
+export async function refreshNaverFlag(timeoutMs = 2000): Promise<boolean> {
+  const { useAppStore } = require('../store/useAppStore');
+  try {
+    const on = await Promise.race([
+      isNaverLoginEnabled(),
+      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), timeoutMs)),
+    ]);
+    useAppStore.getState().setNaverLoginEnabled(on);
+    return on;
+  } catch {
+    return useAppStore.getState().naverLoginEnabled;
+  }
+}
+
 async function makePair(): Promise<{ verifier: string; challenge: string }> {
   const verifier = b64url(bytesToB64(Crypto.getRandomBytes(32)));
   const challenge = b64url(await Crypto.digestStringAsync(

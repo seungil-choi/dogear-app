@@ -12,6 +12,7 @@ import { Colors, Typography, Spacing } from '../../src/constants/tokens';
 import { useAppStore } from '../../src/store/useAppStore';
 import { serverConsentState } from '../../src/lib/consent';
 import { IS_REAL_AUTH } from '../../src/config/env';
+import { refreshNaverFlag } from '../../src/lib/naverLogin';
 
 /** 세션 복원이 더 빨리 끝나도 이만큼은 보여준다 — 로고가 깜빡하고 사라지는 것 방지 */
 const SPLASH_MIN_MS = 500;
@@ -44,12 +45,17 @@ export default function SplashScreen() {
     if (!animDone) return;
     if (isAuthLoading) return; // Supabase 세션 복원 중이면 대기
 
+    let cancelled = false;
     if (!isAuthenticated) {
       // 온보딩(튜토리얼) 히든 처리 — 첫 진입도 바로 로그인으로 (온보딩 화면 스킵)
-      router.replace('/(auth)/login');
-      return;
+      // 로그인 버튼(카카오·구글·네이버)은 처음부터 한 세트로 보여야 한다 — 네이버 스위치를 읽고 넘어간다.
+      // 최대 2초. 못 읽으면 마지막 값(첫 설치면 숨김)으로 시작한다.
+      (async () => {
+        if (IS_REAL_AUTH) await refreshNaverFlag(2000);
+        if (!cancelled) router.replace('/(auth)/login');
+      })();
+      return () => { cancelled = true; };
     }
-    let cancelled = false;
     (async () => {
       // 세션이 있어도 서버 동의 이력부터 본다 — 동의 화면에서 앱을 끄고 다시 켠 신규 가입자가
       // 동의 없이 들어가던 구멍(2026-10-16 감사 P0). 게스트·DEV는 세션이 없어 'no-session'.
